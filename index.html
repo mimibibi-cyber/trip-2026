@@ -3,79 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>China Trip 2026</title>
+  <title>Voyage Ledger · Luxury Pastel Trip Manager</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-      background-color: #FAFAFA;
-      color: #18181B;
+      background-color: #FDF8F9;
+      color: #3D2C33;
       -webkit-tap-highlight-color: transparent;
       letter-spacing: -0.01em;
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
-    input, select { outline: none; transition: border-color 0.15s ease; }
-    input:focus, select:focus { border-color: #18181B; }
+    input, select { outline: none; transition: all 0.15s ease; }
+    input:focus, select:focus { border-color: #B56576; box-shadow: 0 0 0 3px rgba(181, 101, 118, 0.12); }
+    .luxury-gradient { background: linear-gradient(135deg, #B56576 0%, #8E445A 60%, #7A374C 100%); }
+    .soft-card { background: #FFFFFF; border: 1px solid #F3DCE2; box-shadow: 0 4px 20px -4px rgba(181, 101, 118, 0.06); }
   </style>
 </head>
 <body class="pb-24 antialiased">
 
   <!-- ================= LOGIN / REGISTER SCREEN ================= -->
-  <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6 bg-zinc-50">
-    <div class="bg-white w-full max-w-sm rounded-2xl border border-zinc-200 p-7 space-y-6">
-      <div class="space-y-1">
-        <p class="text-[11px] font-medium uppercase tracking-widest text-zinc-400">Private Group Ledger</p>
-        <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">China 2026</h1>
-        <p class="text-xs text-zinc-500">จำกัดสิทธิ์เฉพาะสมาชิกที่ได้รับเชิญสูงสุด 10 ท่าน</p>
+  <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6 bg-[#FDF8F9]">
+    <div class="soft-card w-full max-w-sm rounded-3xl p-8 space-y-6">
+      <div class="space-y-1.5 text-center">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#B56576]">Private Travel Ledger</p>
+        <h1 class="text-2xl font-semibold tracking-tight text-[#3D2C33]">Maison Voyage</h1>
+        <p class="text-xs text-[#8C727C]">ระบบบันทึกค่าใช้จ่ายและความทรงจำส่วนตัว</p>
       </div>
 
-      <div id="auth-error" class="hidden bg-zinc-100 text-zinc-800 text-xs p-3 rounded-lg border border-zinc-300"></div>
+      <div id="auth-error" class="hidden bg-[#FFF0F3] text-[#9E2A47] text-xs p-3 rounded-xl border border-[#F5C2CE]"></div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-zinc-600 mb-1.5">อีเมล</label>
-          <input id="auth-email" type="email" placeholder="name@domain.com" class="w-full px-3.5 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm" />
+          <label class="block text-xs font-medium text-[#6E545E] mb-1.5">อีเมลที่ได้รับเชิญ</label>
+          <input id="auth-email" type="email" placeholder="name@domain.com" class="w-full px-4 py-2.5 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-zinc-600 mb-1.5">รหัสผ่าน</label>
-          <input id="auth-password" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full px-3.5 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm" />
+          <label class="block text-xs font-medium text-[#6E545E] mb-1.5">รหัสผ่าน</label>
+          <input id="auth-password" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full px-4 py-2.5 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-sm" />
         </div>
       </div>
 
       <div class="space-y-2.5 pt-1">
-        <button onclick="handleLogin()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-medium py-2.5 rounded-xl text-sm transition">เข้าสู่ระบบ</button>
-        <button onclick="handleSignUp()" class="w-full bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 font-medium py-2.5 rounded-xl text-sm transition">ลงทะเบียนครั้งแรก</button>
+        <button onclick="handleLogin()" class="w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition">เข้าสู่ระบบ</button>
+        <button onclick="handleSignUp()" class="w-full bg-white hover:bg-[#FDF8F9] text-[#8E445A] border border-[#EBD2D9] font-medium py-2.5 rounded-xl text-sm transition">ลงทะเบียนครั้งแรก</button>
       </div>
     </div>
   </div>
 
   <!-- ================= UNAUTHORIZED SCREEN ================= -->
-  <div id="unauth-screen" class="hidden min-h-screen flex items-center justify-center p-6 bg-zinc-50 text-center">
-    <div class="max-w-xs space-y-4 bg-white p-6 rounded-2xl border border-zinc-200">
-      <div class="w-10 h-10 mx-auto rounded-full bg-zinc-100 flex items-center justify-center text-zinc-900">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+  <div id="unauth-screen" class="hidden min-h-screen flex items-center justify-center p-6 bg-[#FDF8F9] text-center">
+    <div class="max-w-xs space-y-4 soft-card p-7 rounded-3xl">
+      <div class="w-11 h-11 mx-auto rounded-full bg-[#FFF0F3] flex items-center justify-center text-[#B56576]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
       </div>
-      <h2 class="text-base font-semibold text-zinc-900">จำกัดการเข้าถึง</h2>
-      <p class="text-xs text-zinc-500 leading-relaxed">อีเมลของคุณไม่อยู่ในรายชื่อที่ได้รับเชิญ กรุณาติดต่อผู้ดูแลทริปเพื่อเพิ่มสิทธิ์</p>
-      <button onclick="handleLogout()" class="w-full bg-zinc-900 text-white py-2 rounded-xl text-xs font-medium">ออกจากระบบ</button>
+      <h2 class="text-base font-semibold text-[#3D2C33]">ยังไม่มีทริปที่ได้รับเชิญ</h2>
+      <p class="text-xs text-[#8C727C] leading-relaxed">อีเมลของคุณยังไม่ได้ถูกเพิ่มในทริปใดๆ กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มสิทธิ์</p>
+      <button onclick="handleLogout()" class="w-full luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">ออกจากระบบ</button>
     </div>
   </div>
 
   <!-- ================= MAIN APP SCREEN ================= -->
   <div id="app-screen" class="hidden max-w-md mx-auto">
-    <!-- Minimal Header -->
-    <header class="bg-white/90 backdrop-blur-md border-b border-zinc-200/80 px-5 py-4 sticky top-0 z-20">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="font-semibold text-base tracking-tight text-zinc-900">China 2026</h1>
-          <p id="user-badge" class="text-[11px] text-zinc-400 mt-0.5">Loading...</p>
+    <!-- Pastel Luxury Header with Multi-Trip Switcher -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-[#F3DCE2] px-5 py-3.5 sticky top-0 z-20">
+      <div class="flex justify-between items-center gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5">
+            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#3D2C33] bg-transparent border-none p-0 pr-5 truncate max-w-[200px] cursor-pointer"></select>
+          </div>
+          <p id="user-badge" class="text-[11px] text-[#9E7B87] mt-0.5 truncate">Loading...</p>
         </div>
-        <div class="flex items-center gap-2">
-          <button onclick="exportToExcel()" class="text-xs text-zinc-700 hover:text-zinc-900 px-2.5 py-1 rounded-lg border border-zinc-200 bg-zinc-50 font-medium">Export Excel</button>
-          <button onclick="handleLogout()" class="text-xs text-zinc-400 hover:text-zinc-900 px-2 py-1">ออก</button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="exportToExcel()" class="text-[11px] text-[#8E445A] hover:bg-[#FFF0F3] px-2.5 py-1.5 rounded-xl border border-[#F3DCE2] bg-[#FDF8F9] font-medium">Excel</button>
+          <button onclick="handleLogout()" class="text-[11px] text-[#9E7B87] hover:text-[#3D2C33] px-2 py-1">ออก</button>
         </div>
       </div>
     </header>
@@ -83,34 +88,34 @@
     <!-- TAB 1: DASHBOARD & DAILY BILLS -->
     <main id="tab-expenses" class="p-5 space-y-5">
       <!-- Pool Balance Card -->
-      <div class="bg-zinc-900 text-white rounded-2xl p-5 space-y-3">
+      <div class="luxury-gradient text-white rounded-3xl p-5 space-y-3 shadow-md">
         <div class="flex justify-between items-start">
           <div>
-            <p class="text-[11px] uppercase tracking-wider text-zinc-400">Central Pool Balance</p>
+            <p class="text-[10px] uppercase tracking-[0.15em] text-pink-100/90">Central Pool Balance</p>
             <p id="pool-balance-cny" class="text-3xl font-light tracking-tight mt-1">¥0.00</p>
-            <p id="pool-balance-thb" class="text-xs text-zinc-400 mt-0.5">THB 0.00</p>
+            <p id="pool-balance-thb" class="text-xs text-pink-100/90 mt-0.5">THB 0.00</p>
           </div>
-          <button onclick="openDepositModal()" class="bg-white text-zinc-900 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-zinc-100 transition">+ เติมกองกลาง</button>
+          <button onclick="openDepositModal()" class="bg-white text-[#8E445A] text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs hover:bg-pink-50 transition">+ เติมกองกลาง</button>
         </div>
-        <div class="pt-2 border-t border-zinc-800 flex justify-between items-center text-[11px] text-zinc-400">
+        <div class="pt-2.5 border-t border-white/15 flex justify-between items-center text-[11px] text-pink-100">
           <span id="pool-total-in">ยอดลงขันรวม ¥0</span>
-          <button onclick="openModal('pool-detail-modal')" class="text-zinc-200 underline">ดูยอดลงขันรายคน</button>
+          <button onclick="openModal('pool-detail-modal')" class="text-white underline font-medium">ดูยอดลงขันรายคน</button>
         </div>
       </div>
 
       <!-- Personal Summary Box -->
       <div class="grid grid-cols-2 gap-3">
-        <div class="bg-white p-4 rounded-2xl border border-zinc-200/80">
-          <p class="text-[11px] text-zinc-400">ยอดใช้จ่ายของคุณ</p>
-          <p id="my-total-thb" class="text-lg font-semibold text-zinc-900 mt-1">฿0</p>
-          <p id="my-total-cny" class="text-[11px] text-zinc-400">¥0</p>
+        <div class="soft-card p-4 rounded-2xl">
+          <p class="text-[11px] text-[#9E7B87]">ยอดใช้จ่ายของคุณ</p>
+          <p id="my-total-thb" class="text-lg font-semibold text-[#3D2C33] mt-1">฿0</p>
+          <p id="my-total-cny" class="text-[11px] text-[#9E7B87]">¥0</p>
         </div>
-        <div class="bg-white p-4 rounded-2xl border border-zinc-200/80 flex flex-col justify-between">
+        <div class="soft-card p-4 rounded-2xl flex flex-col justify-between">
           <div>
-            <p class="text-[11px] text-zinc-400">สถานะเคลียร์ส่วนตัว</p>
-            <p id="my-net-status" class="text-sm font-semibold text-zinc-900 mt-1">สมดุลแล้ว</p>
+            <p class="text-[11px] text-[#9E7B87]">สถานะเคลียร์ส่วนตัว</p>
+            <p id="my-net-status" class="text-sm font-semibold text-[#3D2C33] mt-1">สมดุลแล้ว</p>
           </div>
-          <button onclick="openModal('settle-modal')" class="text-[11px] text-zinc-500 underline text-left mt-1 hover:text-zinc-900">ดูสรุปรายบุคคล</button>
+          <button onclick="openModal('settle-modal')" class="text-[11px] text-[#B56576] underline text-left mt-1 font-medium">ดูสรุปรายบุคคล</button>
         </div>
       </div>
 
@@ -118,89 +123,176 @@
       <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar" id="day-filter-bar"></div>
 
       <!-- Daily Total Summary -->
-      <div class="flex justify-between items-center py-2 border-b border-zinc-200 text-xs">
-        <span id="filtered-day-label" class="text-zinc-500">ยอดรวมทั้งหมด</span>
-        <span id="filtered-day-total" class="font-semibold text-zinc-900">¥0.00 · ฿0.00</span>
+      <div class="flex justify-between items-center py-2 border-b border-[#F3DCE2] text-xs">
+        <span id="filtered-day-label" class="text-[#8C727C]">ยอดรวมทั้งหมด</span>
+        <span id="filtered-day-total" class="font-semibold text-[#8E445A]">¥0.00 · ฿0.00</span>
       </div>
 
       <!-- Expense List -->
-      <div id="expense-list" class="space-y-2.5"></div>
+      <div id="expense-list" class="space-y-3"></div>
     </main>
 
-    <!-- TAB 2: PHOTO GALLERY -->
+    <!-- TAB 2: ANALYTICS & CHARTS -->
+    <main id="tab-analytics" class="hidden p-5 space-y-5">
+      <div>
+        <h2 class="font-semibold text-base text-[#3D2C33]">สรุปภาพรวม & กราฟค่าใช้จ่าย</h2>
+        <p class="text-xs text-[#9E7B87]">วิเคราะห์ยอดใช้จ่ายรายวันและสัดส่วนแต่ละหมวดหมู่</p>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="soft-card p-4 rounded-2xl">
+          <p class="text-[11px] text-[#9E7B87]">ยอดใช้จ่ายรวมทั้งทริป</p>
+          <p id="stat-grand-thb" class="text-lg font-semibold text-[#8E445A] mt-1">฿0</p>
+          <p id="stat-grand-cny" class="text-[11px] text-[#9E7B87]">¥0</p>
+        </div>
+        <div class="soft-card p-4 rounded-2xl">
+          <p class="text-[11px] text-[#9E7B87]">เฉลี่ยต่อวัน (ทั้งกลุ่ม)</p>
+          <p id="stat-avg-day" class="text-lg font-semibold text-[#3D2C33] mt-1">฿0</p>
+          <p id="stat-avg-person" class="text-[11px] text-[#9E7B87]">เฉลี่ยคนละ ฿0</p>
+        </div>
+      </div>
+
+      <!-- Daily Bar Chart -->
+      <div class="soft-card p-4 rounded-3xl space-y-3">
+        <h3 class="text-xs font-semibold text-[#3D2C33]">กราฟค่าใช้จ่ายรายวัน (บาท)</h3>
+        <div class="h-52">
+          <canvas id="dailyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Category Donut Chart -->
+      <div class="soft-card p-4 rounded-3xl space-y-3">
+        <h3 class="text-xs font-semibold text-[#3D2C33]">สัดส่วนแยกตามหมวดหมู่</h3>
+        <div class="h-52 flex items-center justify-center">
+          <canvas id="categoryChart"></canvas>
+        </div>
+        <div id="category-breakdown-list" class="space-y-2 pt-2 border-t border-[#F9ECEF] text-xs"></div>
+      </div>
+    </main>
+
+    <!-- TAB 3: PHOTO GALLERY -->
     <main id="tab-photos" class="hidden p-5 space-y-4">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="font-semibold text-base text-zinc-900">Gallery</h2>
-          <p class="text-xs text-zinc-400">ภาพบันทึกความทรงจำตลอดทริป</p>
+          <h2 class="font-semibold text-base text-[#3D2C33]">Travel Gallery</h2>
+          <p class="text-xs text-[#9E7B87]">ภาพบันทึกความทรงจำตลอดทริป</p>
         </div>
-        <button onclick="openPhotoModal()" class="bg-zinc-900 text-white text-xs font-medium px-3.5 py-2 rounded-xl">+ เพิ่มรูปภาพ</button>
+        <button onclick="openModal('photo-modal')" class="luxury-gradient text-white text-xs font-medium px-4 py-2 rounded-xl shadow-xs">+ เพิ่มรูปภาพ</button>
       </div>
       <div id="photo-grid" class="grid grid-cols-2 gap-3"></div>
     </main>
 
-    <!-- TAB 3: MEMBERS & AUDIT LOG -->
+    <!-- TAB 4: MEMBERS, ADMIN & AUDIT LOG -->
     <main id="tab-members" class="hidden p-5 space-y-5">
-      <div class="bg-white p-4 rounded-2xl border border-zinc-200/80 space-y-3">
+      <!-- Super Admin: Create New Trip & AI OCR Key -->
+      <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#E5B8C4]">
         <div class="flex justify-between items-center">
-          <h2 class="font-semibold text-sm text-zinc-900">สมาชิกทริป (<span id="member-count">0</span>/10)</h2>
-        </div>
-        <div id="member-list" class="divide-y divide-zinc-100 text-sm"></div>
-
-        <div id="host-add-member" class="hidden pt-3 border-t border-zinc-100 space-y-2.5">
-          <p class="text-xs font-medium text-zinc-500">เพิ่มสมาชิกใหม่ (สูงสุด 10 อีเมล)</p>
-          <div class="flex gap-2">
-            <input id="new-member-name" type="text" placeholder="ชื่อ" class="w-1/3 px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs" />
-            <input id="new-member-email" type="email" placeholder="อีเมล" class="w-2/3 px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs" />
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-[#B56576]">Administration</p>
+            <h2 class="font-semibold text-sm text-[#3D2C33]">สร้างทริปใหม่ & ตั้งค่า AI สแกนบิล</h2>
           </div>
-          <button onclick="addMember()" class="w-full bg-zinc-900 text-white text-xs font-medium py-2.5 rounded-xl">บันทึกสิทธิ์</button>
+        </div>
+
+        <div class="space-y-2.5 pt-1">
+          <input id="new-trip-name" type="text" placeholder="ชื่อทริปใหม่ (เช่น Shanghai 2027)" class="w-full px-3.5 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+          <div class="grid grid-cols-2 gap-2">
+            <input id="new-trip-dates" type="text" placeholder="ช่วงวันที่ (เช่น 10-15 เม.ย.)" class="w-full px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+            <input id="new-trip-rate" type="number" step="0.01" value="4.85" placeholder="เรทเงินเริ่มต้น" class="w-full px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+          </div>
+          <button onclick="createNewTrip()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">+ สร้างทริปใหม่แยกต่างหาก</button>
+        </div>
+
+        <div class="pt-3 border-t border-[#F3DCE2] space-y-2">
+          <label class="block text-[11px] font-medium text-[#6E545E]">Gemini API Key (สำหรับสแกนบิลภาษาจีน/อังกฤษ)</label>
+          <div class="flex gap-2">
+            <input id="gemini-api-key" type="password" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+            <button onclick="saveGeminiKey()" class="bg-[#3D2C33] text-white px-3.5 py-2 rounded-xl text-xs shrink-0">บันทึก</button>
+          </div>
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl border border-zinc-200/80 space-y-3">
-        <h2 class="font-semibold text-sm text-zinc-900">ประวัติการบันทึก (Audit Log)</h2>
-        <div id="audit-log-list" class="space-y-2.5 max-h-80 overflow-y-auto text-xs text-zinc-500"></div>
+      <!-- Current Trip Member Management -->
+      <div class="soft-card p-5 rounded-3xl space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="font-semibold text-sm text-[#3D2C33]">สมาชิกทริปนี้ (<span id="member-count">0</span>/10)</h2>
+        </div>
+        <div id="member-list" class="divide-y divide-[#F9ECEF] text-sm"></div>
+
+        <div id="host-add-member" class="hidden pt-3 border-t border-[#F3DCE2] space-y-2.5">
+          <p class="text-xs font-medium text-[#8C727C]">เพิ่มสมาชิกเข้าทริปนี้ (สูงสุด 10 อีเมล)</p>
+          <div class="flex gap-2">
+            <input id="new-member-name" type="text" placeholder="ชื่อ" class="w-1/3 px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+            <input id="new-member-email" type="email" placeholder="อีเมล" class="w-2/3 px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+          </div>
+          <button onclick="addMember()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">เพิ่มสิทธิ์อีเมลนี้</button>
+        </div>
+      </div>
+
+      <!-- Audit Log -->
+      <div class="soft-card p-5 rounded-3xl space-y-3">
+        <h2 class="font-semibold text-sm text-[#3D2C33]">ประวัติการบันทึก (Audit Log)</h2>
+        <div id="audit-log-list" class="space-y-2.5 max-h-80 overflow-y-auto text-xs text-[#8C727C]"></div>
       </div>
     </main>
 
     <!-- Floating Add Expense Button -->
-    <button onclick="openExpenseModal()" aria-label="Add Expense" class="fixed bottom-20 right-5 bg-zinc-900 hover:bg-zinc-800 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-30 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    <button onclick="openExpenseModal()" aria-label="Add Expense" class="fixed bottom-20 right-5 luxury-gradient hover:opacity-95 text-white w-13 h-13 p-3.5 rounded-full shadow-lg flex items-center justify-center z-30 transition">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
     </button>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-zinc-200 flex justify-around py-2.5 max-w-md mx-auto z-20 text-[11px] font-medium">
-      <button onclick="switchTab('expenses')" id="nav-expenses" class="flex flex-col items-center gap-1 text-zinc-900">
+    <!-- Bottom Navigation (4 Tabs) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#F3DCE2] flex justify-around py-2.5 max-w-md mx-auto z-20 text-[10px] font-medium">
+      <button onclick="switchTab('expenses')" id="nav-expenses" class="flex flex-col items-center gap-1 text-[#8E445A]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>รายการ</span>
       </button>
-      <button onclick="switchTab('photos')" id="nav-photos" class="flex flex-col items-center gap-1 text-zinc-400">
+      <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-[#B89CA6]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+        <span>สรุป & กราฟ</span>
+      </button>
+      <button onclick="switchTab('photos')" id="nav-photos" class="flex flex-col items-center gap-1 text-[#B89CA6]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
         <span>รูปภาพ</span>
       </button>
-      <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 text-zinc-400">
+      <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 text-[#B89CA6]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
-        <span>สมาชิก & Log</span>
+        <span>จัดการทริป</span>
       </button>
     </nav>
   </div>
 
-  <!-- ================= MODAL: ADD EXPENSE ================= -->
-  <div id="expense-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-zinc-200">
+  <!-- ================= MODAL: ADD EXPENSE WITH AI SCANNER ================= -->
+  <div id="expense-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F3DCE2]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-zinc-900">บันทึกรายจ่าย</h3>
-        <button onclick="closeModal('expense-modal')" class="text-zinc-400 hover:text-zinc-900 text-xl leading-none">&times;</button>
+        <h3 class="font-semibold text-base text-[#3D2C33]">บันทึกรายจ่าย</h3>
+        <button onclick="closeModal('expense-modal')" class="text-[#9E7B87] hover:text-[#3D2C33] text-xl leading-none">&times;</button>
+      </div>
+
+      <!-- AI Smart Receipt Scanner Box -->
+      <div class="bg-[#FFF5F7] border border-dashed border-[#E2A8B7] rounded-2xl p-3.5 space-y-2">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-xs font-semibold text-[#8E445A]">สแกนบิลภาษาจีน / อังกฤษอัตโนมัติ</p>
+            <p class="text-[10px] text-[#9E7B87]">เลือกรูปสลิป Alipay, WeChat หรือใบเสร็จเพื่อกรอกข้อมูลทันที</p>
+          </div>
+          <label class="luxury-gradient text-white text-[11px] font-medium px-3 py-1.5 rounded-xl cursor-pointer shrink-0 shadow-xs">
+            เลือกรูปสแกน
+            <input id="exp-file" type="file" accept="image/*" onchange="handleReceiptScan(this)" class="hidden" />
+          </label>
+        </div>
+        <p id="ocr-status" class="hidden text-[11px] text-[#8E445A] font-medium"></p>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-[11px] text-zinc-500">วันที่</label>
-          <select id="exp-day" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs mt-1"></select>
+          <label class="text-[11px] text-[#8C727C]">วันที่</label>
+          <select id="exp-day" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
         <div>
-          <label class="text-[11px] text-zinc-500">หมวดหมู่</label>
-          <select id="exp-cat" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs mt-1">
+          <label class="text-[11px] text-[#8C727C]">หมวดหมู่</label>
+          <select id="exp-cat" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1">
             <option value="Food">อาหาร / เครื่องดื่ม</option>
             <option value="Transport">เดินทาง / รถไฟ / DiDi</option>
             <option value="Ticket">ค่าเข้าสถานที่</option>
@@ -211,139 +303,134 @@
       </div>
 
       <div>
-        <label class="text-[11px] text-zinc-500">รายละเอียดรายการ</label>
-        <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm mt-1" />
+        <label class="text-[11px] text-[#8C727C]">รายละเอียดรายการ</label>
+        <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ (หรือให้ AI สแกนจากรูป)" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
       </div>
 
-      <div class="grid grid-cols-2 gap-3 bg-zinc-50 p-3.5 rounded-xl border border-zinc-200/80">
+      <div class="grid grid-cols-2 gap-3 bg-[#FDF8F9] p-3.5 rounded-2xl border border-[#F3DCE2]">
         <div>
-          <label class="text-[11px] text-zinc-500">จำนวนเงิน (CNY)</label>
-          <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-zinc-200 rounded-xl p-2 text-base font-semibold text-zinc-900 mt-1" />
+          <label class="text-[11px] text-[#8C727C]">จำนวนเงิน (CNY)</label>
+          <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#EBD2D9] rounded-xl p-2 text-base font-semibold text-[#8E445A] mt-1" />
         </div>
         <div>
-          <label class="text-[11px] text-zinc-500">เรท (THB/CNY)</label>
-          <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-zinc-200 rounded-xl p-2 text-sm mt-1" />
+          <label class="text-[11px] text-[#8C727C]">เรท (THB/CNY)</label>
+          <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-[#EBD2D9] rounded-xl p-2 text-sm mt-1" />
         </div>
         <div class="col-span-2 flex justify-between items-center pt-1">
-          <label class="flex items-center gap-2 text-xs text-zinc-600">
-            <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-zinc-300 text-zinc-900 focus:ring-0" />
+          <label class="flex items-center gap-2 text-xs text-[#6E545E]">
+            <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#EBD2D9] text-[#8E445A] focus:ring-0" />
             ค่าธรรมเนียม +3%
           </label>
-          <span id="exp-thb-preview" class="text-xs font-semibold text-zinc-900">THB 0.00</span>
+          <span id="exp-thb-preview" class="text-xs font-semibold text-[#8E445A]">THB 0.00</span>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-[11px] text-zinc-500">แหล่งเงิน</label>
-          <select id="exp-paid-type" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs mt-1">
+          <label class="text-[11px] text-[#8C727C]">แหล่งเงิน</label>
+          <select id="exp-paid-type" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1">
             <option value="pool">หักจากกองกลาง</option>
             <option value="personal">สำรองจ่ายส่วนตัว</option>
           </select>
         </div>
         <div>
-          <label class="text-[11px] text-zinc-500">ผู้ชำระเงิน</label>
-          <select id="exp-paid-by" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs mt-1"></select>
+          <label class="text-[11px] text-[#8C727C]">ผู้ชำระเงิน</label>
+          <select id="exp-paid-by" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
       </div>
 
       <div>
-        <label class="text-[11px] text-zinc-500 block mb-1.5">ผู้ร่วมหาร</label>
+        <label class="text-[11px] text-[#8C727C] block mb-1.5">ผู้ร่วมหาร</label>
         <div id="exp-split-checkboxes" class="flex flex-wrap gap-1.5"></div>
       </div>
 
-      <div>
-        <label class="text-[11px] text-zinc-500 block mb-1">แนบรูปสลิป (ถ้ามี)</label>
-        <input id="exp-file" type="file" accept="image/*" class="text-xs text-zinc-500 w-full" />
-      </div>
-
-      <button id="btn-save-expense" onclick="saveExpense()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-medium py-3 rounded-xl text-sm transition">บันทึกรายการ</button>
+      <button id="btn-save-expense" onclick="saveExpense()" class="w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition">บันทึกรายการ</button>
     </div>
   </div>
 
   <!-- ================= MODAL: DEPOSIT POOL ================= -->
-  <div id="deposit-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-6 space-y-4 border border-zinc-200">
-      <h3 class="font-semibold text-base text-zinc-900">เติมเงินกองกลาง</h3>
+  <div id="deposit-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F3DCE2]">
+      <h3 class="font-semibold text-base text-[#3D2C33]">เติมเงินกองกลาง</h3>
       <div>
-        <label class="text-xs text-zinc-500">ผู้ลงขัน (ระบุชื่อคน)</label>
-        <select id="dep-member" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm mt-1"></select>
+        <label class="text-xs text-[#8C727C]">ผู้ลงขัน (ระบุชื่อคน)</label>
+        <select id="dep-member" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1"></select>
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <div>
-          <label class="text-xs text-zinc-500">จำนวนเงิน (CNY)</label>
-          <input id="dep-cny" type="number" step="0.01" placeholder="2000" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm mt-1" />
+          <label class="text-xs text-[#8C727C]">จำนวนเงิน (CNY)</label>
+          <input id="dep-cny" type="number" step="0.01" placeholder="2000" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
         </div>
         <div>
-          <label class="text-xs text-zinc-500">เรท (THB/CNY)</label>
-          <input id="dep-rate" type="number" step="0.01" value="4.85" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm mt-1" />
+          <label class="text-xs text-[#8C727C]">เรท (THB/CNY)</label>
+          <input id="dep-rate" type="number" step="0.01" value="4.85" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
         </div>
       </div>
       <div>
-        <label class="text-xs text-zinc-500">หมายเหตุ</label>
-        <input id="dep-note" type="text" placeholder="เช่น โอนเข้า Alipay กองกลาง" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm mt-1" />
+        <label class="text-xs text-[#8C727C]">หมายเหตุ</label>
+        <input id="dep-note" type="text" placeholder="เช่น โอนเข้า Alipay กองกลาง" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
       </div>
       <div class="flex gap-2.5 pt-2">
-        <button onclick="closeModal('deposit-modal')" class="w-1/2 bg-zinc-100 text-zinc-700 py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
-        <button onclick="saveDeposit()" class="w-1/2 bg-zinc-900 text-white py-2.5 rounded-xl text-xs font-medium">บันทึก</button>
+        <button onclick="closeModal('deposit-modal')" class="w-1/2 bg-[#FDF8F9] text-[#8C727C] border border-[#EBD2D9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button onclick="saveDeposit()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">บันทึก</button>
       </div>
     </div>
   </div>
 
   <!-- ================= MODAL: POOL DETAILS BY MEMBER ================= -->
-  <div id="pool-detail-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-zinc-200">
+  <div id="pool-detail-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-[#F3DCE2]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-zinc-900">สรุปยอดลงขันกองกลาง</h3>
-        <button onclick="closeModal('pool-detail-modal')" class="text-zinc-400 hover:text-zinc-900 text-xl leading-none">&times;</button>
+        <h3 class="font-semibold text-base text-[#3D2C33]">สรุปยอดลงขันกองกลาง</h3>
+        <button onclick="closeModal('pool-detail-modal')" class="text-[#9E7B87] hover:text-[#3D2C33] text-xl leading-none">&times;</button>
       </div>
       <div id="pool-member-summary" class="space-y-2 text-xs"></div>
-      <div class="pt-2 border-t border-zinc-100">
-        <p class="text-[11px] font-medium text-zinc-400 mb-2">ประวัติการเติมเงินทั้งหมด</p>
+      <div class="pt-2 border-t border-[#F3DCE2]">
+        <p class="text-[11px] font-medium text-[#9E7B87] mb-2">ประวัติการเติมเงินทั้งหมด</p>
         <div id="pool-deposit-history" class="space-y-2 text-xs"></div>
       </div>
     </div>
   </div>
 
   <!-- ================= MODAL: UPLOAD PHOTO ================= -->
-  <div id="photo-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-6 space-y-4 border border-zinc-200">
-      <h3 class="font-semibold text-base text-zinc-900">เพิ่มรูปภาพ</h3>
+  <div id="photo-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F3DCE2]">
+      <h3 class="font-semibold text-base text-[#3D2C33]">เพิ่มรูปภาพ</h3>
       <div>
-        <label class="text-xs text-zinc-500">วันที่</label>
-        <select id="photo-day" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs mt-1"></select>
+        <label class="text-xs text-[#8C727C]">วันที่</label>
+        <select id="photo-day" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1"></select>
       </div>
       <div>
-        <label class="text-xs text-zinc-500">ไฟล์รูปภาพ</label>
-        <input id="photo-file" type="file" accept="image/*" class="w-full text-xs text-zinc-500 mt-1" />
+        <label class="text-xs text-[#8C727C]">ไฟล์รูปภาพ</label>
+        <input id="photo-file" type="file" accept="image/*" class="w-full text-xs text-[#8C727C] mt-1" />
       </div>
       <div>
-        <label class="text-xs text-zinc-500">คำบรรยาย</label>
-        <input id="photo-caption" type="text" placeholder="ระบุสถานที่หรือบันทึกสั้นๆ" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-sm mt-1" />
+        <label class="text-xs text-[#8C727C]">คำบรรยาย</label>
+        <input id="photo-caption" type="text" placeholder="ระบุสถานที่หรือบันทึกสั้นๆ" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
       </div>
       <div class="flex gap-2.5 pt-2">
-        <button onclick="closeModal('photo-modal')" class="w-1/2 bg-zinc-100 text-zinc-700 py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
-        <button id="btn-upload-photo" onclick="uploadTripPhoto()" class="w-1/2 bg-zinc-900 text-white py-2.5 rounded-xl text-xs font-medium">อัปโหลด</button>
+        <button onclick="closeModal('photo-modal')" class="w-1/2 bg-[#FDF8F9] text-[#8C727C] border border-[#EBD2D9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button id="btn-upload-photo" onclick="uploadTripPhoto()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">อัปโหลด</button>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL: IMAGE VIEWER (NO ACCESS DENIED) ================= -->
-  <div id="image-viewer-modal" class="hidden fixed inset-0 bg-black/85 z-50 flex flex-col items-center justify-center p-4">
+  <!-- ================= MODAL: IMAGE VIEWER ================= -->
+  <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#24181D]/90 z-50 flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-md flex justify-end mb-2">
-      <button onclick="closeModal('image-viewer-modal')" class="text-white text-sm bg-white/15 px-3 py-1 rounded-lg">ปิดหน้าต่าง</button>
+      <button onclick="closeModal('image-viewer-modal')" class="text-white text-xs bg-white/15 px-3.5 py-1.5 rounded-xl">ปิดหน้าต่าง</button>
     </div>
-    <img id="viewer-img" src="" class="max-h-[80vh] max-w-full rounded-xl object-contain bg-zinc-900" />
+    <img id="viewer-img" src="" class="max-h-[80vh] max-w-full rounded-2xl object-contain bg-black" />
   </div>
 
   <!-- ================= MODAL: SETTLE UP SUMMARY ================= -->
-  <div id="settle-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-zinc-200">
+  <div id="settle-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-[#F3DCE2]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-zinc-900">สรุปยอดเคลียร์รายบุคคล</h3>
-        <button onclick="closeModal('settle-modal')" class="text-zinc-400 hover:text-zinc-900 text-xl leading-none">&times;</button>
+        <h3 class="font-semibold text-base text-[#3D2C33]">สรุปยอดเคลียร์รายบุคคล</h3>
+        <button onclick="closeModal('settle-modal')" class="text-[#9E7B87] hover:text-[#3D2C33] text-xl leading-none">&times;</button>
       </div>
-      <p class="text-xs text-zinc-400">คำนวณเฉพาะรายการที่สำรองจ่ายส่วนตัว (หน่วย: บาท)</p>
+      <p class="text-xs text-[#9E7B87]">คำนวณเฉพาะรายการที่สำรองจ่ายส่วนตัว (หน่วย: บาท)</p>
       <div id="settle-details" class="space-y-2 text-xs"></div>
     </div>
   </div>
@@ -351,17 +438,26 @@
   <script>
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
+    const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentUser = null;
+    let userTrips = [];
+    let currentTrip = null;
     let currentMember = null;
     let membersList = [];
     let expensesList = [];
     let depositsList = [];
     let currentDayFilter = 'all';
-    let totalDays = parseInt(localStorage.getItem('china_trip_days') || '6');
+    let totalDays = 6;
+    let dailyChartInstance = null;
+    let categoryChartInstance = null;
 
     window.onload = async () => {
+      const savedKey = localStorage.getItem('gemini_ocr_key') || '';
+      if (document.getElementById('gemini-api-key')) {
+        document.getElementById('gemini-api-key').value = savedKey;
+      }
       const { data: { session } } = await db.auth.getSession();
       if (session) initApp(session.user);
     };
@@ -399,45 +495,74 @@
       currentUser = user;
       document.getElementById('auth-screen').classList.add('hidden');
 
-      const { data: members, error } = await db.from('allowed_members').select('*');
-      if (error || !members || members.length === 0) {
+      const { data: trips, error } = await db.from('trips').select('*').order('created_at', { ascending: false });
+      if (error || !trips || trips.length === 0) {
         document.getElementById('unauth-screen').classList.remove('hidden');
         return;
       }
 
-      currentMember = members.find(m => m.email.toLowerCase() === user.email.toLowerCase());
+      userTrips = trips;
+      const savedTripId = localStorage.getItem('selected_trip_id');
+      currentTrip = trips.find(t => t.id === savedTripId) || trips[0];
+
+      const switcher = document.getElementById('trip-switcher');
+      switcher.innerHTML = trips.map(t => `<option value="${t.id}" ${t.id === currentTrip.id ? 'selected' : ''}>${t.name}</option>`).join('');
+
+      if (user.email.toLowerCase() === SUPER_ADMIN_EMAIL) {
+        document.getElementById('super-admin-panel').classList.remove('hidden');
+      }
+
+      await loadTripContext();
+    }
+
+    async function switchTrip(tripId) {
+      currentTrip = userTrips.find(t => t.id === tripId);
+      localStorage.setItem('selected_trip_id', tripId);
+      currentDayFilter = 'all';
+      await loadTripContext();
+    }
+
+    async function loadTripContext() {
+      const { data: members } = await db.from('trip_members').select('*').eq('trip_id', currentTrip.id);
+      membersList = members || [];
+      currentMember = membersList.find(m => m.email.toLowerCase() === currentUser.email.toLowerCase());
+
+      if (!currentMember && currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL) {
+        currentMember = { email: currentUser.email, display_name: 'Admin', role: 'host' };
+      }
+
       if (!currentMember) {
         document.getElementById('unauth-screen').classList.remove('hidden');
         return;
       }
 
-      membersList = members;
       document.getElementById('app-screen').classList.remove('hidden');
       document.getElementById('user-badge').textContent = `${currentMember.display_name} · ${currentMember.role === 'host' ? 'Host' : 'Member'}`;
-      if (currentMember.role === 'host') {
-        document.getElementById('host-add-member').classList.remove('hidden');
-      }
+      document.getElementById('host-add-member').classList.toggle('hidden', currentMember.role !== 'host' && currentUser.email.toLowerCase() !== SUPER_ADMIN_EMAIL);
+      document.getElementById('exp-rate').value = currentTrip.default_rate || 4.85;
+      document.getElementById('dep-rate').value = currentTrip.default_rate || 4.85;
 
+      totalDays = parseInt(localStorage.getItem(`days_${currentTrip.id}`) || '6');
       await refreshAllData();
     }
 
     async function refreshAllData() {
       const [expRes, depRes] = await Promise.all([
-        db.from('expenses').select('*').order('created_at', { ascending: false }),
-        db.from('pool_deposits').select('*').order('created_at', { ascending: false })
+        db.from('expenses').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false }),
+        db.from('pool_deposits').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false })
       ]);
       expensesList = expRes.data || [];
       depositsList = depRes.data || [];
 
-      // ขยายจำนวนวันอัตโนมัติตามข้อมูลจริงในฐานข้อมูล
       const maxExpDay = expensesList.reduce((max, e) => Math.max(max, Number(e.trip_day || 0)), 0);
       if (maxExpDay > totalDays) {
         totalDays = maxExpDay;
-        localStorage.setItem('china_trip_days', totalDays);
+        localStorage.setItem(`days_${currentTrip.id}`, totalDays);
       }
 
       renderDayControls();
       renderDashboard();
+      renderAnalytics();
       renderMembers();
       loadPhotos();
       loadLogs();
@@ -445,19 +570,19 @@
 
     function addTripDay() {
       totalDays += 1;
-      localStorage.setItem('china_trip_days', totalDays);
+      localStorage.setItem(`days_${currentTrip.id}`, totalDays);
       renderDayControls();
     }
 
     function renderDayControls() {
-      let filterHtml = `<button onclick="filterDay('all')" class="day-btn ${currentDayFilter === 'all' ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-500 border border-zinc-200'} px-3.5 py-1.5 rounded-lg text-xs font-medium shrink-0" data-day="all">ทั้งหมด</button>`;
+      let filterHtml = `<button onclick="filterDay('all')" class="day-btn ${currentDayFilter === 'all' ? 'luxury-gradient text-white shadow-xs' : 'bg-white text-[#8C727C] border border-[#F3DCE2]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="all">ทั้งหมด</button>`;
       let optionsHtml = '';
       for (let d = 1; d <= totalDays; d++) {
         const active = String(currentDayFilter) === String(d);
-        filterHtml += `<button onclick="filterDay(${d})" class="day-btn ${active ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-500 border border-zinc-200'} px-3.5 py-1.5 rounded-lg text-xs font-medium shrink-0" data-day="${d}">Day ${d}</button>`;
+        filterHtml += `<button onclick="filterDay(${d})" class="day-btn ${active ? 'luxury-gradient text-white shadow-xs' : 'bg-white text-[#8C727C] border border-[#F3DCE2]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="${d}">Day ${d}</button>`;
         optionsHtml += `<option value="${d}">Day ${d}</option>`;
       }
-      filterHtml += `<button onclick="addTripDay()" class="bg-zinc-100 text-zinc-700 hover:bg-zinc-200 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 border border-zinc-200">+ เพิ่มวัน</button>`;
+      filterHtml += `<button onclick="addTripDay()" class="bg-[#FFF0F3] text-[#8E445A] hover:bg-[#FFE3E9] px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 border border-[#F5C2CE]">+ เพิ่มวัน</button>`;
 
       document.getElementById('day-filter-bar').innerHTML = filterHtml;
       document.getElementById('exp-day').innerHTML = optionsHtml;
@@ -465,7 +590,7 @@
     }
 
     function getMemberName(email) {
-      const m = membersList.find(x => x.email === email);
+      const m = membersList.find(x => x.email.toLowerCase() === (email || '').toLowerCase());
       return m ? m.display_name : email;
     }
 
@@ -492,25 +617,24 @@
 
       document.getElementById('pool-total-in').textContent = `ยอดลงขันรวม ¥${totalDepositCny.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
-      // สรุปกองกลางรายบุคคล
       document.getElementById('pool-member-summary').innerHTML = membersList.map(m => {
         const p = memberPoolMap[m.email] || { cny: 0, thb: 0 };
-        return `<div class="flex justify-between items-center p-2.5 bg-zinc-50 rounded-xl border border-zinc-100">
-          <span class="font-medium text-zinc-800">${m.display_name}</span>
-          <span class="font-semibold text-zinc-900">¥${p.cny.toLocaleString()} <span class="text-zinc-400 font-normal">(฿${p.thb.toLocaleString('en-US', {maximumFractionDigits:0})})</span></span>
+        return `<div class="flex justify-between items-center p-3 bg-[#FDF8F9] rounded-2xl border border-[#F3DCE2]">
+          <span class="font-medium text-[#3D2C33]">${m.display_name}</span>
+          <span class="font-semibold text-[#8E445A]">¥${p.cny.toLocaleString()} <span class="text-[#9E7B87] font-normal">(฿${p.thb.toLocaleString('en-US', {maximumFractionDigits:0})})</span></span>
         </div>`;
       }).join('');
 
       document.getElementById('pool-deposit-history').innerHTML = depositsList.map(d => {
         const canDel = d.member_email === currentMember.email || currentMember.role === 'host';
-        return `<div class="flex justify-between items-center py-1.5 border-b border-zinc-100">
+        return `<div class="flex justify-between items-center py-2 border-b border-[#F9ECEF]">
           <div>
-            <p class="font-medium text-zinc-800">${getMemberName(d.member_email)} · ¥${Number(d.amount_cny).toLocaleString()}</p>
-            <p class="text-[10px] text-zinc-400">${d.note || 'เติมกองกลาง'} (เรท ${d.exchange_rate})</p>
+            <p class="font-medium text-[#3D2C33]">${getMemberName(d.member_email)} · ¥${Number(d.amount_cny).toLocaleString()}</p>
+            <p class="text-[10px] text-[#9E7B87]">${d.note || 'เติมกองกลาง'} (เรท ${d.exchange_rate})</p>
           </div>
-          ${canDel ? `<button onclick="deleteDeposit('${d.id}', ${d.amount_cny})" class="text-[11px] text-zinc-400 hover:text-rose-600">ลบ</button>` : ''}
+          ${canDel ? `<button onclick="deleteDeposit('${d.id}', ${d.amount_cny})" class="text-[11px] text-[#9E7B87] hover:text-rose-600">ลบ</button>` : ''}
         </div>`;
-      }).join('') || '<p class="text-zinc-400">ยังไม่มีรายการเติมเงิน</p>';
+      }).join('') || '<p class="text-[#9E7B87]">ยังไม่มีรายการเติมเงิน</p>';
 
       let poolSpentCny = 0, poolSpentThb = 0;
       let myShareCny = 0, myShareThb = 0;
@@ -552,7 +676,7 @@
       const netEl = document.getElementById('my-net-status');
       if (Math.abs(myNet) < 1) {
         netEl.textContent = 'สมดุลแล้ว';
-        netEl.className = 'text-sm font-semibold text-zinc-900 mt-1';
+        netEl.className = 'text-sm font-semibold text-[#3D2C33] mt-1';
       } else if (myNet > 0) {
         netEl.textContent = `รอรับคืน +฿${myNet.toFixed(0)}`;
         netEl.className = 'text-sm font-semibold text-emerald-700 mt-1';
@@ -565,8 +689,8 @@
         const val = netBalances[m.email] || 0;
         const status = val > 1 ? `<span class="text-emerald-700 font-semibold">+฿${val.toFixed(2)} (รับคืน)</span>`
                      : val < -1 ? `<span class="text-rose-600 font-semibold">-฿${Math.abs(val).toFixed(2)} (โอนคืน)</span>`
-                     : `<span class="text-zinc-400">0.00</span>`;
-        return `<div class="flex justify-between items-center p-3 bg-zinc-50 rounded-xl border border-zinc-100"><span class="font-medium text-zinc-800">${m.display_name}</span>${status}</div>`;
+                     : `<span class="text-[#9E7B87]">0.00</span>`;
+        return `<div class="flex justify-between items-center p-3 bg-[#FDF8F9] rounded-2xl border border-[#F3DCE2]"><span class="font-medium text-[#3D2C33]">${m.display_name}</span>${status}</div>`;
       }).join('');
 
       renderExpenseList();
@@ -584,6 +708,8 @@
         : expensesList.filter(e => String(e.trip_day) === String(currentDayFilter));
 
       let sumCny = 0, sumThb = 0;
+      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
+
       const html = filtered.map(e => {
         const cny = Number(e.amount_cny);
         const thb = calcFinalThb(cny, e.exchange_rate, e.has_alipay_fee);
@@ -592,25 +718,26 @@
         const canDelete = e.created_by === currentMember.email || currentMember.role === 'host';
 
         return `
-          <div class="bg-white p-4 rounded-2xl border border-zinc-200/80 space-y-2">
+          <div class="soft-card p-4 rounded-2xl space-y-2">
             <div class="flex justify-between items-start gap-3">
               <div>
-                <div class="flex items-center gap-1.5 text-[10px] font-medium text-zinc-500">
-                  <span class="bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded">Day ${e.trip_day}</span>
-                  <span>${e.paid_by_type === 'pool' ? 'กองกลาง' : 'สำรองจ่าย · ' + getMemberName(e.paid_by_email)}</span>
+                <div class="flex items-center gap-1.5 text-[10px] font-medium">
+                  <span class="bg-[#FFF0F3] text-[#8E445A] px-2 py-0.5 rounded-lg">Day ${e.trip_day}</span>
+                  <span class="bg-[#FDF8F9] text-[#8C727C] px-2 py-0.5 rounded-lg border border-[#F3DCE2]">${catNames[e.category] || e.category}</span>
+                  <span class="text-[#9E7B87]">${e.paid_by_type === 'pool' ? 'กองกลาง' : getMemberName(e.paid_by_email)}</span>
                 </div>
-                <h4 class="font-medium text-sm text-zinc-900 mt-1.5">${e.title}</h4>
+                <h4 class="font-medium text-sm text-[#3D2C33] mt-1.5">${e.title}</h4>
               </div>
               <div class="text-right shrink-0">
-                <p class="font-semibold text-zinc-900 text-sm">¥${cny.toFixed(2)}</p>
-                <p class="text-[11px] text-zinc-400">฿${thb.toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
+                <p class="font-semibold text-[#8E445A] text-sm">¥${cny.toFixed(2)}</p>
+                <p class="text-[11px] text-[#9E7B87]">฿${thb.toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
               </div>
             </div>
-            <div class="flex justify-between items-center text-[11px] text-zinc-400 pt-2 border-t border-zinc-100">
+            <div class="flex justify-between items-center text-[11px] text-[#9E7B87] pt-2 border-t border-[#F9ECEF]">
               <span class="truncate pr-2">หาร: ${splitNames || '-'}</span>
               <div class="flex items-center gap-3 shrink-0">
-                ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}')" class="text-zinc-700 underline">ดูสลิป</button>` : ''}
-                ${canDelete ? `<button onclick="deleteExpense('${e.id}', '${e.title}')" class="text-zinc-400 hover:text-rose-600">ลบ</button>` : ''}
+                ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}')" class="text-[#B56576] font-medium underline">ดูสลิป</button>` : ''}
+                ${canDelete ? `<button onclick="deleteExpense('${e.id}', '${e.title}')" class="text-[#9E7B87] hover:text-rose-600">ลบ</button>` : ''}
               </div>
             </div>
           </div>`;
@@ -618,19 +745,164 @@
 
       document.getElementById('filtered-day-label').textContent = currentDayFilter === 'all' ? 'ยอดรวมทั้งทริป' : `ยอดรวม Day ${currentDayFilter}`;
       document.getElementById('filtered-day-total').textContent = `¥${sumCny.toFixed(2)} · ฿${sumThb.toFixed(2)}`;
-      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-zinc-400 py-10">ยังไม่มีรายการบันทึก</p>';
+      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#9E7B87] py-10">ยังไม่มีรายการบันทึก</p>';
     }
 
-    // แสดงรูปภาพจาก Storage โดยใช้สิทธิ์สมาชิกโดยตรง (ไม่ติด Access Denied)
-    async function viewStorageImage(pathOrUrl) {
-      let cleanPath = pathOrUrl;
-      if (pathOrUrl.includes('/trip-media/')) {
-        cleanPath = pathOrUrl.split('/trip-media/')[1].split('?')[0];
+    // ================= ANALYTICS & CHARTS =================
+    function renderAnalytics() {
+      let grandThb = 0, grandCny = 0;
+      const dayTotals = {};
+      const catTotals = { Food: 0, Transport: 0, Ticket: 0, Shopping: 0, Hotel: 0 };
+      const catLabels = { Food: 'อาหาร / เครื่องดื่ม', Transport: 'เดินทาง / รถไฟ / DiDi', Ticket: 'ค่าเข้าสถานที่', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
+
+      expensesList.forEach(e => {
+        const cny = Number(e.amount_cny);
+        const thb = calcFinalThb(cny, e.exchange_rate, e.has_alipay_fee);
+        grandCny += cny; grandThb += thb;
+        const dKey = `Day ${e.trip_day}`;
+        dayTotals[dKey] = (dayTotals[dKey] || 0) + thb;
+        catTotals[e.category] = (catTotals[e.category] || 0) + thb;
+      });
+
+      const activeDaysCount = Object.keys(dayTotals).length || 1;
+      const memberCount = membersList.length || 1;
+
+      document.getElementById('stat-grand-thb').textContent = `฿${grandThb.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+      document.getElementById('stat-grand-cny').textContent = `¥${grandCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('stat-avg-day').textContent = `฿${(grandThb / activeDaysCount).toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+      document.getElementById('stat-avg-person').textContent = `เฉลี่ยคนละ ฿${(grandThb / memberCount).toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+
+      const sortedDays = Object.keys(dayTotals).sort((a, b) => parseInt(a.replace('Day ', '')) - parseInt(b.replace('Day ', '')));
+      if (dailyChartInstance) dailyChartInstance.destroy();
+      dailyChartInstance = new Chart(document.getElementById('dailyChart'), {
+        type: 'bar',
+        data: {
+          labels: sortedDays.length ? sortedDays : ['Day 1'],
+          datasets: [{
+            label: 'ยอดใช้จ่าย (บาท)',
+            data: sortedDays.length ? sortedDays.map(k => dayTotals[k]) : [0],
+            backgroundColor: '#C97C8E',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#F9ECEF' }, ticks: { font: { size: 10 }, color: '#9E7B87' } },
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#6E545E' } }
+          }
+        }
+      });
+
+      const catKeys = Object.keys(catTotals).filter(k => catTotals[k] > 0);
+      const pastelColors = ['#B56576', '#E5989B', '#FFB4A2', '#D4A373', '#CDB4DB'];
+      if (categoryChartInstance) categoryChartInstance.destroy();
+      categoryChartInstance = new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+          labels: catKeys.map(k => catLabels[k]),
+          datasets: [{
+            data: catKeys.map(k => catTotals[k]),
+            backgroundColor: pastelColors,
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, color: '#6E545E' } } }
+        }
+      });
+
+      document.getElementById('category-breakdown-list').innerHTML = catKeys.map((k, i) => {
+        const pct = grandThb > 0 ? ((catTotals[k] / grandThb) * 100).toFixed(1) : 0;
+        return `<div class="flex justify-between items-center">
+          <span class="flex items-center gap-2 text-[#6E545E]"><span class="w-2.5 h-2.5 rounded-full" style="background:${pastelColors[i % pastelColors.length]}"></span>${catLabels[k]}</span>
+          <span class="font-semibold text-[#3D2C33]">฿${catTotals[k].toLocaleString('en-US', {maximumFractionDigits: 0})} <span class="text-[#9E7B87] font-normal">(${pct}%)</span></span>
+        </div>`;
+      }).join('') || '<p class="text-center text-[#9E7B87]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
+    }
+
+    // ================= AI RECEIPT SCANNER (CHINESE / ENGLISH) =================
+    async function handleReceiptScan(input) {
+      if (!input.files || !input.files[0]) return;
+      const apiKey = localStorage.getItem('gemini_ocr_key');
+      const statusEl = document.getElementById('ocr-status');
+      statusEl.classList.remove('hidden');
+
+      if (!apiKey) {
+        statusEl.textContent = 'แนบรูปภาพเรียบร้อยแล้ว (หากต้องการให้ AI อ่านยอดเงินอัตโนมัติ กรุณาใส่ Gemini API Key ในหน้าจัดการทริป)';
+        return;
       }
+
+      statusEl.textContent = 'กำลังวิเคราะห์ข้อมูลจากสลิปภาษาจีน / อังกฤษ...';
+      try {
+        const base64Data = await fileToBase64(input.files[0]);
+        const prompt = `Analyze this receipt or payment screenshot (may be in Chinese, English, or Thai such as Alipay, WeChat Pay, or restaurant bill). Extract the final net paid amount in CNY (Chinese Yuan), a concise Thai description with original merchant name in parentheses, and the best matching category from: Food, Transport, Ticket, Shopping, Hotel. Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food"}`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
+              ]
+            }]
+          })
+        });
+
+        const result = await response.json();
+        const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed.title) document.getElementById('exp-title').value = parsed.title;
+          if (parsed.amount_cny) {
+            document.getElementById('exp-cny').value = parsed.amount_cny;
+            if (Number(parsed.amount_cny) > 200) document.getElementById('exp-fee').checked = true;
+            calcThbPreview();
+          }
+          if (parsed.category) document.getElementById('exp-cat').value = parsed.category;
+          statusEl.textContent = `สแกนสำเร็จ: ดึงข้อมูล "${parsed.title}" ยอด ¥${parsed.amount_cny} เรียบร้อยแล้ว`;
+        } else {
+          statusEl.textContent = 'แนบรูปแล้ว แต่ไม่สามารถอ่านตัวเลขได้อัตโนมัติ กรุณากรอกยอดเงินเพิ่มเติม';
+        }
+      } catch (err) {
+        statusEl.textContent = 'แนบรูปแล้ว (เกิดข้อผิดพลาดในการสแกน AI: ' + err.message + ')';
+      }
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const scale = Math.min(1, 1024 / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]);
+          };
+        };
+      });
+    }
+
+    // ================= STORAGE & MEDIA =================
+    async function viewStorageImage(pathOrUrl) {
+      let cleanPath = pathOrUrl.includes('/trip-media/') ? pathOrUrl.split('/trip-media/')[1].split('?')[0] : pathOrUrl;
       const { data, error } = await db.storage.from('trip-media').download(cleanPath);
       if (error) return alert('ไม่สามารถเปิดรูปได้: ' + error.message);
-      const blobUrl = URL.createObjectURL(data);
-      document.getElementById('viewer-img').src = blobUrl;
+      document.getElementById('viewer-img').src = URL.createObjectURL(data);
       openModal('image-viewer-modal');
     }
 
@@ -646,8 +918,7 @@
             const scale = Math.min(1, maxWidth / img.width);
             canvas.width = img.width * scale;
             canvas.height = img.height * scale;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
             canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.75);
           };
         };
@@ -656,20 +927,18 @@
 
     async function uploadFileToStorage(file, folder) {
       const compressed = await compressImage(file);
-      const filePath = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+      const filePath = `${currentTrip.id}/${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
       const { error } = await db.storage.from('trip-media').upload(filePath, compressed, { contentType: 'image/jpeg' });
       if (error) throw error;
-      return filePath; // เก็บ Path ไฟล์ตรงๆ เพื่อดึงผ่านสิทธิ์ authenticated ได้ตลอดไป
+      return filePath;
     }
 
     function openExpenseModal() {
-      const selectPaidBy = document.getElementById('exp-paid-by');
-      selectPaidBy.innerHTML = membersList.map(m => `<option value="${m.email}" ${m.email === currentMember.email ? 'selected' : ''}>${m.display_name}</option>`).join('');
-
-      const splitBox = document.getElementById('exp-split-checkboxes');
-      splitBox.innerHTML = membersList.map(m => `
-        <label class="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-lg text-xs text-zinc-700">
-          <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-zinc-300 text-zinc-900 focus:ring-0" />
+      document.getElementById('ocr-status').classList.add('hidden');
+      document.getElementById('exp-paid-by').innerHTML = membersList.map(m => `<option value="${m.email}" ${m.email === currentMember.email ? 'selected' : ''}>${m.display_name}</option>`).join('');
+      document.getElementById('exp-split-checkboxes').innerHTML = membersList.map(m => `
+        <label class="flex items-center gap-1.5 bg-[#FDF8F9] border border-[#EBD2D9] px-3 py-1.5 rounded-xl text-xs text-[#6E545E]">
+          <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-[#EBD2D9] text-[#8E445A] focus:ring-0" />
           ${m.display_name}
         </label>`).join('');
       openModal('expense-modal');
@@ -680,10 +949,6 @@
         `<option value="${m.email}" ${m.email === currentMember.email ? 'selected' : ''}>${m.display_name}</option>`
       ).join('');
       openModal('deposit-modal');
-    }
-
-    function openPhotoModal() {
-      openModal('photo-modal');
     }
 
     function calcThbPreview() {
@@ -711,6 +976,7 @@
         }
 
         const payload = {
+          trip_id: currentTrip.id,
           trip_day: parseInt(document.getElementById('exp-day').value),
           expense_date: new Date().toISOString().split('T')[0],
           title,
@@ -758,7 +1024,7 @@
       if (!amount_cny) return alert('กรุณากรอกยอดเงินหยวน');
 
       const { error } = await db.from('pool_deposits').insert([{
-        member_email, amount_cny, exchange_rate, note
+        trip_id: currentTrip.id, member_email, amount_cny, exchange_rate, note
       }]);
       if (!error) {
         await writeLog('ADD_DEPOSIT', `เติมเงินกองกลาง ¥${amount_cny} (${getMemberName(member_email)})`);
@@ -787,7 +1053,7 @@
         const path = await uploadFileToStorage(fileInput.files[0], 'gallery');
         const trip_day = parseInt(document.getElementById('photo-day').value);
         const caption = document.getElementById('photo-caption').value.trim();
-        await db.from('trip_photos').insert([{ trip_day, image_url: path, caption, uploaded_by: currentMember.email }]);
+        await db.from('trip_photos').insert([{ trip_id: currentTrip.id, trip_day, image_url: path, caption, uploaded_by: currentMember.email }]);
         await writeLog('UPLOAD_PHOTO', `เพิ่มรูปภาพ Day ${trip_day}`);
         closeModal('photo-modal');
         fileInput.value = '';
@@ -801,22 +1067,21 @@
     }
 
     async function loadPhotos() {
-      const { data } = await db.from('trip_photos').select('*').order('created_at', { ascending: false });
+      const { data } = await db.from('trip_photos').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false });
       const list = data || [];
       const html = list.map((p, idx) => `
-        <div class="bg-white rounded-2xl overflow-hidden border border-zinc-200/80">
+        <div class="soft-card rounded-2xl overflow-hidden">
           <div onclick="viewStorageImage('${p.image_url}')" class="cursor-pointer">
-            <img id="gallery-img-${idx}" src="" class="w-full h-36 object-cover bg-zinc-100" />
+            <img id="gallery-img-${idx}" src="" class="w-full h-36 object-cover bg-[#FFF0F3]" />
           </div>
-          <div class="p-2.5">
-            <span class="text-[10px] bg-zinc-100 text-zinc-700 font-medium px-1.5 py-0.5 rounded">Day ${p.trip_day}</span>
-            <p class="text-xs font-medium text-zinc-900 mt-1.5 truncate">${p.caption || '—'}</p>
-            <p class="text-[10px] text-zinc-400 mt-0.5">${getMemberName(p.uploaded_by)}</p>
+          <div class="p-3">
+            <span class="text-[10px] bg-[#FFF0F3] text-[#8E445A] font-medium px-2 py-0.5 rounded-lg">Day ${p.trip_day}</span>
+            <p class="text-xs font-medium text-[#3D2C33] mt-1.5 truncate">${p.caption || '—'}</p>
+            <p class="text-[10px] text-[#9E7B87] mt-0.5">${getMemberName(p.uploaded_by)}</p>
           </div>
         </div>`).join('');
-      document.getElementById('photo-grid').innerHTML = html || '<p class="col-span-2 text-center text-xs text-zinc-400 py-10">ยังไม่มีรูปภาพ</p>';
+      document.getElementById('photo-grid').innerHTML = html || '<p class="col-span-2 text-center text-xs text-[#9E7B87] py-10">ยังไม่มีรูปภาพ</p>';
 
-      // โหลดภาพแบบ authenticated blob ทีละใบ
       list.forEach(async (p, idx) => {
         let cleanPath = p.image_url.includes('/trip-media/') ? p.image_url.split('/trip-media/')[1].split('?')[0] : p.image_url;
         const { data: blob } = await db.storage.from('trip-media').download(cleanPath);
@@ -827,10 +1092,86 @@
       });
     }
 
-    // ดาวน์โหลดไฟล์สรุปออกมาเป็น Excel (.csv UTF-8 BOM)
+    // ================= MULTI-TRIP & ADMIN CONTROLS =================
+    async function createNewTrip() {
+      const name = document.getElementById('new-trip-name').value.trim();
+      const date_range = document.getElementById('new-trip-dates').value.trim();
+      const default_rate = parseFloat(document.getElementById('new-trip-rate').value) || 4.85;
+      if (!name) return alert('กรุณาระบุชื่อทริปใหม่');
+
+      const { data: newTrip, error } = await db.from('trips').insert([{
+        name, date_range, default_rate, created_by: currentUser.email.toLowerCase()
+      }]).select().single();
+
+      if (error) return alert('สร้างทริปไม่สำเร็จ: ' + error.message);
+
+      await db.from('trip_members').insert([{
+        trip_id: newTrip.id, email: currentUser.email.toLowerCase(), display_name: 'Bally', role: 'host'
+      }]);
+
+      document.getElementById('new-trip-name').value = '';
+      document.getElementById('new-trip-dates').value = '';
+      localStorage.setItem('selected_trip_id', newTrip.id);
+      await initApp(currentUser);
+      alert(`สร้างทริป "${name}" เรียบร้อยแล้ว สามารถเพิ่มรายชื่อสมาชิกของทริปนี้ได้ทันที`);
+    }
+
+    function saveGeminiKey() {
+      const key = document.getElementById('gemini-api-key').value.trim();
+      localStorage.setItem('gemini_ocr_key', key);
+      alert('บันทึก Gemini API Key เรียบร้อยแล้ว พร้อมใช้งานสแกนบิลทันที');
+    }
+
+    function renderMembers() {
+      document.getElementById('member-count').textContent = membersList.length;
+      document.getElementById('member-list').innerHTML = membersList.map(m => `
+        <div class="py-2.5 flex justify-between items-center">
+          <div>
+            <p class="font-medium text-[#3D2C33] text-xs">${m.display_name} <span class="text-[10px] text-[#B56576] font-normal ml-1">${m.role === 'host' ? 'Host' : ''}</span></p>
+            <p class="text-[11px] text-[#9E7B87]">${m.email}</p>
+          </div>
+          ${(currentMember.role === 'host' || currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL) && m.role !== 'host'
+            ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[11px] text-[#8C727C] hover:text-rose-600 px-2.5 py-1 rounded-xl border border-[#F3DCE2]">ลบออก</button>`
+            : ''}
+        </div>`).join('');
+    }
+
+    async function addMember() {
+      const display_name = document.getElementById('new-member-name').value.trim();
+      const email = document.getElementById('new-member-email').value.trim().toLowerCase();
+      if (!display_name || !email) return alert('กรุณากรอกชื่อและอีเมล');
+      const { error } = await db.from('trip_members').insert([{ trip_id: currentTrip.id, email, display_name, role: 'member' }]);
+      if (error) return alert('เพิ่มไม่ได้: ' + error.message);
+      await writeLog('ADD_MEMBER', `เพิ่มสิทธิ์ ${display_name} (${email})`);
+      document.getElementById('new-member-name').value = '';
+      document.getElementById('new-member-email').value = '';
+      await loadTripContext();
+    }
+
+    async function removeMember(id, email) {
+      if (!confirm(`ยืนยันการลบสิทธิ์ของ ${email} ออกจากทริปนี้`)) return;
+      const { error } = await db.from('trip_members').delete().eq('id', id);
+      if (!error) {
+        await writeLog('REMOVE_MEMBER', `ลบสิทธิ์อีเมล ${email}`);
+        await loadTripContext();
+      }
+    }
+
+    async function writeLog(action_type, description) {
+      await db.from('audit_logs').insert([{ trip_id: currentTrip.id, actor_email: currentMember.email, action_type, description }]);
+    }
+
+    async function loadLogs() {
+      const { data } = await db.from('audit_logs').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false }).limit(50);
+      document.getElementById('audit-log-list').innerHTML = (data || []).map(l => {
+        const time = new Date(l.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        return `<div class="border-b border-[#F9ECEF] pb-2"><span class="text-[#B89CA6] mr-1.5">${time}</span><span class="font-medium text-[#3D2C33]">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
+      }).join('');
+    }
+
     function exportToExcel() {
-      let csv = '\uFEFF'; // รองรับภาษาไทยใน Excel
-      csv += 'สรุปรายการค่าใช้จ่าย China Trip 2026\n';
+      let csv = '\uFEFF';
+      csv += `สรุปรายการค่าใช้จ่าย - ${currentTrip.name}\n`;
       csv += 'วันที่ (Day),หมวดหมู่,รายการ,ยอดหยวน (CNY),เรทเงิน,ค่าธรรมเนียม 3%,ยอดบาทสุทธิ (THB),รูปแบบการจ่าย,ผู้ชำระเงิน,ผู้ร่วมหาร\n';
 
       expensesList.forEach(e => {
@@ -852,67 +1193,20 @@
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `China_Trip_2026_Summary_${new Date().toISOString().split('T')[0]}.csv`;
+      a.href = URL.createObjectURL(blob);
+      a.download = `${currentTrip.name.replace(/\s+/g, '_')}_Summary.csv`;
       a.click();
     }
 
-    function renderMembers() {
-      document.getElementById('member-count').textContent = membersList.length;
-      document.getElementById('member-list').innerHTML = membersList.map(m => `
-        <div class="py-2.5 flex justify-between items-center">
-          <div>
-            <p class="font-medium text-zinc-900 text-xs">${m.display_name} <span class="text-[10px] text-zinc-400 font-normal ml-1">${m.role === 'host' ? 'Host' : ''}</span></p>
-            <p class="text-[11px] text-zinc-400">${m.email}</p>
-          </div>
-          ${currentMember.role === 'host' && m.role !== 'host'
-            ? `<button onclick="removeMember('${m.email}')" class="text-[11px] text-zinc-500 hover:text-rose-600 px-2.5 py-1 rounded-lg border border-zinc-200">ลบออก</button>`
-            : ''}
-        </div>`).join('');
-    }
-
-    async function addMember() {
-      const display_name = document.getElementById('new-member-name').value.trim();
-      const email = document.getElementById('new-member-email').value.trim().toLowerCase();
-      if (!display_name || !email) return alert('กรุณากรอกชื่อและอีเมล');
-      const { error } = await db.from('allowed_members').insert([{ email, display_name, role: 'member' }]);
-      if (error) return alert('เพิ่มไม่ได้: ' + error.message);
-      await writeLog('ADD_MEMBER', `เพิ่มสิทธิ์ ${display_name} (${email})`);
-      document.getElementById('new-member-name').value = '';
-      document.getElementById('new-member-email').value = '';
-      initApp(currentUser);
-    }
-
-    async function removeMember(email) {
-      if (!confirm(`ยืนยันการลบสิทธิ์ของ ${email} ออกจากทริป`)) return;
-      const { error } = await db.from('allowed_members').delete().eq('email', email);
-      if (!error) {
-        await writeLog('REMOVE_MEMBER', `ลบสิทธิ์อีเมล ${email}`);
-        initApp(currentUser);
-      }
-    }
-
-    async function writeLog(action_type, description) {
-      await db.from('audit_logs').insert([{ actor_email: currentMember.email, action_type, description }]);
-    }
-
-    async function loadLogs() {
-      const { data } = await db.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
-      document.getElementById('audit-log-list').innerHTML = (data || []).map(l => {
-        const time = new Date(l.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-        return `<div class="border-b border-zinc-100 pb-2"><span class="text-zinc-400 mr-1.5">${time}</span><span class="font-medium text-zinc-800">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
-      }).join('');
-    }
-
     function switchTab(tab) {
-      ['expenses', 'photos', 'members'].forEach(t => {
+      ['expenses', 'analytics', 'photos', 'members'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
         document.getElementById(`nav-${t}`).className = t === tab
-          ? 'flex flex-col items-center gap-1 text-zinc-900'
-          : 'flex flex-col items-center gap-1 text-zinc-400';
+          ? 'flex flex-col items-center gap-1 text-[#8E445A]'
+          : 'flex flex-col items-center gap-1 text-[#B89CA6]';
       });
+      if (tab === 'analytics') renderAnalytics();
     }
 
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
