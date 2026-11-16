@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Voyage Ledger · Luxury Pastel Trip Manager</title>
+  <title>Maison Voyage · Soft Blush Trip Manager</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,162 +12,154 @@
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-      background-color: #FDF8F9;
-      color: #3D2C33;
+      background: linear-gradient(180deg, #FDF2F5 0%, #FCE7ED 100%);
+      background-attachment: fixed;
+      color: #6B424E;
       -webkit-tap-highlight-color: transparent;
       letter-spacing: -0.01em;
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     input, select { outline: none; transition: all 0.15s ease; }
-    input:focus, select:focus { border-color: #B56576; box-shadow: 0 0 0 3px rgba(181, 101, 118, 0.12); }
-    .luxury-gradient { background: linear-gradient(135deg, #B56576 0%, #8E445A 60%, #7A374C 100%); }
-    .soft-card { background: #FFFFFF; border: 1px solid #F3DCE2; box-shadow: 0 4px 20px -4px rgba(181, 101, 118, 0.06); }
+    input:focus, select:focus { border-color: #DF829D; box-shadow: 0 0 0 3px rgba(223, 130, 157, 0.18); }
+    .luxury-gradient { background: linear-gradient(135deg, #E893AC 0%, #D6718E 55%, #C45B79 100%); }
+    .soft-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border: 1px solid #F5D5DF; box-shadow: 0 6px 24px -6px rgba(214, 113, 142, 0.12); }
   </style>
 </head>
 <body class="pb-24 antialiased">
 
   <!-- ================= LOGIN / REGISTER SCREEN ================= -->
-  <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6 bg-[#FDF8F9]">
+  <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
     <div class="soft-card w-full max-w-sm rounded-3xl p-8 space-y-6">
       <div class="space-y-1.5 text-center">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#B56576]">Private Travel Ledger</p>
-        <h1 class="text-2xl font-semibold tracking-tight text-[#3D2C33]">Maison Voyage</h1>
-        <p class="text-xs text-[#8C727C]">ระบบบันทึกค่าใช้จ่ายและความทรงจำส่วนตัว</p>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D6718E]">Private Travel Ledger</p>
+        <h1 class="text-2xl font-semibold tracking-tight text-[#6B424E]">Maison Voyage</h1>
+        <p class="text-xs text-[#A37B87]">ระบบบันทึกค่าใช้จ่ายและความทรงจำส่วนตัว</p>
       </div>
 
-      <div id="auth-error" class="hidden bg-[#FFF0F3] text-[#9E2A47] text-xs p-3 rounded-xl border border-[#F5C2CE]"></div>
+      <div id="auth-error" class="hidden bg-[#FFF0F4] text-[#C45B79] text-xs p-3 rounded-xl border border-[#F5C2D1]"></div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-[#6E545E] mb-1.5">อีเมลที่ได้รับเชิญ</label>
-          <input id="auth-email" type="email" placeholder="name@domain.com" class="w-full px-4 py-2.5 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-sm" />
+          <label class="block text-xs font-medium text-[#8C5867] mb-1.5">อีเมลที่ได้รับเชิญ</label>
+          <input id="auth-email" type="email" placeholder="name@domain.com" class="w-full px-4 py-2.5 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-[#6E545E] mb-1.5">รหัสผ่าน</label>
-          <input id="auth-password" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full px-4 py-2.5 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-sm" />
+          <label class="block text-xs font-medium text-[#8C5867] mb-1.5">รหัสผ่าน</label>
+          <input id="auth-password" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full px-4 py-2.5 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-sm" />
         </div>
       </div>
 
       <div class="space-y-2.5 pt-1">
         <button onclick="handleLogin()" class="w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition">เข้าสู่ระบบ</button>
-        <button onclick="handleSignUp()" class="w-full bg-white hover:bg-[#FDF8F9] text-[#8E445A] border border-[#EBD2D9] font-medium py-2.5 rounded-xl text-sm transition">ลงทะเบียนครั้งแรก</button>
+        <button onclick="handleSignUp()" class="w-full bg-white hover:bg-[#FFF5F8] text-[#C45B79] border border-[#F2CFD9] font-medium py-2.5 rounded-xl text-sm transition">ลงทะเบียนครั้งแรก</button>
       </div>
     </div>
   </div>
 
   <!-- ================= UNAUTHORIZED SCREEN ================= -->
-  <div id="unauth-screen" class="hidden min-h-screen flex items-center justify-center p-6 bg-[#FDF8F9] text-center">
+  <div id="unauth-screen" class="hidden min-h-screen flex items-center justify-center p-6 text-center">
     <div class="max-w-xs space-y-4 soft-card p-7 rounded-3xl">
-      <div class="w-11 h-11 mx-auto rounded-full bg-[#FFF0F3] flex items-center justify-center text-[#B56576]">
+      <div class="w-11 h-11 mx-auto rounded-full bg-[#FFEBF0] flex items-center justify-center text-[#D6718E]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
       </div>
-      <h2 class="text-base font-semibold text-[#3D2C33]">ยังไม่มีทริปที่ได้รับเชิญ</h2>
-      <p class="text-xs text-[#8C727C] leading-relaxed">อีเมลของคุณยังไม่ได้ถูกเพิ่มในทริปใดๆ กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มสิทธิ์</p>
+      <h2 class="text-base font-semibold text-[#6B424E]">ยังไม่มีทริปที่ได้รับเชิญ</h2>
+      <p class="text-xs text-[#A37B87] leading-relaxed">อีเมลของคุณยังไม่ได้ถูกเพิ่มในทริปใดๆ กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มสิทธิ์</p>
       <button onclick="handleLogout()" class="w-full luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">ออกจากระบบ</button>
     </div>
   </div>
 
   <!-- ================= MAIN APP SCREEN ================= -->
   <div id="app-screen" class="hidden max-w-md mx-auto">
-    <!-- Pastel Luxury Header with Multi-Trip Switcher -->
-    <header class="bg-white/90 backdrop-blur-md border-b border-[#F3DCE2] px-5 py-3.5 sticky top-0 z-20">
+    <header class="bg-white/85 backdrop-blur-md border-b border-[#F5D5DF] px-5 py-3.5 sticky top-0 z-20">
       <div class="flex justify-between items-center gap-2">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1.5">
-            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#3D2C33] bg-transparent border-none p-0 pr-5 truncate max-w-[200px] cursor-pointer"></select>
+            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#6B424E] bg-transparent border-none p-0 pr-5 truncate max-w-[200px] cursor-pointer"></select>
           </div>
-          <p id="user-badge" class="text-[11px] text-[#9E7B87] mt-0.5 truncate">Loading...</p>
+          <p id="user-badge" class="text-[11px] text-[#B38895] mt-0.5 truncate">Loading...</p>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="exportToExcel()" class="text-[11px] text-[#8E445A] hover:bg-[#FFF0F3] px-2.5 py-1.5 rounded-xl border border-[#F3DCE2] bg-[#FDF8F9] font-medium">Excel</button>
-          <button onclick="handleLogout()" class="text-[11px] text-[#9E7B87] hover:text-[#3D2C33] px-2 py-1">ออก</button>
+          <button onclick="exportToExcel()" class="text-[11px] text-[#C45B79] hover:bg-[#FFEBF0] px-2.5 py-1.5 rounded-xl border border-[#F5D5DF] bg-[#FFF8FA] font-medium">Excel</button>
+          <button onclick="handleLogout()" class="text-[11px] text-[#B38895] hover:text-[#6B424E] px-2 py-1">ออก</button>
         </div>
       </div>
     </header>
 
     <!-- TAB 1: DASHBOARD & DAILY BILLS -->
     <main id="tab-expenses" class="p-5 space-y-5">
-      <!-- Pool Balance Card -->
       <div class="luxury-gradient text-white rounded-3xl p-5 space-y-3 shadow-md">
         <div class="flex justify-between items-start">
           <div>
-            <p class="text-[10px] uppercase tracking-[0.15em] text-pink-100/90">Central Pool Balance</p>
+            <p class="text-[10px] uppercase tracking-[0.16em] text-white/85">Central Pool Balance</p>
             <p id="pool-balance-cny" class="text-3xl font-light tracking-tight mt-1">¥0.00</p>
-            <p id="pool-balance-thb" class="text-xs text-pink-100/90 mt-0.5">THB 0.00</p>
+            <p id="pool-balance-thb" class="text-xs text-white/90 mt-0.5">THB 0.00</p>
           </div>
-          <button onclick="openDepositModal()" class="bg-white text-[#8E445A] text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs hover:bg-pink-50 transition">+ เติมกองกลาง</button>
+          <button onclick="openDepositModal()" class="bg-white text-[#C45B79] text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs hover:bg-[#FFF5F8] transition">+ เติมกองกลาง</button>
         </div>
-        <div class="pt-2.5 border-t border-white/15 flex justify-between items-center text-[11px] text-pink-100">
+        <div class="pt-2.5 border-t border-white/20 flex justify-between items-center text-[11px] text-white/95">
           <span id="pool-total-in">ยอดลงขันรวม ¥0</span>
           <button onclick="openModal('pool-detail-modal')" class="text-white underline font-medium">ดูยอดลงขันรายคน</button>
         </div>
       </div>
 
-      <!-- Personal Summary Box -->
       <div class="grid grid-cols-2 gap-3">
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#9E7B87]">ยอดใช้จ่ายของคุณ</p>
-          <p id="my-total-thb" class="text-lg font-semibold text-[#3D2C33] mt-1">฿0</p>
-          <p id="my-total-cny" class="text-[11px] text-[#9E7B87]">¥0</p>
+          <p class="text-[11px] text-[#A37B87]">ยอดใช้จ่ายของคุณ</p>
+          <p id="my-total-thb" class="text-lg font-semibold text-[#6B424E] mt-1">฿0</p>
+          <p id="my-total-cny" class="text-[11px] text-[#B38895]">¥0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl flex flex-col justify-between">
           <div>
-            <p class="text-[11px] text-[#9E7B87]">สถานะเคลียร์ส่วนตัว</p>
-            <p id="my-net-status" class="text-sm font-semibold text-[#3D2C33] mt-1">สมดุลแล้ว</p>
+            <p class="text-[11px] text-[#A37B87]">สถานะเคลียร์ส่วนตัว</p>
+            <p id="my-net-status" class="text-sm font-semibold text-[#6B424E] mt-1">สมดุลแล้ว</p>
           </div>
-          <button onclick="openModal('settle-modal')" class="text-[11px] text-[#B56576] underline text-left mt-1 font-medium">ดูสรุปรายบุคคล</button>
+          <button onclick="openModal('settle-modal')" class="text-[11px] text-[#D6718E] underline text-left mt-1 font-medium">ดูสรุปรายบุคคล</button>
         </div>
       </div>
 
-      <!-- Dynamic Day Filter -->
       <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar" id="day-filter-bar"></div>
 
-      <!-- Daily Total Summary -->
-      <div class="flex justify-between items-center py-2 border-b border-[#F3DCE2] text-xs">
-        <span id="filtered-day-label" class="text-[#8C727C]">ยอดรวมทั้งหมด</span>
-        <span id="filtered-day-total" class="font-semibold text-[#8E445A]">¥0.00 · ฿0.00</span>
+      <div class="flex justify-between items-center py-2 border-b border-[#F5D5DF] text-xs">
+        <span id="filtered-day-label" class="text-[#8C5867]">ยอดรวมทั้งหมด</span>
+        <span id="filtered-day-total" class="font-semibold text-[#C45B79]">¥0.00 · ฿0.00</span>
       </div>
 
-      <!-- Expense List -->
       <div id="expense-list" class="space-y-3"></div>
     </main>
 
     <!-- TAB 2: ANALYTICS & CHARTS -->
     <main id="tab-analytics" class="hidden p-5 space-y-5">
       <div>
-        <h2 class="font-semibold text-base text-[#3D2C33]">สรุปภาพรวม & กราฟค่าใช้จ่าย</h2>
-        <p class="text-xs text-[#9E7B87]">วิเคราะห์ยอดใช้จ่ายรายวันและสัดส่วนแต่ละหมวดหมู่</p>
+        <h2 class="font-semibold text-base text-[#6B424E]">สรุปภาพรวม & กราฟค่าใช้จ่าย</h2>
+        <p class="text-xs text-[#A37B87]">วิเคราะห์ยอดใช้จ่ายรายวันและสัดส่วนแต่ละหมวดหมู่</p>
       </div>
 
-      <!-- Key Metrics -->
       <div class="grid grid-cols-2 gap-3">
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#9E7B87]">ยอดใช้จ่ายรวมทั้งทริป</p>
-          <p id="stat-grand-thb" class="text-lg font-semibold text-[#8E445A] mt-1">฿0</p>
-          <p id="stat-grand-cny" class="text-[11px] text-[#9E7B87]">¥0</p>
+          <p class="text-[11px] text-[#A37B87]">ยอดใช้จ่ายรวมทั้งทริป</p>
+          <p id="stat-grand-thb" class="text-lg font-semibold text-[#C45B79] mt-1">฿0</p>
+          <p id="stat-grand-cny" class="text-[11px] text-[#B38895]">¥0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#9E7B87]">เฉลี่ยต่อวัน (ทั้งกลุ่ม)</p>
-          <p id="stat-avg-day" class="text-lg font-semibold text-[#3D2C33] mt-1">฿0</p>
-          <p id="stat-avg-person" class="text-[11px] text-[#9E7B87]">เฉลี่ยคนละ ฿0</p>
+          <p class="text-[11px] text-[#A37B87]">เฉลี่ยต่อวัน (ทั้งกลุ่ม)</p>
+          <p id="stat-avg-day" class="text-lg font-semibold text-[#6B424E] mt-1">฿0</p>
+          <p id="stat-avg-person" class="text-[11px] text-[#B38895]">เฉลี่ยคนละ ฿0</p>
         </div>
       </div>
 
-      <!-- Daily Bar Chart -->
       <div class="soft-card p-4 rounded-3xl space-y-3">
-        <h3 class="text-xs font-semibold text-[#3D2C33]">กราฟค่าใช้จ่ายรายวัน (บาท)</h3>
+        <h3 class="text-xs font-semibold text-[#6B424E]">กราฟค่าใช้จ่ายรายวัน (บาท)</h3>
         <div class="h-52">
           <canvas id="dailyChart"></canvas>
         </div>
       </div>
 
-      <!-- Category Donut Chart -->
       <div class="soft-card p-4 rounded-3xl space-y-3">
-        <h3 class="text-xs font-semibold text-[#3D2C33]">สัดส่วนแยกตามหมวดหมู่</h3>
+        <h3 class="text-xs font-semibold text-[#6B424E]">สัดส่วนแยกตามหมวดหมู่</h3>
         <div class="h-52 flex items-center justify-center">
           <canvas id="categoryChart"></canvas>
         </div>
-        <div id="category-breakdown-list" class="space-y-2 pt-2 border-t border-[#F9ECEF] text-xs"></div>
+        <div id="category-breakdown-list" class="space-y-2 pt-2 border-t border-[#FCEBF0] text-xs"></div>
       </div>
     </main>
 
@@ -175,8 +167,8 @@
     <main id="tab-photos" class="hidden p-5 space-y-4">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="font-semibold text-base text-[#3D2C33]">Travel Gallery</h2>
-          <p class="text-xs text-[#9E7B87]">ภาพบันทึกความทรงจำตลอดทริป</p>
+          <h2 class="font-semibold text-base text-[#6B424E]">Travel Gallery</h2>
+          <p class="text-xs text-[#A37B87]">ภาพบันทึกความทรงจำตลอดทริป</p>
         </div>
         <button onclick="openModal('photo-modal')" class="luxury-gradient text-white text-xs font-medium px-4 py-2 rounded-xl shadow-xs">+ เพิ่มรูปภาพ</button>
       </div>
@@ -185,77 +177,72 @@
 
     <!-- TAB 4: MEMBERS, ADMIN & AUDIT LOG -->
     <main id="tab-members" class="hidden p-5 space-y-5">
-      <!-- Super Admin: Create New Trip & AI OCR Key -->
-      <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#E5B8C4]">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-[#B56576]">Administration</p>
-            <h2 class="font-semibold text-sm text-[#3D2C33]">สร้างทริปใหม่ & ตั้งค่า AI สแกนบิล</h2>
-          </div>
+      <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
+          <h2 class="font-semibold text-sm text-[#6B424E]">สร้างทริปใหม่ & ตั้งค่า AI สแกนบิล</h2>
         </div>
 
         <div class="space-y-2.5 pt-1">
-          <input id="new-trip-name" type="text" placeholder="ชื่อทริปใหม่ (เช่น Shanghai 2027)" class="w-full px-3.5 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+          <input id="new-trip-name" type="text" placeholder="ชื่อทริปใหม่ (เช่น Shanghai 2027)" class="w-full px-3.5 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           <div class="grid grid-cols-2 gap-2">
-            <input id="new-trip-dates" type="text" placeholder="ช่วงวันที่ (เช่น 10-15 เม.ย.)" class="w-full px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
-            <input id="new-trip-rate" type="number" step="0.01" value="4.85" placeholder="เรทเงินเริ่มต้น" class="w-full px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+            <input id="new-trip-dates" type="text" placeholder="ช่วงวันที่ (เช่น 10-15 เม.ย.)" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="new-trip-rate" type="number" step="0.01" value="4.85" placeholder="เรทเงินเริ่มต้น" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           </div>
           <button onclick="createNewTrip()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">+ สร้างทริปใหม่แยกต่างหาก</button>
         </div>
 
-        <div class="pt-3 border-t border-[#F3DCE2] space-y-2">
-          <label class="block text-[11px] font-medium text-[#6E545E]">Gemini API Key (รองรับคีย์ AQ. และ AIzaSy...)</label>
+        <div class="pt-3 border-t border-[#F5D5DF] space-y-2">
+          <label class="block text-[11px] font-medium text-[#8C5867]">Gemini API Key (รองรับคีย์ AQ. และ AIzaSy...)</label>
           <div class="flex gap-2">
-            <input id="gemini-api-key" type="password" placeholder="วางรหัส AQ. หรือ AIzaSy..." class="w-full px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
-            <button onclick="saveGeminiKey()" class="bg-[#3D2C33] text-white px-3.5 py-2 rounded-xl text-xs shrink-0">บันทึก</button>
+            <input id="gemini-api-key" type="password" placeholder="วางรหัส AQ. หรือ AIzaSy..." class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <button onclick="saveGeminiKey()" class="bg-[#8C5867] text-white px-3.5 py-2 rounded-xl text-xs shrink-0">บันทึก</button>
           </div>
         </div>
       </div>
 
-      <!-- Current Trip Member Management -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center">
-          <h2 class="font-semibold text-sm text-[#3D2C33]">สมาชิกทริปนี้ (<span id="member-count">0</span>/10)</h2>
+          <h2 class="font-semibold text-sm text-[#6B424E]">สมาชิกทริปนี้ (<span id="member-count">0</span>/10)</h2>
         </div>
-        <div id="member-list" class="divide-y divide-[#F9ECEF] text-sm"></div>
+        <div id="member-list" class="divide-y divide-[#FCEBF0] text-sm"></div>
 
-        <div id="host-add-member" class="hidden pt-3 border-t border-[#F3DCE2] space-y-2.5">
-          <p class="text-xs font-medium text-[#8C727C]">เพิ่มสมาชิกเข้าทริปนี้ (สูงสุด 10 อีเมล)</p>
+        <div id="host-add-member" class="hidden pt-3 border-t border-[#F5D5DF] space-y-2.5">
+          <p class="text-xs font-medium text-[#A37B87]">เพิ่มสมาชิกเข้าทริปนี้ (สูงสุด 10 อีเมล)</p>
           <div class="flex gap-2">
-            <input id="new-member-name" type="text" placeholder="ชื่อ" class="w-1/3 px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
-            <input id="new-member-email" type="email" placeholder="อีเมล" class="w-2/3 px-3 py-2 bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl text-xs" />
+            <input id="new-member-name" type="text" placeholder="ชื่อ" class="w-1/3 px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="new-member-email" type="email" placeholder="อีเมล" class="w-2/3 px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           </div>
           <button onclick="addMember()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">เพิ่มสิทธิ์อีเมลนี้</button>
         </div>
       </div>
 
-      <!-- Audit Log -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
-        <h2 class="font-semibold text-sm text-[#3D2C33]">ประวัติการบันทึก (Audit Log)</h2>
-        <div id="audit-log-list" class="space-y-2.5 max-h-80 overflow-y-auto text-xs text-[#8C727C]"></div>
+        <h2 class="font-semibold text-sm text-[#6B424E]">ประวัติการบันทึก (Audit Log)</h2>
+        <div id="audit-log-list" class="space-y-2.5 max-h-80 overflow-y-auto text-xs text-[#A37B87]"></div>
       </div>
     </main>
 
     <!-- Floating Add Expense Button -->
-    <button onclick="openExpenseModal()" aria-label="Add Expense" class="fixed bottom-20 right-5 luxury-gradient hover:opacity-95 text-white w-13 h-13 p-3.5 rounded-full shadow-lg flex items-center justify-center z-30 transition">
+    <button onclick="openExpenseModal()" aria-label="Add Expense" class="fixed bottom-20 right-5 luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center z-30 transition">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
     </button>
 
-    <!-- Bottom Navigation (4 Tabs) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#F3DCE2] flex justify-around py-2.5 max-w-md mx-auto z-20 text-[10px] font-medium">
-      <button onclick="switchTab('expenses')" id="nav-expenses" class="flex flex-col items-center gap-1 text-[#8E445A]">
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#F5D5DF] flex justify-around py-2.5 max-w-md mx-auto z-20 text-[10px] font-medium">
+      <button onclick="switchTab('expenses')" id="nav-expenses" class="flex flex-col items-center gap-1 text-[#C45B79]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>รายการ</span>
       </button>
-      <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-[#B89CA6]">
+      <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
         <span>สรุป & กราฟ</span>
       </button>
-      <button onclick="switchTab('photos')" id="nav-photos" class="flex flex-col items-center gap-1 text-[#B89CA6]">
+      <button onclick="switchTab('photos')" id="nav-photos" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
         <span>รูปภาพ</span>
       </button>
-      <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 text-[#B89CA6]">
+      <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
         <span>จัดการทริป</span>
       </button>
@@ -263,36 +250,36 @@
   </div>
 
   <!-- ================= MODAL: ADD EXPENSE WITH AI SCANNER ================= -->
-  <div id="expense-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F3DCE2]">
+  <div id="expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#3D2C33]">บันทึกรายจ่าย</h3>
-        <button onclick="closeModal('expense-modal')" class="text-[#9E7B87] hover:text-[#3D2C33] text-xl leading-none">&times;</button>
+        <h3 class="font-semibold text-base text-[#6B424E]">บันทึกรายจ่าย</h3>
+        <button onclick="closeModal('expense-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
 
       <!-- AI Smart Receipt Scanner Box -->
-      <div class="bg-[#FFF5F7] border border-dashed border-[#E2A8B7] rounded-2xl p-3.5 space-y-2">
+      <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
         <div class="flex justify-between items-center">
           <div>
-            <p class="text-xs font-semibold text-[#8E445A]">สแกนบิลภาษาจีน / อังกฤษอัตโนมัติ</p>
-            <p class="text-[10px] text-[#9E7B87]">เลือกรูปสลิป Alipay, WeChat หรือใบเสร็จเพื่อกรอกข้อมูลทันที</p>
+            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลภาษาจีน / อังกฤษอัตโนมัติ</p>
+            <p class="text-[10px] text-[#A37B87]">เลือกรูปสลิป Alipay, WeChat หรือใบเสร็จเพื่อกรอกข้อมูลทันที</p>
           </div>
-          <label class="luxury-gradient text-white text-[11px] font-medium px-3 py-1.5 rounded-xl cursor-pointer shrink-0 shadow-xs">
+          <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shrink-0 shadow-xs">
             เลือกรูปสแกน
             <input id="exp-file" type="file" accept="image/*" onchange="handleReceiptScan(this)" class="hidden" />
           </label>
         </div>
-        <p id="ocr-status" class="hidden text-[11px] text-[#8E445A] font-medium"></p>
+        <p id="ocr-status" class="hidden text-[11px] text-[#C45B79] font-medium"></p>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-[11px] text-[#8C727C]">วันที่</label>
-          <select id="exp-day" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1"></select>
+          <label class="text-[11px] text-[#8C5867]">วันที่</label>
+          <select id="exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
         <div>
-          <label class="text-[11px] text-[#8C727C]">หมวดหมู่</label>
-          <select id="exp-cat" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1">
+          <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
+          <select id="exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
             <option value="Food">อาหาร / เครื่องดื่ม</option>
             <option value="Transport">เดินทาง / รถไฟ / DiDi</option>
             <option value="Ticket">ค่าเข้าสถานที่</option>
@@ -303,44 +290,44 @@
       </div>
 
       <div>
-        <label class="text-[11px] text-[#8C727C]">รายละเอียดรายการ</label>
-        <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ (หรือให้ AI สแกนจากรูป)" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
+        <label class="text-[11px] text-[#8C5867]">รายละเอียดรายการ</label>
+        <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ (หรือให้ AI สแกนจากรูป)" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
       </div>
 
-      <div class="grid grid-cols-2 gap-3 bg-[#FDF8F9] p-3.5 rounded-2xl border border-[#F3DCE2]">
+      <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
         <div>
-          <label class="text-[11px] text-[#8C727C]">จำนวนเงิน (CNY)</label>
-          <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#EBD2D9] rounded-xl p-2 text-base font-semibold text-[#8E445A] mt-1" />
+          <label class="text-[11px] text-[#8C5867]">จำนวนเงิน (CNY)</label>
+          <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
         </div>
         <div>
-          <label class="text-[11px] text-[#8C727C]">เรท (THB/CNY)</label>
-          <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-[#EBD2D9] rounded-xl p-2 text-sm mt-1" />
+          <label class="text-[11px] text-[#8C5867]">เรท (THB/CNY)</label>
+          <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-sm mt-1" />
         </div>
         <div class="col-span-2 flex justify-between items-center pt-1">
-          <label class="flex items-center gap-2 text-xs text-[#6E545E]">
-            <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#EBD2D9] text-[#8E445A] focus:ring-0" />
+          <label class="flex items-center gap-2 text-xs text-[#8C5867]">
+            <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
             ค่าธรรมเนียม +3%
           </label>
-          <span id="exp-thb-preview" class="text-xs font-semibold text-[#8E445A]">THB 0.00</span>
+          <span id="exp-thb-preview" class="text-xs font-semibold text-[#C45B79]">THB 0.00</span>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-[11px] text-[#8C727C]">แหล่งเงิน</label>
-          <select id="exp-paid-type" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1">
+          <label class="text-[11px] text-[#8C5867]">แหล่งเงิน</label>
+          <select id="exp-paid-type" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
             <option value="pool">หักจากกองกลาง</option>
             <option value="personal">สำรองจ่ายส่วนตัว</option>
           </select>
         </div>
         <div>
-          <label class="text-[11px] text-[#8C727C]">ผู้ชำระเงิน</label>
-          <select id="exp-paid-by" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1"></select>
+          <label class="text-[11px] text-[#8C5867]">ผู้ชำระเงิน</label>
+          <select id="exp-paid-by" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
       </div>
 
       <div>
-        <label class="text-[11px] text-[#8C727C] block mb-1.5">ผู้ร่วมหาร</label>
+        <label class="text-[11px] text-[#8C5867] block mb-1.5">ผู้ร่วมหาร</label>
         <div id="exp-split-checkboxes" class="flex flex-wrap gap-1.5"></div>
       </div>
 
@@ -349,74 +336,74 @@
   </div>
 
   <!-- ================= MODAL: DEPOSIT POOL ================= -->
-  <div id="deposit-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F3DCE2]">
-      <h3 class="font-semibold text-base text-[#3D2C33]">เติมเงินกองกลาง</h3>
+  <div id="deposit-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
+      <h3 class="font-semibold text-base text-[#6B424E]">เติมเงินกองกลาง</h3>
       <div>
-        <label class="text-xs text-[#8C727C]">ผู้ลงขัน (ระบุชื่อคน)</label>
-        <select id="dep-member" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1"></select>
+        <label class="text-xs text-[#8C5867]">ผู้ลงขัน (ระบุชื่อคน)</label>
+        <select id="dep-member" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1"></select>
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <div>
-          <label class="text-xs text-[#8C727C]">จำนวนเงิน (CNY)</label>
-          <input id="dep-cny" type="number" step="0.01" placeholder="2000" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
+          <label class="text-xs text-[#8C5867]">จำนวนเงิน (CNY)</label>
+          <input id="dep-cny" type="number" step="0.01" placeholder="2000" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
         </div>
         <div>
-          <label class="text-xs text-[#8C727C]">เรท (THB/CNY)</label>
-          <input id="dep-rate" type="number" step="0.01" value="4.85" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
+          <label class="text-xs text-[#8C5867]">เรท (THB/CNY)</label>
+          <input id="dep-rate" type="number" step="0.01" value="4.85" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
         </div>
       </div>
       <div>
-        <label class="text-xs text-[#8C727C]">หมายเหตุ</label>
-        <input id="dep-note" type="text" placeholder="เช่น โอนเข้า Alipay กองกลาง" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
+        <label class="text-xs text-[#8C5867]">หมายเหตุ</label>
+        <input id="dep-note" type="text" placeholder="เช่น โอนเข้า Alipay กองกลาง" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
       </div>
       <div class="flex gap-2.5 pt-2">
-        <button onclick="closeModal('deposit-modal')" class="w-1/2 bg-[#FDF8F9] text-[#8C727C] border border-[#EBD2D9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button onclick="closeModal('deposit-modal')" class="w-1/2 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
         <button onclick="saveDeposit()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">บันทึก</button>
       </div>
     </div>
   </div>
 
   <!-- ================= MODAL: POOL DETAILS BY MEMBER ================= -->
-  <div id="pool-detail-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-[#F3DCE2]">
+  <div id="pool-detail-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#3D2C33]">สรุปยอดลงขันกองกลาง</h3>
-        <button onclick="closeModal('pool-detail-modal')" class="text-[#9E7B87] hover:text-[#3D2C33] text-xl leading-none">&times;</button>
+        <h3 class="font-semibold text-base text-[#6B424E]">สรุปยอดลงขันกองกลาง</h3>
+        <button onclick="closeModal('pool-detail-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
       <div id="pool-member-summary" class="space-y-2 text-xs"></div>
-      <div class="pt-2 border-t border-[#F3DCE2]">
-        <p class="text-[11px] font-medium text-[#9E7B87] mb-2">ประวัติการเติมเงินทั้งหมด</p>
+      <div class="pt-2 border-t border-[#F5D5DF]">
+        <p class="text-[11px] font-medium text-[#B38895] mb-2">ประวัติการเติมเงินทั้งหมด</p>
         <div id="pool-deposit-history" class="space-y-2 text-xs"></div>
       </div>
     </div>
   </div>
 
   <!-- ================= MODAL: UPLOAD PHOTO ================= -->
-  <div id="photo-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F3DCE2]">
-      <h3 class="font-semibold text-base text-[#3D2C33]">เพิ่มรูปภาพ</h3>
+  <div id="photo-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
+      <h3 class="font-semibold text-base text-[#6B424E]">เพิ่มรูปภาพ</h3>
       <div>
-        <label class="text-xs text-[#8C727C]">วันที่</label>
-        <select id="photo-day" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-xs mt-1"></select>
+        <label class="text-xs text-[#8C5867]">วันที่</label>
+        <select id="photo-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
       </div>
       <div>
-        <label class="text-xs text-[#8C727C]">ไฟล์รูปภาพ</label>
-        <input id="photo-file" type="file" accept="image/*" class="w-full text-xs text-[#8C727C] mt-1" />
+        <label class="text-xs text-[#8C5867]">ไฟล์รูปภาพ</label>
+        <input id="photo-file" type="file" accept="image/*" class="w-full text-xs text-[#A37B87] mt-1" />
       </div>
       <div>
-        <label class="text-xs text-[#8C727C]">คำบรรยาย</label>
-        <input id="photo-caption" type="text" placeholder="ระบุสถานที่หรือบันทึกสั้นๆ" class="w-full bg-[#FDF8F9] border border-[#EBD2D9] rounded-xl p-2.5 text-sm mt-1" />
+        <label class="text-xs text-[#8C5867]">คำบรรยาย</label>
+        <input id="photo-caption" type="text" placeholder="ระบุสถานที่หรือบันทึกสั้นๆ" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
       </div>
       <div class="flex gap-2.5 pt-2">
-        <button onclick="closeModal('photo-modal')" class="w-1/2 bg-[#FDF8F9] text-[#8C727C] border border-[#EBD2D9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button onclick="closeModal('photo-modal')" class="w-1/2 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
         <button id="btn-upload-photo" onclick="uploadTripPhoto()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">อัปโหลด</button>
       </div>
     </div>
   </div>
 
   <!-- ================= MODAL: IMAGE VIEWER ================= -->
-  <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#24181D]/90 z-50 flex flex-col items-center justify-center p-4">
+  <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#3A2229]/90 z-50 flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-md flex justify-end mb-2">
       <button onclick="closeModal('image-viewer-modal')" class="text-white text-xs bg-white/15 px-3.5 py-1.5 rounded-xl">ปิดหน้าต่าง</button>
     </div>
@@ -424,13 +411,13 @@
   </div>
 
   <!-- ================= MODAL: SETTLE UP SUMMARY ================= -->
-  <div id="settle-modal" class="hidden fixed inset-0 bg-[#3D2C33]/40 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-[#F3DCE2]">
+  <div id="settle-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#3D2C33]">สรุปยอดเคลียร์รายบุคคล</h3>
-        <button onclick="closeModal('settle-modal')" class="text-[#9E7B87] hover:text-[#3D2C33] text-xl leading-none">&times;</button>
+        <h3 class="font-semibold text-base text-[#6B424E]">สรุปยอดเคลียร์รายบุคคล</h3>
+        <button onclick="closeModal('settle-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
-      <p class="text-xs text-[#9E7B87]">คำนวณเฉพาะรายการที่สำรองจ่ายส่วนตัว (หน่วย: บาท)</p>
+      <p class="text-xs text-[#A37B87]">คำนวณเฉพาะรายการที่สำรองจ่ายส่วนตัว (หน่วย: บาท)</p>
       <div id="settle-details" class="space-y-2 text-xs"></div>
     </div>
   </div>
@@ -575,14 +562,14 @@
     }
 
     function renderDayControls() {
-      let filterHtml = `<button onclick="filterDay('all')" class="day-btn ${currentDayFilter === 'all' ? 'luxury-gradient text-white shadow-xs' : 'bg-white text-[#8C727C] border border-[#F3DCE2]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="all">ทั้งหมด</button>`;
+      let filterHtml = `<button onclick="filterDay('all')" class="day-btn ${currentDayFilter === 'all' ? 'luxury-gradient text-white shadow-xs' : 'bg-white/90 text-[#8C5867] border border-[#F5D5DF]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="all">ทั้งหมด</button>`;
       let optionsHtml = '';
       for (let d = 1; d <= totalDays; d++) {
         const active = String(currentDayFilter) === String(d);
-        filterHtml += `<button onclick="filterDay(${d})" class="day-btn ${active ? 'luxury-gradient text-white shadow-xs' : 'bg-white text-[#8C727C] border border-[#F3DCE2]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="${d}">Day ${d}</button>`;
+        filterHtml += `<button onclick="filterDay(${d})" class="day-btn ${active ? 'luxury-gradient text-white shadow-xs' : 'bg-white/90 text-[#8C5867] border border-[#F5D5DF]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="${d}">Day ${d}</button>`;
         optionsHtml += `<option value="${d}">Day ${d}</option>`;
       }
-      filterHtml += `<button onclick="addTripDay()" class="bg-[#FFF0F3] text-[#8E445A] hover:bg-[#FFE3E9] px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 border border-[#F5C2CE]">+ เพิ่มวัน</button>`;
+      filterHtml += `<button onclick="addTripDay()" class="bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 border border-[#F5C2D1]">+ เพิ่มวัน</button>`;
 
       document.getElementById('day-filter-bar').innerHTML = filterHtml;
       document.getElementById('exp-day').innerHTML = optionsHtml;
@@ -619,22 +606,22 @@
 
       document.getElementById('pool-member-summary').innerHTML = membersList.map(m => {
         const p = memberPoolMap[m.email] || { cny: 0, thb: 0 };
-        return `<div class="flex justify-between items-center p-3 bg-[#FDF8F9] rounded-2xl border border-[#F3DCE2]">
-          <span class="font-medium text-[#3D2C33]">${m.display_name}</span>
-          <span class="font-semibold text-[#8E445A]">¥${p.cny.toLocaleString()} <span class="text-[#9E7B87] font-normal">(฿${p.thb.toLocaleString('en-US', {maximumFractionDigits:0})})</span></span>
+        return `<div class="flex justify-between items-center p-3 bg-[#FFF9FA] rounded-2xl border border-[#F5D5DF]">
+          <span class="font-medium text-[#6B424E]">${m.display_name}</span>
+          <span class="font-semibold text-[#C45B79]">¥${p.cny.toLocaleString()} <span class="text-[#B38895] font-normal">(฿${p.thb.toLocaleString('en-US', {maximumFractionDigits:0})})</span></span>
         </div>`;
       }).join('');
 
       document.getElementById('pool-deposit-history').innerHTML = depositsList.map(d => {
         const canDel = d.member_email === currentMember.email || currentMember.role === 'host';
-        return `<div class="flex justify-between items-center py-2 border-b border-[#F9ECEF]">
+        return `<div class="flex justify-between items-center py-2 border-b border-[#FCEBF0]">
           <div>
-            <p class="font-medium text-[#3D2C33]">${getMemberName(d.member_email)} · ¥${Number(d.amount_cny).toLocaleString()}</p>
-            <p class="text-[10px] text-[#9E7B87]">${d.note || 'เติมกองกลาง'} (เรท ${d.exchange_rate})</p>
+            <p class="font-medium text-[#6B424E]">${getMemberName(d.member_email)} · ¥${Number(d.amount_cny).toLocaleString()}</p>
+            <p class="text-[10px] text-[#B38895]">${d.note || 'เติมกองกลาง'} (เรท ${d.exchange_rate})</p>
           </div>
-          ${canDel ? `<button onclick="deleteDeposit('${d.id}', ${d.amount_cny})" class="text-[11px] text-[#9E7B87] hover:text-rose-600">ลบ</button>` : ''}
+          ${canDel ? `<button onclick="deleteDeposit('${d.id}', ${d.amount_cny})" class="text-[11px] text-[#B38895] hover:text-rose-600">ลบ</button>` : ''}
         </div>`;
-      }).join('') || '<p class="text-[#9E7B87]">ยังไม่มีรายการเติมเงิน</p>';
+      }).join('') || '<p class="text-[#B38895]">ยังไม่มีรายการเติมเงิน</p>';
 
       let poolSpentCny = 0, poolSpentThb = 0;
       let myShareCny = 0, myShareThb = 0;
@@ -676,7 +663,7 @@
       const netEl = document.getElementById('my-net-status');
       if (Math.abs(myNet) < 1) {
         netEl.textContent = 'สมดุลแล้ว';
-        netEl.className = 'text-sm font-semibold text-[#3D2C33] mt-1';
+        netEl.className = 'text-sm font-semibold text-[#6B424E] mt-1';
       } else if (myNet > 0) {
         netEl.textContent = `รอรับคืน +฿${myNet.toFixed(0)}`;
         netEl.className = 'text-sm font-semibold text-emerald-700 mt-1';
@@ -689,8 +676,8 @@
         const val = netBalances[m.email] || 0;
         const status = val > 1 ? `<span class="text-emerald-700 font-semibold">+฿${val.toFixed(2)} (รับคืน)</span>`
                      : val < -1 ? `<span class="text-rose-600 font-semibold">-฿${Math.abs(val).toFixed(2)} (โอนคืน)</span>`
-                     : `<span class="text-[#9E7B87]">0.00</span>`;
-        return `<div class="flex justify-between items-center p-3 bg-[#FDF8F9] rounded-2xl border border-[#F3DCE2]"><span class="font-medium text-[#3D2C33]">${m.display_name}</span>${status}</div>`;
+                     : `<span class="text-[#B38895]">0.00</span>`;
+        return `<div class="flex justify-between items-center p-3 bg-[#FFF9FA] rounded-2xl border border-[#F5D5DF]"><span class="font-medium text-[#6B424E]">${m.display_name}</span>${status}</div>`;
       }).join('');
 
       renderExpenseList();
@@ -722,22 +709,22 @@
             <div class="flex justify-between items-start gap-3">
               <div>
                 <div class="flex items-center gap-1.5 text-[10px] font-medium">
-                  <span class="bg-[#FFF0F3] text-[#8E445A] px-2 py-0.5 rounded-lg">Day ${e.trip_day}</span>
-                  <span class="bg-[#FDF8F9] text-[#8C727C] px-2 py-0.5 rounded-lg border border-[#F3DCE2]">${catNames[e.category] || e.category}</span>
-                  <span class="text-[#9E7B87]">${e.paid_by_type === 'pool' ? 'กองกลาง' : getMemberName(e.paid_by_email)}</span>
+                  <span class="bg-[#FFEBF0] text-[#C45B79] px-2 py-0.5 rounded-lg">Day ${e.trip_day}</span>
+                  <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-lg border border-[#F5D5DF]">${catNames[e.category] || e.category}</span>
+                  <span class="text-[#B38895]">${e.paid_by_type === 'pool' ? 'กองกลาง' : getMemberName(e.paid_by_email)}</span>
                 </div>
-                <h4 class="font-medium text-sm text-[#3D2C33] mt-1.5">${e.title}</h4>
+                <h4 class="font-medium text-sm text-[#6B424E] mt-1.5">${e.title}</h4>
               </div>
               <div class="text-right shrink-0">
-                <p class="font-semibold text-[#8E445A] text-sm">¥${cny.toFixed(2)}</p>
-                <p class="text-[11px] text-[#9E7B87]">฿${thb.toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
+                <p class="font-semibold text-[#C45B79] text-sm">¥${cny.toFixed(2)}</p>
+                <p class="text-[11px] text-[#B38895]">฿${thb.toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
               </div>
             </div>
-            <div class="flex justify-between items-center text-[11px] text-[#9E7B87] pt-2 border-t border-[#F9ECEF]">
+            <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-2 border-t border-[#FCEBF0]">
               <span class="truncate pr-2">หาร: ${splitNames || '-'}</span>
               <div class="flex items-center gap-3 shrink-0">
-                ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}')" class="text-[#B56576] font-medium underline">ดูสลิป</button>` : ''}
-                ${canDelete ? `<button onclick="deleteExpense('${e.id}', '${e.title}')" class="text-[#9E7B87] hover:text-rose-600">ลบ</button>` : ''}
+                ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}')" class="text-[#D6718E] font-medium underline">ดูสลิป</button>` : ''}
+                ${canDelete ? `<button onclick="deleteExpense('${e.id}', '${e.title}')" class="text-[#B38895] hover:text-rose-600">ลบ</button>` : ''}
               </div>
             </div>
           </div>`;
@@ -745,7 +732,7 @@
 
       document.getElementById('filtered-day-label').textContent = currentDayFilter === 'all' ? 'ยอดรวมทั้งทริป' : `ยอดรวม Day ${currentDayFilter}`;
       document.getElementById('filtered-day-total').textContent = `¥${sumCny.toFixed(2)} · ฿${sumThb.toFixed(2)}`;
-      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#9E7B87] py-10">ยังไม่มีรายการบันทึก</p>';
+      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีรายการบันทึก</p>';
     }
 
     // ================= ANALYTICS & CHARTS =================
@@ -781,7 +768,7 @@
           datasets: [{
             label: 'ยอดใช้จ่าย (บาท)',
             data: sortedDays.length ? sortedDays.map(k => dayTotals[k]) : [0],
-            backgroundColor: '#C97C8E',
+            backgroundColor: '#E389A3',
             borderRadius: 8
           }]
         },
@@ -790,14 +777,14 @@
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { beginAtZero: true, grid: { color: '#F9ECEF' }, ticks: { font: { size: 10 }, color: '#9E7B87' } },
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#6E545E' } }
+            y: { beginAtZero: true, grid: { color: '#FCEBF0' }, ticks: { font: { size: 10 }, color: '#A37B87' } },
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#8C5867' } }
           }
         }
       });
 
       const catKeys = Object.keys(catTotals).filter(k => catTotals[k] > 0);
-      const pastelColors = ['#B56576', '#E5989B', '#FFB4A2', '#D4A373', '#CDB4DB'];
+      const pastelColors = ['#D6718E', '#F2A2B8', '#FFB5C8', '#E5B8C4', '#D8B4E2'];
       if (categoryChartInstance) categoryChartInstance.destroy();
       categoryChartInstance = new Chart(document.getElementById('categoryChart'), {
         type: 'doughnut',
@@ -814,20 +801,53 @@
           responsive: true,
           maintainAspectRatio: false,
           cutout: '65%',
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, color: '#6E545E' } } }
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, color: '#8C5867' } } }
         }
       });
 
       document.getElementById('category-breakdown-list').innerHTML = catKeys.map((k, i) => {
         const pct = grandThb > 0 ? ((catTotals[k] / grandThb) * 100).toFixed(1) : 0;
         return `<div class="flex justify-between items-center">
-          <span class="flex items-center gap-2 text-[#6E545E]"><span class="w-2.5 h-2.5 rounded-full" style="background:${pastelColors[i % pastelColors.length]}"></span>${catLabels[k]}</span>
-          <span class="font-semibold text-[#3D2C33]">฿${catTotals[k].toLocaleString('en-US', {maximumFractionDigits: 0})} <span class="text-[#9E7B87] font-normal">(${pct}%)</span></span>
+          <span class="flex items-center gap-2 text-[#8C5867]"><span class="w-2.5 h-2.5 rounded-full" style="background:${pastelColors[i % pastelColors.length]}"></span>${catLabels[k]}</span>
+          <span class="font-semibold text-[#6B424E]">฿${catTotals[k].toLocaleString('en-US', {maximumFractionDigits: 0})} <span class="text-[#B38895] font-normal">(${pct}%)</span></span>
         </div>`;
-      }).join('') || '<p class="text-center text-[#9E7B87]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
+      }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= AI RECEIPT SCANNER (SUPPORTS AQ. & AIzaSy... KEYS) =================
+    // ================= AI RECEIPT SCANNER WITH AUTO-FALLBACK MODELS =================
+    async function callGeminiWithFallback(apiKey, prompt, base64Data) {
+      const models = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+      let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
+
+      for (const modelName of models) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
+                ]
+              }]
+            })
+          });
+
+          const result = await response.json();
+          if (result.error) {
+            lastError = result.error.message || 'API Error';
+            continue; // ถ้าโมเดลนี้คิวเต็มหรือติดขัด ให้ข้ามไปใช้โมเดลสำรองถัดไปทันที
+          }
+          const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) return rawText;
+        } catch (err) {
+          lastError = err.message;
+        }
+      }
+      throw new Error(lastError);
+    }
+
     async function handleReceiptScan(input) {
       if (!input.files || !input.files[0]) return;
       const apiKey = (localStorage.getItem('gemini_ocr_key') || '').trim();
@@ -844,26 +864,7 @@
         const base64Data = await fileToBase64(input.files[0]);
         const prompt = `Analyze this receipt or payment screenshot (may be in Chinese, English, or Thai such as Alipay, WeChat Pay, or restaurant bill). Extract the final net paid amount in CNY (Chinese Yuan), a concise Thai description with original merchant name in parentheses, and the best matching category from: Food, Transport, Ticket, Shopping, Hotel. Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food"}`;
 
-        
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: prompt },
-                { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
-              ]
-            }]
-          })
-        });
-
-        const result = await response.json();
-        if (result.error) {
-          throw new Error(result.error.message || 'API Error');
-        }
-
-        const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const rawText = await callGeminiWithFallback(apiKey, prompt, base64Data);
         const jsonMatch = rawText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
@@ -942,8 +943,8 @@
       document.getElementById('ocr-status').classList.add('hidden');
       document.getElementById('exp-paid-by').innerHTML = membersList.map(m => `<option value="${m.email}" ${m.email === currentMember.email ? 'selected' : ''}>${m.display_name}</option>`).join('');
       document.getElementById('exp-split-checkboxes').innerHTML = membersList.map(m => `
-        <label class="flex items-center gap-1.5 bg-[#FDF8F9] border border-[#EBD2D9] px-3 py-1.5 rounded-xl text-xs text-[#6E545E]">
-          <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-[#EBD2D9] text-[#8E445A] focus:ring-0" />
+        <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
+          <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
           ${m.display_name}
         </label>`).join('');
       openModal('expense-modal');
@@ -1077,15 +1078,15 @@
       const html = list.map((p, idx) => `
         <div class="soft-card rounded-2xl overflow-hidden">
           <div onclick="viewStorageImage('${p.image_url}')" class="cursor-pointer">
-            <img id="gallery-img-${idx}" src="" class="w-full h-36 object-cover bg-[#FFF0F3]" />
+            <img id="gallery-img-${idx}" src="" class="w-full h-36 object-cover bg-[#FFEBF0]" />
           </div>
           <div class="p-3">
-            <span class="text-[10px] bg-[#FFF0F3] text-[#8E445A] font-medium px-2 py-0.5 rounded-lg">Day ${p.trip_day}</span>
-            <p class="text-xs font-medium text-[#3D2C33] mt-1.5 truncate">${p.caption || '—'}</p>
-            <p class="text-[10px] text-[#9E7B87] mt-0.5">${getMemberName(p.uploaded_by)}</p>
+            <span class="text-[10px] bg-[#FFEBF0] text-[#C45B79] font-medium px-2 py-0.5 rounded-lg">Day ${p.trip_day}</span>
+            <p class="text-xs font-medium text-[#6B424E] mt-1.5 truncate">${p.caption || '—'}</p>
+            <p class="text-[10px] text-[#B38895] mt-0.5">${getMemberName(p.uploaded_by)}</p>
           </div>
         </div>`).join('');
-      document.getElementById('photo-grid').innerHTML = html || '<p class="col-span-2 text-center text-xs text-[#9E7B87] py-10">ยังไม่มีรูปภาพ</p>';
+      document.getElementById('photo-grid').innerHTML = html || '<p class="col-span-2 text-center text-xs text-[#B38895] py-10">ยังไม่มีรูปภาพ</p>';
 
       list.forEach(async (p, idx) => {
         let cleanPath = p.image_url.includes('/trip-media/') ? p.image_url.split('/trip-media/')[1].split('?')[0] : p.image_url;
@@ -1132,11 +1133,11 @@
       document.getElementById('member-list').innerHTML = membersList.map(m => `
         <div class="py-2.5 flex justify-between items-center">
           <div>
-            <p class="font-medium text-[#3D2C33] text-xs">${m.display_name} <span class="text-[10px] text-[#B56576] font-normal ml-1">${m.role === 'host' ? 'Host' : ''}</span></p>
-            <p class="text-[11px] text-[#9E7B87]">${m.email}</p>
+            <p class="font-medium text-[#6B424E] text-xs">${m.display_name} <span class="text-[10px] text-[#D6718E] font-normal ml-1">${m.role === 'host' ? 'Host' : ''}</span></p>
+            <p class="text-[11px] text-[#B38895]">${m.email}</p>
           </div>
           ${(currentMember.role === 'host' || currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL) && m.role !== 'host'
-            ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[11px] text-[#8C727C] hover:text-rose-600 px-2.5 py-1 rounded-xl border border-[#F3DCE2]">ลบออก</button>`
+            ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[11px] text-[#A37B87] hover:text-rose-600 px-2.5 py-1 rounded-xl border border-[#F5D5DF]">ลบออก</button>`
             : ''}
         </div>`).join('');
     }
@@ -1170,7 +1171,7 @@
       const { data } = await db.from('audit_logs').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false }).limit(50);
       document.getElementById('audit-log-list').innerHTML = (data || []).map(l => {
         const time = new Date(l.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-        return `<div class="border-b border-[#F9ECEF] pb-2"><span class="text-[#B89CA6] mr-1.5">${time}</span><span class="font-medium text-[#3D2C33]">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
+        return `<div class="border-b border-[#FCEBF0] pb-2"><span class="text-[#C9A3AF] mr-1.5">${time}</span><span class="font-medium text-[#6B424E]">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
       }).join('');
     }
 
@@ -1208,8 +1209,8 @@
       ['expenses', 'analytics', 'photos', 'members'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
         document.getElementById(`nav-${t}`).className = t === tab
-          ? 'flex flex-col items-center gap-1 text-[#8E445A]'
-          : 'flex flex-col items-center gap-1 text-[#B89CA6]';
+          ? 'flex flex-col items-center gap-1 text-[#C45B79]'
+          : 'flex flex-col items-center gap-1 text-[#C9A3AF]';
       });
       if (tab === 'analytics') renderAnalytics();
     }
