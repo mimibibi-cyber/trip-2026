@@ -816,7 +816,7 @@
 
     // ================= AI RECEIPT SCANNER WITH AUTO-FALLBACK MODELS =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
-      const models = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+      const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
 
       for (const modelName of models) {
