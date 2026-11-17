@@ -441,6 +441,7 @@
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
+    const SUPER_ADMIN_NAME = 'yuranun';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentUser = null;
@@ -500,7 +501,6 @@
       currentUser = user;
       document.getElementById('auth-screen').classList.add('hidden');
 
-      // ดึง Gemini API Key ส่วนกลางจากฐานข้อมูล Supabase (ใช้ได้ทุกคนในทริป)
       const { data: setting } = await db.from('app_settings').select('value').eq('key', 'gemini_ocr_key').maybeSingle();
       globalGeminiKey = setting?.value || localStorage.getItem('gemini_ocr_key') || '';
       if (document.getElementById('gemini-api-key')) {
@@ -538,11 +538,14 @@
 
     async function loadTripContext() {
       const { data: members } = await db.from('trip_members').select('*').eq('trip_id', currentTrip.id);
-      membersList = members || [];
+      membersList = (members || []).map(m => ({
+        ...m,
+        display_name: m.email.toLowerCase() === SUPER_ADMIN_EMAIL ? SUPER_ADMIN_NAME : m.display_name
+      }));
       currentMember = membersList.find(m => m.email.toLowerCase() === currentUser.email.toLowerCase());
 
       if (!currentMember && isSuperAdmin()) {
-        currentMember = { email: currentUser.email, display_name: 'Admin', role: 'host' };
+        currentMember = { email: currentUser.email, display_name: SUPER_ADMIN_NAME, role: 'host' };
       }
 
       if (!currentMember) {
@@ -605,7 +608,9 @@
     }
 
     function getMemberName(email) {
-      const m = membersList.find(x => x.email.toLowerCase() === (email || '').toLowerCase());
+      if (!email) return '';
+      if (email.toLowerCase() === SUPER_ADMIN_EMAIL) return SUPER_ADMIN_NAME;
+      const m = membersList.find(x => x.email.toLowerCase() === email.toLowerCase());
       return m ? m.display_name : email;
     }
 
@@ -842,7 +847,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= AI RECEIPT SCANNER (SHARED DB KEY + GEMINI 3.5 FLASH LITE) =================
+    // ================= AI RECEIPT SCANNER =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -1140,7 +1145,7 @@
       if (error) return alert('สร้างทริปไม่สำเร็จ: ' + error.message);
 
       await db.from('trip_members').insert([{
-        trip_id: newTrip.id, email: currentUser.email.toLowerCase(), display_name: 'Bally', role: 'host'
+        trip_id: newTrip.id, email: currentUser.email.toLowerCase(), display_name: SUPER_ADMIN_NAME, role: 'host'
       }]);
 
       document.getElementById('new-trip-name').value = '';
@@ -1161,16 +1166,19 @@
 
     function renderMembers() {
       document.getElementById('member-count').textContent = membersList.length;
-      document.getElementById('member-list').innerHTML = membersList.map(m => `
+      document.getElementById('member-list').innerHTML = membersList.map(m => {
+        const isAdminEmail = m.email.toLowerCase() === SUPER_ADMIN_EMAIL;
+        return `
         <div class="py-2.5 flex justify-between items-center">
           <div>
             <p class="font-medium text-[#6B424E] text-xs">${m.display_name} <span class="text-[10px] text-[#D6718E] font-normal ml-1">${m.role === 'host' ? 'Host' : ''}</span></p>
-            <p class="text-[11px] text-[#B38895]">${m.email}</p>
+            <p class="text-[11px] text-[#B38895]">${isAdminEmail ? 'Administrator' : m.email}</p>
           </div>
           ${(currentMember.role === 'host' || isSuperAdmin()) && m.role !== 'host'
             ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[11px] text-[#A37B87] hover:text-rose-600 px-2.5 py-1 rounded-xl border border-[#F5D5DF]">ลบออก</button>`
             : ''}
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
 
     async function addMember() {
@@ -1209,17 +1217,15 @@
       }).join('') || '<p class="text-[#B38895] text-center py-4">ยังไม่มีประวัติการบันทึก</p>';
     }
 
-    // Administrator: Backup Log ทั้งหมดเรียงตามวันที่ลงตาราง log_backups แล้วเคลียร์หน้าจอ Audit Log
     async function backupAndClearLogs() {
       if (!isSuperAdmin()) return;
       if (currentLogsList.length === 0) return alert('ไม่มีรายการ Log ให้สำรองข้อมูลในขณะนี้');
       if (!confirm(`ยืนยันการสำรอง Log ทั้งหมด (${currentLogsList.length} รายการ) เรียงตามวันที่ลงไฟล์ Backup และเคลียร์หน้าจอ Log ปัจจุบัน?`)) return;
 
-      // เรียงลำดับจากเก่าไปใหม่ตามวันที่เวลาจริง
       const sortedLogs = [...currentLogsList].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(l => ({
         datetime: new Date(l.created_at).toLocaleString('th-TH'),
         actor_name: getMemberName(l.actor_email),
-        actor_email: l.actor_email,
+        actor_email: l.actor_email.toLowerCase() === SUPER_ADMIN_EMAIL ? 'Administrator' : l.actor_email,
         action: l.action_type,
         description: l.description
       }));
@@ -1231,12 +1237,11 @@
         backup_label: `Backup ${todayLabel}`,
         log_count: sortedLogs.length,
         logs_data: sortedLogs,
-        created_by: currentUser.email.toLowerCase()
+        created_by: SUPER_ADMIN_NAME
       }]);
 
       if (backupErr) return alert('สำรองข้อมูลไม่สำเร็จ: ' + backupErr.message);
 
-      // ลบ Log ปัจจุบันของทริปนี้ออกทั้งหมดหลัง Backup สำเร็จ
       const { error: delErr } = await db.from('audit_logs').delete().eq('trip_id', currentTrip.id);
       if (delErr) return alert('เคลียร์ Log ไม่สำเร็จ: ' + delErr.message);
 
@@ -1266,7 +1271,7 @@
       if (!b) return;
       let csv = '\uFEFF';
       csv += `Log Backup - ${b.trip_name} (${b.backup_label})\n`;
-      csv += 'วันที่-เวลา,ผู้ทำรายการ,อีเมล,ประเภท,รายละเอียด\n';
+      csv += 'วันที่-เวลา,ผู้ทำรายการ,สิทธิ์/อีเมล,ประเภท,รายละเอียด\n';
       (b.logs_data || []).forEach(item => {
         const cleanDesc = `"${(item.description || '').replace(/"/g, '""')}"`;
         csv += `"${item.datetime}","${item.actor_name}",${item.actor_email},${item.action},${cleanDesc}\n`;
