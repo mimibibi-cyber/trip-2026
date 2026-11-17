@@ -103,26 +103,26 @@
         <p class="text-[11px] text-[#8C5867]">กรุณาตรวจสอบการ์ดที่มีกรอบเส้นประด้านล่างเพื่อยืนยันการลบหรือยกเลิกการแจ้ง</p>
       </div>
 
-      <!-- Virtual Pool Card -->
+      <!-- Hero Card: Total Group Spend & Latest Day Spend (Replaced Virtual Pool) -->
       <div class="luxury-gradient text-white rounded-3xl p-5 space-y-3 shadow-md">
-        <div class="flex justify-between items-start">
+        <div class="flex justify-between items-start gap-2">
           <div>
-            <p class="text-[10px] uppercase tracking-[0.16em] text-white/85">Virtual Pool Balance (งบกองกลางทิพย์)</p>
-            <p id="pool-balance-cny" class="text-3xl font-light tracking-tight mt-1">¥0.00</p>
-            <p id="pool-balance-thb" class="text-xs text-white/90 mt-0.5">THB 0.00</p>
+            <p class="text-[10px] uppercase tracking-[0.16em] text-white/85">Total Group Spend (ยอดใช้จ่ายรวมกลุ่ม)</p>
+            <p id="total-group-cny" class="text-3xl font-light tracking-tight mt-1">¥0.00</p>
+            <p id="total-group-thb" class="text-xs text-white/90 mt-0.5">THB 0.00 (เรทกลาง 4.85)</p>
           </div>
-          <button id="btn-open-deposit" onclick="openDepositModal()" class="bg-white text-[#C45B79] text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs hover:bg-[#FFF5F8] transition">+ ตั้งงบกองกลาง</button>
+          <button onclick="switchTab('digest')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-3 py-1.5 rounded-xl backdrop-blur-xs transition shrink-0">สรุปรายวัน</button>
         </div>
         <div class="pt-2.5 border-t border-white/20 flex justify-between items-center text-[11px] text-white/95">
-          <span id="pool-total-in">งบกองกลางตั้งต้น ¥0</span>
-          <button onclick="openModal('pool-detail-modal')" class="text-white underline font-medium">ดูยอดลงขันทิพย์รายคน</button>
+          <span id="latest-day-summary">วันล่าสุด (Day 1): ¥0.00</span>
+          <span id="avg-per-person-summary">เฉลี่ยคนละ ¥0</span>
         </div>
       </div>
 
       <!-- Personal Summary & Settlement Entry -->
       <div class="grid grid-cols-2 gap-3">
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#A37B87]">ยอดจ่ายสำรองกลุ่มของคุณ</p>
+          <p class="text-[11px] text-[#A37B87]">ยอดที่คุณสแกนจ่ายกลุ่ม</p>
           <p id="my-paid-cny" class="text-lg font-semibold text-[#6B424E] mt-1">¥0</p>
           <p id="my-solo-cny" class="text-[11px] text-[#B38895]">ส่วนตัวล้วน ¥0</p>
         </div>
@@ -138,7 +138,7 @@
       <!-- View Scope Switcher -->
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-1.5">
-          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">กองกลาง & หารร่วม</button>
+          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">บิลกลุ่ม & หารร่วม</button>
           <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 text-[#8C5867] border border-[#F5D5DF]">ส่วนตัว & เงินสด</button>
         </div>
         <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1] shrink-0">+ เพิ่มวัน</button>
@@ -180,7 +180,7 @@
           <button onclick="setQuickFilter('mine')" id="qf-mine" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">ฉันจ่าย</button>
           <button onclick="setQuickFilter('unverified')" id="qf-unverified" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">ยังไม่ติ๊กตรวจ</button>
           <button onclick="setQuickFilter('flagged')" id="qf-flagged" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">แจ้งตรวจสอบ</button>
-          <button onclick="setQuickFilter('over200')" id="qf-over200" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">เกิน ¥200</button>
+          <button onclick="setQuickFilter('noslip')" id="qf-noslip" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">ไม่มีสลิป</button>
         </div>
       </div>
 
@@ -259,7 +259,6 @@
           <h2 class="font-semibold text-sm text-[#6B424E]">ตั้งค่าทริป · วันเริ่ม · เรทไฟนอล · ปิดทริป</h2>
         </div>
 
-        <!-- Trip Start Date (For AI Slip Date -> Day Mapping) & Global Final Rate -->
         <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-3">
           <div>
             <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">วันเริ่มทริป (Day 1) — ใช้เทียบวันที่บนสลิปอัตโนมัติ</label>
@@ -373,7 +372,7 @@
     </nav>
   </div>
 
-  <!-- ================= MODAL: ADD EXPENSE (SUPPORTS PROXY PAYER & SLIP DATE MAPPING) ================= -->
+  <!-- ================= MODAL: ADD EXPENSE (STRICT SLIP LOCK + PROXY PAYER) ================= -->
   <div id="expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
@@ -385,8 +384,8 @@
       <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
         <div class="flex justify-between items-center gap-2">
           <div>
-            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลอัตโนมัติ (ยึดวันที่และเวลาบนสลิปเป็นหลัก)</p>
-            <p class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน บิลเงินสดไม่มีวันที่จะใช้วันที่ปัจจุบัน</p>
+            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลอัตโนมัติ (ยึดยอดและเวลาตามสลิป)</p>
+            <p class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน ยอดที่สแกนได้จะถูกล็อกห้ามแก้</p>
           </div>
           <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shrink-0 shadow-xs">
             เลือกรูปสแกน
@@ -402,10 +401,10 @@
         <p id="duplicate-alert-detail" class="text-[11px] text-[#6B424E] leading-relaxed"></p>
       </div>
 
-      <!-- Batch Queue Preview (Editable Day, Title, Amount, Time) -->
+      <!-- Batch Queue Preview (Amount Locked when Scanned from Slip) -->
       <div id="batch-queue-section" class="hidden space-y-2.5 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
         <div class="flex justify-between items-center">
-          <p class="text-xs font-semibold text-[#6B424E]">ตรวจสอบ & แก้ไขรายการที่สแกนได้ (<span id="batch-count">0</span>)</p>
+          <p class="text-xs font-semibold text-[#6B424E]">รายการที่สแกนได้ (<span id="batch-count">0</span>)</p>
           <button onclick="clearBatchQueue()" class="text-[11px] text-[#B38895] underline">ล้างทั้งหมด</button>
         </div>
         <div id="batch-items-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
@@ -443,12 +442,15 @@
 
         <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
           <div>
-            <label class="text-[11px] text-[#8C5867]">จำนวนเงิน (CNY)</label>
+            <label class="text-[11px] text-[#8C5867] flex items-center justify-between">
+              <span>จำนวนเงิน (CNY)</span>
+              <span id="exp-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อกตามสลิป</span>
+            </label>
             <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
           </div>
           <div>
-            <label class="text-[11px] text-[#8C5867]">เรทอ้างอิง (THB/CNY)</label>
-            <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-sm mt-1" />
+            <label class="text-[11px] text-[#8C5867]">เรทกลาง (THB/CNY)</label>
+            <input id="exp-rate" type="number" step="0.01" readonly class="w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-sm text-[#8C5867] mt-1 cursor-not-allowed" />
           </div>
           <div class="col-span-2 flex justify-between items-center pt-1">
             <div class="flex items-center gap-3">
@@ -494,7 +496,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: EDIT EXISTING EXPENSE ================= -->
+  <!-- ================= MODAL: EDIT EXISTING EXPENSE (SLIP AMOUNT LOCKED) ================= -->
   <div id="edit-expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
@@ -534,8 +536,12 @@
 
       <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
         <div>
-          <label class="text-[11px] text-[#8C5867]">จำนวนเงิน (CNY)</label>
+          <label class="text-[11px] text-[#8C5867] flex items-center justify-between">
+            <span>จำนวนเงิน (CNY)</span>
+            <span id="edit-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อกตามสลิป</span>
+          </label>
           <input id="edit-exp-cny" type="number" step="0.01" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
+          <button id="btn-admin-unlock-cny" type="button" onclick="adminUnlockEditCny()" class="hidden text-[10px] text-[#D6718E] underline mt-1">Admin: ปลดล็อกแก้ยอดสลิป</button>
         </div>
         <div class="flex flex-col justify-center gap-1.5 pt-3">
           <label class="flex items-center gap-1.5 text-xs text-[#8C5867]">
@@ -629,50 +635,6 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: DEPOSIT VIRTUAL POOL ================= -->
-  <div id="deposit-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
-      <h3 class="font-semibold text-base text-[#6B424E]">ตั้งงบกองกลางทิพย์ (Virtual Pool)</h3>
-      <div>
-        <label class="text-xs text-[#8C5867]">สมาชิก</label>
-        <select id="dep-member" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1"></select>
-      </div>
-      <div class="grid grid-cols-2 gap-2.5">
-        <div>
-          <label class="text-xs text-[#8C5867]">ยอดกองกลางทิพย์ (CNY)</label>
-          <input id="dep-cny" type="number" step="0.01" placeholder="1000" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
-        </div>
-        <div>
-          <label class="text-xs text-[#8C5867]">เรทเริ่มต้น (THB/CNY)</label>
-          <input id="dep-rate" type="number" step="0.01" value="4.85" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
-        </div>
-      </div>
-      <div>
-        <label class="text-xs text-[#8C5867]">หมายเหตุ</label>
-        <input id="dep-note" type="text" placeholder="เช่น งบกองกลางทิพย์คนละ 1,000 หยวน" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
-      </div>
-      <div class="flex gap-2.5 pt-2">
-        <button onclick="closeModal('deposit-modal')" class="w-1/2 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
-        <button onclick="saveDeposit()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">บันทึก</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MODAL: POOL DETAILS BY MEMBER ================= -->
-  <div id="pool-detail-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-[#F5D5DF]">
-      <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#6B424E]">สรุปยอดลงขันกองกลางทิพย์</h3>
-        <button onclick="closeModal('pool-detail-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
-      </div>
-      <div id="pool-member-summary" class="space-y-2 text-xs"></div>
-      <div class="pt-2 border-t border-[#F5D5DF]">
-        <p class="text-[11px] font-medium text-[#B38895] mb-2">ประวัติการตั้งงบกองกลาง</p>
-        <div id="pool-deposit-history" class="space-y-2 text-xs"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- ================= MODAL: IMAGE VIEWER ================= -->
   <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#3A2229]/92 z-50 flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-md flex justify-between items-center mb-2">
@@ -705,7 +667,6 @@
     let currentMember = null;
     let membersList = [];
     let expensesList = [];
-    let depositsList = [];
     let myPersonalCashInit = 0;
     let currentLogsList = [];
     let backupFilesList = [];
@@ -722,6 +683,7 @@
     let currentTimeSource = 'upload';
     let currentSingleSlipHash = null;
     let currentSingleSlipRef = null;
+    let isSingleAmountLockedBySlip = false;
     let flaggingExpenseId = null;
 
     window.onload = async () => {
@@ -734,7 +696,6 @@
       return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     }
 
-    // Map a slip date (YYYY-MM-DD) to Trip Day (1, 2, 3...) using trip start_date
     function mapSlipDateToTripDay(slipDateStr) {
       if (!slipDateStr || !currentTrip?.start_date) return null;
       const start = new Date(currentTrip.start_date + 'T00:00:00');
@@ -907,7 +868,6 @@
       document.getElementById('trip-closed-pill').classList.toggle('hidden', !isClosed);
       document.getElementById('closed-trip-banner').classList.toggle('hidden', !isClosed);
       document.getElementById('fab-add-expense').classList.toggle('hidden', isClosed);
-      document.getElementById('btn-open-deposit').classList.toggle('hidden', isClosed);
       document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed);
 
       const finalRate = getGlobalFinalRate();
@@ -915,7 +875,6 @@
       document.getElementById('host-add-member').classList.toggle('hidden', (currentMember.role !== 'host' && !isSuperAdmin()) || isClosed);
 
       document.getElementById('exp-rate').value = finalRate;
-      document.getElementById('dep-rate').value = finalRate;
       if (document.getElementById('admin-final-rate-input')) {
         document.getElementById('admin-final-rate-input').value = finalRate;
         document.getElementById('admin-start-date-input').value = currentTrip.start_date || '';
@@ -976,13 +935,11 @@
 
     async function refreshAllData() {
       const myEmail = currentMember.email.toLowerCase();
-      const [expRes, depRes, walletRes] = await Promise.all([
+      const [expRes, walletRes] = await Promise.all([
         db.from('expenses').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false }),
-        db.from('pool_deposits').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false }),
         db.from('personal_cash_wallets').select('*').eq('trip_id', currentTrip.id).eq('member_email', myEmail).maybeSingle()
       ]);
       expensesList = expRes.data || [];
-      depositsList = depRes.data || [];
       myPersonalCashInit = Number(walletRes.data?.initial_cny || 0);
 
       const maxExpDay = expensesList.reduce((max, e) => Math.max(max, Number(e.trip_day || 0)), 0);
@@ -1099,46 +1056,15 @@
       document.getElementById('owner-flag-banner').classList.toggle('hidden', myFlaggedCount === 0 || isClosed);
       document.getElementById('my-flagged-count').textContent = myFlaggedCount;
 
-      let totalVirtualPoolCny = 0;
-      const memberPoolMap = {};
-      membersList.forEach(m => memberPoolMap[m.email.toLowerCase()] = 0);
-
-      depositsList.forEach(d => {
-        const cny = Number(d.amount_cny);
-        totalVirtualPoolCny += cny;
-        const em = (d.member_email || '').toLowerCase();
-        if (memberPoolMap[em] !== undefined) memberPoolMap[em] += cny;
-      });
-
-      document.getElementById('pool-total-in').textContent = `งบกองกลางตั้งต้น ¥${totalVirtualPoolCny.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-
-      document.getElementById('pool-member-summary').innerHTML = membersList.map(m => {
-        const c = memberPoolMap[m.email.toLowerCase()] || 0;
-        return `<div class="flex justify-between items-center p-3 bg-[#FFF9FA] rounded-2xl border border-[#F5D5DF]">
-          <span class="font-medium text-[#6B424E] flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full" style="background:${m.accent_color}"></span>${m.display_name}
-          </span>
-          <span class="font-semibold text-[#C45B79]">¥${c.toLocaleString()}</span>
-        </div>`;
-      }).join('');
-
-      document.getElementById('pool-deposit-history').innerHTML = depositsList.map(d => {
-        const canDel = !isClosed && (d.member_email.toLowerCase() === myEmail || isSuperAdmin());
-        return `<div class="flex justify-between items-center py-2 border-b border-[#FCEBF0]">
-          <div>
-            <p class="font-medium text-[#6B424E]">${getMemberName(d.member_email)} · ¥${Number(d.amount_cny).toLocaleString()}</p>
-            <p class="text-[10px] text-[#B38895]">${d.note || 'ตั้งงบกองกลางทิพย์'}</p>
-          </div>
-          ${canDel ? `<button onclick="deleteDeposit('${d.id}', ${d.amount_cny})" class="text-[11px] text-[#B38895] hover:text-rose-600">ลบ</button>` : ''}
-        </div>`;
-      }).join('') || '<p class="text-[#B38895]">ยังไม่มีการตั้งงบกองกลาง</p>';
-
-      let poolSpentCny = 0;
+      let totalGroupCny = 0;
       let myPaidSharedCny = 0, mySoloPersonalCny = 0, myCashSpentCny = 0;
+      let latestDayNum = 1;
+      const dayTotalsCny = {};
 
       expensesList.forEach(e => {
         const signedCny = getSignedCny(e);
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+        const dNum = Number(e.trip_day || 1);
 
         if (isSoloPersonalExpense(e)) {
           if (payerEm === myEmail) {
@@ -1146,15 +1072,21 @@
             if (e.payment_channel === 'cash') myCashSpentCny += signedCny;
           }
         } else {
-          poolSpentCny += signedCny;
+          totalGroupCny += signedCny;
+          if (dNum > latestDayNum) latestDayNum = dNum;
+          dayTotalsCny[dNum] = (dayTotalsCny[dNum] || 0) + signedCny;
           if (payerEm === myEmail) myPaidSharedCny += signedCny;
         }
       });
 
-      const remCny = totalVirtualPoolCny - poolSpentCny;
-      const remThb = remCny * finalRate;
-      document.getElementById('pool-balance-cny').textContent = `¥${remCny.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-      document.getElementById('pool-balance-thb').textContent = `THB ${remThb.toLocaleString('en-US', {minimumFractionDigits: 2})} (เรทกลาง ${finalRate})`;
+      const totalGroupThb = totalGroupCny * finalRate;
+      const latestDayCny = dayTotalsCny[latestDayNum] || 0;
+      const avgPerPersonCny = membersList.length > 0 ? totalGroupCny / membersList.length : 0;
+
+      document.getElementById('total-group-cny').textContent = `¥${totalGroupCny.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('total-group-thb').textContent = `THB ${totalGroupThb.toLocaleString('en-US', {minimumFractionDigits: 2})} (เรทกลาง ${finalRate})`;
+      document.getElementById('latest-day-summary').textContent = `วันล่าสุด (Day ${latestDayNum}): ¥${latestDayCny.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('avg-per-person-summary').textContent = `เฉลี่ยคนละ ¥${avgPerPersonCny.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
 
       document.getElementById('my-paid-cny').textContent = `¥${myPaidSharedCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
       document.getElementById('my-solo-cny').textContent = `ส่วนตัวล้วน ¥${mySoloPersonalCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
@@ -1237,7 +1169,7 @@
         if (currentQuickFilter === 'mine' && payerEm !== myEmail) return false;
         if (currentQuickFilter === 'unverified' && verifiedIds.has(e.id)) return false;
         if (currentQuickFilter === 'flagged' && !e.delete_flag) return false;
-        if (currentQuickFilter === 'over200' && Number(e.amount_cny) <= 200) return false;
+        if (currentQuickFilter === 'noslip' && e.receipt_image_url) return false;
 
         if (searchQuery) {
           const payerName = getMemberName(payerEm).toLowerCase();
@@ -1284,7 +1216,6 @@
           const canManage = !isClosed && (payerEm === myEmail || creatorEm === myEmail || isSuperAdmin());
           const isVerified = verifiedIds.has(e.id);
 
-          // Uses the ACTUAL PAYER's accent color even when uploaded by proxy!
           const payerInfo = getMemberInfo(payerEm);
           const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
           const displayTime = e.slip_time || uploadTimeStr;
@@ -1314,6 +1245,7 @@
                       ${payerInfo.display_name}${isProxy ? ` (${getMemberName(creatorEm)} อัปแทน)` : ''}
                     </span>
                     <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-md border border-[#F5D5DF]">${catNames[e.category] || e.category}</span>
+                    ${!e.receipt_image_url ? '<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md">ไม่มีสลิป</span>' : ''}
                     ${e.payment_channel === 'cash' ? '<span class="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-md border border-amber-200">เงินสด</span>' : ''}
                     ${e.is_refund ? '<span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-200">คืนเงิน</span>' : ''}
                     <span class="text-[#B38895]">${timeBadge}</span>
@@ -1361,7 +1293,7 @@
       document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
     }
 
-    // ================= EDIT EXISTING EXPENSE =================
+    // ================= EDIT EXISTING EXPENSE (WITH STRICT SLIP LOCK) =================
     function openEditExpenseModal(id) {
       const e = expensesList.find(x => x.id === id);
       if (!e) return;
@@ -1371,9 +1303,26 @@
       document.getElementById('edit-exp-cat').value = e.category;
       document.getElementById('edit-exp-title').value = e.title;
       document.getElementById('edit-exp-time').value = e.slip_time || getCurrentHHMM();
-      document.getElementById('edit-exp-cny').value = e.amount_cny;
       document.getElementById('edit-exp-fee').checked = Boolean(e.has_alipay_fee);
       document.getElementById('edit-exp-refund').checked = Boolean(e.is_refund);
+
+      const cnyInput = document.getElementById('edit-exp-cny');
+      const lockBadge = document.getElementById('edit-cny-lock-badge');
+      const adminUnlockBtn = document.getElementById('btn-admin-unlock-cny');
+      cnyInput.value = e.amount_cny;
+
+      // Lock CNY amount if a slip receipt is attached!
+      if (e.receipt_image_url) {
+        cnyInput.readOnly = true;
+        cnyInput.className = 'w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#8C5867] mt-1 cursor-not-allowed';
+        lockBadge.classList.remove('hidden');
+        adminUnlockBtn.classList.toggle('hidden', !isSuperAdmin());
+      } else {
+        cnyInput.readOnly = false;
+        cnyInput.className = 'w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1';
+        lockBadge.classList.add('hidden');
+        adminUnlockBtn.classList.add('hidden');
+      }
 
       const currentSplits = (e.split_details?.emails || []).map(x => x.toLowerCase());
       document.getElementById('edit-exp-split-checkboxes').innerHTML = membersList.map(m => `
@@ -1383,6 +1332,16 @@
         </label>`).join('');
 
       openModal('edit-expense-modal');
+    }
+
+    function adminUnlockEditCny() {
+      if (!isSuperAdmin()) return;
+      if (!confirm('ยืนยันการปลดล็อกยอดเงินจากสลิป (เฉพาะกรณีสลิปมีส่วนลดคูปอง)?')) return;
+      const cnyInput = document.getElementById('edit-exp-cny');
+      cnyInput.readOnly = false;
+      cnyInput.className = 'w-full bg-white border border-[#C45B79] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1';
+      document.getElementById('edit-cny-lock-badge').classList.add('hidden');
+      document.getElementById('btn-admin-unlock-cny').classList.add('hidden');
     }
 
     async function updateExpense() {
@@ -1783,7 +1742,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE AI RECEIPT SCANNER (EXTRACTS SLIP DATE + TIME + REF) =================
+    // ================= MULTI-FILE AI RECEIPT SCANNER WITH STRICT AMOUNT LOCK =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -1832,6 +1791,7 @@
           date_from_slip: false,
           title: hashDup.item.title,
           amount_cny: hashDup.item.amount_cny,
+          amount_locked: true,
           category: hashDup.item.category,
           slip_time: hashDup.item.slip_time || fallbackTime,
           time_source: hashDup.item.time_source || 'upload',
@@ -1848,6 +1808,7 @@
           date_from_slip: false,
           title: file.name.replace(/\.[^/.]+$/, ''),
           amount_cny: '',
+          amount_locked: false,
           category: 'Food',
           slip_time: fallbackTime,
           time_source: 'upload',
@@ -1878,12 +1839,13 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
 
           const mappedDay = parsed.slip_date ? mapSlipDateToTripDay(parsed.slip_date.trim()) : null;
           const finalDay = mappedDay || defaultDay;
+          const parsedAmt = Number(parsed.amount_cny) > 0 ? Number(parsed.amount_cny) : '';
 
           const semanticDup = findDuplicateExpense({
             hash: fileHash,
             ref: slipRefFinal,
             title: parsed.title,
-            amount_cny: parsed.amount_cny,
+            amount_cny: parsedAmt,
             slip_time: slipTimeFinal,
             time_source: timeSourceFinal
           });
@@ -1895,7 +1857,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
             trip_day: finalDay,
             date_from_slip: Boolean(mappedDay),
             title: parsed.title || 'รายการจากสลิป',
-            amount_cny: parsed.amount_cny || '',
+            amount_cny: parsedAmt,
+            amount_locked: Boolean(parsedAmt),
             category: parsed.category || 'Food',
             slip_time: slipTimeFinal,
             time_source: timeSourceFinal,
@@ -1914,11 +1877,26 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         date_from_slip: false,
         title: '',
         amount_cny: '',
+        amount_locked: false,
         category: 'Food',
         slip_time: fallbackTime,
         time_source: 'upload',
         duplicateMatch: null
       };
+    }
+
+    function setSingleCnyLockState(locked) {
+      isSingleAmountLockedBySlip = locked;
+      const cnyInput = document.getElementById('exp-cny');
+      const lockBadge = document.getElementById('exp-cny-lock-badge');
+      cnyInput.readOnly = locked;
+      if (locked) {
+        cnyInput.className = 'w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#8C5867] mt-1 cursor-not-allowed';
+        lockBadge.classList.remove('hidden');
+      } else {
+        cnyInput.className = 'w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1';
+        lockBadge.classList.add('hidden');
+      }
     }
 
     async function handleMultiReceiptScan(input) {
@@ -1934,7 +1912,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         document.getElementById('batch-queue-section').classList.add('hidden');
         document.getElementById('single-expense-fields').classList.remove('hidden');
 
-        statusEl.textContent = 'กำลังตรวจสอบสลิปซ้ำและอ่านวันที่/เวลา...';
+        statusEl.textContent = 'กำลังตรวจสอบสลิปซ้ำและอ่านยอดเงิน/เวลา...';
         const res = await scanSingleReceiptFile(files[0], apiKey);
         currentSingleSlipHash = res.fileHash;
         currentSingleSlipRef = res.slipRef;
@@ -1942,12 +1920,15 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         if (res.title) document.getElementById('exp-title').value = res.title;
         if (res.amount_cny) {
           document.getElementById('exp-cny').value = res.amount_cny;
+          setSingleCnyLockState(true);
           if (Number(res.amount_cny) > 200) document.getElementById('exp-fee').checked = true;
           calcThbPreview();
+        } else {
+          setSingleCnyLockState(false);
         }
+
         if (res.category) document.getElementById('exp-cat').value = res.category;
 
-        // Auto-expand days if slip falls on a later Day
         if (res.trip_day > totalDays) {
           totalDays = res.trip_day;
           localStorage.setItem(`days_${currentTrip.id}`, totalDays);
@@ -1965,7 +1946,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           statusEl.textContent = 'พบสลิปซ้ำกับรายการในระบบ กรุณาตรวจสอบก่อนกดบันทึก';
         } else {
           statusEl.textContent = res.amount_cny
-            ? `สแกนสำเร็จ: "${res.title}" ยอด ¥${res.amount_cny} (Day ${res.trip_day} · ${res.slip_time})`
+            ? `สแกนสำเร็จ: "${res.title}" ยอด ¥${res.amount_cny} (ล็อกยอดตามสลิปแล้ว)`
             : 'แนบรูปเรียบร้อยแล้ว กรุณากรอกรายละเอียดเพิ่มเติม';
         }
       } else {
@@ -1997,7 +1978,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         renderBatchQueue();
         statusEl.textContent = dupCount > 0
           ? `สแกนครบ ${batchQueue.length} รูป (พบสลิปซ้ำ ${dupCount} ใบ ระบบคัดออกให้อัตโนมัติแล้ว)`
-          : `สแกนครบ ${batchQueue.length} รูปแล้ว แก้ไขวันที่/ชื่อ/ยอดเงินด้านล่างได้ก่อนบันทึก`;
+          : `สแกนครบ ${batchQueue.length} รูปแล้ว (ยอดเงินถูกล็อกตามสลิปทุกใบ)`;
       }
     }
 
@@ -2012,11 +1993,15 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           dayOpts += `<option value="${d}" ${Number(item.trip_day) === d ? 'selected' : ''}>Day ${d}</option>`;
         }
 
+        const cnyFieldHtml = item.amount_locked
+          ? `<input type="number" step="0.01" value="${item.amount_cny}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#8C5867] cursor-not-allowed" />`
+          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอด CNY" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />`;
+
         return `
         <div class="p-3 rounded-xl border space-y-2 ${isDup ? 'bg-[#FFF0F4] border-[#C45B79] opacity-85' : 'bg-white border-[#F2CFD9]'}">
           <div class="flex justify-between items-center text-[10px]">
             <span class="font-semibold text-[#C45B79]">
-              ${isDup ? 'ซ้ำ (ข้ามอัตโนมัติ)' : `บิลที่ ${idx + 1} · ${item.date_from_slip ? 'วันที่จากสลิป' : 'วันที่อัปโหลด'} · ${item.slip_time}`}
+              ${isDup ? 'ซ้ำ (ข้ามอัตโนมัติ)' : `บิลที่ ${idx + 1} · ${item.amount_locked ? '🔒 ยึดยอดสลิป' : 'กรอกยอดเอง'} · ${item.slip_time}`}
             </span>
             <button type="button" onclick="removeBatchItem(${idx})" class="text-[#B38895] hover:text-rose-600">เอาออก</button>
           </div>
@@ -2026,7 +2011,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
             <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs" />
           </div>
           <div class="grid grid-cols-3 gap-1.5">
-            <input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอด CNY" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />
+            ${cnyFieldHtml}
             <input type="time" value="${item.slip_time}" oninput="batchQueue[${idx}].slip_time = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]" />
             <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">
               <option value="Food" ${item.category === 'Food' ? 'selected' : ''}>อาหาร</option>
@@ -2050,6 +2035,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       batchQueue = [];
       currentSingleSlipHash = null;
       currentSingleSlipRef = null;
+      setSingleCnyLockState(false);
       document.getElementById('exp-file').value = '';
       document.getElementById('batch-queue-section').classList.add('hidden');
       document.getElementById('single-expense-fields').classList.remove('hidden');
@@ -2116,14 +2102,16 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     function openExpenseModal() {
       if (currentTrip.is_closed) return alert('ทริปนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
       clearBatchQueue();
+      document.getElementById('exp-title').value = '';
+      document.getElementById('exp-cny').value = '';
       document.getElementById('exp-time').value = getCurrentHHMM();
       currentTimeSource = 'upload';
       document.getElementById('exp-time-badge').textContent = '(เวลาบันทึก)';
       document.getElementById('exp-day-badge').textContent = '';
       document.getElementById('exp-channel').value = 'alipay';
       document.getElementById('exp-refund').checked = false;
+      calcThbPreview();
 
-      // Check if logged-in user has Admin-granted Proxy Upload Right
       const hasProxyRight = canCurrentUserProxy();
       const lockedBox = document.getElementById('locked-payer-display');
       const proxySelect = document.getElementById('proxy-payer-select');
@@ -2172,17 +2160,9 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       document.querySelectorAll('input[name="split-member"]').forEach(el => el.checked = true);
     }
 
-    function openDepositModal() {
-      if (currentTrip.is_closed) return alert('ทริปนี้ปิดยอดแล้ว');
-      document.getElementById('dep-member').innerHTML = membersList.map(m =>
-        `<option value="${m.email}" ${m.email.toLowerCase() === currentMember.email.toLowerCase() ? 'selected' : ''}>${m.display_name}</option>`
-      ).join('');
-      openModal('deposit-modal');
-    }
-
     function calcThbPreview() {
       const cny = document.getElementById('exp-cny').value || 0;
-      const rate = document.getElementById('exp-rate').value || getGlobalFinalRate();
+      const rate = getGlobalFinalRate();
       const fee = document.getElementById('exp-fee').checked;
       document.getElementById('exp-thb-preview').textContent = `THB ${calcFinalThb(cny, rate, fee).toFixed(2)}`;
     }
@@ -2193,7 +2173,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       const checkedEmails = Array.from(document.querySelectorAll('input[name="split-member"]:checked')).map(el => el.value);
       if (checkedEmails.length === 0) return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
 
-      const rate = parseFloat(document.getElementById('exp-rate').value) || getGlobalFinalRate();
+      const rate = getGlobalFinalRate();
       const payment_channel = document.getElementById('exp-channel').value;
       const actualPayerEmail = getSelectedPayerEmail();
       const defaultDay = parseInt(document.getElementById('exp-day').value);
@@ -2324,34 +2304,6 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       const { error } = await db.from('expenses').delete().eq('id', id);
       if (!error) {
         await writeLog('DELETE_EXPENSE', `ยืนยันลบรายการ "${title}"`);
-        await refreshAllData();
-      }
-    }
-
-    async function saveDeposit() {
-      const member_email = document.getElementById('dep-member').value;
-      const amount_cny = parseFloat(document.getElementById('dep-cny').value);
-      const exchange_rate = parseFloat(document.getElementById('dep-rate').value);
-      const note = document.getElementById('dep-note').value.trim();
-      if (!amount_cny) return alert('กรุณากรอกยอดเงินหยวน');
-
-      const { error } = await db.from('pool_deposits').insert([{
-        trip_id: currentTrip.id, member_email, amount_cny, exchange_rate, note
-      }]);
-      if (!error) {
-        await writeLog('ADD_DEPOSIT', `ตั้งงบกองกลางทิพย์ ¥${amount_cny} (${getMemberName(member_email)})`);
-        closeModal('deposit-modal');
-        document.getElementById('dep-cny').value = '';
-        document.getElementById('dep-note').value = '';
-        await refreshAllData();
-      }
-    }
-
-    async function deleteDeposit(id, cny) {
-      if (!confirm(`ยืนยันการลบยอดตั้งงบกองกลาง ¥${cny}`)) return;
-      const { error } = await db.from('pool_deposits').delete().eq('id', id);
-      if (!error) {
-        await writeLog('DELETE_DEPOSIT', `ลบยอดตั้งงบกองกลาง ¥${cny}`);
         await refreshAllData();
       }
     }
