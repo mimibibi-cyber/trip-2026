@@ -87,6 +87,11 @@
 
     <!-- TAB 1: DASHBOARD & DAILY BILLS -->
     <main id="tab-expenses" class="p-5 space-y-5">
+      <div id="owner-flag-banner" class="hidden bg-[#FFF0F4] border border-[#E893AC] rounded-2xl p-3.5 space-y-1">
+        <p class="text-xs font-semibold text-[#C45B79]">มีรายการของคุณถูกแจ้งตรวจสอบ (<span id="my-flagged-count">0</span> รายการ)</p>
+        <p class="text-[11px] text-[#8C5867]">กรุณาตรวจสอบการ์ดที่มีกรอบเส้นประด้านล่างเพื่อยืนยันการลบหรือยกเลิกการแจ้ง</p>
+      </div>
+
       <div class="luxury-gradient text-white rounded-3xl p-5 space-y-3 shadow-md">
         <div class="flex justify-between items-start">
           <div>
@@ -177,7 +182,6 @@
 
     <!-- TAB 4: MEMBERS, ADMIN & AUDIT LOG -->
     <main id="tab-members" class="hidden p-5 space-y-5">
-      <!-- Super Admin Panel -->
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
@@ -202,7 +206,6 @@
         </div>
       </div>
 
-      <!-- Current Trip Member Management -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center">
           <h2 class="font-semibold text-sm text-[#6B424E]">สมาชิกทริปนี้ (<span id="member-count">0</span>/10)</h2>
@@ -219,7 +222,6 @@
         </div>
       </div>
 
-      <!-- Audit Log with Admin Backup & Clear -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center gap-2">
           <h2 class="font-semibold text-sm text-[#6B424E]">ประวัติการบันทึก (Audit Log)</h2>
@@ -228,7 +230,6 @@
         <div id="audit-log-list" class="space-y-2.5 max-h-72 overflow-y-auto text-xs text-[#A37B87]"></div>
       </div>
 
-      <!-- Admin Log Backup Archive -->
       <div id="admin-backup-archive" class="hidden soft-card p-5 rounded-3xl space-y-3 border-[#F2BFD0]">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Log Backup Files</p>
@@ -264,7 +265,7 @@
     </nav>
   </div>
 
-  <!-- ================= MODAL: ADD EXPENSE WITH AI SCANNER ================= -->
+  <!-- ================= MODAL: ADD EXPENSE (DUPLICATE GUARD + MULTI-FILE BATCH) ================= -->
   <div id="expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
@@ -272,61 +273,86 @@
         <button onclick="closeModal('expense-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
 
-      <!-- AI Smart Receipt Scanner Box -->
+      <!-- AI Multi-Receipt Scanner Box -->
       <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center gap-2">
           <div>
-            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลภาษาจีน / อังกฤษอัตโนมัติ</p>
-            <p class="text-[10px] text-[#A37B87]">เลือกรูปสลิป Alipay, WeChat หรือใบเสร็จเพื่อกรอกข้อมูลทันที</p>
+            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลอัตโนมัติ + ป้องกันอัปโหลดซ้ำ</p>
+            <p class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน ระบบตรวจจับสลิปซ้ำให้อัตโนมัติ</p>
           </div>
           <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shrink-0 shadow-xs">
             เลือกรูปสแกน
-            <input id="exp-file" type="file" accept="image/*" onchange="handleReceiptScan(this)" class="hidden" />
+            <input id="exp-file" type="file" accept="image/*" multiple onchange="handleMultiReceiptScan(this)" class="hidden" />
           </label>
         </div>
         <p id="ocr-status" class="hidden text-[11px] text-[#C45B79] font-medium"></p>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-[11px] text-[#8C5867]">วันที่</label>
-          <select id="exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+      <!-- Duplicate Warning Alert -->
+      <div id="duplicate-alert-box" class="hidden bg-[#FFF0F4] border border-[#C45B79] rounded-2xl p-3.5 space-y-1">
+        <p class="text-xs font-semibold text-[#C45B79]">ตรวจพบสลิปซ้ำในระบบ!</p>
+        <p id="duplicate-alert-detail" class="text-[11px] text-[#6B424E] leading-relaxed"></p>
+      </div>
+
+      <!-- Batch Queue Preview (Shows when 2+ images selected) -->
+      <div id="batch-queue-section" class="hidden space-y-2.5 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
+        <div class="flex justify-between items-center">
+          <p class="text-xs font-semibold text-[#6B424E]">รายการที่สแกนได้ (<span id="batch-count">0</span> รายการ)</p>
+          <button onclick="clearBatchQueue()" class="text-[11px] text-[#B38895] underline">ล้างทั้งหมด</button>
         </div>
-        <div>
-          <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
-          <select id="exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
-            <option value="Food">อาหาร / เครื่องดื่ม</option>
-            <option value="Transport">เดินทาง / รถไฟ / DiDi</option>
-            <option value="Ticket">ค่าเข้าสถานที่</option>
-            <option value="Shopping">ช้อปปิ้ง</option>
-            <option value="Hotel">ที่พัก</option>
-          </select>
+        <div id="batch-items-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
+      </div>
+
+      <!-- Single Item Fields -->
+      <div id="single-expense-fields" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[11px] text-[#8C5867]">วันที่</label>
+            <select id="exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+          </div>
+          <div>
+            <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
+            <select id="exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
+              <option value="Food">อาหาร / เครื่องดื่ม</option>
+              <option value="Transport">เดินทาง / รถไฟ / DiDi</option>
+              <option value="Ticket">ค่าเข้าสถานที่</option>
+              <option value="Shopping">ช้อปปิ้ง</option>
+              <option value="Hotel">ที่พัก</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="col-span-2">
+            <label class="text-[11px] text-[#8C5867]">รายละเอียดรายการ</label>
+            <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
+          </div>
+          <div>
+            <label class="text-[11px] text-[#8C5867]">เวลา <span id="exp-time-badge" class="text-[9px] text-[#D6718E]">(บันทึก)</span></label>
+            <input id="exp-time" type="time" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
+          <div>
+            <label class="text-[11px] text-[#8C5867]">จำนวนเงิน (CNY)</label>
+            <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
+          </div>
+          <div>
+            <label class="text-[11px] text-[#8C5867]">เรท (THB/CNY)</label>
+            <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-sm mt-1" />
+          </div>
+          <div class="col-span-2 flex justify-between items-center pt-1">
+            <label class="flex items-center gap-2 text-xs text-[#8C5867]">
+              <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
+              ค่าธรรมเนียม +3%
+            </label>
+            <span id="exp-thb-preview" class="text-xs font-semibold text-[#C45B79]">THB 0.00</span>
+          </div>
         </div>
       </div>
 
-      <div>
-        <label class="text-[11px] text-[#8C5867]">รายละเอียดรายการ</label>
-        <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ (หรือให้ AI สแกนจากรูป)" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
-        <div>
-          <label class="text-[11px] text-[#8C5867]">จำนวนเงิน (CNY)</label>
-          <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
-        </div>
-        <div>
-          <label class="text-[11px] text-[#8C5867]">เรท (THB/CNY)</label>
-          <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-sm mt-1" />
-        </div>
-        <div class="col-span-2 flex justify-between items-center pt-1">
-          <label class="flex items-center gap-2 text-xs text-[#8C5867]">
-            <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
-            ค่าธรรมเนียม +3%
-          </label>
-          <span id="exp-thb-preview" class="text-xs font-semibold text-[#C45B79]">THB 0.00</span>
-        </div>
-      </div>
-
+      <!-- Shared Payment & Split Controls -->
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="text-[11px] text-[#8C5867]">แหล่งเงิน</label>
@@ -347,6 +373,30 @@
       </div>
 
       <button id="btn-save-expense" onclick="saveExpense()" class="w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition">บันทึกรายการ</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: FLAG EXPENSE FOR OWNER REVIEW ================= -->
+  <div id="flag-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
+      <div class="flex justify-between items-center">
+        <h3 class="font-semibold text-base text-[#6B424E]">แจ้งตรวจสอบ / ขอลบรายการ</h3>
+        <button onclick="closeModal('flag-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+      </div>
+      <p id="flag-target-title" class="text-xs font-medium text-[#C45B79] bg-[#FFF5F8] p-2.5 rounded-xl border border-[#F5D5DF]"></p>
+      <div class="space-y-2">
+        <label class="text-xs text-[#8C5867]">เลือกสาเหตุหรือระบุเพิ่มเติม (ระบบจะส่งแจ้งเตือนให้เจ้าของไฟล์ยืนยันการลบ)</label>
+        <div class="flex flex-wrap gap-1.5">
+          <button type="button" onclick="setFlagReason('ยอดเงินไม่ตรงกับสลิป')" class="text-[11px] bg-[#FFF9FA] border border-[#F2CFD9] px-2.5 py-1 rounded-xl text-[#8C5867] hover:bg-[#FFEBF0]">ยอดเงินผิด</button>
+          <button type="button" onclick="setFlagReason('อัปโหลดรายการซ้ำ')" class="text-[11px] bg-[#FFF9FA] border border-[#F2CFD9] px-2.5 py-1 rounded-xl text-[#8C5867] hover:bg-[#FFEBF0]">ลงซ้ำ</button>
+          <button type="button" onclick="setFlagReason('เลือกผู้ร่วมหารหรือวันผิด')" class="text-[11px] bg-[#FFF9FA] border border-[#F2CFD9] px-2.5 py-1 rounded-xl text-[#8C5867] hover:bg-[#FFEBF0]">หารผิดคน</button>
+        </div>
+        <input id="flag-reason-input" type="text" placeholder="ระบุเหตุผลที่ต้องการให้เจ้าของตรวจสอบ..." class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
+      </div>
+      <div class="flex gap-2.5 pt-1">
+        <button onclick="closeModal('flag-modal')" class="w-1/2 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button onclick="submitFlagExpense()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">ส่งแจ้งเจ้าของ</button>
+      </div>
     </div>
   </div>
 
@@ -394,17 +444,17 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: UPLOAD PHOTO ================= -->
+  <!-- ================= MODAL: UPLOAD PHOTO (MULTI-FILE) ================= -->
   <div id="photo-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
-      <h3 class="font-semibold text-base text-[#6B424E]">เพิ่มรูปภาพ</h3>
+      <h3 class="font-semibold text-base text-[#6B424E]">เพิ่มรูปภาพ (เลือกได้หลายไฟล์)</h3>
       <div>
         <label class="text-xs text-[#8C5867]">วันที่</label>
         <select id="photo-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
       </div>
       <div>
-        <label class="text-xs text-[#8C5867]">ไฟล์รูปภาพ</label>
-        <input id="photo-file" type="file" accept="image/*" class="w-full text-xs text-[#A37B87] mt-1" />
+        <label class="text-xs text-[#8C5867]">ไฟล์รูปภาพ (เลือกได้หลายรูปพร้อมกัน)</label>
+        <input id="photo-file" type="file" accept="image/*" multiple class="w-full text-xs text-[#A37B87] mt-1" />
       </div>
       <div>
         <label class="text-xs text-[#8C5867]">คำบรรยาย</label>
@@ -418,11 +468,12 @@
   </div>
 
   <!-- ================= MODAL: IMAGE VIEWER ================= -->
-  <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#3A2229]/90 z-50 flex flex-col items-center justify-center p-4">
-    <div class="w-full max-w-md flex justify-end mb-2">
-      <button onclick="closeModal('image-viewer-modal')" class="text-white text-xs bg-white/15 px-3.5 py-1.5 rounded-xl">ปิดหน้าต่าง</button>
+  <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#3A2229]/92 z-50 flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md flex justify-between items-center mb-2">
+      <div id="viewer-time-info" class="text-[11px] text-pink-100"></div>
+      <button onclick="closeModal('image-viewer-modal')" class="text-white text-xs bg-white/15 px-3.5 py-1.5 rounded-xl shrink-0">ปิดหน้าต่าง</button>
     </div>
-    <img id="viewer-img" src="" class="max-h-[80vh] max-w-full rounded-2xl object-contain bg-black" />
+    <img id="viewer-img" src="" class="max-h-[78vh] max-w-full rounded-2xl object-contain bg-black" />
   </div>
 
   <!-- ================= MODAL: SETTLE UP SUMMARY ================= -->
@@ -459,10 +510,66 @@
     let dailyChartInstance = null;
     let categoryChartInstance = null;
 
+    let batchQueue = [];
+    let currentTimeSource = 'upload';
+    let currentSingleSlipHash = null;
+    let currentSingleSlipRef = null;
+    let flaggingExpenseId = null;
+
     window.onload = async () => {
       const { data: { session } } = await db.auth.getSession();
       if (session) initApp(session.user);
     };
+
+    function getCurrentHHMM() {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+
+    // Compute SHA-256 fingerprint of raw image file to detect exact duplicate uploads
+    async function computeFileHash(file) {
+      const buffer = await file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Check duplicate against existing expenses in current trip
+    function findDuplicateExpense({ hash, ref, title, amount_cny, slip_time, time_source }) {
+      if (hash) {
+        const byHash = expensesList.find(e => e.slip_hash && e.slip_hash === hash);
+        if (byHash) return { reason: 'ไฟล์รูปสลิปนี้ซ้ำกับรายการที่มีอยู่แล้ว', item: byHash };
+      }
+      if (ref) {
+        const byRef = expensesList.find(e => e.slip_ref && e.slip_ref.toLowerCase() === ref.toLowerCase());
+        if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ซ้ำกับรายการที่มีอยู่แล้ว`, item: byRef };
+      }
+      // Check semantic match: same amount + same printed slip time + same title
+      const numAmt = Number(amount_cny);
+      if (numAmt > 0 && time_source === 'slip' && slip_time) {
+        const normTitle = (title || '').trim().toLowerCase();
+        const bySlipSignature = expensesList.find(e =>
+          Math.abs(Number(e.amount_cny) - numAmt) < 0.01 &&
+          e.slip_time === slip_time &&
+          (e.title || '').trim().toLowerCase() === normTitle
+        );
+        if (bySlipSignature) {
+          return { reason: `ยอดเงิน ¥${numAmt} เวลาสลิป ${slip_time} และร้านค้าตรงกับรายการที่บันทึกไว้แล้ว`, item: bySlipSignature };
+        }
+      }
+      return null;
+    }
+
+    function showDuplicateAlert(dupMatch) {
+      const box = document.getElementById('duplicate-alert-box');
+      const detail = document.getElementById('duplicate-alert-detail');
+      if (!dupMatch) {
+        box.classList.add('hidden');
+        return;
+      }
+      const e = dupMatch.item;
+      detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ¥${Number(e.amount_cny).toFixed(2)} (Day ${e.trip_day} · บันทึกโดย ${getMemberName(e.created_by)})`;
+      box.classList.remove('hidden');
+    }
 
     async function handleLogin() {
       const email = document.getElementById('auth-email').value.trim().toLowerCase();
@@ -620,6 +727,12 @@
     }
 
     function renderDashboard() {
+      const myFlaggedCount = expensesList.filter(e =>
+        e.delete_flag && (e.created_by.toLowerCase() === currentMember.email.toLowerCase() || isSuperAdmin())
+      ).length;
+      document.getElementById('owner-flag-banner').classList.toggle('hidden', myFlaggedCount === 0);
+      document.getElementById('my-flagged-count').textContent = myFlaggedCount;
+
       let totalDepositCny = 0, totalDepositThb = 0;
       const memberPoolMap = {};
       membersList.forEach(m => memberPoolMap[m.email] = { cny: 0, thb: 0 });
@@ -723,9 +836,15 @@
     }
 
     function renderExpenseList() {
-      const filtered = currentDayFilter === 'all'
-        ? expensesList
-        : expensesList.filter(e => String(e.trip_day) === String(currentDayFilter));
+      const filtered = (currentDayFilter === 'all'
+        ? [...expensesList]
+        : expensesList.filter(e => String(e.trip_day) === String(currentDayFilter))
+      ).sort((a, b) => {
+        if (a.trip_day !== b.trip_day) return b.trip_day - a.trip_day;
+        const tA = a.slip_time || new Date(a.created_at).toTimeString().slice(0, 5);
+        const tB = b.slip_time || new Date(b.created_at).toTimeString().slice(0, 5);
+        return tB.localeCompare(tA);
+      });
 
       let sumCny = 0, sumThb = 0;
       const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
@@ -735,18 +854,39 @@
         const thb = calcFinalThb(cny, e.exchange_rate, e.has_alipay_fee);
         sumCny += cny; sumThb += thb;
         const splitNames = (e.split_details?.emails || []).map(getMemberName).join(', ');
-        const canDelete = e.created_by === currentMember.email || currentMember.role === 'host';
+        const isOwner = e.created_by.toLowerCase() === currentMember.email.toLowerCase();
+        const canDirectDelete = isOwner || isSuperAdmin();
+
+        const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        const displayTime = e.slip_time || uploadTimeStr;
+        const timeBadge = e.time_source === 'slip' ? `${displayTime} · สลิป` : `${displayTime} · บันทึก`;
+        const metaInfo = `เวลาสลิป: ${e.slip_time || '-'} | บันทึกเข้าระบบ: ${uploadTimeStr} โดย ${getMemberName(e.created_by)}`;
+
+        let flagHtml = '';
+        if (e.delete_flag) {
+          flagHtml = `
+            <div class="bg-[#FFF0F4] border border-[#E893AC] rounded-xl p-2.5 space-y-2">
+              <p class="text-[11px] text-[#C45B79] font-medium">รอเจ้าของยืนยันลบ: แจ้งโดย ${e.delete_flag.flagged_by_name} — "${e.delete_flag.reason}"</p>
+              ${canDirectDelete ? `
+                <div class="flex gap-2">
+                  <button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="flex-1 luxury-gradient text-white text-[11px] py-1.5 rounded-lg font-medium">ยืนยันลบรายการนี้</button>
+                  <button onclick="dismissFlag('${e.id}')" class="flex-1 bg-white text-[#8C5867] border border-[#F2CFD9] text-[11px] py-1.5 rounded-lg">ข้อมูลถูกแล้ว</button>
+                </div>` : ''}
+            </div>`;
+        }
 
         return `
-          <div class="soft-card p-4 rounded-2xl space-y-2">
+          <div class="soft-card p-4 rounded-2xl space-y-2.5 ${e.delete_flag ? 'border-dashed border-2 border-[#D6718E]' : ''}">
+            ${flagHtml}
             <div class="flex justify-between items-start gap-3">
               <div>
-                <div class="flex items-center gap-1.5 text-[10px] font-medium">
+                <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
                   <span class="bg-[#FFEBF0] text-[#C45B79] px-2 py-0.5 rounded-lg">Day ${e.trip_day}</span>
                   <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-lg border border-[#F5D5DF]">${catNames[e.category] || e.category}</span>
-                  <span class="text-[#B38895]">${e.paid_by_type === 'pool' ? 'กองกลาง' : getMemberName(e.paid_by_email)}</span>
+                  <span class="text-[#B38895]">${timeBadge}</span>
                 </div>
                 <h4 class="font-medium text-sm text-[#6B424E] mt-1.5">${e.title}</h4>
+                <p class="text-[10px] text-[#B38895] mt-0.5">${e.paid_by_type === 'pool' ? 'หักกองกลาง' : 'สำรองจ่าย: ' + getMemberName(e.paid_by_email)}</p>
               </div>
               <div class="text-right shrink-0">
                 <p class="font-semibold text-[#C45B79] text-sm">¥${cny.toFixed(2)}</p>
@@ -756,8 +896,10 @@
             <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-2 border-t border-[#FCEBF0]">
               <span class="truncate pr-2">หาร: ${splitNames || '-'}</span>
               <div class="flex items-center gap-3 shrink-0">
-                ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}')" class="text-[#D6718E] font-medium underline">ดูสลิป</button>` : ''}
-                ${canDelete ? `<button onclick="deleteExpense('${e.id}', '${e.title}')" class="text-[#B38895] hover:text-rose-600">ลบ</button>` : ''}
+                ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[#D6718E] font-medium underline">ดูสลิป</button>` : ''}
+                ${canDirectDelete
+                  ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#B38895] hover:text-rose-600">ลบ</button>`
+                  : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#C45B79] hover:underline">แจ้งตรวจสอบ</button>` : '')}
               </div>
             </div>
           </div>`;
@@ -766,6 +908,45 @@
       document.getElementById('filtered-day-label').textContent = currentDayFilter === 'all' ? 'ยอดรวมทั้งทริป' : `ยอดรวม Day ${currentDayFilter}`;
       document.getElementById('filtered-day-total').textContent = `¥${sumCny.toFixed(2)} · ฿${sumThb.toFixed(2)}`;
       document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีรายการบันทึก</p>';
+    }
+
+    // ================= FLAG & OWNER CONFIRM DELETE =================
+    function openFlagModal(id, title) {
+      flaggingExpenseId = id;
+      document.getElementById('flag-target-title').textContent = `รายการ: ${title}`;
+      document.getElementById('flag-reason-input').value = '';
+      openModal('flag-modal');
+    }
+
+    function setFlagReason(text) {
+      document.getElementById('flag-reason-input').value = text;
+    }
+
+    async function submitFlagExpense() {
+      const reason = document.getElementById('flag-reason-input').value.trim() || 'แจ้งตรวจสอบความถูกต้อง';
+      if (!flaggingExpenseId) return;
+
+      const flagPayload = {
+        flagged_by_email: currentMember.email,
+        flagged_by_name: currentMember.display_name,
+        reason,
+        flagged_at: new Date().toISOString()
+      };
+
+      const { error } = await db.from('expenses').update({ delete_flag: flagPayload }).eq('id', flaggingExpenseId);
+      if (error) return alert('ส่งแจ้งตรวจสอบไม่สำเร็จ: ' + error.message);
+
+      await writeLog('FLAG_EXPENSE', `แจ้งตรวจสอบรายการ (${reason})`);
+      closeModal('flag-modal');
+      await refreshAllData();
+    }
+
+    async function dismissFlag(id) {
+      const { error } = await db.from('expenses').update({ delete_flag: null }).eq('id', id);
+      if (!error) {
+        await writeLog('DISMISS_FLAG', 'ยืนยันความถูกต้องและยกเลิกการแจ้งลบ');
+        await refreshAllData();
+      }
     }
 
     // ================= ANALYTICS & CHARTS =================
@@ -847,7 +1028,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= AI RECEIPT SCANNER =================
+    // ================= MULTI-FILE AI RECEIPT SCANNER WITH DUPLICATE DETECTION =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -881,40 +1062,223 @@
       throw new Error(lastError);
     }
 
-    async function handleReceiptScan(input) {
-      if (!input.files || !input.files[0]) return;
-      const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
-      const statusEl = document.getElementById('ocr-status');
-      statusEl.classList.remove('hidden');
+    async function scanSingleReceiptFile(file, apiKey) {
+      const fallbackTime = getCurrentHHMM();
+      const fileHash = await computeFileHash(file);
 
-      if (!apiKey) {
-        statusEl.textContent = 'แนบรูปภาพเรียบร้อยแล้ว (ผู้ดูแลระบบยังไม่ได้ตั้งค่า Gemini API Key)';
-        return;
+      // Fast pre-check by exact image hash before calling AI
+      const hashDup = findDuplicateExpense({ hash: fileHash });
+      if (hashDup) {
+        return {
+          file,
+          fileHash,
+          slipRef: null,
+          title: hashDup.item.title,
+          amount_cny: hashDup.item.amount_cny,
+          category: hashDup.item.category,
+          slip_time: hashDup.item.slip_time || fallbackTime,
+          time_source: hashDup.item.time_source || 'upload',
+          duplicateMatch: hashDup
+        };
       }
 
-      statusEl.textContent = 'กำลังวิเคราะห์ข้อมูลจากสลิปภาษาจีน / อังกฤษ...';
-      try {
-        const base64Data = await fileToBase64(input.files[0]);
-        const prompt = `Analyze this receipt or payment screenshot (may be in Chinese, English, or Thai such as Alipay, WeChat Pay, or restaurant bill). Extract the final net paid amount in CNY (Chinese Yuan), a concise Thai description with original merchant name in parentheses, and the best matching category from: Food, Transport, Ticket, Shopping, Hotel. Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food"}`;
+      if (!apiKey) {
+        return {
+          file,
+          fileHash,
+          slipRef: null,
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          amount_cny: '',
+          category: 'Food',
+          slip_time: fallbackTime,
+          time_source: 'upload',
+          duplicateMatch: null
+        };
+      }
 
+      const base64Data = await fileToBase64(file);
+      const prompt = `Analyze this receipt or payment screenshot (Chinese, English, or Thai such as Alipay, WeChat Pay, printed receipt, or handwritten bill).
+1. Extract the final net paid amount in CNY (number).
+2. Write a concise Thai description with original merchant name in parentheses.
+3. Choose category from: Food, Transport, Ticket, Shopping, Hotel.
+4. Look for a printed transaction time (HH:MM in 24-hour format). If handwritten or no printed time, return null for "slip_time".
+5. Extract transaction reference number / order ID if printed on the slip (or null if none).
+Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food", "slip_time": "18:06", "slip_ref": "..."}`;
+
+      try {
         const rawText = await callGeminiWithFallback(apiKey, prompt, base64Data);
         const jsonMatch = rawText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.title) document.getElementById('exp-title').value = parsed.title;
-          if (parsed.amount_cny) {
-            document.getElementById('exp-cny').value = parsed.amount_cny;
-            if (Number(parsed.amount_cny) > 200) document.getElementById('exp-fee').checked = true;
-            calcThbPreview();
-          }
-          if (parsed.category) document.getElementById('exp-cat').value = parsed.category;
-          statusEl.textContent = `สแกนสำเร็จ: ดึงข้อมูล "${parsed.title}" ยอด ¥${parsed.amount_cny} เรียบร้อยแล้ว`;
-        } else {
-          statusEl.textContent = 'แนบรูปแล้ว แต่ไม่สามารถอ่านตัวเลขได้อัตโนมัติ กรุณากรอกยอดเงินเพิ่มเติม';
+          const validTime = parsed.slip_time && /^\d{1,2}:\d{2}$/.test(parsed.slip_time.trim())
+            ? parsed.slip_time.trim().padStart(5, '0')
+            : null;
+          const slipTimeFinal = validTime || fallbackTime;
+          const timeSourceFinal = validTime ? 'slip' : 'upload';
+          const slipRefFinal = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' ? String(parsed.slip_ref).trim() : null;
+
+          const semanticDup = findDuplicateExpense({
+            hash: fileHash,
+            ref: slipRefFinal,
+            title: parsed.title,
+            amount_cny: parsed.amount_cny,
+            slip_time: slipTimeFinal,
+            time_source: timeSourceFinal
+          });
+
+          return {
+            file,
+            fileHash,
+            slipRef: slipRefFinal,
+            title: parsed.title || 'รายการจากสลิป',
+            amount_cny: parsed.amount_cny || '',
+            category: parsed.category || 'Food',
+            slip_time: slipTimeFinal,
+            time_source: timeSourceFinal,
+            duplicateMatch: semanticDup
+          };
         }
-      } catch (err) {
-        statusEl.textContent = 'แนบรูปแล้ว (สแกน AI ไม่สำเร็จ: ' + err.message + ')';
+      } catch (e) {
+        console.warn('Scan fallback:', e.message);
       }
+
+      return {
+        file,
+        fileHash,
+        slipRef: null,
+        title: '',
+        amount_cny: '',
+        category: 'Food',
+        slip_time: fallbackTime,
+        time_source: 'upload',
+        duplicateMatch: null
+      };
+    }
+
+    async function handleMultiReceiptScan(input) {
+      if (!input.files || input.files.length === 0) return;
+      const files = Array.from(input.files);
+      const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
+      const statusEl = document.getElementById('ocr-status');
+      statusEl.classList.remove('hidden');
+      showDuplicateAlert(null);
+
+      if (files.length === 1) {
+        batchQueue = [];
+        document.getElementById('batch-queue-section').classList.add('hidden');
+        document.getElementById('single-expense-fields').classList.remove('hidden');
+
+        statusEl.textContent = 'กำลังตรวจสอบสลิปซ้ำและอ่านข้อมูล...';
+        const res = await scanSingleReceiptFile(files[0], apiKey);
+        currentSingleSlipHash = res.fileHash;
+        currentSingleSlipRef = res.slipRef;
+
+        if (res.title) document.getElementById('exp-title').value = res.title;
+        if (res.amount_cny) {
+          document.getElementById('exp-cny').value = res.amount_cny;
+          if (Number(res.amount_cny) > 200) document.getElementById('exp-fee').checked = true;
+          calcThbPreview();
+        }
+        if (res.category) document.getElementById('exp-cat').value = res.category;
+        document.getElementById('exp-time').value = res.slip_time;
+        currentTimeSource = res.time_source;
+        document.getElementById('exp-time-badge').textContent = res.time_source === 'slip' ? '(จากสลิป)' : '(เวลาอัปโหลด)';
+
+        if (res.duplicateMatch) {
+          showDuplicateAlert(res.duplicateMatch);
+          statusEl.textContent = 'พบสลิปซ้ำกับรายการในระบบ กรุณาตรวจสอบก่อนกดบันทึก';
+        } else {
+          statusEl.textContent = res.amount_cny
+            ? `สแกนสำเร็จ: "${res.title}" ยอด ¥${res.amount_cny} (${res.time_source === 'slip' ? 'เวลาสลิป ' + res.slip_time : 'เวลาอัปโหลด ' + res.slip_time})`
+            : 'แนบรูปเรียบร้อยแล้ว กรุณากรอกรายละเอียดเพิ่มเติม';
+        }
+      } else {
+        document.getElementById('single-expense-fields').classList.add('hidden');
+        document.getElementById('batch-queue-section').classList.remove('hidden');
+        statusEl.textContent = `กำลังวิเคราะห์สลิปทั้งหมด ${files.length} รูปและคัดกรองสลิปซ้ำ...`;
+
+        const results = await Promise.all(files.map(f => scanSingleReceiptFile(f, apiKey)));
+
+        // Also detect duplicates within the same selected batch
+        const seenHashes = new Set();
+        const seenSignatures = new Set();
+        results.forEach(item => {
+          if (item.duplicateMatch) return;
+          const sig = item.time_source === 'slip' ? `${item.amount_cny}_${item.slip_time}_${item.title}` : null;
+          if (seenHashes.has(item.fileHash) || (sig && seenSignatures.has(sig))) {
+            item.duplicateMatch = { reason: 'สลิปซ้ำกับรูปอื่นที่เลือกมาพร้อมกันในชุดนี้', item };
+          } else {
+            seenHashes.add(item.fileHash);
+            if (sig) seenSignatures.add(sig);
+          }
+        });
+
+        batchQueue = results.sort((a, b) => a.slip_time.localeCompare(b.slip_time));
+        const dupCount = batchQueue.filter(x => x.duplicateMatch).length;
+        renderBatchQueue();
+        statusEl.textContent = dupCount > 0
+          ? `สแกนครบ ${batchQueue.length} รูป (พบสลิปซ้ำ ${dupCount} ใบ ระบบคัดออกให้อัตโนมัติแล้ว)`
+          : `สแกนครบ ${batchQueue.length} รูปแล้ว ตรวจสอบรายการด้านล่างก่อนกดบันทึกทั้งหมด`;
+      }
+    }
+
+    function renderBatchQueue() {
+      const validCount = batchQueue.filter(x => !x.duplicateMatch).length;
+      document.getElementById('batch-count').textContent = `${validCount}/${batchQueue.length}`;
+      const defaultDay = document.getElementById('exp-day').value || '1';
+      let dayOpts = '';
+      for (let d = 1; d <= totalDays; d++) {
+        dayOpts += `<option value="${d}" ${String(d) === String(defaultDay) ? 'selected' : ''}>Day ${d}</option>`;
+      }
+
+      document.getElementById('batch-items-list').innerHTML = batchQueue.map((item, idx) => {
+        const isDup = Boolean(item.duplicateMatch);
+        return `
+        <div class="p-3 rounded-xl border space-y-2 ${isDup ? 'bg-[#FFF0F4] border-[#C45B79] opacity-85' : 'bg-white border-[#F2CFD9]'}">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-semibold text-[#C45B79]">
+              ${isDup ? 'ซ้ำ (ข้ามอัตโนมัติ)' : `บิลที่ ${idx + 1} · ${item.time_source === 'slip' ? 'เวลาสลิป ' + item.slip_time : 'เวลาอัปโหลด ' + item.slip_time}`}
+            </span>
+            <button type="button" onclick="removeBatchItem(${idx})" class="text-[#B38895] hover:text-rose-600">เอาออก</button>
+          </div>
+          ${isDup ? `<p class="text-[10px] text-[#C45B79]">${item.duplicateMatch.reason}</p>` : ''}
+          <div class="grid grid-cols-3 gap-1.5">
+            <select onchange="batchQueue[${idx}].trip_day = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">${dayOpts}</select>
+            <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs" />
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอด CNY" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />
+            <input type="time" value="${item.slip_time}" oninput="batchQueue[${idx}].slip_time = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]" />
+            <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">
+              <option value="Food" ${item.category === 'Food' ? 'selected' : ''}>อาหาร</option>
+              <option value="Transport" ${item.category === 'Transport' ? 'selected' : ''}>เดินทาง</option>
+              <option value="Ticket" ${item.category === 'Ticket' ? 'selected' : ''}>เข้าชม</option>
+              <option value="Shopping" ${item.category === 'Shopping' ? 'selected' : ''}>ช้อปปิ้ง</option>
+              <option value="Hotel" ${item.category === 'Hotel' ? 'selected' : ''}>ที่พัก</option>
+            </select>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function removeBatchItem(idx) {
+      batchQueue.splice(idx, 1);
+      if (batchQueue.length === 0) {
+        clearBatchQueue();
+      } else {
+        renderBatchQueue();
+      }
+    }
+
+    function clearBatchQueue() {
+      batchQueue = [];
+      currentSingleSlipHash = null;
+      currentSingleSlipRef = null;
+      document.getElementById('exp-file').value = '';
+      document.getElementById('batch-queue-section').classList.add('hidden');
+      document.getElementById('single-expense-fields').classList.remove('hidden');
+      document.getElementById('ocr-status').classList.add('hidden');
+      showDuplicateAlert(null);
     }
 
     function fileToBase64(file) {
@@ -937,11 +1301,12 @@
     }
 
     // ================= STORAGE & MEDIA =================
-    async function viewStorageImage(pathOrUrl) {
+    async function viewStorageImage(pathOrUrl, metaText = '') {
       let cleanPath = pathOrUrl.includes('/trip-media/') ? pathOrUrl.split('/trip-media/')[1].split('?')[0] : pathOrUrl;
       const { data, error } = await db.storage.from('trip-media').download(cleanPath);
       if (error) return alert('ไม่สามารถเปิดรูปได้: ' + error.message);
       document.getElementById('viewer-img').src = URL.createObjectURL(data);
+      document.getElementById('viewer-time-info').textContent = metaText;
       openModal('image-viewer-modal');
     }
 
@@ -973,7 +1338,10 @@
     }
 
     function openExpenseModal() {
-      document.getElementById('ocr-status').classList.add('hidden');
+      clearBatchQueue();
+      document.getElementById('exp-time').value = getCurrentHHMM();
+      currentTimeSource = 'upload';
+      document.getElementById('exp-time-badge').textContent = '(เวลาบันทึก)';
       document.getElementById('exp-paid-by').innerHTML = membersList.map(m => `<option value="${m.email}" ${m.email === currentMember.email ? 'selected' : ''}>${m.display_name}</option>`).join('');
       document.getElementById('exp-split-checkboxes').innerHTML = membersList.map(m => `
         <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
@@ -999,12 +1367,85 @@
 
     async function saveExpense() {
       const btn = document.getElementById('btn-save-expense');
-      const title = document.getElementById('exp-title').value.trim();
-      const amount_cny = parseFloat(document.getElementById('exp-cny').value);
-      if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและจำนวนเงินหยวน');
-
       const checkedEmails = Array.from(document.querySelectorAll('input[name="split-member"]:checked')).map(el => el.value);
       if (checkedEmails.length === 0) return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
+
+      const rate = parseFloat(document.getElementById('exp-rate').value) || 4.85;
+      const paid_by_type = document.getElementById('exp-paid-type').value;
+      const paid_by_email = document.getElementById('exp-paid-by').value;
+      const defaultDay = parseInt(document.getElementById('exp-day').value);
+
+      // Mode 1: Batch Save (Skip duplicate items automatically)
+      if (batchQueue.length > 0) {
+        const validItems = batchQueue.filter(item => !item.duplicateMatch);
+        if (validItems.length === 0) return alert('ไม่มีรายการใหม่ให้บันทึก (ทุกรายการซ้ำกับข้อมูลเดิมในระบบ)');
+
+        const invalid = validItems.find(item => !item.title.trim() || !parseFloat(item.amount_cny));
+        if (invalid) return alert('กรุณากรอกชื่อรายการและยอดเงิน CNY ให้ครบทุกบิลที่ยังไม่ซ้ำ');
+
+        btn.disabled = true; btn.textContent = `กำลังบันทึก ${validItems.length} รายการ...`;
+        try {
+          const payloads = [];
+          for (const item of validItems) {
+            const receiptPath = await uploadFileToStorage(item.file, 'receipts');
+            const cny = parseFloat(item.amount_cny);
+            payloads.push({
+              trip_id: currentTrip.id,
+              trip_day: parseInt(item.trip_day || defaultDay),
+              expense_date: new Date().toISOString().split('T')[0],
+              title: item.title.trim(),
+              category: item.category,
+              amount_cny: cny,
+              exchange_rate: rate,
+              has_alipay_fee: cny > 200,
+              paid_by_type,
+              paid_by_email,
+              split_details: { emails: checkedEmails },
+              receipt_image_url: receiptPath,
+              slip_time: item.slip_time,
+              time_source: item.time_source,
+              slip_hash: item.fileHash,
+              slip_ref: item.slipRef,
+              created_by: currentMember.email
+            });
+          }
+
+          const { error } = await db.from('expenses').insert(payloads);
+          if (error) throw error;
+
+          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${payloads.length} รายการ`);
+          closeModal('expense-modal');
+          clearBatchQueue();
+          await refreshAllData();
+        } catch (err) {
+          alert('เกิดข้อผิดพลาด: ' + err.message);
+        } finally {
+          btn.disabled = false; btn.textContent = 'บันทึกรายการ';
+        }
+        return;
+      }
+
+      // Mode 2: Single Expense Save with Duplicate Guard
+      const title = document.getElementById('exp-title').value.trim();
+      const amount_cny = parseFloat(document.getElementById('exp-cny').value);
+      const slipTimeVal = document.getElementById('exp-time').value || getCurrentHHMM();
+      if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและจำนวนเงินหยวน');
+
+      const dupCheck = findDuplicateExpense({
+        hash: currentSingleSlipHash,
+        ref: currentSingleSlipRef,
+        title,
+        amount_cny,
+        slip_time: slipTimeVal,
+        time_source: currentTimeSource
+      });
+
+      if (dupCheck) {
+        showDuplicateAlert(dupCheck);
+        if (!confirm(`⚠️ ตรวจพบสลิปซ้ำ: ${dupCheck.reason}\nคุณยืนยันว่าไม่ใช่รายการซ้ำและต้องการบันทึกใช่หรือไม่?`)) {
+          return;
+        }
+      }
 
       btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
       try {
@@ -1016,17 +1457,21 @@
 
         const payload = {
           trip_id: currentTrip.id,
-          trip_day: parseInt(document.getElementById('exp-day').value),
+          trip_day: defaultDay,
           expense_date: new Date().toISOString().split('T')[0],
           title,
           category: document.getElementById('exp-cat').value,
           amount_cny,
-          exchange_rate: parseFloat(document.getElementById('exp-rate').value),
+          exchange_rate: rate,
           has_alipay_fee: document.getElementById('exp-fee').checked,
-          paid_by_type: document.getElementById('exp-paid-type').value,
-          paid_by_email: document.getElementById('exp-paid-by').value,
+          paid_by_type,
+          paid_by_email,
           split_details: { emails: checkedEmails },
           receipt_image_url: receiptPath,
+          slip_time: slipTimeVal,
+          time_source: currentTimeSource,
+          slip_hash: currentSingleSlipHash,
+          slip_ref: currentSingleSlipRef,
           created_by: currentMember.email
         };
 
@@ -1037,7 +1482,7 @@
         closeModal('expense-modal');
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-cny').value = '';
-        fileInput.value = '';
+        clearBatchQueue();
         await refreshAllData();
       } catch (err) {
         alert('เกิดข้อผิดพลาด: ' + err.message);
@@ -1050,7 +1495,7 @@
       if (!confirm(`ยืนยันการลบรายการ "${title}"`)) return;
       const { error } = await db.from('expenses').delete().eq('id', id);
       if (!error) {
-        await writeLog('DELETE_EXPENSE', `ลบรายการ "${title}"`);
+        await writeLog('DELETE_EXPENSE', `ยืนยันลบรายการ "${title}"`);
         await refreshAllData();
       }
     }
@@ -1086,14 +1531,19 @@
     async function uploadTripPhoto() {
       const fileInput = document.getElementById('photo-file');
       if (!fileInput.files.length) return alert('กรุณาเลือกไฟล์รูปภาพ');
+      const files = Array.from(fileInput.files);
       const btn = document.getElementById('btn-upload-photo');
-      btn.disabled = true; btn.textContent = 'กำลังอัปโหลด...';
+      btn.disabled = true; btn.textContent = `กำลังอัปโหลด ${files.length} รูป...`;
       try {
-        const path = await uploadFileToStorage(fileInput.files[0], 'gallery');
         const trip_day = parseInt(document.getElementById('photo-day').value);
         const caption = document.getElementById('photo-caption').value.trim();
-        await db.from('trip_photos').insert([{ trip_id: currentTrip.id, trip_day, image_url: path, caption, uploaded_by: currentMember.email }]);
-        await writeLog('UPLOAD_PHOTO', `เพิ่มรูปภาพ Day ${trip_day}`);
+        const rows = [];
+        for (const f of files) {
+          const path = await uploadFileToStorage(f, 'gallery');
+          rows.push({ trip_id: currentTrip.id, trip_day, image_url: path, caption, uploaded_by: currentMember.email });
+        }
+        await db.from('trip_photos').insert(rows);
+        await writeLog('UPLOAD_PHOTO', `เพิ่มรูปภาพ ${files.length} รูป (Day ${trip_day})`);
         closeModal('photo-modal');
         fileInput.value = '';
         document.getElementById('photo-caption').value = '';
@@ -1108,9 +1558,12 @@
     async function loadPhotos() {
       const { data } = await db.from('trip_photos').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false });
       const list = data || [];
-      const html = list.map((p, idx) => `
+      const html = list.map((p, idx) => {
+        const uploadTime = new Date(p.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        const meta = `Day ${p.trip_day} · อัปโหลดเมื่อ ${uploadTime} โดย ${getMemberName(p.uploaded_by)}`;
+        return `
         <div class="soft-card rounded-2xl overflow-hidden">
-          <div onclick="viewStorageImage('${p.image_url}')" class="cursor-pointer">
+          <div onclick="viewStorageImage('${p.image_url}', '${meta.replace(/'/g, "\\'")}')" class="cursor-pointer">
             <img id="gallery-img-${idx}" src="" class="w-full h-36 object-cover bg-[#FFEBF0]" />
           </div>
           <div class="p-3">
@@ -1118,7 +1571,8 @@
             <p class="text-xs font-medium text-[#6B424E] mt-1.5 truncate">${p.caption || '—'}</p>
             <p class="text-[10px] text-[#B38895] mt-0.5">${getMemberName(p.uploaded_by)}</p>
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
       document.getElementById('photo-grid').innerHTML = html || '<p class="col-span-2 text-center text-xs text-[#B38895] py-10">ยังไม่มีรูปภาพ</p>';
 
       list.forEach(async (p, idx) => {
@@ -1292,7 +1746,7 @@
     function exportToExcel() {
       let csv = '\uFEFF';
       csv += `สรุปรายการค่าใช้จ่าย - ${currentTrip.name}\n`;
-      csv += 'วันที่ (Day),หมวดหมู่,รายการ,ยอดหยวน (CNY),เรทเงิน,ค่าธรรมเนียม 3%,ยอดบาทสุทธิ (THB),รูปแบบการจ่าย,ผู้ชำระเงิน,ผู้ร่วมหาร\n';
+      csv += 'วันที่ (Day),เวลา,ที่มาเวลา,หมวดหมู่,รายการ,ยอดหยวน (CNY),เรทเงิน,ค่าธรรมเนียม 3%,ยอดบาทสุทธิ (THB),รูปแบบการจ่าย,ผู้ชำระเงิน,ผู้ร่วมหาร\n';
 
       expensesList.forEach(e => {
         const cny = Number(e.amount_cny);
@@ -1301,7 +1755,9 @@
         const paidType = e.paid_by_type === 'pool' ? 'กองกลาง' : 'สำรองจ่ายส่วนตัว';
         const paidBy = getMemberName(e.paid_by_email);
         const cleanTitle = `"${(e.title || '').replace(/"/g, '""')}"`;
-        csv += `Day ${e.trip_day},${e.category},${cleanTitle},${cny.toFixed(2)},${e.exchange_rate},${e.has_alipay_fee ? 'ใช่' : 'ไม่'},${thb.toFixed(2)},${paidType},${paidBy},"${splitNames}"\n`;
+        const timeVal = e.slip_time || new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        const timeSrc = e.time_source === 'slip' ? 'เวลาสลิป' : 'เวลาอัปโหลด';
+        csv += `Day ${e.trip_day},${timeVal},${timeSrc},${e.category},${cleanTitle},${cny.toFixed(2)},${e.exchange_rate},${e.has_alipay_fee ? 'ใช่' : 'ไม่'},${thb.toFixed(2)},${paidType},${paidBy},"${splitNames}"\n`;
       });
 
       csv += '\nสรุปการลงขันกองกลาง\n';
