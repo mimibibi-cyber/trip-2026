@@ -33,7 +33,7 @@
       <div class="space-y-1.5 text-center">
         <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D6718E]">Private Travel Ledger</p>
         <h1 class="text-2xl font-semibold tracking-tight text-[#6B424E]">Maison Voyage</h1>
-        <p class="text-xs text-[#A37B87]">ระบบบันทึกค่าใช้จ่ายและความทรงจำส่วนตัว</p>
+        <p class="text-xs text-[#A37B87]">ระบบบันทึกและตรวจสอบค่าใช้จ่ายส่วนตัว</p>
       </div>
 
       <div id="auth-error" class="hidden bg-[#FFF0F4] text-[#C45B79] text-xs p-3 rounded-xl border border-[#F5C2D1]"></div>
@@ -86,15 +86,15 @@
       </div>
     </header>
 
-    <!-- TAB 1: DASHBOARD & DAILY BILLS -->
-    <main id="tab-expenses" class="p-5 space-y-5">
+    <!-- TAB 1: DASHBOARD & COLLAPSIBLE DAILY LEDGER -->
+    <main id="tab-expenses" class="p-5 space-y-4">
       <!-- Closed Trip Summary Banner -->
       <div id="closed-trip-banner" class="hidden bg-[#4A4447] text-white rounded-3xl p-4 space-y-2 shadow-sm">
         <div class="flex justify-between items-center">
           <p class="text-xs font-semibold">ทริปนี้ปิดยอดเรียบร้อยแล้ว (Read-Only)</p>
           <button onclick="openSettleModal()" class="text-[11px] bg-white text-[#4A4447] font-semibold px-3 py-1 rounded-xl">ดูสรุปโอนคืนถาวร</button>
         </div>
-        <p id="closed-trip-meta" class="text-[11px] text-white/80">ล็อกข้อมูลทั้งหมดแล้ว ไม่สามารถเพิ่มหรือแก้ไขรายการได้</p>
+        <p class="text-[11px] text-white/80">ล็อกข้อมูลทั้งหมดแล้ว ไม่สามารถเพิ่มหรือแก้ไขรายการได้</p>
       </div>
 
       <!-- Pending Owner Delete Confirmation Banner -->
@@ -136,17 +136,20 @@
       </div>
 
       <!-- View Scope Switcher -->
-      <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
-        <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0 luxury-gradient text-white shadow-xs">กองกลาง & หารร่วม</button>
-        <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0 bg-white/90 text-[#8C5867] border border-[#F5D5DF]">ส่วนตัวของฉัน (เงินสด)</button>
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5">
+          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">กองกลาง & หารร่วม</button>
+          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 text-[#8C5867] border border-[#F5D5DF]">ส่วนตัว & เงินสด</button>
+        </div>
+        <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1] shrink-0">+ เพิ่มวัน</button>
       </div>
 
       <!-- Personal Cash Wallet Card (Visible only in Personal Solo Tab) -->
       <div id="personal-cash-card" class="hidden soft-card p-4 rounded-2xl border-[#E893AC] bg-[#FFF9FA] space-y-2.5">
         <div class="flex justify-between items-center">
           <div>
-            <p class="text-[11px] font-semibold text-[#C45B79]">กระเป๋าเงินสดพกติดตัว (Personal Cash)</p>
-            <p class="text-[10px] text-[#A37B87]">เห็นเฉพาะคุณคนเดียว ไม่รวมกับยอดโอนเคลียร์กลุ่ม</p>
+            <p class="text-[11px] font-semibold text-[#C45B79]">กระเป๋าเงินสดส่วนตัว (Personal Cash)</p>
+            <p class="text-[10px] text-[#A37B87]">เช็กเงินสดที่แลกพกติดตัวมาเอง (เห็นเฉพาะคุณคนเดียว)</p>
           </div>
           <button onclick="setPersonalCashBudget()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] px-3 py-1 rounded-xl font-medium">ตั้งงบเงินสด</button>
         </div>
@@ -166,18 +169,41 @@
         </div>
       </div>
 
-      <!-- Day Filter Bar -->
-      <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar" id="day-filter-bar"></div>
+      <!-- High-Volume Search & Quick Audit Filters -->
+      <div class="space-y-2">
+        <div class="relative">
+          <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, รายการ, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border border-[#F2CFD9] rounded-xl pl-9 pr-3 py-2 text-xs" />
+          <svg class="w-4 h-4 text-[#B38895] absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+        </div>
+        <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px]">
+          <button onclick="setQuickFilter('all')" id="qf-all" class="qf-btn bg-[#6B424E] text-white px-2.5 py-1 rounded-lg shrink-0">ทั้งหมด</button>
+          <button onclick="setQuickFilter('mine')" id="qf-mine" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">ฉันจ่าย</button>
+          <button onclick="setQuickFilter('unverified')" id="qf-unverified" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">ยังไม่ติ๊กตรวจ</button>
+          <button onclick="setQuickFilter('flagged')" id="qf-flagged" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">แจ้งตรวจสอบ</button>
+          <button onclick="setQuickFilter('over200')" id="qf-over200" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">เกิน ¥200</button>
+        </div>
+      </div>
 
-      <div class="flex justify-between items-center py-2 border-b border-[#F5D5DF] text-xs">
-        <span id="filtered-day-label" class="text-[#8C5867]">ยอดรวมทั้งหมด</span>
+      <!-- Summary Strip -->
+      <div class="flex justify-between items-center py-1.5 border-b border-[#F5D5DF] text-xs">
+        <span id="filtered-day-label" class="text-[#8C5867]">ยอดรวมที่แสดง</span>
         <span id="filtered-day-total" class="font-semibold text-[#C45B79]">¥0.00 · ฿0.00</span>
       </div>
 
+      <!-- Collapsible Day-Grouped Expense List -->
       <div id="expense-list" class="space-y-3"></div>
     </main>
 
-    <!-- TAB 2: ANALYTICS & CHARTS -->
+    <!-- TAB 2: DAILY DIGEST & RECEIPT VAULT (REPLACES PHOTO GALLERY) -->
+    <main id="tab-digest" class="hidden p-5 space-y-4">
+      <div>
+        <h2 class="font-semibold text-base text-[#6B424E]">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
+        <p class="text-xs text-[#A37B87]">สรุปยอดใช้จ่ายแยกแต่ละวัน พร้อมรวมสลิปใบเสร็จเพื่อเทียบยอด Alipay</p>
+      </div>
+      <div id="daily-digest-list" class="space-y-3"></div>
+    </main>
+
+    <!-- TAB 3: ANALYTICS & CHARTS -->
     <main id="tab-analytics" class="hidden p-5 space-y-5">
       <div>
         <h2 class="font-semibold text-base text-[#6B424E]">สรุปภาพรวม & กราฟค่าใช้จ่าย</h2>
@@ -213,27 +239,17 @@
       </div>
     </main>
 
-    <!-- TAB 3: PHOTO GALLERY -->
-    <main id="tab-photos" class="hidden p-5 space-y-4">
-      <div class="flex justify-between items-center">
-        <div>
-          <h2 class="font-semibold text-base text-[#6B424E]">Travel Gallery</h2>
-          <p class="text-xs text-[#A37B87]">ภาพบันทึกความทรงจำตลอดทริป</p>
-        </div>
-        <button id="btn-open-photo" onclick="openModal('photo-modal')" class="luxury-gradient text-white text-xs font-medium px-4 py-2 rounded-xl shadow-xs">+ เพิ่มรูปภาพ</button>
-      </div>
-      <div id="photo-grid" class="grid grid-cols-2 gap-3"></div>
-    </main>
-
-    <!-- TAB 4: MEMBERS, EXCLUSIVE COLOR PICKER, ADMIN & CLOSE TRIP -->
+    <!-- TAB 4: MEMBERS, COMPACT CIRCLE COLOR PICKER, ADMIN & CLOSE TRIP -->
     <main id="tab-members" class="hidden p-5 space-y-5">
-      <!-- Exclusive Personal Color Picker -->
+      <!-- Compact Minimalist Circle Color Picker -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
-        <div>
-          <h2 class="font-semibold text-sm text-[#6B424E]">สีประจำตัวของคุณ (ห้ามซ้ำกันในทริป)</h2>
-          <p class="text-[11px] text-[#A37B87]">สีที่เพื่อนเลือกแล้วจะถูกล็อกอัตโนมัติ (ปรับเปลี่ยนได้เมื่อสีอื่นว่าง)</p>
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="font-semibold text-sm text-[#6B424E]">สีประจำตัวของคุณ (ห้ามซ้ำกัน)</h2>
+            <p class="text-[11px] text-[#A37B87]">แตะวงกลมสีที่ว่างเพื่อเปลี่ยนสีแถบบิลของคุณ</p>
+          </div>
         </div>
-        <div id="color-picker-row" class="grid grid-cols-4 gap-2 pt-1"></div>
+        <div id="color-picker-row" class="flex items-center justify-between gap-2 pt-1"></div>
       </div>
 
       <!-- Super Admin Panel -->
@@ -331,13 +347,13 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>รายการ</span>
       </button>
+      <button onclick="switchTab('digest')" id="nav-digest" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+        <span>สรุปรายวัน</span>
+      </button>
       <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
-        <span>สรุป & กราฟ</span>
-      </button>
-      <button onclick="switchTab('photos')" id="nav-photos" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
-        <span>รูปภาพ</span>
+        <span>กราฟ</span>
       </button>
       <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
@@ -460,6 +476,20 @@
     </div>
   </div>
 
+  <!-- ================= MODAL: DAY RECEIPT VAULT (ALL SLIPS FOR A SPECIFIC DAY) ================= -->
+  <div id="day-receipts-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 id="day-vault-title" class="font-semibold text-base text-[#6B424E]">รวมสลิป Day 1</h3>
+          <p id="day-vault-subtitle" class="text-[11px] text-[#A37B87]">เรียงตามเวลาสำหรับเทียบยอด Alipay</p>
+        </div>
+        <button onclick="closeModal('day-receipts-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+      </div>
+      <div id="day-vault-list" class="space-y-2.5"></div>
+    </div>
+  </div>
+
   <!-- ================= MODAL: FINAL SETTLEMENT & ADMIN RATE ================= -->
   <div id="settle-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
@@ -468,7 +498,6 @@
         <button onclick="closeModal('settle-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
 
-      <!-- Global Final Rate Badge (Read-only for members, Admin sets it in Manage Trip) -->
       <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] flex justify-between items-center">
         <div>
           <p class="text-xs font-semibold text-[#C45B79]">เรทเงินหยวนไฟนอลกลาง</p>
@@ -479,13 +508,11 @@
         </div>
       </div>
 
-      <!-- Optimal Transfer Instructions (Who pays whom) -->
       <div class="space-y-2">
         <p class="text-xs font-semibold text-[#6B424E]">สรุปใครต้องโอนให้ใครเป็นหลัก (จบในรอบเดียว)</p>
         <div id="settle-transfers-list" class="space-y-2 text-xs"></div>
       </div>
 
-      <!-- Individual Net Breakdown -->
       <div class="pt-2 border-t border-[#F5D5DF] space-y-2">
         <p class="text-xs font-semibold text-[#6B424E]">รายละเอียดสุทธิรายบุคคล (รวมหารกลุ่มและหาร 2 คน)</p>
         <div id="settle-details" class="space-y-2 text-xs"></div>
@@ -561,29 +588,6 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: UPLOAD PHOTO ================= -->
-  <div id="photo-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
-      <h3 class="font-semibold text-base text-[#6B424E]">เพิ่มรูปภาพ (เลือกได้หลายไฟล์)</h3>
-      <div>
-        <label class="text-xs text-[#8C5867]">วันที่</label>
-        <select id="photo-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
-      </div>
-      <div>
-        <label class="text-xs text-[#8C5867]">ไฟล์รูปภาพ</label>
-        <input id="photo-file" type="file" accept="image/*" multiple class="w-full text-xs text-[#A37B87] mt-1" />
-      </div>
-      <div>
-        <label class="text-xs text-[#8C5867]">คำบรรยาย</label>
-        <input id="photo-caption" type="text" placeholder="ระบุสถานที่หรือบันทึกสั้นๆ" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
-      </div>
-      <div class="flex gap-2.5 pt-2">
-        <button onclick="closeModal('photo-modal')" class="w-1/2 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
-        <button id="btn-upload-photo" onclick="uploadTripPhoto()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">อัปโหลด</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ================= MODAL: IMAGE VIEWER ================= -->
   <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#3A2229]/92 z-50 flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-md flex justify-between items-center mb-2">
@@ -600,7 +604,6 @@
     const SUPER_ADMIN_NAME = 'yuranun';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // 7 Exclusive Pastel Colors including Pastel Charcoal (#4A4447)
     const PASTEL_PALETTE = [
       { hex: '#D6718E', label: 'Rose' },
       { hex: '#E69173', label: 'Peach' },
@@ -622,8 +625,10 @@
     let currentLogsList = [];
     let backupFilesList = [];
     let globalGeminiKey = '';
-    let currentDayFilter = 'all';
     let currentScopeFilter = 'shared'; // 'shared' | 'personal'
+    let currentQuickFilter = 'all'; // 'all' | 'mine' | 'unverified' | 'flagged' | 'over200'
+    let collapsedDays = new Set();
+    let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
     let totalDays = 6;
     let dailyChartInstance = null;
     let categoryChartInstance = null;
@@ -650,7 +655,6 @@
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Duplicate Detection: allows back-to-back transfers if Transaction ID (slip_ref) differs!
     function findDuplicateExpense({ hash, ref, title, amount_cny, slip_time, time_source }) {
       if (hash) {
         const byHash = expensesList.find(e => e.slip_hash && e.slip_hash === hash);
@@ -659,7 +663,7 @@
       if (ref) {
         const byRef = expensesList.find(e => e.slip_ref && e.slip_ref.toLowerCase() === ref.toLowerCase());
         if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ซ้ำกับรายการที่มีอยู่แล้ว`, item: byRef };
-        return null; // Distinct Transaction ID = valid separate transfer even at same minute & amount!
+        return null;
       }
       const numAmt = Number(amount_cny);
       if (numAmt > 0 && time_source === 'slip' && slip_time) {
@@ -761,7 +765,7 @@
     async function switchTrip(tripId) {
       currentTrip = userTrips.find(t => t.id === tripId);
       localStorage.setItem('selected_trip_id', tripId);
-      currentDayFilter = 'all';
+      collapsedDays.clear();
       await loadTripContext();
     }
 
@@ -773,7 +777,6 @@
         accent_color: m.accent_color || '#D6718E'
       }));
 
-      // Auto-assign non-duplicate color on first login if current member shares a duplicate color
       currentMember = membersList.find(m => m.email.toLowerCase() === currentUser.email.toLowerCase());
       if (!currentMember && isSuperAdmin()) {
         currentMember = { email: currentUser.email, display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E' };
@@ -804,7 +807,7 @@
       document.getElementById('closed-trip-banner').classList.toggle('hidden', !isClosed);
       document.getElementById('fab-add-expense').classList.toggle('hidden', isClosed);
       document.getElementById('btn-open-deposit').classList.toggle('hidden', isClosed);
-      document.getElementById('btn-open-photo').classList.toggle('hidden', isClosed);
+      document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed);
 
       const finalRate = getGlobalFinalRate();
       document.getElementById('user-badge').textContent = `${currentMember.display_name} · ${currentMember.role === 'host' ? 'Host' : 'Member'} · เรทกลาง ${finalRate}฿`;
@@ -823,6 +826,7 @@
       await refreshAllData();
     }
 
+    // Minimalist Single-Row Circle Color Swatches (No bulky rectangles)
     function renderColorPicker() {
       const myEmail = currentMember.email.toLowerCase();
       const myColor = (currentMember.accent_color || '#D6718E').toLowerCase();
@@ -833,18 +837,15 @@
         const takenBy = membersList.find(m => m.email.toLowerCase() !== myEmail && (m.accent_color || '').toLowerCase() === hexLower);
 
         if (takenBy) {
-          return `<div class="p-2 rounded-xl border border-[#F5D5DF] bg-[#FFF9FA] text-center opacity-50 cursor-not-allowed">
-            <div class="w-5 h-5 mx-auto rounded-md" style="background:${c.hex}"></div>
-            <p class="text-[9px] text-[#8C5867] mt-1 truncate">${takenBy.display_name} ใช้</p>
+          return `<div title="ถูกเลือกโดย ${takenBy.display_name}" class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-semibold text-white/95 opacity-45 cursor-not-allowed select-none" style="background:${c.hex}">
+            ${takenBy.display_name.slice(0, 2)}
           </div>`;
         }
 
-        return `<button type="button" onclick="selectMemberColor('${c.hex}')"
-          class="p-2 rounded-xl border transition text-center ${isMine ? 'border-[#6B424E] bg-[#FFF5F8] ring-1 ring-[#6B424E]' : 'border-[#F5D5DF] bg-white hover:bg-[#FFF9FA]'}">
-          <div class="w-5 h-5 mx-auto rounded-md flex items-center justify-center text-[9px] font-bold text-white" style="background:${c.hex}">
-            ${isMine ? currentMember.display_name.slice(0, 2) : ''}
-          </div>
-          <p class="text-[9px] font-medium text-[#6B424E] mt-1">${c.label}</p>
+        return `<button type="button" onclick="selectMemberColor('${c.hex}')" title="${c.label}"
+          class="w-8 h-8 rounded-full transition flex items-center justify-center text-[10px] font-bold text-white ${isMine ? 'ring-2 ring-offset-2 ring-[#6B424E] scale-110' : 'opacity-85 hover:opacity-100'}"
+          style="background:${c.hex}">
+          ${isMine ? currentMember.display_name.slice(0, 2) : ''}
         </button>`;
       }).join('');
     }
@@ -880,17 +881,17 @@
         localStorage.setItem(`days_${currentTrip.id}`, totalDays);
       }
 
-      renderDayControls();
+      renderDayOptions();
       renderDashboard();
+      renderDailyDigest();
       renderAnalytics();
       renderMembers();
-      loadPhotos();
       loadLogs();
       if (isSuperAdmin()) loadLogBackups();
     }
 
     async function setPersonalCashBudget() {
-      const val = prompt('ระบุจำนวนเงินสด (CNY) ที่คุณพกติดตัวมาใช้ส่วนตัวในทริปนี้:', myPersonalCashInit || '500');
+      const val = prompt('ระบุจำนวนเงินสด (CNY) ที่คุณแลกพกติดตัวมาใช้ส่วนตัว:', myPersonalCashInit || '500');
       if (val === null) return;
       const num = parseFloat(val);
       if (isNaN(num) || num < 0) return alert('กรุณากรอกตัวเลขที่ถูกต้อง');
@@ -909,24 +910,16 @@
     function addTripDay() {
       totalDays += 1;
       localStorage.setItem(`days_${currentTrip.id}`, totalDays);
-      renderDayControls();
+      renderDayOptions();
+      alert(`เพิ่ม Day ${totalDays} เรียบร้อยแล้ว สามารถเลือกบันทึกบิลในวันใหม่ได้ทันที`);
     }
 
-    function renderDayControls() {
-      let filterHtml = `<button onclick="filterDay('all')" class="day-btn ${currentDayFilter === 'all' ? 'luxury-gradient text-white shadow-xs' : 'bg-white/90 text-[#8C5867] border border-[#F5D5DF]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="all">ทั้งหมด</button>`;
+    function renderDayOptions() {
       let optionsHtml = '';
       for (let d = 1; d <= totalDays; d++) {
-        const active = String(currentDayFilter) === String(d);
-        filterHtml += `<button onclick="filterDay(${d})" class="day-btn ${active ? 'luxury-gradient text-white shadow-xs' : 'bg-white/90 text-[#8C5867] border border-[#F5D5DF]'} px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0" data-day="${d}">Day ${d}</button>`;
         optionsHtml += `<option value="${d}">Day ${d}</option>`;
       }
-      if (!currentTrip.is_closed) {
-        filterHtml += `<button onclick="addTripDay()" class="bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 border border-[#F5C2D1]">+ เพิ่มวัน</button>`;
-      }
-
-      document.getElementById('day-filter-bar').innerHTML = filterHtml;
       document.getElementById('exp-day').innerHTML = optionsHtml;
-      document.getElementById('photo-day').innerHTML = optionsHtml;
     }
 
     function getMemberInfo(email) {
@@ -952,21 +945,18 @@
       return emails.length === 1 && emails[0].toLowerCase() === (e.paid_by_email || e.created_by || '').toLowerCase();
     }
 
-    // Netting Calculation across all shared/pool bills (including 2-person splits!)
     function computeMemberBalancesCny() {
       const netCny = {};
       membersList.forEach(m => netCny[m.email.toLowerCase()] = 0);
 
       expensesList.forEach(e => {
-        if (isSoloPersonalExpense(e)) return; // 100% solo personal items excluded from group settlement
+        if (isSoloPersonalExpense(e)) return;
         const cny = Number(e.amount_cny);
         const finalCny = e.has_alipay_fee ? cny * 1.03 : cny;
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEmail = (e.paid_by_email || e.created_by || '').toLowerCase();
 
-        if (netCny[payerEmail] !== undefined) {
-          netCny[payerEmail] += finalCny;
-        }
+        if (netCny[payerEmail] !== undefined) netCny[payerEmail] += finalCny;
         if (splitEmails.length > 0) {
           const share = finalCny / splitEmails.length;
           splitEmails.forEach(em => {
@@ -1005,7 +995,7 @@
         const c = memberPoolMap[m.email.toLowerCase()] || 0;
         return `<div class="flex justify-between items-center p-3 bg-[#FFF9FA] rounded-2xl border border-[#F5D5DF]">
           <span class="font-medium text-[#6B424E] flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-sm" style="background:${m.accent_color}"></span>${m.display_name}
+            <span class="w-2.5 h-2.5 rounded-full" style="background:${m.accent_color}"></span>${m.display_name}
           </span>
           <span class="font-semibold text-[#C45B79]">¥${c.toLocaleString()}</span>
         </div>`;
@@ -1049,7 +1039,6 @@
       document.getElementById('my-paid-cny').textContent = `¥${myPaidSharedCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
       document.getElementById('my-solo-cny').textContent = `ส่วนตัวล้วน ¥${mySoloPersonalCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
 
-      // Update Personal Cash Wallet Card
       document.getElementById('cash-init-val').textContent = `¥${myPersonalCashInit.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
       document.getElementById('cash-spent-val').textContent = `¥${myCashSpentCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
       document.getElementById('cash-rem-val').textContent = `¥${(myPersonalCashInit - myCashSpentCny).toLocaleString('en-US', {maximumFractionDigits: 1})}`;
@@ -1071,6 +1060,285 @@
       }
 
       renderExpenseList();
+    }
+
+    // ================= COLLAPSIBLE DAY GROUPS, SEARCH & QUICK AUDIT FILTERS =================
+    function setScopeFilter(scope) {
+      currentScopeFilter = scope;
+      const activeClass = 'px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs';
+      const inactiveClass = 'px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 text-[#8C5867] border border-[#F5D5DF]';
+      document.getElementById('scope-shared').className = scope === 'shared' ? activeClass : inactiveClass;
+      document.getElementById('scope-personal').className = scope === 'personal' ? activeClass : inactiveClass;
+      document.getElementById('personal-cash-card').classList.toggle('hidden', scope !== 'personal');
+      renderExpenseList();
+    }
+
+    function setQuickFilter(qf) {
+      currentQuickFilter = qf;
+      document.querySelectorAll('.qf-btn').forEach(btn => {
+        btn.className = 'qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0';
+      });
+      const activeBtn = document.getElementById(`qf-${qf}`);
+      if (activeBtn) activeBtn.className = 'qf-btn bg-[#6B424E] text-white px-2.5 py-1 rounded-lg shrink-0';
+      renderExpenseList();
+    }
+
+    function toggleDayCollapse(dayNum) {
+      if (collapsedDays.has(dayNum)) collapsedDays.delete(dayNum);
+      else collapsedDays.add(dayNum);
+      renderExpenseList();
+    }
+
+    function toggleVerifyExpense(id) {
+      if (verifiedIds.has(id)) verifiedIds.delete(id);
+      else verifiedIds.add(id);
+      localStorage.setItem('verified_expense_ids', JSON.stringify(Array.from(verifiedIds)));
+      renderExpenseList();
+    }
+
+    function renderExpenseList() {
+      const myEmail = currentMember.email.toLowerCase();
+      const isClosed = Boolean(currentTrip.is_closed);
+      const finalRate = getGlobalFinalRate();
+      const searchQuery = (document.getElementById('search-expense-input')?.value || '').trim().toLowerCase();
+
+      const filtered = expensesList.filter(e => {
+        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
+        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+        const isSolo = isSoloPersonalExpense(e);
+
+        // Privacy & Scope check
+        if (currentScopeFilter === 'personal') {
+          if (!(isSolo && payerEm === myEmail)) return false;
+        } else {
+          if (isSolo) return false;
+          if (!isSuperAdmin() && payerEm !== myEmail && !splitEmails.includes(myEmail)) return false;
+        }
+
+        // Quick Audit Filter
+        if (currentQuickFilter === 'mine' && payerEm !== myEmail) return false;
+        if (currentQuickFilter === 'unverified' && verifiedIds.has(e.id)) return false;
+        if (currentQuickFilter === 'flagged' && !e.delete_flag) return false;
+        if (currentQuickFilter === 'over200' && Number(e.amount_cny) <= 200) return false;
+
+        // Search keyword
+        if (searchQuery) {
+          const payerName = getMemberName(payerEm).toLowerCase();
+          const titleMatch = (e.title || '').toLowerCase().includes(searchQuery);
+          const payerMatch = payerName.includes(searchQuery);
+          const amtMatch = String(e.amount_cny).includes(searchQuery);
+          if (!titleMatch && !payerMatch && !amtMatch) return false;
+        }
+
+        return true;
+      });
+
+      let totalSumCny = 0, totalSumThb = 0;
+      const dayGroups = {};
+      filtered.forEach(e => {
+        const d = Number(e.trip_day || 1);
+        if (!dayGroups[d]) dayGroups[d] = [];
+        dayGroups[d].push(e);
+        const cny = Number(e.amount_cny);
+        totalSumCny += cny;
+        totalSumThb += calcFinalThb(cny, finalRate, e.has_alipay_fee);
+      });
+
+      const sortedDays = Object.keys(dayGroups).map(Number).sort((a, b) => b - a);
+      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
+
+      const html = sortedDays.map(dayNum => {
+        const items = dayGroups[dayNum].sort((a, b) => {
+          const tA = a.slip_time || new Date(a.created_at).toTimeString().slice(0, 5);
+          const tB = b.slip_time || new Date(b.created_at).toTimeString().slice(0, 5);
+          return tB.localeCompare(tA);
+        });
+
+        const dayCny = items.reduce((s, x) => s + Number(x.amount_cny), 0);
+        const dayThb = items.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee), 0);
+        const isCollapsed = collapsedDays.has(dayNum);
+
+        const cardsHtml = isCollapsed ? '' : items.map(e => {
+          const cny = Number(e.amount_cny);
+          const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee);
+          const splitNames = (e.split_details?.emails || []).map(getMemberName).join(', ');
+          const isOwner = e.created_by.toLowerCase() === myEmail;
+          const canDirectDelete = !isClosed && (isOwner || isSuperAdmin());
+          const isVerified = verifiedIds.has(e.id);
+
+          const payerInfo = getMemberInfo(e.paid_by_email || e.created_by);
+          const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+          const displayTime = e.slip_time || uploadTimeStr;
+          const timeBadge = e.time_source === 'slip' ? `${displayTime} · สลิป` : `${displayTime} · บันทึก`;
+          const metaInfo = `เวลาสลิป: ${e.slip_time || '-'} | บันทึกเข้าระบบ: ${uploadTimeStr} โดย ${getMemberName(e.created_by)}`;
+
+          let flagHtml = '';
+          if (e.delete_flag && !isClosed) {
+            flagHtml = `
+              <div class="bg-[#FFF0F4] border border-[#E893AC] rounded-xl p-2.5 space-y-2">
+                <p class="text-[11px] text-[#C45B79] font-medium">รอเจ้าของยืนยันลบ: แจ้งโดย ${e.delete_flag.flagged_by_name} — "${e.delete_flag.reason}"</p>
+                ${canDirectDelete ? `
+                  <div class="flex gap-2">
+                    <button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="flex-1 luxury-gradient text-white text-[11px] py-1.5 rounded-lg font-medium">ยืนยันลบรายการนี้</button>
+                    <button onclick="dismissFlag('${e.id}')" class="flex-1 bg-white text-[#8C5867] border border-[#F2CFD9] text-[11px] py-1.5 rounded-lg">ข้อมูลถูกแล้ว</button>
+                  </div>` : ''}
+              </div>`;
+          }
+
+          return `
+            <div class="soft-card p-3.5 rounded-2xl space-y-2 relative overflow-hidden ${e.delete_flag && !isClosed ? 'border-dashed border-2 border-[#D6718E]' : ''} ${isVerified ? 'opacity-80' : ''}" style="border-left: 4px solid ${payerInfo.accent_color};">
+              ${flagHtml}
+              <div class="flex justify-between items-start gap-2.5">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
+                    <span class="font-semibold px-2 py-0.5 rounded-md bg-white border border-[#F2CFD9]" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span>
+                    <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-md border border-[#F5D5DF]">${catNames[e.category] || e.category}</span>
+                    ${e.payment_channel === 'cash' ? '<span class="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-md border border-amber-200">เงินสด</span>' : ''}
+                    <span class="text-[#B38895]">${timeBadge}</span>
+                  </div>
+                  <h4 class="font-medium text-sm text-[#6B424E] mt-1 truncate">${e.title}</h4>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="font-semibold text-[#C45B79] text-sm">¥${cny.toFixed(2)}</p>
+                  <p class="text-[11px] text-[#B38895]">฿${thb.toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
+                </div>
+              </div>
+              <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-1.5 border-t border-[#FCEBF0]">
+                <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'ส่วนตัวล้วน' : 'หาร: ' + (splitNames || '-')}</span>
+                <div class="flex items-center gap-2.5 shrink-0">
+                  <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white border-[#F2CFD9] text-[#A37B87]'}">
+                    ${isVerified ? '✓ ตรวจแล้ว' : 'ติ๊กตรวจ'}
+                  </button>
+                  ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[#D6718E] font-medium underline">สลิป</button>` : ''}
+                  ${!isClosed ? (canDirectDelete
+                    ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#B38895] hover:text-rose-600">ลบ</button>`
+                    : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#C45B79] hover:underline">แจ้งผิด</button>` : '')) : ''}
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="space-y-2">
+            <button type="button" onclick="toggleDayCollapse(${dayNum})" class="w-full flex justify-between items-center bg-white/85 hover:bg-white px-3.5 py-2.5 rounded-2xl border border-[#F2CFD9] text-xs transition">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-[#C45B79]">Day ${dayNum}</span>
+                <span class="text-[11px] text-[#A37B87]">(${items.length} รายการ)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-[#6B424E]">¥${dayCny.toFixed(2)} · ฿${dayThb.toFixed(0)}</span>
+                <span class="text-[#B38895] text-[10px]">${isCollapsed ? '▼' : '▲'}</span>
+              </div>
+            </button>
+            ${cardsHtml}
+          </div>`;
+      }).join('');
+
+      document.getElementById('filtered-day-total').textContent = `¥${totalSumCny.toFixed(2)} · ฿${totalSumThb.toFixed(2)}`;
+      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
+    }
+
+    // ================= DAILY DIGEST & RECEIPT VAULT (REPLACES PHOTO GALLERY) =================
+    function renderDailyDigest() {
+      const myEmail = currentMember.email.toLowerCase();
+      const finalRate = getGlobalFinalRate();
+
+      // Include all shared/group bills visible to user + user's own solo bills
+      const relevant = expensesList.filter(e => {
+        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
+        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+        const isSolo = isSoloPersonalExpense(e);
+        if (isSolo) return payerEm === myEmail;
+        if (isSuperAdmin()) return true;
+        return payerEm === myEmail || splitEmails.includes(myEmail);
+      });
+
+      const byDay = {};
+      relevant.forEach(e => {
+        const d = Number(e.trip_day || 1);
+        if (!byDay[d]) byDay[d] = [];
+        byDay[d].push(e);
+      });
+
+      const days = Object.keys(byDay).map(Number).sort((a, b) => a - b);
+      const html = days.map(dayNum => {
+        const list = byDay[dayNum];
+        const groupList = list.filter(x => !isSoloPersonalExpense(x));
+        const soloList = list.filter(x => isSoloPersonalExpense(x));
+
+        const groupCny = groupList.reduce((s, x) => s + Number(x.amount_cny), 0);
+        const groupThb = groupList.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee), 0);
+        const soloCny = soloList.reduce((s, x) => s + Number(x.amount_cny), 0);
+        const slipCount = list.filter(x => x.receipt_image_url).length;
+
+        return `
+          <div class="soft-card p-4 rounded-2xl space-y-2.5">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="bg-[#FFEBF0] text-[#C45B79] font-semibold text-xs px-2.5 py-0.5 rounded-lg">Day ${dayNum}</span>
+                <span class="text-[11px] text-[#A37B87] ml-1.5">ทั้งหมด ${list.length} บิล (มีสลิป ${slipCount} ใบ)</span>
+              </div>
+              <button onclick="openDayReceiptVault(${dayNum})" class="text-[11px] bg-[#FFF5F8] text-[#C45B79] border border-[#E893AC] px-3 py-1 rounded-xl font-medium">
+                ดูรวมสลิป (${slipCount})
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+              <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
+                <p class="text-[10px] text-[#A37B87]">ยอดรวมกลุ่ม (Day ${dayNum})</p>
+                <p class="font-semibold text-[#C45B79] mt-0.5">¥${groupCny.toFixed(2)} <span class="text-[10px] font-normal text-[#8C5867]">(฿${groupThb.toFixed(0)})</span></p>
+              </div>
+              <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
+                <p class="text-[10px] text-[#A37B87]">ส่วนตัวของคุณ (Day ${dayNum})</p>
+                <p class="font-semibold text-[#6B424E] mt-0.5">¥${soloCny.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      document.getElementById('daily-digest-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีข้อมูลสรุปรายวัน</p>';
+    }
+
+    function openDayReceiptVault(dayNum) {
+      const myEmail = currentMember.email.toLowerCase();
+      const items = expensesList.filter(e => {
+        if (Number(e.trip_day) !== dayNum) return false;
+        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
+        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+        const isSolo = isSoloPersonalExpense(e);
+        if (isSolo) return payerEm === myEmail;
+        if (isSuperAdmin()) return true;
+        return payerEm === myEmail || splitEmails.includes(myEmail);
+      }).sort((a, b) => {
+        const tA = a.slip_time || new Date(a.created_at).toTimeString().slice(0, 5);
+        const tB = b.slip_time || new Date(b.created_at).toTimeString().slice(0, 5);
+        return tA.localeCompare(tB);
+      });
+
+      document.getElementById('day-vault-title').textContent = `สรุปรายการ & สลิป Day ${dayNum}`;
+      document.getElementById('day-vault-subtitle').textContent = `เรียงตามเวลาเช้าถึงค่ำ (${items.length} รายการ)`;
+
+      document.getElementById('day-vault-list').innerHTML = items.map(e => {
+        const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        const displayTime = e.slip_time || uploadTimeStr;
+        const payerInfo = getMemberInfo(e.paid_by_email || e.created_by);
+        const metaInfo = `Day ${dayNum} · เวลา ${displayTime} · ${payerInfo.display_name} จ่าย ¥${Number(e.amount_cny).toFixed(2)}`;
+
+        return `
+          <div class="p-3 bg-[#FFF9FA] rounded-2xl border border-[#F2CFD9] flex justify-between items-center gap-2" style="border-left: 3px solid ${payerInfo.accent_color};">
+            <div class="min-w-0">
+              <p class="text-[10px] text-[#A37B87]">${displayTime} · <span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span></p>
+              <p class="text-xs font-medium text-[#6B424E] truncate">${e.title}</p>
+            </div>
+            <div class="flex items-center gap-2.5 shrink-0">
+              <span class="text-xs font-semibold text-[#C45B79]">¥${Number(e.amount_cny).toFixed(2)}</span>
+              ${e.receipt_image_url
+                ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[11px] luxury-gradient text-white px-2.5 py-1 rounded-lg">ดูสลิป</button>`
+                : `<span class="text-[10px] text-[#C9A3AF]">ไม่มีรูป</span>`}
+            </div>
+          </div>`;
+      }).join('') || '<p class="text-center text-xs text-[#B38895] py-6">ไม่มีรายการในวันนี้</p>';
+
+      openModal('day-receipts-modal');
     }
 
     // ================= FINAL SETTLEMENT & ADMIN GLOBAL RATE =================
@@ -1129,7 +1397,7 @@
           : `<span class="text-[#B38895]">สมดุล 0.00</span>`;
         return `<div class="flex justify-between items-center p-2.5 bg-[#FFF9FA] rounded-xl border border-[#F5D5DF]">
           <span class="font-medium text-[#6B424E] flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-sm" style="background:${m.accent_color}"></span>${m.display_name}
+            <span class="w-2.5 h-2.5 rounded-full" style="background:${m.accent_color}"></span>${m.display_name}
           </span>
           ${status}
         </div>`;
@@ -1194,121 +1462,6 @@
         await writeLog('REOPEN_TRIP', `เปิดทริป "${currentTrip.name}" อีกครั้ง`);
       }
       await loadTripContext();
-    }
-
-    function setScopeFilter(scope) {
-      currentScopeFilter = scope;
-      const activeClass = 'px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0 luxury-gradient text-white shadow-xs';
-      const inactiveClass = 'px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0 bg-white/90 text-[#8C5867] border border-[#F5D5DF]';
-      document.getElementById('scope-shared').className = scope === 'shared' ? activeClass : inactiveClass;
-      document.getElementById('scope-personal').className = scope === 'personal' ? activeClass : inactiveClass;
-      document.getElementById('personal-cash-card').classList.toggle('hidden', scope !== 'personal');
-      renderExpenseList();
-    }
-
-    function filterDay(day) {
-      currentDayFilter = day;
-      renderDayControls();
-      renderExpenseList();
-    }
-
-    function renderExpenseList() {
-      const myEmail = currentMember.email.toLowerCase();
-      const isClosed = Boolean(currentTrip.is_closed);
-      const finalRate = getGlobalFinalRate();
-
-      // Strict Privacy: Solo personal items are 100% private to owner only!
-      // 2-person splits are visible ONLY to those 2 people (and Super Admin).
-      const visibleExpenses = expensesList.filter(e => {
-        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
-        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
-        const isSolo = isSoloPersonalExpense(e);
-
-        if (currentScopeFilter === 'personal') {
-          return isSolo && payerEm === myEmail;
-        }
-
-        if (isSolo) return false;
-        if (isSuperAdmin()) return true;
-        return payerEm === myEmail || splitEmails.includes(myEmail);
-      });
-
-      const filtered = (currentDayFilter === 'all'
-        ? visibleExpenses
-        : visibleExpenses.filter(e => String(e.trip_day) === String(currentDayFilter))
-      ).sort((a, b) => {
-        if (a.trip_day !== b.trip_day) return b.trip_day - a.trip_day;
-        const tA = a.slip_time || new Date(a.created_at).toTimeString().slice(0, 5);
-        const tB = b.slip_time || new Date(b.created_at).toTimeString().slice(0, 5);
-        return tB.localeCompare(tA);
-      });
-
-      let sumCny = 0, sumThb = 0;
-      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
-
-      const html = filtered.map(e => {
-        const cny = Number(e.amount_cny);
-        const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee);
-        sumCny += cny; sumThb += thb;
-
-        const splitEmails = e.split_details?.emails || [];
-        const splitNames = splitEmails.map(getMemberName).join(', ');
-        const isOwner = e.created_by.toLowerCase() === myEmail;
-        const canDirectDelete = !isClosed && (isOwner || isSuperAdmin());
-
-        const payerInfo = getMemberInfo(e.paid_by_email || e.created_by);
-        const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-        const displayTime = e.slip_time || uploadTimeStr;
-        const timeBadge = e.time_source === 'slip' ? `${displayTime} · สลิป` : `${displayTime} · บันทึก`;
-        const metaInfo = `เวลาสลิป: ${e.slip_time || '-'} | บันทึกเข้าระบบ: ${uploadTimeStr} โดย ${getMemberName(e.created_by)}`;
-
-        let flagHtml = '';
-        if (e.delete_flag && !isClosed) {
-          flagHtml = `
-            <div class="bg-[#FFF0F4] border border-[#E893AC] rounded-xl p-2.5 space-y-2">
-              <p class="text-[11px] text-[#C45B79] font-medium">รอเจ้าของยืนยันลบ: แจ้งโดย ${e.delete_flag.flagged_by_name} — "${e.delete_flag.reason}"</p>
-              ${canDirectDelete ? `
-                <div class="flex gap-2">
-                  <button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="flex-1 luxury-gradient text-white text-[11px] py-1.5 rounded-lg font-medium">ยืนยันลบรายการนี้</button>
-                  <button onclick="dismissFlag('${e.id}')" class="flex-1 bg-white text-[#8C5867] border border-[#F2CFD9] text-[11px] py-1.5 rounded-lg">ข้อมูลถูกแล้ว</button>
-                </div>` : ''}
-            </div>`;
-        }
-
-        return `
-          <div class="soft-card p-4 rounded-2xl space-y-2.5 relative overflow-hidden ${e.delete_flag && !isClosed ? 'border-dashed border-2 border-[#D6718E]' : ''}" style="border-left: 4px solid ${payerInfo.accent_color};">
-            ${flagHtml}
-            <div class="flex justify-between items-start gap-3">
-              <div>
-                <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
-                  <span class="bg-[#FFEBF0] text-[#C45B79] px-2 py-0.5 rounded-lg">Day ${e.trip_day}</span>
-                  <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-lg border border-[#F5D5DF]">${catNames[e.category] || e.category}</span>
-                  <span class="font-semibold px-2 py-0.5 rounded-lg bg-white border border-[#F2CFD9]" style="color:${payerInfo.accent_color}">${payerInfo.display_name} จ่าย</span>
-                  ${e.payment_channel === 'cash' ? '<span class="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-md border border-amber-200">เงินสด</span>' : ''}
-                  <span class="text-[#B38895]">${timeBadge}</span>
-                </div>
-                <h4 class="font-medium text-sm text-[#6B424E] mt-1.5">${e.title}</h4>
-              </div>
-              <div class="text-right shrink-0">
-                <p class="font-semibold text-[#C45B79] text-sm">¥${cny.toFixed(2)}</p>
-                <p class="text-[11px] text-[#B38895]">฿${thb.toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
-              </div>
-            </div>
-            <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-2 border-t border-[#FCEBF0]">
-              <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'ส่วนตัวล้วน (เห็นคนเดียว)' : 'หาร: ' + (splitNames || '-')}</span>
-              <div class="flex items-center gap-3 shrink-0">
-                ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[#D6718E] font-medium underline">ดูสลิป</button>` : ''}
-                ${!isClosed ? (canDirectDelete
-                  ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#B38895] hover:text-rose-600">ลบ</button>`
-                  : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#C45B79] hover:underline">แจ้งตรวจสอบ</button>` : '')) : ''}
-              </div>
-            </div>
-          </div>`;
-      }).join('');
-
-      document.getElementById('filtered-day-label').textContent = currentDayFilter === 'all' ? 'ยอดรวมตามตัวกรอง' : `ยอดรวม Day ${currentDayFilter}`;
-      document.getElementById('filtered-day-total').textContent = `¥${sumCny.toFixed(2)} · ฿${sumThb.toFixed(2)}`;
-      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีรายการบันทึกในหมวดนี้</p>';
     }
 
     // ================= FLAG & OWNER CONFIRM DELETE =================
@@ -1740,8 +1893,6 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       currentTimeSource = 'upload';
       document.getElementById('exp-time-badge').textContent = '(เวลาบันทึก)';
       document.getElementById('exp-channel').value = 'alipay';
-
-      // Locked Payer = Logged-in User ONLY
       document.getElementById('locked-payer-display').textContent = `${currentMember.display_name} (คุณ)`;
 
       document.getElementById('exp-split-checkboxes').innerHTML = membersList.map(m => `
@@ -1755,7 +1906,6 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     function handleChannelChange() {
       const ch = document.getElementById('exp-channel').value;
       if (ch === 'cash') {
-        // Personal cash automatically selects only logged-in user
         const myEmail = currentMember.email.toLowerCase();
         document.querySelectorAll('input[name="split-member"]').forEach(el => {
           el.checked = (el.value.toLowerCase() === myEmail);
@@ -1948,63 +2098,6 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       }
     }
 
-    async function uploadTripPhoto() {
-      const fileInput = document.getElementById('photo-file');
-      if (!fileInput.files.length) return alert('กรุณาเลือกไฟล์รูปภาพ');
-      const files = Array.from(fileInput.files);
-      const btn = document.getElementById('btn-upload-photo');
-      btn.disabled = true; btn.textContent = `กำลังอัปโหลด ${files.length} รูป...`;
-      try {
-        const trip_day = parseInt(document.getElementById('photo-day').value);
-        const caption = document.getElementById('photo-caption').value.trim();
-        const rows = [];
-        for (const f of files) {
-          const path = await uploadFileToStorage(f, 'gallery');
-          rows.push({ trip_id: currentTrip.id, trip_day, image_url: path, caption, uploaded_by: currentMember.email });
-        }
-        await db.from('trip_photos').insert(rows);
-        await writeLog('UPLOAD_PHOTO', `เพิ่มรูปภาพ ${files.length} รูป (Day ${trip_day})`);
-        closeModal('photo-modal');
-        fileInput.value = '';
-        document.getElementById('photo-caption').value = '';
-        loadPhotos();
-      } catch (e) {
-        alert('อัปโหลดไม่สำเร็จ: ' + e.message);
-      } finally {
-        btn.disabled = false; btn.textContent = 'อัปโหลด';
-      }
-    }
-
-    async function loadPhotos() {
-      const { data } = await db.from('trip_photos').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false });
-      const list = data || [];
-      const html = list.map((p, idx) => {
-        const uploadTime = new Date(p.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-        const meta = `Day ${p.trip_day} · อัปโหลดเมื่อ ${uploadTime} โดย ${getMemberName(p.uploaded_by)}`;
-        return `
-        <div class="soft-card rounded-2xl overflow-hidden">
-          <div onclick="viewStorageImage('${p.image_url}', '${meta.replace(/'/g, "\\'")}')" class="cursor-pointer">
-            <img id="gallery-img-${idx}" src="" class="w-full h-36 object-cover bg-[#FFEBF0]" />
-          </div>
-          <div class="p-3">
-            <span class="text-[10px] bg-[#FFEBF0] text-[#C45B79] font-medium px-2 py-0.5 rounded-lg">Day ${p.trip_day}</span>
-            <p class="text-xs font-medium text-[#6B424E] mt-1.5 truncate">${p.caption || '—'}</p>
-            <p class="text-[10px] text-[#B38895] mt-0.5">${getMemberName(p.uploaded_by)}</p>
-          </div>
-        </div>`;
-      }).join('');
-      document.getElementById('photo-grid').innerHTML = html || '<p class="col-span-2 text-center text-xs text-[#B38895] py-10">ยังไม่มีรูปภาพ</p>';
-
-      list.forEach(async (p, idx) => {
-        let cleanPath = p.image_url.includes('/trip-media/') ? p.image_url.split('/trip-media/')[1].split('?')[0] : p.image_url;
-        const { data: blob } = await db.storage.from('trip-media').download(cleanPath);
-        if (blob) {
-          const el = document.getElementById(`gallery-img-${idx}`);
-          if (el) el.src = URL.createObjectURL(blob);
-        }
-      });
-    }
-
     // ================= MULTI-TRIP, SHARED API KEY & LOG BACKUP SYSTEM =================
     async function createNewTrip() {
       const name = document.getElementById('new-trip-name').value.trim();
@@ -2046,7 +2139,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         <div class="py-2.5 flex justify-between items-center">
           <div>
             <p class="font-medium text-[#6B424E] text-xs flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:${m.accent_color}"></span>
+              <span class="w-2.5 h-2.5 rounded-full inline-block" style="background:${m.accent_color}"></span>
               <span>${m.display_name}</span>
               <span class="text-[10px] text-[#D6718E] font-normal">${m.role === 'host' ? 'Host' : ''}</span>
             </p>
@@ -2202,12 +2295,13 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     }
 
     function switchTab(tab) {
-      ['expenses', 'analytics', 'photos', 'members'].forEach(t => {
+      ['expenses', 'digest', 'analytics', 'members'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
         document.getElementById(`nav-${t}`).className = t === tab
           ? 'flex flex-col items-center gap-1 text-[#C45B79]'
           : 'flex flex-col items-center gap-1 text-[#C9A3AF]';
       });
+      if (tab === 'digest') renderDailyDigest();
       if (tab === 'analytics') renderAnalytics();
     }
 
