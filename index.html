@@ -144,7 +144,7 @@
         <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1] shrink-0">+ เพิ่มวัน</button>
       </div>
 
-      <!-- Personal Cash Wallet Card (Visible only in Personal Solo Tab) -->
+      <!-- Personal Cash Wallet Card -->
       <div id="personal-cash-card" class="hidden soft-card p-4 rounded-2xl border-[#E893AC] bg-[#FFF9FA] space-y-2.5">
         <div class="flex justify-between items-center">
           <div>
@@ -194,7 +194,7 @@
       <div id="expense-list" class="space-y-3"></div>
     </main>
 
-    <!-- TAB 2: DAILY DIGEST & RECEIPT VAULT (REPLACES PHOTO GALLERY) -->
+    <!-- TAB 2: DAILY DIGEST & RECEIPT VAULT -->
     <main id="tab-digest" class="hidden p-5 space-y-4">
       <div>
         <h2 class="font-semibold text-base text-[#6B424E]">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
@@ -239,7 +239,7 @@
       </div>
     </main>
 
-    <!-- TAB 4: MEMBERS, COMPACT CIRCLE COLOR PICKER, ADMIN & CLOSE TRIP -->
+    <!-- TAB 4: MEMBERS, COMPACT CIRCLE COLOR PICKER, PROXY RIGHTS & ADMIN -->
     <main id="tab-members" class="hidden p-5 space-y-5">
       <!-- Compact Minimalist Circle Color Picker -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
@@ -256,15 +256,25 @@
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
-          <h2 class="font-semibold text-sm text-[#6B424E]">จัดการทริป · ตั้งเรทไฟนอล · ปิดทริป</h2>
+          <h2 class="font-semibold text-sm text-[#6B424E]">ตั้งค่าทริป · วันเริ่ม · เรทไฟนอล · ปิดทริป</h2>
         </div>
 
-        <!-- Set Global Final Exchange Rate -->
-        <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-2">
-          <label class="block text-[11px] font-semibold text-[#C45B79]">เรทเงินหยวนไฟนอลกลาง (ใช้คำนวณโอนคืนทุกคน)</label>
-          <div class="flex gap-2">
-            <input id="admin-final-rate-input" type="number" step="0.01" value="4.85" class="w-full px-3 py-2 bg-white border border-[#F2CFD9] rounded-xl text-sm font-semibold text-[#C45B79]" />
-            <button onclick="saveFinalRate()" class="luxury-gradient text-white px-4 py-2 rounded-xl text-xs font-medium shrink-0">ตั้งเรทกลาง</button>
+        <!-- Trip Start Date (For AI Slip Date -> Day Mapping) & Global Final Rate -->
+        <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">วันเริ่มทริป (Day 1) — ใช้เทียบวันที่บนสลิปอัตโนมัติ</label>
+            <div class="flex gap-2">
+              <input id="admin-start-date-input" type="date" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs" />
+              <button onclick="saveTripStartDate()" class="bg-[#8C5867] text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0">บันทึกวัน</button>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-[#F2CFD9]">
+            <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">เรทเงินหยวนไฟนอลกลาง (ใช้คำนวณโอนคืนทุกคน)</label>
+            <div class="flex gap-2">
+              <input id="admin-final-rate-input" type="number" step="0.01" value="4.85" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-sm font-semibold text-[#C45B79]" />
+              <button onclick="saveFinalRate()" class="luxury-gradient text-white px-4 py-1.5 rounded-xl text-xs font-medium shrink-0">ตั้งเรทกลาง</button>
+            </div>
           </div>
         </div>
 
@@ -284,7 +294,7 @@
           <p class="text-[11px] font-semibold text-[#8C5867]">สร้างทริปใหม่แยกต่างหาก</p>
           <input id="new-trip-name" type="text" placeholder="ชื่อทริปใหม่ (เช่น Shanghai 2027)" class="w-full px-3.5 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           <div class="grid grid-cols-2 gap-2">
-            <input id="new-trip-dates" type="text" placeholder="ช่วงวันที่ (เช่น 10-15 เม.ย.)" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="new-trip-start" type="date" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
             <input id="new-trip-rate" type="number" step="0.01" value="4.85" placeholder="เรทเงินเริ่มต้น" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           </div>
           <button onclick="createNewTrip()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">+ สร้างทริปใหม่</button>
@@ -300,10 +310,11 @@
         </div>
       </div>
 
-      <!-- Trip Member Management -->
+      <!-- Trip Member Management & Proxy Upload Permissions -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
-        <div class="flex justify-between items-center">
+        <div>
           <h2 class="font-semibold text-sm text-[#6B424E]">สมาชิกทริปนี้ (<span id="member-count">0</span>/10)</h2>
+          <p id="proxy-admin-hint" class="hidden text-[10px] text-[#A37B87] mt-0.5">แอดมินสามารถเปิด-ปิดสิทธิ์ "อัปแทนเพื่อน" รายบุคคลได้กรณี VPN มีปัญหา</p>
         </div>
         <div id="member-list" class="divide-y divide-[#FCEBF0] text-sm"></div>
 
@@ -362,7 +373,7 @@
     </nav>
   </div>
 
-  <!-- ================= MODAL: ADD EXPENSE (LOCKED PAYER = LOGGED-IN USER) ================= -->
+  <!-- ================= MODAL: ADD EXPENSE (SUPPORTS PROXY PAYER & SLIP DATE MAPPING) ================= -->
   <div id="expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
@@ -374,8 +385,8 @@
       <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
         <div class="flex justify-between items-center gap-2">
           <div>
-            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลอัตโนมัติ + ป้องกันอัปโหลดซ้ำ</p>
-            <p class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน แยกสลิปโอนติดกันจากเลขธุรกรรมได้</p>
+            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลอัตโนมัติ (ยึดวันที่และเวลาบนสลิปเป็นหลัก)</p>
+            <p class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน บิลเงินสดไม่มีวันที่จะใช้วันที่ปัจจุบัน</p>
           </div>
           <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shrink-0 shadow-xs">
             เลือกรูปสแกน
@@ -391,10 +402,10 @@
         <p id="duplicate-alert-detail" class="text-[11px] text-[#6B424E] leading-relaxed"></p>
       </div>
 
-      <!-- Batch Queue Preview -->
+      <!-- Batch Queue Preview (Editable Day, Title, Amount, Time) -->
       <div id="batch-queue-section" class="hidden space-y-2.5 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
         <div class="flex justify-between items-center">
-          <p class="text-xs font-semibold text-[#6B424E]">รายการที่สแกนได้ (<span id="batch-count">0</span> รายการ)</p>
+          <p class="text-xs font-semibold text-[#6B424E]">ตรวจสอบ & แก้ไขรายการที่สแกนได้ (<span id="batch-count">0</span>)</p>
           <button onclick="clearBatchQueue()" class="text-[11px] text-[#B38895] underline">ล้างทั้งหมด</button>
         </div>
         <div id="batch-items-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
@@ -404,7 +415,7 @@
       <div id="single-expense-fields" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-[11px] text-[#8C5867]">วันที่</label>
+            <label class="text-[11px] text-[#8C5867]">วันที่ <span id="exp-day-badge" class="text-[9px] text-[#D6718E]"></span></label>
             <select id="exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
           </div>
           <div>
@@ -440,20 +451,27 @@
             <input id="exp-rate" type="number" step="0.01" value="4.85" oninput="calcThbPreview()" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-sm mt-1" />
           </div>
           <div class="col-span-2 flex justify-between items-center pt-1">
-            <label class="flex items-center gap-2 text-xs text-[#8C5867]">
-              <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
-              ค่าธรรมเนียม +3%
-            </label>
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-1.5 text-xs text-[#8C5867]">
+                <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
+                +3%
+              </label>
+              <label class="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
+                <input id="exp-refund" type="checkbox" class="rounded border-emerald-300 text-emerald-600 focus:ring-0" />
+                คืนเงิน (Refund)
+              </label>
+            </div>
             <span id="exp-thb-preview" class="text-xs font-semibold text-[#C45B79]">THB 0.00</span>
           </div>
         </div>
       </div>
 
-      <!-- Locked Payer + Payment Channel -->
+      <!-- Payer Control (Locked to Self by default, or Selectable if Admin granted Proxy Right) -->
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-[11px] text-[#8C5867]">ผู้สแกนจ่าย (ล็อกตามบัญชี)</label>
+          <label class="text-[11px] text-[#8C5867]">ผู้สแกนจ่ายตัวจริง <span id="proxy-active-tag" class="hidden text-[9px] text-[#C45B79] font-semibold">(สิทธิ์อัปแทน)</span></label>
           <div id="locked-payer-display" class="w-full bg-[#FFEBF0] border border-[#F2CFD9] rounded-xl p-2.5 text-xs font-semibold text-[#C45B79] mt-1 truncate"></div>
+          <select id="proxy-payer-select" class="hidden w-full bg-[#FFF5F8] border border-[#E893AC] rounded-xl p-2.5 text-xs font-semibold text-[#C45B79] mt-1"></select>
         </div>
         <div>
           <label class="text-[11px] text-[#8C5867]">ช่องทางจ่ายเงิน</label>
@@ -476,7 +494,74 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: DAY RECEIPT VAULT (ALL SLIPS FOR A SPECIFIC DAY) ================= -->
+  <!-- ================= MODAL: EDIT EXISTING EXPENSE ================= -->
+  <div id="edit-expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-[#F5D5DF]">
+      <div class="flex justify-between items-center">
+        <h3 class="font-semibold text-base text-[#6B424E]">แก้ไขรายการค่าใช้จ่าย</h3>
+        <button onclick="closeModal('edit-expense-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+      </div>
+
+      <input type="hidden" id="edit-exp-id" />
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-[11px] text-[#8C5867]">วันที่ (Day)</label>
+          <select id="edit-exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+        </div>
+        <div>
+          <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
+          <select id="edit-exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
+            <option value="Food">อาหาร / เครื่องดื่ม</option>
+            <option value="Transport">เดินทาง / รถไฟ / DiDi</option>
+            <option value="Ticket">ค่าเข้าสถานที่</option>
+            <option value="Shopping">ช้อปปิ้ง</option>
+            <option value="Hotel">ที่พัก</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2.5">
+        <div class="col-span-2">
+          <label class="text-[11px] text-[#8C5867]">รายละเอียดรายการ</label>
+          <input id="edit-exp-title" type="text" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
+        </div>
+        <div>
+          <label class="text-[11px] text-[#8C5867]">เวลา</label>
+          <input id="edit-exp-time" type="time" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
+        <div>
+          <label class="text-[11px] text-[#8C5867]">จำนวนเงิน (CNY)</label>
+          <input id="edit-exp-cny" type="number" step="0.01" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
+        </div>
+        <div class="flex flex-col justify-center gap-1.5 pt-3">
+          <label class="flex items-center gap-1.5 text-xs text-[#8C5867]">
+            <input id="edit-exp-fee" type="checkbox" class="rounded border-[#F2CFD9] text-[#D6718E]" />
+            ค่าธรรมเนียม +3%
+          </label>
+          <label class="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
+            <input id="edit-exp-refund" type="checkbox" class="rounded border-emerald-300 text-emerald-600" />
+            รายการคืนเงิน (Refund)
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-[11px] text-[#8C5867] block mb-1.5">ผู้ร่วมหาร</label>
+        <div id="edit-exp-split-checkboxes" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <div class="flex gap-2.5 pt-1">
+        <button onclick="closeModal('edit-expense-modal')" class="w-1/3 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button id="btn-update-expense" onclick="updateExpense()" class="w-2/3 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">บันทึกการแก้ไข</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: DAY RECEIPT VAULT ================= -->
   <div id="day-receipts-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
@@ -625,8 +710,8 @@
     let currentLogsList = [];
     let backupFilesList = [];
     let globalGeminiKey = '';
-    let currentScopeFilter = 'shared'; // 'shared' | 'personal'
-    let currentQuickFilter = 'all'; // 'all' | 'mine' | 'unverified' | 'flagged' | 'over200'
+    let currentScopeFilter = 'shared';
+    let currentQuickFilter = 'all';
     let collapsedDays = new Set();
     let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
     let totalDays = 6;
@@ -647,6 +732,16 @@
     function getCurrentHHMM() {
       const now = new Date();
       return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+
+    // Map a slip date (YYYY-MM-DD) to Trip Day (1, 2, 3...) using trip start_date
+    function mapSlipDateToTripDay(slipDateStr) {
+      if (!slipDateStr || !currentTrip?.start_date) return null;
+      const start = new Date(currentTrip.start_date + 'T00:00:00');
+      const slip = new Date(slipDateStr + 'T00:00:00');
+      if (isNaN(start.getTime()) || isNaN(slip.getTime())) return null;
+      const diffDays = Math.floor((slip - start) / (1000 * 60 * 60 * 24)) + 1;
+      return diffDays >= 1 && diffDays <= 30 ? diffDays : null;
     }
 
     async function computeFileHash(file) {
@@ -726,6 +821,10 @@
       return currentUser && currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL;
     }
 
+    function canCurrentUserProxy() {
+      return isSuperAdmin() || Boolean(currentMember?.can_proxy_pay);
+    }
+
     function getGlobalFinalRate() {
       return Number(currentTrip?.final_rate || currentTrip?.default_rate || 4.85);
     }
@@ -757,6 +856,7 @@
         document.getElementById('super-admin-panel').classList.remove('hidden');
         document.getElementById('btn-backup-clear-logs').classList.remove('hidden');
         document.getElementById('admin-backup-archive').classList.remove('hidden');
+        document.getElementById('proxy-admin-hint').classList.remove('hidden');
       }
 
       await loadTripContext();
@@ -774,12 +874,13 @@
       membersList = (members || []).map(m => ({
         ...m,
         display_name: m.email.toLowerCase() === SUPER_ADMIN_EMAIL ? SUPER_ADMIN_NAME : m.display_name,
-        accent_color: m.accent_color || '#D6718E'
+        accent_color: m.accent_color || '#D6718E',
+        can_proxy_pay: m.email.toLowerCase() === SUPER_ADMIN_EMAIL ? true : Boolean(m.can_proxy_pay)
       }));
 
       currentMember = membersList.find(m => m.email.toLowerCase() === currentUser.email.toLowerCase());
       if (!currentMember && isSuperAdmin()) {
-        currentMember = { email: currentUser.email, display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E' };
+        currentMember = { email: currentUser.email, display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E', can_proxy_pay: true };
       }
 
       if (!currentMember) {
@@ -817,6 +918,7 @@
       document.getElementById('dep-rate').value = finalRate;
       if (document.getElementById('admin-final-rate-input')) {
         document.getElementById('admin-final-rate-input').value = finalRate;
+        document.getElementById('admin-start-date-input').value = currentTrip.start_date || '';
         document.getElementById('admin-trip-status-text').textContent = isClosed ? 'ปิดทริปแล้ว (ล็อกข้อมูล)' : 'กำลังเดินทาง';
         document.getElementById('btn-toggle-close-trip').textContent = isClosed ? 'เปิดทริปอีกครั้ง' : 'ปิดทริปนี้';
       }
@@ -826,7 +928,6 @@
       await refreshAllData();
     }
 
-    // Minimalist Single-Row Circle Color Swatches (No bulky rectangles)
     function renderColorPicker() {
       const myEmail = currentMember.email.toLowerCase();
       const myColor = (currentMember.accent_color || '#D6718E').toLowerCase();
@@ -861,6 +962,15 @@
       } else {
         await db.from('trip_members').update({ accent_color: hex }).eq('trip_id', currentTrip.id).eq('email', myEmail);
       }
+      await loadTripContext();
+    }
+
+    async function toggleMemberProxyRight(memberId, memberName, currentVal) {
+      if (!isSuperAdmin()) return;
+      const nextVal = !currentVal;
+      const { error } = await db.from('trip_members').update({ can_proxy_pay: nextVal }).eq('id', memberId);
+      if (error) return alert('เปลี่ยนสิทธิ์ไม่สำเร็จ: ' + error.message);
+      await writeLog('PROXY_RIGHT', `${nextVal ? 'เปิด' : 'ปิด'}สิทธิ์อัปโหลดสลิปแทนเพื่อนให้ ${memberName}`);
       await loadTripContext();
     }
 
@@ -920,6 +1030,7 @@
         optionsHtml += `<option value="${d}">Day ${d}</option>`;
       }
       document.getElementById('exp-day').innerHTML = optionsHtml;
+      document.getElementById('edit-exp-day').innerHTML = optionsHtml;
     }
 
     function getMemberInfo(email) {
@@ -935,9 +1046,16 @@
       return getMemberInfo(email).display_name;
     }
 
-    function calcFinalThb(cny, rate, hasFee) {
+    function getSignedCny(e) {
+      const cny = Number(e.amount_cny);
+      const withFee = e.has_alipay_fee ? cny * 1.03 : cny;
+      return e.is_refund ? -withFee : withFee;
+    }
+
+    function calcFinalThb(cny, rate, hasFee, isRefund = false) {
       const base = Number(cny) * Number(rate);
-      return hasFee ? base * 1.03 : base;
+      const withFee = hasFee ? base * 1.03 : base;
+      return isRefund ? -withFee : withFee;
     }
 
     function isSoloPersonalExpense(e) {
@@ -951,14 +1069,13 @@
 
       expensesList.forEach(e => {
         if (isSoloPersonalExpense(e)) return;
-        const cny = Number(e.amount_cny);
-        const finalCny = e.has_alipay_fee ? cny * 1.03 : cny;
+        const signedCny = getSignedCny(e);
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEmail = (e.paid_by_email || e.created_by || '').toLowerCase();
 
-        if (netCny[payerEmail] !== undefined) netCny[payerEmail] += finalCny;
+        if (netCny[payerEmail] !== undefined) netCny[payerEmail] += signedCny;
         if (splitEmails.length > 0) {
-          const share = finalCny / splitEmails.length;
+          const share = signedCny / splitEmails.length;
           splitEmails.forEach(em => {
             if (netCny[em] !== undefined) netCny[em] -= share;
           });
@@ -973,7 +1090,11 @@
       const finalRate = getGlobalFinalRate();
 
       const myFlaggedCount = expensesList.filter(e =>
-        e.delete_flag && (e.created_by.toLowerCase() === myEmail || isSuperAdmin())
+        e.delete_flag && (
+          (e.paid_by_email || e.created_by || '').toLowerCase() === myEmail ||
+          e.created_by.toLowerCase() === myEmail ||
+          isSuperAdmin()
+        )
       ).length;
       document.getElementById('owner-flag-banner').classList.toggle('hidden', myFlaggedCount === 0 || isClosed);
       document.getElementById('my-flagged-count').textContent = myFlaggedCount;
@@ -1016,18 +1137,17 @@
       let myPaidSharedCny = 0, mySoloPersonalCny = 0, myCashSpentCny = 0;
 
       expensesList.forEach(e => {
-        const cny = Number(e.amount_cny);
-        const finalCny = e.has_alipay_fee ? cny * 1.03 : cny;
+        const signedCny = getSignedCny(e);
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
 
         if (isSoloPersonalExpense(e)) {
           if (payerEm === myEmail) {
-            mySoloPersonalCny += finalCny;
-            if (e.payment_channel === 'cash') myCashSpentCny += finalCny;
+            mySoloPersonalCny += signedCny;
+            if (e.payment_channel === 'cash') myCashSpentCny += signedCny;
           }
         } else {
-          poolSpentCny += finalCny;
-          if (payerEm === myEmail) myPaidSharedCny += finalCny;
+          poolSpentCny += signedCny;
+          if (payerEm === myEmail) myPaidSharedCny += signedCny;
         }
       });
 
@@ -1107,7 +1227,6 @@
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
         const isSolo = isSoloPersonalExpense(e);
 
-        // Privacy & Scope check
         if (currentScopeFilter === 'personal') {
           if (!(isSolo && payerEm === myEmail)) return false;
         } else {
@@ -1115,13 +1234,11 @@
           if (!isSuperAdmin() && payerEm !== myEmail && !splitEmails.includes(myEmail)) return false;
         }
 
-        // Quick Audit Filter
         if (currentQuickFilter === 'mine' && payerEm !== myEmail) return false;
         if (currentQuickFilter === 'unverified' && verifiedIds.has(e.id)) return false;
         if (currentQuickFilter === 'flagged' && !e.delete_flag) return false;
         if (currentQuickFilter === 'over200' && Number(e.amount_cny) <= 200) return false;
 
-        // Search keyword
         if (searchQuery) {
           const payerName = getMemberName(payerEm).toLowerCase();
           const titleMatch = (e.title || '').toLowerCase().includes(searchQuery);
@@ -1139,9 +1256,8 @@
         const d = Number(e.trip_day || 1);
         if (!dayGroups[d]) dayGroups[d] = [];
         dayGroups[d].push(e);
-        const cny = Number(e.amount_cny);
-        totalSumCny += cny;
-        totalSumThb += calcFinalThb(cny, finalRate, e.has_alipay_fee);
+        totalSumCny += getSignedCny(e);
+        totalSumThb += calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
       });
 
       const sortedDays = Object.keys(dayGroups).map(Number).sort((a, b) => b - a);
@@ -1154,19 +1270,22 @@
           return tB.localeCompare(tA);
         });
 
-        const dayCny = items.reduce((s, x) => s + Number(x.amount_cny), 0);
-        const dayThb = items.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee), 0);
+        const dayCny = items.reduce((s, x) => s + getSignedCny(x), 0);
+        const dayThb = items.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
         const isCollapsed = collapsedDays.has(dayNum);
 
         const cardsHtml = isCollapsed ? '' : items.map(e => {
           const cny = Number(e.amount_cny);
-          const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee);
+          const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee, e.is_refund);
           const splitNames = (e.split_details?.emails || []).map(getMemberName).join(', ');
-          const isOwner = e.created_by.toLowerCase() === myEmail;
-          const canDirectDelete = !isClosed && (isOwner || isSuperAdmin());
+          const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+          const creatorEm = (e.created_by || '').toLowerCase();
+          const isProxy = payerEm !== creatorEm;
+          const canManage = !isClosed && (payerEm === myEmail || creatorEm === myEmail || isSuperAdmin());
           const isVerified = verifiedIds.has(e.id);
 
-          const payerInfo = getMemberInfo(e.paid_by_email || e.created_by);
+          // Uses the ACTUAL PAYER's accent color even when uploaded by proxy!
+          const payerInfo = getMemberInfo(payerEm);
           const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
           const displayTime = e.slip_time || uploadTimeStr;
           const timeBadge = e.time_source === 'slip' ? `${displayTime} · สลิป` : `${displayTime} · บันทึก`;
@@ -1177,7 +1296,7 @@
             flagHtml = `
               <div class="bg-[#FFF0F4] border border-[#E893AC] rounded-xl p-2.5 space-y-2">
                 <p class="text-[11px] text-[#C45B79] font-medium">รอเจ้าของยืนยันลบ: แจ้งโดย ${e.delete_flag.flagged_by_name} — "${e.delete_flag.reason}"</p>
-                ${canDirectDelete ? `
+                ${canManage ? `
                   <div class="flex gap-2">
                     <button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="flex-1 luxury-gradient text-white text-[11px] py-1.5 rounded-lg font-medium">ยืนยันลบรายการนี้</button>
                     <button onclick="dismissFlag('${e.id}')" class="flex-1 bg-white text-[#8C5867] border border-[#F2CFD9] text-[11px] py-1.5 rounded-lg">ข้อมูลถูกแล้ว</button>
@@ -1191,26 +1310,30 @@
               <div class="flex justify-between items-start gap-2.5">
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
-                    <span class="font-semibold px-2 py-0.5 rounded-md bg-white border border-[#F2CFD9]" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span>
+                    <span class="font-semibold px-2 py-0.5 rounded-md bg-white border border-[#F2CFD9]" style="color:${payerInfo.accent_color}">
+                      ${payerInfo.display_name}${isProxy ? ` (${getMemberName(creatorEm)} อัปแทน)` : ''}
+                    </span>
                     <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-md border border-[#F5D5DF]">${catNames[e.category] || e.category}</span>
                     ${e.payment_channel === 'cash' ? '<span class="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-md border border-amber-200">เงินสด</span>' : ''}
+                    ${e.is_refund ? '<span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-200">คืนเงิน</span>' : ''}
                     <span class="text-[#B38895]">${timeBadge}</span>
                   </div>
                   <h4 class="font-medium text-sm text-[#6B424E] mt-1 truncate">${e.title}</h4>
                 </div>
                 <div class="text-right shrink-0">
-                  <p class="font-semibold text-[#C45B79] text-sm">¥${cny.toFixed(2)}</p>
-                  <p class="text-[11px] text-[#B38895]">฿${thb.toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
+                  <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'text-[#C45B79]'} text-sm">${e.is_refund ? '-' : ''}¥${cny.toFixed(2)}</p>
+                  <p class="text-[11px] text-[#B38895]">${e.is_refund ? '-' : ''}฿${Math.abs(thb).toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
                 </div>
               </div>
               <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-1.5 border-t border-[#FCEBF0]">
                 <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'ส่วนตัวล้วน' : 'หาร: ' + (splitNames || '-')}</span>
-                <div class="flex items-center gap-2.5 shrink-0">
+                <div class="flex items-center gap-2 shrink-0">
                   <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white border-[#F2CFD9] text-[#A37B87]'}">
                     ${isVerified ? '✓ ตรวจแล้ว' : 'ติ๊กตรวจ'}
                   </button>
                   ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[#D6718E] font-medium underline">สลิป</button>` : ''}
-                  ${!isClosed ? (canDirectDelete
+                  ${canManage ? `<button onclick="openEditExpenseModal('${e.id}')" class="text-[#8C5867] hover:text-[#C45B79] underline">แก้ไข</button>` : ''}
+                  ${!isClosed ? (canManage
                     ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#B38895] hover:text-rose-600">ลบ</button>`
                     : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#C45B79] hover:underline">แจ้งผิด</button>` : '')) : ''}
                 </div>
@@ -1238,12 +1361,78 @@
       document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
     }
 
-    // ================= DAILY DIGEST & RECEIPT VAULT (REPLACES PHOTO GALLERY) =================
+    // ================= EDIT EXISTING EXPENSE =================
+    function openEditExpenseModal(id) {
+      const e = expensesList.find(x => x.id === id);
+      if (!e) return;
+
+      document.getElementById('edit-exp-id').value = e.id;
+      document.getElementById('edit-exp-day').value = e.trip_day;
+      document.getElementById('edit-exp-cat').value = e.category;
+      document.getElementById('edit-exp-title').value = e.title;
+      document.getElementById('edit-exp-time').value = e.slip_time || getCurrentHHMM();
+      document.getElementById('edit-exp-cny').value = e.amount_cny;
+      document.getElementById('edit-exp-fee').checked = Boolean(e.has_alipay_fee);
+      document.getElementById('edit-exp-refund').checked = Boolean(e.is_refund);
+
+      const currentSplits = (e.split_details?.emails || []).map(x => x.toLowerCase());
+      document.getElementById('edit-exp-split-checkboxes').innerHTML = membersList.map(m => `
+        <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
+          <input type="checkbox" name="edit-split-member" value="${m.email}" ${currentSplits.includes(m.email.toLowerCase()) ? 'checked' : ''} class="rounded border-[#F2CFD9] text-[#D6718E]" />
+          ${m.display_name}
+        </label>`).join('');
+
+      openModal('edit-expense-modal');
+    }
+
+    async function updateExpense() {
+      const id = document.getElementById('edit-exp-id').value;
+      const e = expensesList.find(x => x.id === id);
+      if (!e) return;
+
+      const checkedEmails = Array.from(document.querySelectorAll('input[name="edit-split-member"]:checked')).map(el => el.value);
+      if (checkedEmails.length === 0) return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
+
+      const title = document.getElementById('edit-exp-title').value.trim();
+      const amount_cny = parseFloat(document.getElementById('edit-exp-cny').value);
+      if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและยอดเงินให้ครบ');
+
+      const btn = document.getElementById('btn-update-expense');
+      btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+
+      try {
+        const payerEmail = e.paid_by_email || e.created_by;
+        const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === payerEmail.toLowerCase();
+
+        const { error } = await db.from('expenses').update({
+          trip_day: parseInt(document.getElementById('edit-exp-day').value),
+          category: document.getElementById('edit-exp-cat').value,
+          title,
+          slip_time: document.getElementById('edit-exp-time').value,
+          amount_cny,
+          has_alipay_fee: document.getElementById('edit-exp-fee').checked,
+          is_refund: document.getElementById('edit-exp-refund').checked,
+          paid_by_type: isSolo ? 'personal' : 'pool',
+          split_details: { emails: checkedEmails }
+        }).eq('id', id);
+
+        if (error) throw error;
+
+        await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ¥${amount_cny}`);
+        closeModal('edit-expense-modal');
+        await refreshAllData();
+      } catch (err) {
+        alert('แก้ไขไม่สำเร็จ: ' + err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = 'บันทึกการแก้ไข';
+      }
+    }
+
+    // ================= DAILY DIGEST & RECEIPT VAULT =================
     function renderDailyDigest() {
       const myEmail = currentMember.email.toLowerCase();
       const finalRate = getGlobalFinalRate();
 
-      // Include all shared/group bills visible to user + user's own solo bills
       const relevant = expensesList.filter(e => {
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
@@ -1266,9 +1455,9 @@
         const groupList = list.filter(x => !isSoloPersonalExpense(x));
         const soloList = list.filter(x => isSoloPersonalExpense(x));
 
-        const groupCny = groupList.reduce((s, x) => s + Number(x.amount_cny), 0);
-        const groupThb = groupList.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee), 0);
-        const soloCny = soloList.reduce((s, x) => s + Number(x.amount_cny), 0);
+        const groupCny = groupList.reduce((s, x) => s + getSignedCny(x), 0);
+        const groupThb = groupList.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
+        const soloCny = soloList.reduce((s, x) => s + getSignedCny(x), 0);
         const slipCount = list.filter(x => x.receipt_image_url).length;
 
         return `
@@ -1423,6 +1612,17 @@
         : '<p class="text-center text-[#B38895] py-3 bg-[#FFF9FA] rounded-xl">ยอดของทุกคนสมดุลกันแล้ว ไม่ต้องโอนคืน</p>';
     }
 
+    async function saveTripStartDate() {
+      if (!isSuperAdmin()) return;
+      const startDate = document.getElementById('admin-start-date-input').value;
+      if (!startDate) return alert('กรุณาเลือกวันเริ่มทริป');
+      const { error } = await db.from('trips').update({ start_date: startDate }).eq('id', currentTrip.id);
+      if (error) return alert('บันทึกวันเริ่มทริปไม่สำเร็จ: ' + error.message);
+      currentTrip.start_date = startDate;
+      await writeLog('SET_START_DATE', `กำหนดวันเริ่มทริป (Day 1) เป็น ${startDate}`);
+      alert(`ตั้งค่า Day 1 = ${startDate} เรียบร้อยแล้ว AI จะเทียบวันที่บนสลิปเป็น Day ให้อัตโนมัติ`);
+    }
+
     async function saveFinalRate() {
       if (!isSuperAdmin()) return;
       const newRate = parseFloat(document.getElementById('admin-final-rate-input').value);
@@ -1512,9 +1712,9 @@
       const catLabels = { Food: 'อาหาร / เครื่องดื่ม', Transport: 'เดินทาง / รถไฟ / DiDi', Ticket: 'ค่าเข้าสถานที่', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
 
       expensesList.filter(e => !isSoloPersonalExpense(e)).forEach(e => {
-        const cny = Number(e.amount_cny);
-        const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee);
-        grandCny += cny; grandThb += thb;
+        const signedCny = getSignedCny(e);
+        const thb = calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
+        grandCny += signedCny; grandThb += thb;
         const dKey = `Day ${e.trip_day}`;
         dayTotals[dKey] = (dayTotals[dKey] || 0) + thb;
         catTotals[e.category] = (catTotals[e.category] || 0) + thb;
@@ -1583,7 +1783,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE AI RECEIPT SCANNER =================
+    // ================= MULTI-FILE AI RECEIPT SCANNER (EXTRACTS SLIP DATE + TIME + REF) =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -1619,6 +1819,7 @@
 
     async function scanSingleReceiptFile(file, apiKey) {
       const fallbackTime = getCurrentHHMM();
+      const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
       const fileHash = await computeFileHash(file);
 
       const hashDup = findDuplicateExpense({ hash: fileHash });
@@ -1627,6 +1828,8 @@
           file,
           fileHash,
           slipRef: null,
+          trip_day: hashDup.item.trip_day,
+          date_from_slip: false,
           title: hashDup.item.title,
           amount_cny: hashDup.item.amount_cny,
           category: hashDup.item.category,
@@ -1641,6 +1844,8 @@
           file,
           fileHash,
           slipRef: null,
+          trip_day: defaultDay,
+          date_from_slip: false,
           title: file.name.replace(/\.[^/.]+$/, ''),
           amount_cny: '',
           category: 'Food',
@@ -1655,9 +1860,9 @@
 1. Extract the final net paid amount in CNY (number).
 2. Write a concise Thai description with original merchant name in parentheses.
 3. Choose category from: Food, Transport, Ticket, Shopping, Hotel.
-4. Look for a printed transaction time (HH:MM in 24-hour format). If handwritten or no printed time, return null for "slip_time".
+4. Look for a printed transaction date (YYYY-MM-DD) and time (HH:MM in 24-hour format). If handwritten or no printed date/time, return null for "slip_date" and "slip_time".
 5. Extract transaction reference number / order ID if printed on the slip (or null if none).
-Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food", "slip_time": "18:06", "slip_ref": "..."}`;
+Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food", "slip_date": "2026-11-17", "slip_time": "18:06", "slip_ref": "..."}`;
 
       try {
         const rawText = await callGeminiWithFallback(apiKey, prompt, base64Data);
@@ -1670,6 +1875,9 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           const slipTimeFinal = validTime || fallbackTime;
           const timeSourceFinal = validTime ? 'slip' : 'upload';
           const slipRefFinal = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' ? String(parsed.slip_ref).trim() : null;
+
+          const mappedDay = parsed.slip_date ? mapSlipDateToTripDay(parsed.slip_date.trim()) : null;
+          const finalDay = mappedDay || defaultDay;
 
           const semanticDup = findDuplicateExpense({
             hash: fileHash,
@@ -1684,6 +1892,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
             file,
             fileHash,
             slipRef: slipRefFinal,
+            trip_day: finalDay,
+            date_from_slip: Boolean(mappedDay),
             title: parsed.title || 'รายการจากสลิป',
             amount_cny: parsed.amount_cny || '',
             category: parsed.category || 'Food',
@@ -1700,6 +1910,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         file,
         fileHash,
         slipRef: null,
+        trip_day: defaultDay,
+        date_from_slip: false,
         title: '',
         amount_cny: '',
         category: 'Food',
@@ -1722,7 +1934,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         document.getElementById('batch-queue-section').classList.add('hidden');
         document.getElementById('single-expense-fields').classList.remove('hidden');
 
-        statusEl.textContent = 'กำลังตรวจสอบสลิปซ้ำและอ่านข้อมูล...';
+        statusEl.textContent = 'กำลังตรวจสอบสลิปซ้ำและอ่านวันที่/เวลา...';
         const res = await scanSingleReceiptFile(files[0], apiKey);
         currentSingleSlipHash = res.fileHash;
         currentSingleSlipRef = res.slipRef;
@@ -1734,6 +1946,16 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           calcThbPreview();
         }
         if (res.category) document.getElementById('exp-cat').value = res.category;
+
+        // Auto-expand days if slip falls on a later Day
+        if (res.trip_day > totalDays) {
+          totalDays = res.trip_day;
+          localStorage.setItem(`days_${currentTrip.id}`, totalDays);
+          renderDayOptions();
+        }
+        document.getElementById('exp-day').value = res.trip_day;
+        document.getElementById('exp-day-badge').textContent = res.date_from_slip ? '(จากสลิป)' : '(วันนี้)';
+
         document.getElementById('exp-time').value = res.slip_time;
         currentTimeSource = res.time_source;
         document.getElementById('exp-time-badge').textContent = res.time_source === 'slip' ? '(จากสลิป)' : '(เวลาอัปโหลด)';
@@ -1743,7 +1965,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           statusEl.textContent = 'พบสลิปซ้ำกับรายการในระบบ กรุณาตรวจสอบก่อนกดบันทึก';
         } else {
           statusEl.textContent = res.amount_cny
-            ? `สแกนสำเร็จ: "${res.title}" ยอด ¥${res.amount_cny} (${res.time_source === 'slip' ? 'เวลาสลิป ' + res.slip_time : 'เวลาอัปโหลด ' + res.slip_time})`
+            ? `สแกนสำเร็จ: "${res.title}" ยอด ¥${res.amount_cny} (Day ${res.trip_day} · ${res.slip_time})`
             : 'แนบรูปเรียบร้อยแล้ว กรุณากรอกรายละเอียดเพิ่มเติม';
         }
       } else {
@@ -1756,6 +1978,10 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         const seenHashes = new Set();
         const seenRefs = new Set();
         results.forEach(item => {
+          if (item.trip_day > totalDays) {
+            totalDays = item.trip_day;
+            localStorage.setItem(`days_${currentTrip.id}`, totalDays);
+          }
           if (item.duplicateMatch) return;
           if (seenHashes.has(item.fileHash) || (item.slipRef && seenRefs.has(item.slipRef))) {
             item.duplicateMatch = { reason: 'สลิปซ้ำกับรูปอื่นที่เลือกมาพร้อมกันในชุดนี้', item };
@@ -1765,31 +1991,32 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           }
         });
 
+        renderDayOptions();
         batchQueue = results.sort((a, b) => a.slip_time.localeCompare(b.slip_time));
         const dupCount = batchQueue.filter(x => x.duplicateMatch).length;
         renderBatchQueue();
         statusEl.textContent = dupCount > 0
           ? `สแกนครบ ${batchQueue.length} รูป (พบสลิปซ้ำ ${dupCount} ใบ ระบบคัดออกให้อัตโนมัติแล้ว)`
-          : `สแกนครบ ${batchQueue.length} รูปแล้ว ตรวจสอบรายการด้านล่างก่อนกดบันทึกทั้งหมด`;
+          : `สแกนครบ ${batchQueue.length} รูปแล้ว แก้ไขวันที่/ชื่อ/ยอดเงินด้านล่างได้ก่อนบันทึก`;
       }
     }
 
     function renderBatchQueue() {
       const validCount = batchQueue.filter(x => !x.duplicateMatch).length;
       document.getElementById('batch-count').textContent = `${validCount}/${batchQueue.length}`;
-      const defaultDay = document.getElementById('exp-day').value || '1';
-      let dayOpts = '';
-      for (let d = 1; d <= totalDays; d++) {
-        dayOpts += `<option value="${d}" ${String(d) === String(defaultDay) ? 'selected' : ''}>Day ${d}</option>`;
-      }
 
       document.getElementById('batch-items-list').innerHTML = batchQueue.map((item, idx) => {
         const isDup = Boolean(item.duplicateMatch);
+        let dayOpts = '';
+        for (let d = 1; d <= totalDays; d++) {
+          dayOpts += `<option value="${d}" ${Number(item.trip_day) === d ? 'selected' : ''}>Day ${d}</option>`;
+        }
+
         return `
         <div class="p-3 rounded-xl border space-y-2 ${isDup ? 'bg-[#FFF0F4] border-[#C45B79] opacity-85' : 'bg-white border-[#F2CFD9]'}">
           <div class="flex justify-between items-center text-[10px]">
             <span class="font-semibold text-[#C45B79]">
-              ${isDup ? 'ซ้ำ (ข้ามอัตโนมัติ)' : `บิลที่ ${idx + 1} · ${item.time_source === 'slip' ? 'เวลาสลิป ' + item.slip_time : 'เวลาอัปโหลด ' + item.slip_time}`}
+              ${isDup ? 'ซ้ำ (ข้ามอัตโนมัติ)' : `บิลที่ ${idx + 1} · ${item.date_from_slip ? 'วันที่จากสลิป' : 'วันที่อัปโหลด'} · ${item.slip_time}`}
             </span>
             <button type="button" onclick="removeBatchItem(${idx})" class="text-[#B38895] hover:text-rose-600">เอาออก</button>
           </div>
@@ -1892,8 +2119,29 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       document.getElementById('exp-time').value = getCurrentHHMM();
       currentTimeSource = 'upload';
       document.getElementById('exp-time-badge').textContent = '(เวลาบันทึก)';
+      document.getElementById('exp-day-badge').textContent = '';
       document.getElementById('exp-channel').value = 'alipay';
-      document.getElementById('locked-payer-display').textContent = `${currentMember.display_name} (คุณ)`;
+      document.getElementById('exp-refund').checked = false;
+
+      // Check if logged-in user has Admin-granted Proxy Upload Right
+      const hasProxyRight = canCurrentUserProxy();
+      const lockedBox = document.getElementById('locked-payer-display');
+      const proxySelect = document.getElementById('proxy-payer-select');
+      const proxyTag = document.getElementById('proxy-active-tag');
+
+      if (hasProxyRight) {
+        lockedBox.classList.add('hidden');
+        proxySelect.classList.remove('hidden');
+        proxyTag.classList.remove('hidden');
+        proxySelect.innerHTML = membersList.map(m =>
+          `<option value="${m.email}" ${m.email.toLowerCase() === currentMember.email.toLowerCase() ? 'selected' : ''}>${m.display_name}${m.email.toLowerCase() === currentMember.email.toLowerCase() ? ' (คุณ)' : ' (อัปแทน)'}</option>`
+        ).join('');
+      } else {
+        lockedBox.classList.remove('hidden');
+        proxySelect.classList.add('hidden');
+        proxyTag.classList.add('hidden');
+        lockedBox.textContent = `${currentMember.display_name} (คุณ)`;
+      }
 
       document.getElementById('exp-split-checkboxes').innerHTML = membersList.map(m => `
         <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
@@ -1903,12 +2151,19 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       openModal('expense-modal');
     }
 
+    function getSelectedPayerEmail() {
+      if (canCurrentUserProxy()) {
+        return document.getElementById('proxy-payer-select').value || currentMember.email;
+      }
+      return currentMember.email;
+    }
+
     function handleChannelChange() {
       const ch = document.getElementById('exp-channel').value;
       if (ch === 'cash') {
-        const myEmail = currentMember.email.toLowerCase();
+        const payerEm = getSelectedPayerEmail().toLowerCase();
         document.querySelectorAll('input[name="split-member"]').forEach(el => {
-          el.checked = (el.value.toLowerCase() === myEmail);
+          el.checked = (el.value.toLowerCase() === payerEm);
         });
       }
     }
@@ -1940,7 +2195,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
 
       const rate = parseFloat(document.getElementById('exp-rate').value) || getGlobalFinalRate();
       const payment_channel = document.getElementById('exp-channel').value;
-      const lockedPayerEmail = currentMember.email;
+      const actualPayerEmail = getSelectedPayerEmail();
       const defaultDay = parseInt(document.getElementById('exp-day').value);
 
       if (batchQueue.length > 0) {
@@ -1956,6 +2211,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           for (const item of validItems) {
             const receiptPath = await uploadFileToStorage(item.file, 'receipts');
             const cny = parseFloat(item.amount_cny);
+            const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
             payloads.push({
               trip_id: currentTrip.id,
               trip_day: parseInt(item.trip_day || defaultDay),
@@ -1965,8 +2221,9 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
               amount_cny: cny,
               exchange_rate: rate,
               has_alipay_fee: cny > 200,
-              paid_by_type: checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === lockedPayerEmail.toLowerCase() ? 'personal' : 'pool',
-              paid_by_email: lockedPayerEmail,
+              is_refund: false,
+              paid_by_type: isSolo ? 'personal' : 'pool',
+              paid_by_email: actualPayerEmail,
               payment_channel,
               split_details: { emails: checkedEmails },
               receipt_image_url: receiptPath,
@@ -1974,19 +2231,19 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
               time_source: item.time_source,
               slip_hash: item.fileHash,
               slip_ref: item.slipRef,
-              created_by: lockedPayerEmail
+              created_by: currentMember.email
             });
           }
 
           const { error } = await db.from('expenses').insert(payloads);
           if (error) throw error;
 
-          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${payloads.length} รายการ`);
+          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${payloads.length} รายการ (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
           closeModal('expense-modal');
           clearBatchQueue();
           await refreshAllData();
         } catch (err) {
-          alert('เกิดข้อผิดพลาด: ' + err.message);
+          alert('บันทึกไม่สำเร็จ (ข้อมูลยังอยู่ครบ กดบันทึกใหม่เมื่อเน็ตเสถียร): ' + err.message);
         } finally {
           btn.disabled = false; btn.textContent = 'บันทึกรายการ';
         }
@@ -2022,7 +2279,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           receiptPath = await uploadFileToStorage(fileInput.files[0], 'receipts');
         }
 
-        const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === lockedPayerEmail.toLowerCase();
+        const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
         const payload = {
           trip_id: currentTrip.id,
           trip_day: defaultDay,
@@ -2032,8 +2289,9 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           amount_cny,
           exchange_rate: rate,
           has_alipay_fee: document.getElementById('exp-fee').checked,
+          is_refund: document.getElementById('exp-refund').checked,
           paid_by_type: isSolo ? 'personal' : 'pool',
-          paid_by_email: lockedPayerEmail,
+          paid_by_email: actualPayerEmail,
           payment_channel,
           split_details: { emails: checkedEmails },
           receipt_image_url: receiptPath,
@@ -2041,20 +2299,20 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           time_source: currentTimeSource,
           slip_hash: currentSingleSlipHash,
           slip_ref: currentSingleSlipRef,
-          created_by: lockedPayerEmail
+          created_by: currentMember.email
         };
 
         const { error } = await db.from('expenses').insert([payload]);
         if (error) throw error;
 
-        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" ยอด ¥${amount_cny}`);
+        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" ยอด ¥${amount_cny} (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
         closeModal('expense-modal');
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-cny').value = '';
         clearBatchQueue();
         await refreshAllData();
       } catch (err) {
-        alert('เกิดข้อผิดพลาด: ' + err.message);
+        alert('บันทึกไม่สำเร็จ (ข้อมูลและรูปสลิปยังอยู่ครบ กดบันทึกใหม่เมื่อเน็ต/VPN เสถียร): ' + err.message);
       } finally {
         btn.disabled = false; btn.textContent = 'บันทึกรายการ';
       }
@@ -2101,25 +2359,24 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     // ================= MULTI-TRIP, SHARED API KEY & LOG BACKUP SYSTEM =================
     async function createNewTrip() {
       const name = document.getElementById('new-trip-name').value.trim();
-      const date_range = document.getElementById('new-trip-dates').value.trim();
+      const start_date = document.getElementById('new-trip-start').value || new Date().toISOString().split('T')[0];
       const default_rate = parseFloat(document.getElementById('new-trip-rate').value) || 4.85;
       if (!name) return alert('กรุณาระบุชื่อทริปใหม่');
 
       const { data: newTrip, error } = await db.from('trips').insert([{
-        name, date_range, default_rate, final_rate: default_rate, is_closed: false, created_by: currentUser.email.toLowerCase()
+        name, start_date, default_rate, final_rate: default_rate, is_closed: false, created_by: currentUser.email.toLowerCase()
       }]).select().single();
 
       if (error) return alert('สร้างทริปไม่สำเร็จ: ' + error.message);
 
       await db.from('trip_members').insert([{
-        trip_id: newTrip.id, email: currentUser.email.toLowerCase(), display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E'
+        trip_id: newTrip.id, email: currentUser.email.toLowerCase(), display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E', can_proxy_pay: true
       }]);
 
       document.getElementById('new-trip-name').value = '';
-      document.getElementById('new-trip-dates').value = '';
       localStorage.setItem('selected_trip_id', newTrip.id);
       await initApp(currentUser);
-      alert(`สร้างทริป "${name}" เรียบร้อยแล้ว สามารถเพิ่มรายชื่อสมาชิกของทริปนี้ได้ทันที`);
+      alert(`สร้างทริป "${name}" (เริ่ม ${start_date}) เรียบร้อยแล้ว สามารถเพิ่มรายชื่อสมาชิกของทริปนี้ได้ทันที`);
     }
 
     async function saveGeminiKey() {
@@ -2136,18 +2393,26 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       document.getElementById('member-list').innerHTML = membersList.map(m => {
         const isAdminEmail = m.email.toLowerCase() === SUPER_ADMIN_EMAIL;
         return `
-        <div class="py-2.5 flex justify-between items-center">
-          <div>
+        <div class="py-2.5 flex justify-between items-center gap-2">
+          <div class="min-w-0">
             <p class="font-medium text-[#6B424E] text-xs flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full inline-block" style="background:${m.accent_color}"></span>
+              <span class="w-2.5 h-2.5 rounded-full inline-block shrink-0" style="background:${m.accent_color}"></span>
               <span>${m.display_name}</span>
               <span class="text-[10px] text-[#D6718E] font-normal">${m.role === 'host' ? 'Host' : ''}</span>
+              ${m.can_proxy_pay ? '<span class="text-[9px] bg-[#FFEBF0] text-[#C45B79] px-1.5 py-0.5 rounded-md">อัปแทนได้</span>' : ''}
             </p>
-            <p class="text-[11px] text-[#B38895] pl-4">${isAdminEmail ? 'Administrator' : m.email}</p>
+            <p class="text-[11px] text-[#B38895] pl-4 truncate">${isAdminEmail ? 'Administrator' : m.email}</p>
           </div>
-          ${(currentMember.role === 'host' || isSuperAdmin()) && m.role !== 'host' && !currentTrip.is_closed
-            ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[11px] text-[#A37B87] hover:text-rose-600 px-2.5 py-1 rounded-xl border border-[#F5D5DF]">ลบออก</button>`
-            : ''}
+          <div class="flex items-center gap-1.5 shrink-0">
+            ${isSuperAdmin() && !isAdminEmail && !currentTrip.is_closed
+              ? `<button onclick="toggleMemberProxyRight('${m.id}', '${m.display_name}', ${m.can_proxy_pay})" class="text-[10px] px-2 py-1 rounded-lg border ${m.can_proxy_pay ? 'bg-[#C45B79] text-white border-[#C45B79]' : 'bg-white text-[#8C5867] border-[#F2CFD9]'}">
+                  ${m.can_proxy_pay ? 'ปิดอัปแทน' : 'ให้อัปแทน'}
+                </button>`
+              : ''}
+            ${(currentMember.role === 'host' || isSuperAdmin()) && m.role !== 'host' && !currentTrip.is_closed
+              ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[10px] text-[#A37B87] hover:text-rose-600 px-2 py-1 rounded-lg border border-[#F5D5DF]">ลบ</button>`
+              : ''}
+          </div>
         </div>`;
       }).join('');
     }
@@ -2160,7 +2425,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       const usedColors = membersList.map(m => (m.accent_color || '').toLowerCase());
       const freeColorObj = PASTEL_PALETTE.find(c => !usedColors.includes(c.hex.toLowerCase())) || PASTEL_PALETTE[membersList.length % PASTEL_PALETTE.length];
 
-      const { error } = await db.from('trip_members').insert([{ trip_id: currentTrip.id, email, display_name, role: 'member', accent_color: freeColorObj.hex }]);
+      const { error } = await db.from('trip_members').insert([{ trip_id: currentTrip.id, email, display_name, role: 'member', accent_color: freeColorObj.hex, can_proxy_pay: false }]);
       if (error) return alert('เพิ่มไม่ได้: ' + error.message);
       await writeLog('ADD_MEMBER', `เพิ่มสิทธิ์ ${display_name} (${email})`);
       document.getElementById('new-member-name').value = '';
@@ -2268,17 +2533,19 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       const finalRate = getGlobalFinalRate();
       let csv = '\uFEFF';
       csv += `สรุปรายการค่าใช้จ่าย - ${currentTrip.name} (เรทไฟนอลกลาง ${finalRate} THB/CNY)\n`;
-      csv += 'วันที่ (Day),เวลา,ที่มาเวลา,หมวดหมู่,รายการ,ยอดหยวน (CNY),ค่าธรรมเนียม 3%,ยอดบาทตามเรทไฟนอล (THB),ผู้สแกนจ่าย,ผู้ร่วมหาร\n';
+      csv += 'วันที่ (Day),เวลา,ที่มาเวลา,หมวดหมู่,รายการ,ประเภท,ยอดหยวน (CNY),ค่าธรรมเนียม 3%,ยอดบาทตามเรทไฟนอล (THB),ผู้สแกนจ่าย,ผู้อัปโหลด,ผู้ร่วมหาร\n';
 
       expensesList.filter(e => !isSoloPersonalExpense(e)).forEach(e => {
         const cny = Number(e.amount_cny);
-        const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee);
+        const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee, e.is_refund);
         const splitNames = (e.split_details?.emails || []).map(getMemberName).join(' / ');
         const paidBy = getMemberName(e.paid_by_email);
+        const uploadedBy = getMemberName(e.created_by);
         const cleanTitle = `"${(e.title || '').replace(/"/g, '""')}"`;
         const timeVal = e.slip_time || new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
         const timeSrc = e.time_source === 'slip' ? 'เวลาสลิป' : 'เวลาอัปโหลด';
-        csv += `Day ${e.trip_day},${timeVal},${timeSrc},${e.category},${cleanTitle},${cny.toFixed(2)},${e.has_alipay_fee ? 'ใช่' : 'ไม่'},${thb.toFixed(2)},${paidBy},"${splitNames}"\n`;
+        const kind = e.is_refund ? 'คืนเงิน' : 'รายจ่าย';
+        csv += `Day ${e.trip_day},${timeVal},${timeSrc},${e.category},${cleanTitle},${kind},${(e.is_refund ? -cny : cny).toFixed(2)},${e.has_alipay_fee ? 'ใช่' : 'ไม่'},${thb.toFixed(2)},${paidBy},${uploadedBy},"${splitNames}"\n`;
       });
 
       csv += '\nสรุปยอดโอนคืนจบทริป (เรทไฟนอลกลาง)\n';
