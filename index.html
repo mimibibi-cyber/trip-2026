@@ -177,6 +177,7 @@
 
     <!-- TAB 4: MEMBERS, ADMIN & AUDIT LOG -->
     <main id="tab-members" class="hidden p-5 space-y-5">
+      <!-- Super Admin Panel -->
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
@@ -193,7 +194,7 @@
         </div>
 
         <div class="pt-3 border-t border-[#F5D5DF] space-y-2">
-          <label class="block text-[11px] font-medium text-[#8C5867]">Gemini API Key (รองรับคีย์ AQ. และ AIzaSy...)</label>
+          <label class="block text-[11px] font-medium text-[#8C5867]">Gemini API Key (บันทึกครั้งเดียว ใช้สแกนได้ทุกคนในทริป)</label>
           <div class="flex gap-2">
             <input id="gemini-api-key" type="password" placeholder="วางรหัส AQ. หรือ AIzaSy..." class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
             <button onclick="saveGeminiKey()" class="bg-[#8C5867] text-white px-3.5 py-2 rounded-xl text-xs shrink-0">บันทึก</button>
@@ -201,6 +202,7 @@
         </div>
       </div>
 
+      <!-- Current Trip Member Management -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center">
           <h2 class="font-semibold text-sm text-[#6B424E]">สมาชิกทริปนี้ (<span id="member-count">0</span>/10)</h2>
@@ -217,9 +219,22 @@
         </div>
       </div>
 
+      <!-- Audit Log with Admin Backup & Clear -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
-        <h2 class="font-semibold text-sm text-[#6B424E]">ประวัติการบันทึก (Audit Log)</h2>
-        <div id="audit-log-list" class="space-y-2.5 max-h-80 overflow-y-auto text-xs text-[#A37B87]"></div>
+        <div class="flex justify-between items-center gap-2">
+          <h2 class="font-semibold text-sm text-[#6B424E]">ประวัติการบันทึก (Audit Log)</h2>
+          <button id="btn-backup-clear-logs" onclick="backupAndClearLogs()" class="hidden text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1 rounded-xl border border-[#F5C2D1] font-medium shrink-0">Backup & เคลียร์ Log</button>
+        </div>
+        <div id="audit-log-list" class="space-y-2.5 max-h-72 overflow-y-auto text-xs text-[#A37B87]"></div>
+      </div>
+
+      <!-- Admin Log Backup Archive -->
+      <div id="admin-backup-archive" class="hidden soft-card p-5 rounded-3xl space-y-3 border-[#F2BFD0]">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Log Backup Files</p>
+          <h2 class="font-semibold text-sm text-[#6B424E]">คลังไฟล์สำรอง Log เรียงตามวันที่</h2>
+        </div>
+        <div id="log-backup-list" class="space-y-2 text-xs"></div>
       </div>
     </main>
 
@@ -435,16 +450,15 @@
     let membersList = [];
     let expensesList = [];
     let depositsList = [];
+    let currentLogsList = [];
+    let backupFilesList = [];
+    let globalGeminiKey = '';
     let currentDayFilter = 'all';
     let totalDays = 6;
     let dailyChartInstance = null;
     let categoryChartInstance = null;
 
     window.onload = async () => {
-      const savedKey = localStorage.getItem('gemini_ocr_key') || '';
-      if (document.getElementById('gemini-api-key')) {
-        document.getElementById('gemini-api-key').value = savedKey;
-      }
       const { data: { session } } = await db.auth.getSession();
       if (session) initApp(session.user);
     };
@@ -478,9 +492,20 @@
       el.classList.toggle('hidden', !msg);
     }
 
+    function isSuperAdmin() {
+      return currentUser && currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL;
+    }
+
     async function initApp(user) {
       currentUser = user;
       document.getElementById('auth-screen').classList.add('hidden');
+
+      // ดึง Gemini API Key ส่วนกลางจากฐานข้อมูล Supabase (ใช้ได้ทุกคนในทริป)
+      const { data: setting } = await db.from('app_settings').select('value').eq('key', 'gemini_ocr_key').maybeSingle();
+      globalGeminiKey = setting?.value || localStorage.getItem('gemini_ocr_key') || '';
+      if (document.getElementById('gemini-api-key')) {
+        document.getElementById('gemini-api-key').value = globalGeminiKey;
+      }
 
       const { data: trips, error } = await db.from('trips').select('*').order('created_at', { ascending: false });
       if (error || !trips || trips.length === 0) {
@@ -495,8 +520,10 @@
       const switcher = document.getElementById('trip-switcher');
       switcher.innerHTML = trips.map(t => `<option value="${t.id}" ${t.id === currentTrip.id ? 'selected' : ''}>${t.name}</option>`).join('');
 
-      if (user.email.toLowerCase() === SUPER_ADMIN_EMAIL) {
+      if (isSuperAdmin()) {
         document.getElementById('super-admin-panel').classList.remove('hidden');
+        document.getElementById('btn-backup-clear-logs').classList.remove('hidden');
+        document.getElementById('admin-backup-archive').classList.remove('hidden');
       }
 
       await loadTripContext();
@@ -514,7 +541,7 @@
       membersList = members || [];
       currentMember = membersList.find(m => m.email.toLowerCase() === currentUser.email.toLowerCase());
 
-      if (!currentMember && currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL) {
+      if (!currentMember && isSuperAdmin()) {
         currentMember = { email: currentUser.email, display_name: 'Admin', role: 'host' };
       }
 
@@ -525,7 +552,7 @@
 
       document.getElementById('app-screen').classList.remove('hidden');
       document.getElementById('user-badge').textContent = `${currentMember.display_name} · ${currentMember.role === 'host' ? 'Host' : 'Member'}`;
-      document.getElementById('host-add-member').classList.toggle('hidden', currentMember.role !== 'host' && currentUser.email.toLowerCase() !== SUPER_ADMIN_EMAIL);
+      document.getElementById('host-add-member').classList.toggle('hidden', currentMember.role !== 'host' && !isSuperAdmin());
       document.getElementById('exp-rate').value = currentTrip.default_rate || 4.85;
       document.getElementById('dep-rate').value = currentTrip.default_rate || 4.85;
 
@@ -553,6 +580,7 @@
       renderMembers();
       loadPhotos();
       loadLogs();
+      if (isSuperAdmin()) loadLogBackups();
     }
 
     function addTripDay() {
@@ -814,7 +842,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= AI RECEIPT SCANNER WITH AUTO-FALLBACK MODELS =================
+    // ================= AI RECEIPT SCANNER (SHARED DB KEY + GEMINI 3.5 FLASH LITE) =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -837,7 +865,7 @@
           const result = await response.json();
           if (result.error) {
             lastError = result.error.message || 'API Error';
-            continue; // ถ้าโมเดลนี้คิวเต็มหรือติดขัด ให้ข้ามไปใช้โมเดลสำรองถัดไปทันที
+            continue;
           }
           const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) return rawText;
@@ -850,12 +878,12 @@
 
     async function handleReceiptScan(input) {
       if (!input.files || !input.files[0]) return;
-      const apiKey = (localStorage.getItem('gemini_ocr_key') || '').trim();
+      const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
       const statusEl = document.getElementById('ocr-status');
       statusEl.classList.remove('hidden');
 
       if (!apiKey) {
-        statusEl.textContent = 'แนบรูปภาพเรียบร้อยแล้ว (หากต้องการให้ AI อ่านยอดเงินอัตโนมัติ กรุณาใส่ Gemini API Key ในหน้าจัดการทริป)';
+        statusEl.textContent = 'แนบรูปภาพเรียบร้อยแล้ว (ผู้ดูแลระบบยังไม่ได้ตั้งค่า Gemini API Key)';
         return;
       }
 
@@ -1098,7 +1126,7 @@
       });
     }
 
-    // ================= MULTI-TRIP & ADMIN CONTROLS =================
+    // ================= MULTI-TRIP, SHARED API KEY & LOG BACKUP SYSTEM =================
     async function createNewTrip() {
       const name = document.getElementById('new-trip-name').value.trim();
       const date_range = document.getElementById('new-trip-dates').value.trim();
@@ -1122,10 +1150,13 @@
       alert(`สร้างทริป "${name}" เรียบร้อยแล้ว สามารถเพิ่มรายชื่อสมาชิกของทริปนี้ได้ทันที`);
     }
 
-    function saveGeminiKey() {
+    async function saveGeminiKey() {
       const key = document.getElementById('gemini-api-key').value.trim();
+      const { error } = await db.from('app_settings').upsert({ key: 'gemini_ocr_key', value: key });
+      if (error) return alert('บันทึกไม่สำเร็จ: ' + error.message);
+      globalGeminiKey = key;
       localStorage.setItem('gemini_ocr_key', key);
-      alert('บันทึก Gemini API Key เรียบร้อยแล้ว พร้อมใช้งานสแกนบิลทันที');
+      alert('บันทึก Gemini API Key ลงระบบถาวรแล้ว เพื่อนทุกคนในทริปสามารถใช้สแกนบิลได้ทันที');
     }
 
     function renderMembers() {
@@ -1136,7 +1167,7 @@
             <p class="font-medium text-[#6B424E] text-xs">${m.display_name} <span class="text-[10px] text-[#D6718E] font-normal ml-1">${m.role === 'host' ? 'Host' : ''}</span></p>
             <p class="text-[11px] text-[#B38895]">${m.email}</p>
           </div>
-          ${(currentMember.role === 'host' || currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL) && m.role !== 'host'
+          ${(currentMember.role === 'host' || isSuperAdmin()) && m.role !== 'host'
             ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[11px] text-[#A37B87] hover:text-rose-600 px-2.5 py-1 rounded-xl border border-[#F5D5DF]">ลบออก</button>`
             : ''}
         </div>`).join('');
@@ -1168,11 +1199,89 @@
     }
 
     async function loadLogs() {
-      const { data } = await db.from('audit_logs').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false }).limit(50);
-      document.getElementById('audit-log-list').innerHTML = (data || []).map(l => {
-        const time = new Date(l.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-        return `<div class="border-b border-[#FCEBF0] pb-2"><span class="text-[#C9A3AF] mr-1.5">${time}</span><span class="font-medium text-[#6B424E]">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
-      }).join('');
+      const { data } = await db.from('audit_logs').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false }).limit(100);
+      currentLogsList = data || [];
+      document.getElementById('audit-log-list').innerHTML = currentLogsList.map(l => {
+        const dt = new Date(l.created_at);
+        const dateStr = dt.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' });
+        const timeStr = dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        return `<div class="border-b border-[#FCEBF0] pb-2"><span class="text-[#C9A3AF] mr-1.5">${dateStr} ${timeStr}</span><span class="font-medium text-[#6B424E]">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
+      }).join('') || '<p class="text-[#B38895] text-center py-4">ยังไม่มีประวัติการบันทึก</p>';
+    }
+
+    // Administrator: Backup Log ทั้งหมดเรียงตามวันที่ลงตาราง log_backups แล้วเคลียร์หน้าจอ Audit Log
+    async function backupAndClearLogs() {
+      if (!isSuperAdmin()) return;
+      if (currentLogsList.length === 0) return alert('ไม่มีรายการ Log ให้สำรองข้อมูลในขณะนี้');
+      if (!confirm(`ยืนยันการสำรอง Log ทั้งหมด (${currentLogsList.length} รายการ) เรียงตามวันที่ลงไฟล์ Backup และเคลียร์หน้าจอ Log ปัจจุบัน?`)) return;
+
+      // เรียงลำดับจากเก่าไปใหม่ตามวันที่เวลาจริง
+      const sortedLogs = [...currentLogsList].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(l => ({
+        datetime: new Date(l.created_at).toLocaleString('th-TH'),
+        actor_name: getMemberName(l.actor_email),
+        actor_email: l.actor_email,
+        action: l.action_type,
+        description: l.description
+      }));
+
+      const todayLabel = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const { error: backupErr } = await db.from('log_backups').insert([{
+        trip_id: currentTrip.id,
+        trip_name: currentTrip.name,
+        backup_label: `Backup ${todayLabel}`,
+        log_count: sortedLogs.length,
+        logs_data: sortedLogs,
+        created_by: currentUser.email.toLowerCase()
+      }]);
+
+      if (backupErr) return alert('สำรองข้อมูลไม่สำเร็จ: ' + backupErr.message);
+
+      // ลบ Log ปัจจุบันของทริปนี้ออกทั้งหมดหลัง Backup สำเร็จ
+      const { error: delErr } = await db.from('audit_logs').delete().eq('trip_id', currentTrip.id);
+      if (delErr) return alert('เคลียร์ Log ไม่สำเร็จ: ' + delErr.message);
+
+      await loadLogs();
+      await loadLogBackups();
+      alert('สำรอง Log เรียงตามวันที่เรียบร้อยแล้ว และเคลียร์ประวัติหน้าจอเรียบร้อย');
+    }
+
+    async function loadLogBackups() {
+      const { data } = await db.from('log_backups').select('*').order('created_at', { ascending: false });
+      backupFilesList = data || [];
+      document.getElementById('log-backup-list').innerHTML = backupFilesList.map(b => `
+        <div class="flex justify-between items-center p-3 bg-[#FFF9FA] rounded-2xl border border-[#F5D5DF]">
+          <div class="min-w-0 pr-2">
+            <p class="font-medium text-[#6B424E] truncate">${b.trip_name} · ${b.backup_label}</p>
+            <p class="text-[10px] text-[#B38895]">จำนวน ${b.log_count} รายการ (เรียงตามวันที่)</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="downloadBackupCsv('${b.id}')" class="text-[11px] text-[#C45B79] underline font-medium">โหลด CSV</button>
+            <button onclick="deleteBackupFile('${b.id}', '${b.backup_label}')" class="text-[11px] text-[#B38895] hover:text-rose-600">ลบ</button>
+          </div>
+        </div>`).join('') || '<p class="text-[#B38895] text-center py-3">ยังไม่มีไฟล์ Backup</p>';
+    }
+
+    function downloadBackupCsv(backupId) {
+      const b = backupFilesList.find(x => x.id === backupId);
+      if (!b) return;
+      let csv = '\uFEFF';
+      csv += `Log Backup - ${b.trip_name} (${b.backup_label})\n`;
+      csv += 'วันที่-เวลา,ผู้ทำรายการ,อีเมล,ประเภท,รายละเอียด\n';
+      (b.logs_data || []).forEach(item => {
+        const cleanDesc = `"${(item.description || '').replace(/"/g, '""')}"`;
+        csv += `"${item.datetime}","${item.actor_name}",${item.actor_email},${item.action},${cleanDesc}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `LogBackup_${b.trip_name.replace(/\s+/g, '_')}_${b.created_at.split('T')[0]}.csv`;
+      a.click();
+    }
+
+    async function deleteBackupFile(id, label) {
+      if (!confirm(`ยืนยันการลบไฟล์ "${label}" ออกจากคลังสำรอง?`)) return;
+      const { error } = await db.from('log_backups').delete().eq('id', id);
+      if (!error) await loadLogBackups();
     }
 
     function exportToExcel() {
