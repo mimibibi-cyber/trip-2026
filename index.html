@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Maison Voyage · Soft Blush Trip Manager</title>
+  <title>Maison Voyage · Soft Blush Trip & Monthly Ledger</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,9 +31,9 @@
   <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
     <div class="soft-card w-full max-w-sm rounded-3xl p-8 space-y-6">
       <div class="space-y-1.5 text-center">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D6718E]">Private Travel Ledger</p>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D6718E]">Private Travel & Monthly Ledger</p>
         <h1 class="text-2xl font-semibold tracking-tight text-[#6B424E]">Maison Voyage</h1>
-        <p class="text-xs text-[#A37B87]">ระบบบันทึกและตรวจสอบค่าใช้จ่ายส่วนตัว</p>
+        <p class="text-xs text-[#A37B87]">ระบบบันทึกค่าใช้จ่ายทริปและรายจ่ายรายเดือน</p>
       </div>
 
       <div id="auth-error" class="hidden bg-[#FFF0F4] text-[#C45B79] text-xs p-3 rounded-xl border border-[#F5C2D1]"></div>
@@ -62,8 +62,8 @@
       <div class="w-11 h-11 mx-auto rounded-full bg-[#FFEBF0] flex items-center justify-center text-[#D6718E]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
       </div>
-      <h2 class="text-base font-semibold text-[#6B424E]">ยังไม่มีทริปที่ได้รับเชิญ</h2>
-      <p class="text-xs text-[#A37B87] leading-relaxed">อีเมลของคุณยังไม่ได้ถูกเพิ่มในทริปใดๆ กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มสิทธิ์</p>
+      <h2 class="text-base font-semibold text-[#6B424E]">ยังไม่มีสมุดบัญชีที่ได้รับเชิญ</h2>
+      <p class="text-xs text-[#A37B87] leading-relaxed">อีเมลของคุณยังไม่ได้ถูกเพิ่มในทริปหรือสมุดรายเดือนใดๆ กรุณาติดต่อผู้ดูแลระบบ</p>
       <button onclick="handleLogout()" class="w-full luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">ออกจากระบบ</button>
     </div>
   </div>
@@ -74,24 +74,26 @@
       <div class="flex justify-between items-center gap-2">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1.5">
-            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#6B424E] bg-transparent border-none p-0 pr-5 truncate max-w-[180px] cursor-pointer"></select>
-            <span id="trip-closed-pill" class="hidden text-[10px] bg-[#4A4447] text-white px-2 py-0.5 rounded-lg font-medium shrink-0">ปิดทริปแล้ว</span>
+            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#6B424E] bg-transparent border-none p-0 pr-5 truncate max-w-[175px] cursor-pointer"></select>
+            <span id="ledger-mode-pill" class="text-[10px] bg-[#FFEBF0] text-[#C45B79] px-2 py-0.5 rounded-lg font-medium shrink-0">Trip</span>
+            <span id="trip-closed-pill" class="hidden text-[10px] bg-[#4A4447] text-white px-2 py-0.5 rounded-lg font-medium shrink-0">ปิดยอดแล้ว</span>
           </div>
           <p id="user-badge" class="text-[11px] text-[#B38895] mt-0.5 truncate">Loading...</p>
         </div>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="exportToExcel()" class="text-[11px] text-[#C45B79] hover:bg-[#FFEBF0] px-2.5 py-1.5 rounded-xl border border-[#F5D5DF] bg-[#FFF8FA] font-medium">Excel</button>
-          <button onclick="handleLogout()" class="text-[11px] text-[#B38895] hover:text-[#6B424E] px-2 py-1">ออก</button>
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="exportPrintablePdfReport()" title="ส่งออกรายงาน PDF พร้อมรูปสลิปขนาดเล็ก" class="text-[11px] luxury-gradient text-white px-2.5 py-1.5 rounded-xl font-medium shadow-xs">PDF สลิป</button>
+          <button onclick="exportToExcel()" class="text-[11px] text-[#C45B79] hover:bg-[#FFEBF0] px-2 py-1.5 rounded-xl border border-[#F5D5DF] bg-[#FFF8FA] font-medium">Excel</button>
+          <button onclick="handleLogout()" class="text-[11px] text-[#B38895] hover:text-[#6B424E] px-1.5 py-1">ออก</button>
         </div>
       </div>
     </header>
 
-    <!-- TAB 1: DASHBOARD & COLLAPSIBLE DAILY LEDGER -->
+    <!-- TAB 1: DASHBOARD & COLLAPSIBLE LEDGER -->
     <main id="tab-expenses" class="p-5 space-y-4">
       <div id="closed-trip-banner" class="hidden bg-[#4A4447] text-white rounded-3xl p-4 space-y-2 shadow-sm">
         <div class="flex justify-between items-center">
-          <p class="text-xs font-semibold">ทริปนี้ปิดยอดเรียบร้อยแล้ว (Read-Only)</p>
-          <button onclick="openSettleModal()" class="text-[11px] bg-white text-[#4A4447] font-semibold px-3 py-1 rounded-xl">ดูสรุปโอนคืนถาวร</button>
+          <p class="text-xs font-semibold">สมุดบัญชีนี้ปิดยอดเรียบร้อยแล้ว (Read-Only)</p>
+          <button onclick="openSettleModal()" class="text-[11px] bg-white text-[#4A4447] font-semibold px-3 py-1 rounded-xl">ดูสรุปถาวร</button>
         </div>
         <p class="text-[11px] text-white/80">ล็อกข้อมูลทั้งหมดแล้ว ไม่สามารถเพิ่มหรือแก้ไขรายการได้</p>
       </div>
@@ -101,18 +103,18 @@
         <p class="text-[11px] text-[#8C5867]">กรุณาตรวจสอบการ์ดที่มีกรอบเส้นประด้านล่างเพื่อยืนยันการลบหรือยกเลิกการแจ้ง</p>
       </div>
 
-      <!-- Hero Card: Total Group Spend & Latest Day Spend -->
+      <!-- Hero Card: Total Spend & Latest Period Spend -->
       <div class="luxury-gradient text-white rounded-3xl p-5 space-y-3 shadow-md">
         <div class="flex justify-between items-start gap-2">
           <div>
-            <p class="text-[10px] uppercase tracking-[0.16em] text-white/85">Total Group Spend (ยอดใช้จ่ายรวมกลุ่ม)</p>
+            <p id="hero-title-label" class="text-[10px] uppercase tracking-[0.16em] text-white/85">Total Group Spend (ยอดใช้จ่ายรวมกลุ่ม)</p>
             <p id="total-group-cny" class="text-3xl font-light tracking-tight mt-1">¥0.00</p>
-            <p id="total-group-thb" class="text-xs text-white/90 mt-0.5">THB 0.00 (เรทกลาง 4.85)</p>
+            <p id="total-group-thb" class="text-xs text-white/90 mt-0.5">THB 0.00</p>
           </div>
-          <button onclick="switchTab('digest')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-3 py-1.5 rounded-xl backdrop-blur-xs transition shrink-0">สรุปรายวัน</button>
+          <button onclick="switchTab('digest')" id="btn-hero-digest" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-3 py-1.5 rounded-xl backdrop-blur-xs transition shrink-0">สรุปรายวัน</button>
         </div>
         <div class="pt-2.5 border-t border-white/20 flex justify-between items-center text-[11px] text-white/95">
-          <span id="latest-day-summary">วันล่าสุด (Day 1): ¥0.00</span>
+          <span id="latest-day-summary">ล่าสุด: ¥0.00</span>
           <span id="avg-per-person-summary">เฉลี่ยคนละ ¥0</span>
         </div>
       </div>
@@ -120,23 +122,23 @@
       <!-- Personal Summary & Settlement Entry -->
       <div class="grid grid-cols-2 gap-3">
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#A37B87]">ยอดที่คุณสแกนจ่ายกลุ่ม</p>
+          <p id="my-paid-label" class="text-[11px] text-[#A37B87]">ยอดที่คุณสแกนจ่าย</p>
           <p id="my-paid-cny" class="text-lg font-semibold text-[#6B424E] mt-1">¥0</p>
           <p id="my-solo-cny" class="text-[11px] text-[#B38895]">ส่วนตัวล้วน ¥0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl flex flex-col justify-between">
           <div>
-            <p class="text-[11px] text-[#A37B87]">สรุปเคลียร์ยอดไฟนอล</p>
+            <p id="settle-card-title" class="text-[11px] text-[#A37B87]">สรุปเคลียร์ยอดไฟนอล</p>
             <p id="my-net-status" class="text-sm font-semibold text-[#6B424E] mt-1">สมดุลแล้ว</p>
           </div>
-          <button onclick="openSettleModal()" class="text-[11px] text-[#D6718E] underline text-left mt-1 font-medium">ดูสรุปโอนคืน & เรทไฟนอล</button>
+          <button onclick="openSettleModal()" class="text-[11px] text-[#D6718E] underline text-left mt-1 font-medium">ดูรายละเอียด & ยอดโอน</button>
         </div>
       </div>
 
       <!-- View Scope Switcher -->
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-1.5">
-          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">บิลกลุ่ม & หารร่วม</button>
+          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">รายการหลัก</button>
           <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 text-[#8C5867] border border-[#F5D5DF]">ส่วนตัว & เงินสด</button>
         </div>
         <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1] shrink-0">+ เพิ่มวัน</button>
@@ -147,27 +149,27 @@
         <div class="flex justify-between items-center">
           <div>
             <p class="text-[11px] font-semibold text-[#C45B79]">กระเป๋าเงินสดส่วนตัว (Personal Cash)</p>
-            <p class="text-[10px] text-[#A37B87]">เช็กเงินสดที่แลกพกติดตัวมาเอง (เห็นเฉพาะคุณคนเดียว)</p>
+            <p class="text-[10px] text-[#A37B87]">เช็กเงินสดที่พกติดตัวมาเอง (เห็นเฉพาะคุณคนเดียว)</p>
           </div>
           <button onclick="setPersonalCashBudget()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] px-3 py-1 rounded-xl font-medium">ตั้งงบเงินสด</button>
         </div>
         <div class="grid grid-cols-3 gap-2 pt-1 text-center">
           <div class="bg-white p-2 rounded-xl border border-[#F5D5DF]">
             <p class="text-[10px] text-[#A37B87]">เงินสดพกมา</p>
-            <p id="cash-init-val" class="text-xs font-semibold text-[#6B424E] mt-0.5">¥0</p>
+            <p id="cash-init-val" class="text-xs font-semibold text-[#6B424E] mt-0.5">0</p>
           </div>
           <div class="bg-white p-2 rounded-xl border border-[#F5D5DF]">
             <p class="text-[10px] text-[#A37B87]">ใช้เงินสดไป</p>
-            <p id="cash-spent-val" class="text-xs font-semibold text-rose-600 mt-0.5">¥0</p>
+            <p id="cash-spent-val" class="text-xs font-semibold text-rose-600 mt-0.5">0</p>
           </div>
           <div class="bg-white p-2 rounded-xl border border-[#F5D5DF]">
             <p class="text-[10px] text-[#A37B87]">เงินสดคงเหลือ</p>
-            <p id="cash-rem-val" class="text-xs font-semibold text-emerald-700 mt-0.5">¥0</p>
+            <p id="cash-rem-val" class="text-xs font-semibold text-emerald-700 mt-0.5">0</p>
           </div>
         </div>
       </div>
 
-      <!-- High-Volume Search & Quick Audit Filters -->
+      <!-- Search & Quick Audit Filters -->
       <div class="space-y-2">
         <div class="relative">
           <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, รายการ, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border border-[#F2CFD9] rounded-xl pl-9 pr-3 py-2 text-xs" />
@@ -185,18 +187,21 @@
       <!-- Summary Strip -->
       <div class="flex justify-between items-center py-1.5 border-b border-[#F5D5DF] text-xs">
         <span id="filtered-day-label" class="text-[#8C5867]">ยอดรวมที่แสดง</span>
-        <span id="filtered-day-total" class="font-semibold text-[#C45B79]">¥0.00 · ฿0.00</span>
+        <span id="filtered-day-total" class="font-semibold text-[#C45B79]">0.00</span>
       </div>
 
-      <!-- Collapsible Day-Grouped Expense List -->
+      <!-- Collapsible Day / Month Grouped Expense List -->
       <div id="expense-list" class="space-y-3"></div>
     </main>
 
-    <!-- TAB 2: DAILY DIGEST & RECEIPT VAULT -->
+    <!-- TAB 2: DAILY / MONTHLY DIGEST & RECEIPT VAULT -->
     <main id="tab-digest" class="hidden p-5 space-y-4">
-      <div>
-        <h2 class="font-semibold text-base text-[#6B424E]">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
-        <p class="text-xs text-[#A37B87]">สรุปยอดใช้จ่ายแยกแต่ละวัน พร้อมรวมสลิปใบเสร็จเพื่อเทียบยอด Alipay</p>
+      <div class="flex justify-between items-start gap-2">
+        <div>
+          <h2 id="digest-heading" class="font-semibold text-base text-[#6B424E]">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
+          <p id="digest-subheading" class="text-xs text-[#A37B87]">สรุปยอดใช้จ่ายแยกตามช่วงเวลา พร้อมรวมสลิปใบเสร็จ</p>
+        </div>
+        <button onclick="exportPrintablePdfReport()" class="text-[11px] luxury-gradient text-white px-3 py-1.5 rounded-xl font-medium shrink-0">PDF พร้อมสลิปย่อ</button>
       </div>
       <div id="daily-digest-list" class="space-y-3"></div>
     </main>
@@ -205,24 +210,24 @@
     <main id="tab-analytics" class="hidden p-5 space-y-5">
       <div>
         <h2 class="font-semibold text-base text-[#6B424E]">สรุปภาพรวม & กราฟค่าใช้จ่าย</h2>
-        <p class="text-xs text-[#A37B87]">คำนวณตามเรทไฟนอลกลางของทริป (เฉพาะรายการกลุ่ม)</p>
+        <p id="analytics-subtitle" class="text-xs text-[#A37B87]">วิเคราะห์แนวโน้มและสัดส่วนค่าใช้จ่ายแต่ละหมวดหมู่</p>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#A37B87]">ยอดใช้จ่ายรวมกลุ่ม</p>
-          <p id="stat-grand-thb" class="text-lg font-semibold text-[#C45B79] mt-1">฿0</p>
-          <p id="stat-grand-cny" class="text-[11px] text-[#B38895]">¥0</p>
+          <p class="text-[11px] text-[#A37B87]">ยอดใช้จ่ายรวม</p>
+          <p id="stat-grand-thb" class="text-lg font-semibold text-[#C45B79] mt-1">0</p>
+          <p id="stat-grand-cny" class="text-[11px] text-[#B38895]">0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#A37B87]">เฉลี่ยต่อวัน (ทั้งกลุ่ม)</p>
-          <p id="stat-avg-day" class="text-lg font-semibold text-[#6B424E] mt-1">฿0</p>
-          <p id="stat-avg-person" class="text-[11px] text-[#B38895]">เฉลี่ยคนละ ฿0</p>
+          <p id="stat-avg-label" class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
+          <p id="stat-avg-day" class="text-lg font-semibold text-[#6B424E] mt-1">0</p>
+          <p id="stat-avg-person" class="text-[11px] text-[#B38895]">เฉลี่ยคนละ 0</p>
         </div>
       </div>
 
       <div class="soft-card p-4 rounded-3xl space-y-3">
-        <h3 class="text-xs font-semibold text-[#6B424E]">กราฟค่าใช้จ่ายรายวัน (บาท)</h3>
+        <h3 id="bar-chart-title" class="text-xs font-semibold text-[#6B424E]">กราฟค่าใช้จ่าย</h3>
         <div class="h-52">
           <canvas id="dailyChart"></canvas>
         </div>
@@ -253,11 +258,12 @@
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
-          <h2 class="font-semibold text-sm text-[#6B424E]">ตั้งค่าทริป · วันเริ่ม · เรทไฟนอล · ปิดทริป</h2>
+          <h2 class="font-semibold text-sm text-[#6B424E]">สร้างทริป / รายเดือน · ตั้งค่าสกุลเงิน · ปิดยอด</h2>
         </div>
 
+        <!-- Current Ledger Settings (Start Date & Final Rate) -->
         <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-3">
-          <div>
+          <div id="admin-trip-date-box">
             <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">วันเริ่มทริป (Day 1) — ใช้เทียบวันที่บนสลิปอัตโนมัติ</label>
             <div class="flex gap-2">
               <input id="admin-start-date-input" type="date" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs" />
@@ -265,8 +271,8 @@
             </div>
           </div>
 
-          <div class="pt-2 border-t border-[#F2CFD9]">
-            <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">เรทเงินหยวนไฟนอลกลาง (ใช้คำนวณโอนคืนทุกคน)</label>
+          <div id="admin-rate-box" class="pt-2 border-t border-[#F2CFD9]">
+            <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">เรทแปลงเป็นเงินบาทไฟนอลกลาง (1 <span id="admin-rate-curr-code">CNY</span> = ? THB)</label>
             <div class="flex gap-2">
               <input id="admin-final-rate-input" type="number" step="0.01" value="4.85" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-sm font-semibold text-[#C45B79]" />
               <button onclick="saveFinalRate()" class="luxury-gradient text-white px-4 py-1.5 rounded-xl text-xs font-medium shrink-0">ตั้งเรทกลาง</button>
@@ -274,28 +280,52 @@
           </div>
         </div>
 
-        <div class="pt-2 border-t border-[#F5D5DF] space-y-2">
-          <div class="flex justify-between items-center">
+        <!-- Close / Reopen Ledger & Storage Cleanup -->
+        <div class="pt-2 border-t border-[#F5D5DF] space-y-2.5">
+          <div class="flex justify-between items-center gap-2">
             <div>
-              <p class="text-xs font-semibold text-[#6B424E]">สถานะทริปปัจจุบัน: <span id="admin-trip-status-text" class="text-[#C45B79]">กำลังเดินทาง</span></p>
-              <p class="text-[10px] text-[#A37B87]">เมื่อปิดทริป ระบบจะล็อกข้อมูลและสร้างสรุปโอนเงินถาวร</p>
+              <p class="text-xs font-semibold text-[#6B424E]">สถานะ: <span id="admin-trip-status-text" class="text-[#C45B79]">เปิดใช้งาน</span></p>
+              <p class="text-[10px] text-[#A37B87]">ปิดยอดเพื่อล็อกข้อมูลทั้งหมดเป็นโหมดอ่านอย่างเดียว</p>
             </div>
-            <button id="btn-toggle-close-trip" onclick="toggleCloseTrip()" class="bg-[#4A4447] text-white px-3.5 py-2 rounded-xl text-xs font-medium shrink-0">ปิดทริปนี้</button>
+            <button id="btn-toggle-close-trip" onclick="toggleCloseTrip()" class="bg-[#4A4447] text-white px-3.5 py-2 rounded-xl text-xs font-medium shrink-0">ปิดยอด</button>
           </div>
+          <button onclick="purgeOldReceiptImages()" class="w-full bg-white hover:bg-[#FFF5F8] text-[#8C5867] border border-[#F2CFD9] py-2 rounded-xl text-[11px] font-medium">
+            ล้างเฉพาะไฟล์รูปสลิปเก่าเพื่อคืนพื้นที่ Storage (คงตัวเลขไว้ 100%)
+          </button>
         </div>
 
+        <!-- Create New Trip OR Monthly Expense Ledger -->
         <div class="space-y-2.5 pt-3 border-t border-[#F5D5DF]">
-          <p class="text-[11px] font-semibold text-[#8C5867]">สร้างทริปใหม่แยกต่างหาก</p>
-          <input id="new-trip-name" type="text" placeholder="ชื่อทริปใหม่ (เช่น Shanghai 2027)" class="w-full px-3.5 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+          <p class="text-[11px] font-semibold text-[#8C5867]">สร้างสมุดบัญชีใหม่ (ทริปท่องเที่ยว หรือ บันทึกรายเดือน)</p>
+          <div class="grid grid-cols-2 gap-2">
+            <select id="new-ledger-type" onchange="handleNewLedgerTypeChange()" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs font-medium text-[#6B424E]">
+              <option value="trip">ทริปท่องเที่ยว (Trip)</option>
+              <option value="monthly">รายจ่ายรายเดือน (Monthly)</option>
+            </select>
+            <select id="new-ledger-currency" onchange="handleNewCurrencyChange()" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs font-medium text-[#C45B79]">
+              <option value="CNY|¥|4.85">CNY (¥ หยวนจีน)</option>
+              <option value="THB|฿|1">THB (฿ บาทไทย)</option>
+              <option value="JPY|¥|0.23">JPY (¥ เยนญี่ปุ่น)</option>
+              <option value="KRW|₩|0.025">KRW (₩ วอนเกาหลี)</option>
+              <option value="USD|$|34.50">USD ($ ดอลลาร์)</option>
+              <option value="EUR|€|37.00">EUR (€ ยูโร)</option>
+            </select>
+          </div>
+          <input id="new-trip-name" type="text" placeholder="ชื่อทริป หรือ ชื่อสมุดรายเดือน (เช่น Monthly · B)" class="w-full px-3.5 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           <div class="grid grid-cols-2 gap-2">
             <input id="new-trip-start" type="date" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
-            <input id="new-trip-rate" type="number" step="0.01" value="4.85" placeholder="เรทเงินเริ่มต้น" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="new-trip-rate" type="number" step="0.001" value="4.85" placeholder="เรทเทียบเงินบาท" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           </div>
-          <button onclick="createNewTrip()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">+ สร้างทริปใหม่</button>
+          <label class="flex items-center gap-2 text-[11px] text-[#8C5867] pt-0.5">
+            <input id="new-admin-observer-only" type="checkbox" class="rounded border-[#F2CFD9] text-[#D6718E]" />
+            <span>แอดมินเป็นผู้ดูแลอย่างเดียว (ไม่ดึงชื่อแอดมินไปร่วมหารยอดในสมุดนี้)</span>
+          </label>
+          <button onclick="createNewTrip()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">+ สร้างสมุดบัญชีใหม่</button>
         </div>
 
+        <!-- Global Gemini API Key -->
         <div class="pt-3 border-t border-[#F5D5DF] space-y-2">
-          <label class="block text-[11px] font-medium text-[#8C5867]">Gemini API Key (ตั้งครั้งเดียว ใช้สแกนได้ทุกทริปทุกคน)</label>
+          <label class="block text-[11px] font-medium text-[#8C5867]">Gemini API Key (ตั้งครั้งเดียว ใช้สแกนได้ทุกสมุดทุกคน)</label>
           <div class="flex gap-2">
             <input id="gemini-api-key" type="password" placeholder="วางรหัส AQ. หรือ AIzaSy..." class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
             <button onclick="saveGeminiKey()" class="bg-[#8C5867] text-white px-3.5 py-2 rounded-xl text-xs shrink-0">บันทึก</button>
@@ -303,20 +333,24 @@
         </div>
       </div>
 
-      <!-- Trip Member Management & Proxy Upload Permissions -->
+      <!-- Member Management & Proxy Upload Permissions -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div>
-          <h2 class="font-semibold text-sm text-[#6B424E]">สมาชิกทริปนี้ (<span id="member-count">0</span>/10)</h2>
-          <p id="proxy-admin-hint" class="hidden text-[10px] text-[#A37B87] mt-0.5">แอดมินสามารถเปิด-ปิดสิทธิ์ "อัปแทนเพื่อน" รายบุคคลได้กรณี VPN มีปัญหา</p>
+          <h2 class="font-semibold text-sm text-[#6B424E]">ผู้ใช้งานในสมุดนี้ (<span id="member-count">0</span>/10)</h2>
+          <p id="proxy-admin-hint" class="hidden text-[10px] text-[#A37B87] mt-0.5">แอดมินสามารถเปิด-ปิดสิทธิ์ "อัปแทนเพื่อน" รายบุคคลได้</p>
         </div>
         <div id="member-list" class="divide-y divide-[#FCEBF0] text-sm"></div>
 
         <div id="host-add-member" class="hidden pt-3 border-t border-[#F5D5DF] space-y-2.5">
-          <p class="text-xs font-medium text-[#A37B87]">เพิ่มสมาชิกเข้าทริปนี้ (ระบบสุ่มสีไม่ซ้ำให้อัตโนมัติ)</p>
+          <p class="text-xs font-medium text-[#A37B87]">เพิ่มผู้ใช้งานเข้าสมุดนี้ (ใช้ได้ทั้งคนเดียวหรือหลายคน)</p>
           <div class="flex gap-2">
             <input id="new-member-name" type="text" placeholder="ชื่อ" class="w-1/3 px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
             <input id="new-member-email" type="email" placeholder="อีเมล" class="w-2/3 px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
           </div>
+          <label class="flex items-center gap-2 text-[11px] text-[#8C5867]">
+            <input id="new-member-observer" type="checkbox" class="rounded border-[#F2CFD9] text-[#D6718E]" />
+            <span>เพิ่มในฐานะผู้ดูแลอย่างเดียว (ไม่นำชื่อไปหารค่าใช้จ่าย)</span>
+          </label>
           <button onclick="addMember()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">เพิ่มสิทธิ์อีเมลนี้</button>
         </div>
       </div>
@@ -353,7 +387,7 @@
       </button>
       <button onclick="switchTab('digest')" id="nav-digest" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
-        <span>สรุปรายวัน</span>
+        <span id="nav-digest-label">สรุปรายวัน</span>
       </button>
       <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
@@ -361,23 +395,23 @@
       </button>
       <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
-        <span>จัดการทริป</span>
+        <span>จัดการ</span>
       </button>
     </nav>
   </div>
 
-  <!-- ================= MODAL: ADD EXPENSE (STRICT SLIP LOCK + PROXY PAYER) ================= -->
+  <!-- ================= MODAL: ADD EXPENSE (ADAPTS TO TRIP OR MONTHLY + CURRENCY) ================= -->
   <div id="expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#6B424E]">บันทึกรายจ่าย</h3>
+        <h3 class="font-semibold text-base text-[#6B424E]">บันทึกรายจ่าย (<span id="modal-curr-badge">CNY</span>)</h3>
         <button onclick="closeModal('expense-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
 
       <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
         <div class="flex justify-between items-center gap-2">
           <div>
-            <p class="text-xs font-semibold text-[#C45B79]">สแกนบิลอัตโนมัติ (ยึดยอดและเวลาตามสลิป)</p>
+            <p class="text-xs font-semibold text-[#C45B79]">สแกนสลิปอัตโนมัติ (สกุลเงิน <span id="ocr-curr-hint">CNY</span>)</p>
             <p class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน ยอดที่สแกนได้จะถูกล็อกห้ามแก้</p>
           </div>
           <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shrink-0 shadow-xs">
@@ -405,18 +439,22 @@
       <!-- Single Item Fields -->
       <div id="single-expense-fields" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-[11px] text-[#8C5867]">วันที่ <span id="exp-day-badge" class="text-[9px] text-[#D6718E]"></span></label>
+          <div id="single-day-field">
+            <label class="text-[11px] text-[#8C5867]">วันที่ทริป <span id="exp-day-badge" class="text-[9px] text-[#D6718E]"></span></label>
             <select id="exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+          </div>
+          <div id="single-month-field" class="hidden">
+            <label class="text-[11px] text-[#8C5867]">วันที่รายการ (YYYY-MM-DD)</label>
+            <input id="exp-date-input" type="date" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
           </div>
           <div>
             <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
             <select id="exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
               <option value="Food">อาหาร / เครื่องดื่ม</option>
-              <option value="Transport">เดินทาง / รถไฟ / DiDi</option>
-              <option value="Ticket">ค่าเข้าสถานที่</option>
-              <option value="Shopping">ช้อปปิ้ง</option>
-              <option value="Hotel">ที่พัก</option>
+              <option value="Transport">เดินทาง / รถไฟ / น้ำมัน</option>
+              <option value="Ticket">ค่าเข้าสถานที่ / บันเทิง</option>
+              <option value="Shopping">ช้อปปิ้ง / ของใช้</option>
+              <option value="Hotel">ที่พัก / บิลรายเดือน</option>
             </select>
           </div>
         </div>
@@ -435,18 +473,18 @@
         <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
           <div>
             <label class="text-[11px] text-[#8C5867] flex items-center justify-between">
-              <span>จำนวนเงิน (CNY)</span>
-              <span id="exp-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อกตามสลิป</span>
+              <span>จำนวนเงิน (<span id="exp-amt-curr">CNY</span>)</span>
+              <span id="exp-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อก</span>
             </label>
             <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
           </div>
-          <div>
-            <label class="text-[11px] text-[#8C5867]">เรทกลาง (THB/CNY)</label>
-            <input id="exp-rate" type="number" step="0.01" readonly class="w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-sm text-[#8C5867] mt-1 cursor-not-allowed" />
+          <div id="exp-rate-box">
+            <label class="text-[11px] text-[#8C5867]">เรทกลาง (THB)</label>
+            <input id="exp-rate" type="number" step="0.001" readonly class="w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-sm text-[#8C5867] mt-1 cursor-not-allowed" />
           </div>
           <div class="col-span-2 flex justify-between items-center pt-1">
             <div class="flex items-center gap-3">
-              <label class="flex items-center gap-1.5 text-xs text-[#8C5867]">
+              <label id="exp-fee-label" class="flex items-center gap-1.5 text-xs text-[#8C5867]">
                 <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
                 +3%
               </label>
@@ -470,13 +508,13 @@
         <div>
           <label class="text-[11px] text-[#8C5867]">ช่องทางจ่ายเงิน</label>
           <select id="exp-channel" onchange="handleChannelChange()" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
-            <option value="alipay">Alipay / โอนออนไลน์</option>
+            <option value="alipay">โอนออนไลน์ / บัตร / Alipay</option>
             <option value="cash">เงินสดส่วนตัว (หักงบเงินสด)</option>
           </select>
         </div>
       </div>
 
-      <div>
+      <div id="split-members-section">
         <div class="flex justify-between items-center mb-1.5">
           <label class="text-[11px] text-[#8C5867]">ผู้ร่วมหาร (เลือกคนเดียว = ส่วนตัวล้วนเห็นคนเดียว)</label>
           <button type="button" onclick="selectAllSplitMembers()" class="text-[10px] text-[#D6718E] underline">เลือกทุกคน</button>
@@ -499,18 +537,22 @@
       <input type="hidden" id="edit-exp-id" />
 
       <div class="grid grid-cols-2 gap-3">
-        <div>
+        <div id="edit-day-field">
           <label class="text-[11px] text-[#8C5867]">วันที่ (Day)</label>
           <select id="edit-exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+        </div>
+        <div id="edit-month-field" class="hidden">
+          <label class="text-[11px] text-[#8C5867]">วันที่รายการ</label>
+          <input id="edit-exp-date" type="date" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
         </div>
         <div>
           <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
           <select id="edit-exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
             <option value="Food">อาหาร / เครื่องดื่ม</option>
-            <option value="Transport">เดินทาง / รถไฟ / DiDi</option>
-            <option value="Ticket">ค่าเข้าสถานที่</option>
-            <option value="Shopping">ช้อปปิ้ง</option>
-            <option value="Hotel">ที่พัก</option>
+            <option value="Transport">เดินทาง / รถไฟ / น้ำมัน</option>
+            <option value="Ticket">ค่าเข้าสถานที่ / บันเทิง</option>
+            <option value="Shopping">ช้อปปิ้ง / ของใช้</option>
+            <option value="Hotel">ที่พัก / บิลรายเดือน</option>
           </select>
         </div>
       </div>
@@ -529,14 +571,14 @@
       <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
         <div>
           <label class="text-[11px] text-[#8C5867] flex items-center justify-between">
-            <span>จำนวนเงิน (CNY)</span>
-            <span id="edit-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อกตามสลิป</span>
+            <span>จำนวนเงิน (<span id="edit-amt-curr">CNY</span>)</span>
+            <span id="edit-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อก</span>
           </label>
           <input id="edit-exp-cny" type="number" step="0.01" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
           <button id="btn-admin-unlock-cny" type="button" onclick="adminUnlockEditCny()" class="hidden text-[10px] text-[#D6718E] underline mt-1">Admin: ปลดล็อกแก้ยอดสลิป</button>
         </div>
         <div class="flex flex-col justify-center gap-1.5 pt-3">
-          <label class="flex items-center gap-1.5 text-xs text-[#8C5867]">
+          <label id="edit-fee-label" class="flex items-center gap-1.5 text-xs text-[#8C5867]">
             <input id="edit-exp-fee" type="checkbox" class="rounded border-[#F2CFD9] text-[#D6718E]" />
             ค่าธรรมเนียม +3%
           </label>
@@ -547,7 +589,7 @@
         </div>
       </div>
 
-      <div>
+      <div id="edit-split-section">
         <label class="text-[11px] text-[#8C5867] block mb-1.5">ผู้ร่วมหาร</label>
         <div id="edit-exp-split-checkboxes" class="flex flex-wrap gap-1.5"></div>
       </div>
@@ -559,13 +601,13 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: DAY RECEIPT VAULT ================= -->
+  <!-- ================= MODAL: PERIOD RECEIPT VAULT ================= -->
   <div id="day-receipts-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
         <div>
-          <h3 id="day-vault-title" class="font-semibold text-base text-[#6B424E]">รวมสลิป Day 1</h3>
-          <p id="day-vault-subtitle" class="text-[11px] text-[#A37B87]">เรียงตามเวลาสำหรับเทียบยอด Alipay</p>
+          <h3 id="day-vault-title" class="font-semibold text-base text-[#6B424E]">รวมสลิป</h3>
+          <p id="day-vault-subtitle" class="text-[11px] text-[#A37B87]">เรียงตามเวลาสำหรับตรวจสอบ</p>
         </div>
         <button onclick="closeModal('day-receipts-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
@@ -577,14 +619,14 @@
   <div id="settle-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#6B424E]">สรุปเคลียร์ยอดไฟนอลจบทริป</h3>
+        <h3 class="font-semibold text-base text-[#6B424E]">สรุปเคลียร์ยอดไฟนอล</h3>
         <button onclick="closeModal('settle-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
 
-      <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] flex justify-between items-center">
+      <div id="settle-rate-banner" class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] flex justify-between items-center">
         <div>
-          <p class="text-xs font-semibold text-[#C45B79]">เรทเงินหยวนไฟนอลกลาง</p>
-          <p class="text-[10px] text-[#A37B87]">กำหนดโดย Administrator ใช้เรทเดียวกันทั้งทริป</p>
+          <p class="text-xs font-semibold text-[#C45B79]">เรทแปลงเงินไฟนอลกลาง</p>
+          <p class="text-[10px] text-[#A37B87]">กำหนดโดย Administrator ใช้เรทเดียวกันทั้งสมุด</p>
         </div>
         <div class="text-right">
           <p id="settle-global-rate-badge" class="text-sm font-bold text-[#C45B79]">1¥ = 4.85฿</p>
@@ -597,7 +639,7 @@
       </div>
 
       <div class="pt-2 border-t border-[#F5D5DF] space-y-2">
-        <p class="text-xs font-semibold text-[#6B424E]">รายละเอียดสุทธิรายบุคคล (รวมหารกลุ่มและหาร 2 คน)</p>
+        <p class="text-xs font-semibold text-[#6B424E]">รายละเอียดสุทธิรายบุคคล</p>
         <div id="settle-details" class="space-y-2 text-xs"></div>
       </div>
     </div>
@@ -653,6 +695,8 @@
       { hex: '#4A4447', label: 'Charcoal' }
     ];
 
+    const THAI_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
     let currentUser = null;
     let userTrips = [];
     let currentTrip = null;
@@ -665,7 +709,7 @@
     let globalGeminiKey = '';
     let currentScopeFilter = 'shared';
     let currentQuickFilter = 'all';
-    let collapsedDays = new Set();
+    let collapsedGroups = new Set();
     let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
     let totalDays = 6;
     let dailyChartInstance = null;
@@ -682,6 +726,39 @@
       const { data: { session } } = await db.auth.getSession();
       if (session) initApp(session.user);
     };
+
+    function isMonthlyMode() {
+      return currentTrip?.ledger_type === 'monthly';
+    }
+
+    function getCurrSymbol() {
+      return currentTrip?.currency_symbol || '¥';
+    }
+
+    function getCurrCode() {
+      return currentTrip?.currency_code || 'CNY';
+    }
+
+    function isThbBase() {
+      return getCurrCode().toUpperCase() === 'THB';
+    }
+
+    function formatMonthLabel(ymStr) {
+      if (!ymStr || !ymStr.includes('-')) return ymStr || 'เดือนปัจจุบัน';
+      const [y, m] = ymStr.split('-');
+      const mIdx = parseInt(m, 10) - 1;
+      return `${THAI_MONTHS[mIdx] || m} ${y}`;
+    }
+
+    function getCurrentYYYYMM() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function getTodayYYYYMMDD() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
 
     function getCurrentHHMM() {
       const now = new Date();
@@ -724,7 +801,7 @@
           (e.title || '').trim().toLowerCase() === normTitle
         );
         if (bySlipSignature) {
-          return { reason: `ยอดเงิน ¥${numAmt} เวลาสลิป ${slip_time} และร้านค้าตรงกับรายการที่บันทึกไว้แล้ว`, item: bySlipSignature };
+          return { reason: `ยอดเงิน ${getCurrSymbol()}${numAmt} เวลาสลิป ${slip_time} และร้านค้าตรงกับรายการที่บันทึกไว้แล้ว`, item: bySlipSignature };
         }
       }
       return null;
@@ -738,7 +815,7 @@
         return;
       }
       const e = dupMatch.item;
-      detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ¥${Number(e.amount_cny).toFixed(2)} (Day ${e.trip_day} · บันทึกโดย ${getMemberName(e.created_by)})`;
+      detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ${getCurrSymbol()}${Number(e.amount_cny).toFixed(2)} (บันทึกโดย ${getMemberName(e.created_by)})`;
       box.classList.remove('hidden');
     }
 
@@ -780,7 +857,13 @@
     }
 
     function getGlobalFinalRate() {
+      if (isThbBase()) return 1;
       return Number(currentTrip?.final_rate || currentTrip?.default_rate || 4.85);
+    }
+
+    // Active split-eligible members (excludes observer-only admins)
+    function getActiveParticipants() {
+      return membersList.filter(m => !m.is_observer_only);
     }
 
     async function initApp(user) {
@@ -804,7 +887,10 @@
       currentTrip = trips.find(t => t.id === savedTripId) || trips[0];
 
       const switcher = document.getElementById('trip-switcher');
-      switcher.innerHTML = trips.map(t => `<option value="${t.id}" ${t.id === currentTrip.id ? 'selected' : ''}>${t.name}</option>`).join('');
+      switcher.innerHTML = trips.map(t => {
+        const tag = t.ledger_type === 'monthly' ? ' [รายเดือน]' : '';
+        return `<option value="${t.id}" ${t.id === currentTrip.id ? 'selected' : ''}>${t.name}${tag}</option>`;
+      }).join('');
 
       if (isSuperAdmin()) {
         document.getElementById('super-admin-panel').classList.remove('hidden');
@@ -819,7 +905,7 @@
     async function switchTrip(tripId) {
       currentTrip = userTrips.find(t => t.id === tripId);
       localStorage.setItem('selected_trip_id', tripId);
-      collapsedDays.clear();
+      collapsedGroups.clear();
       await loadTripContext();
     }
 
@@ -829,12 +915,13 @@
         ...m,
         display_name: m.email.toLowerCase() === SUPER_ADMIN_EMAIL ? SUPER_ADMIN_NAME : m.display_name,
         accent_color: m.accent_color || '#D6718E',
-        can_proxy_pay: m.email.toLowerCase() === SUPER_ADMIN_EMAIL ? true : Boolean(m.can_proxy_pay)
+        can_proxy_pay: m.email.toLowerCase() === SUPER_ADMIN_EMAIL ? true : Boolean(m.can_proxy_pay),
+        is_observer_only: Boolean(m.is_observer_only)
       }));
 
       currentMember = membersList.find(m => m.email.toLowerCase() === currentUser.email.toLowerCase());
       if (!currentMember && isSuperAdmin()) {
-        currentMember = { email: currentUser.email, display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E', can_proxy_pay: true };
+        currentMember = { email: currentUser.email, display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E', can_proxy_pay: true, is_observer_only: false };
       }
 
       if (!currentMember) {
@@ -857,22 +944,43 @@
       }
 
       const isClosed = Boolean(currentTrip.is_closed);
+      const monthly = isMonthlyMode();
+      const sym = getCurrSymbol();
+      const code = getCurrCode();
+      const finalRate = getGlobalFinalRate();
+
       document.getElementById('app-screen').classList.remove('hidden');
+      document.getElementById('ledger-mode-pill').textContent = monthly ? `Monthly · ${code}` : `Trip · ${code}`;
       document.getElementById('trip-closed-pill').classList.toggle('hidden', !isClosed);
       document.getElementById('closed-trip-banner').classList.toggle('hidden', !isClosed);
       document.getElementById('fab-add-expense').classList.toggle('hidden', isClosed);
-      document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed);
+      document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed || monthly);
 
-      const finalRate = getGlobalFinalRate();
-      document.getElementById('user-badge').textContent = `${currentMember.display_name} · ${currentMember.role === 'host' ? 'Host' : 'Member'} · เรทกลาง ${finalRate}฿`;
+      // Adapt UI labels between Trip Mode and Monthly Expense Mode
+      document.getElementById('hero-title-label').textContent = monthly
+        ? `Total Monthly Ledger (${code})`
+        : `Total Group Spend (${code})`;
+      document.getElementById('btn-hero-digest').textContent = monthly ? 'สรุปรายเดือน' : 'สรุปรายวัน';
+      document.getElementById('nav-digest-label').textContent = monthly ? 'สรุปรายเดือน' : 'สรุปรายวัน';
+      document.getElementById('digest-heading').textContent = monthly
+        ? 'สรุปรายเดือน & คลังสลิปตรวจสอบ'
+        : 'สรุปรายวัน & คลังสลิปตรวจสอบ';
+      document.getElementById('scope-shared').textContent = monthly ? 'รายการรายเดือน' : 'บิลกลุ่ม & หารร่วม';
+
+      const roleText = currentMember.is_observer_only ? 'Admin (ผู้ดูแล)' : (currentMember.role === 'host' ? 'Host' : 'Member');
+      const rateBadgeText = isThbBase() ? `สกุลเงิน ${code}` : `เรทกลาง ${finalRate}฿`;
+      document.getElementById('user-badge').textContent = `${currentMember.display_name} · ${roleText} · ${rateBadgeText}`;
       document.getElementById('host-add-member').classList.toggle('hidden', (currentMember.role !== 'host' && !isSuperAdmin()) || isClosed);
 
       document.getElementById('exp-rate').value = finalRate;
       if (document.getElementById('admin-final-rate-input')) {
         document.getElementById('admin-final-rate-input').value = finalRate;
+        document.getElementById('admin-rate-curr-code').textContent = code;
+        document.getElementById('admin-rate-box').classList.toggle('hidden', isThbBase());
+        document.getElementById('admin-trip-date-box').classList.toggle('hidden', monthly);
         document.getElementById('admin-start-date-input').value = currentTrip.start_date || '';
-        document.getElementById('admin-trip-status-text').textContent = isClosed ? 'ปิดทริปแล้ว (ล็อกข้อมูล)' : 'กำลังเดินทาง';
-        document.getElementById('btn-toggle-close-trip').textContent = isClosed ? 'เปิดทริปอีกครั้ง' : 'ปิดทริปนี้';
+        document.getElementById('admin-trip-status-text').textContent = isClosed ? 'ปิดยอดแล้ว (ล็อกข้อมูล)' : 'เปิดใช้งาน';
+        document.getElementById('btn-toggle-close-trip').textContent = isClosed ? 'เปิดใช้งานอีกครั้ง' : 'ปิดยอด';
       }
 
       renderColorPicker();
@@ -951,7 +1059,7 @@
     }
 
     async function setPersonalCashBudget() {
-      const val = prompt('ระบุจำนวนเงินสด (CNY) ที่คุณแลกพกติดตัวมาใช้ส่วนตัว:', myPersonalCashInit || '500');
+      const val = prompt(`ระบุจำนวนเงินสด (${getCurrCode()}) ที่คุณพกติดตัวมาใช้ส่วนตัว:`, myPersonalCashInit || '500');
       if (val === null) return;
       const num = parseFloat(val);
       if (isNaN(num) || num < 0) return alert('กรุณากรอกตัวเลขที่ถูกต้อง');
@@ -996,14 +1104,14 @@
       return getMemberInfo(email).display_name;
     }
 
-    function getSignedCny(e) {
-      const cny = Number(e.amount_cny);
-      const withFee = e.has_alipay_fee ? cny * 1.03 : cny;
+    function getSignedAmt(e) {
+      const amt = Number(e.amount_cny);
+      const withFee = e.has_alipay_fee ? amt * 1.03 : amt;
       return e.is_refund ? -withFee : withFee;
     }
 
-    function calcFinalThb(cny, rate, hasFee, isRefund = false) {
-      const base = Number(cny) * Number(rate);
+    function calcFinalThb(amt, rate, hasFee, isRefund = false) {
+      const base = Number(amt) * Number(rate);
       const withFee = hasFee ? base * 1.03 : base;
       return isRefund ? -withFee : withFee;
     }
@@ -1013,31 +1121,34 @@
       return emails.length === 1 && emails[0].toLowerCase() === (e.paid_by_email || e.created_by || '').toLowerCase();
     }
 
-    function computeMemberBalancesCny() {
-      const netCny = {};
-      membersList.forEach(m => netCny[m.email.toLowerCase()] = 0);
+    function computeMemberBalances() {
+      const net = {};
+      getActiveParticipants().forEach(m => net[m.email.toLowerCase()] = 0);
 
       expensesList.forEach(e => {
         if (isSoloPersonalExpense(e)) return;
-        const signedCny = getSignedCny(e);
+        const signedAmt = getSignedAmt(e);
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEmail = (e.paid_by_email || e.created_by || '').toLowerCase();
 
-        if (netCny[payerEmail] !== undefined) netCny[payerEmail] += signedCny;
+        if (net[payerEmail] !== undefined) net[payerEmail] += signedAmt;
         if (splitEmails.length > 0) {
-          const share = signedCny / splitEmails.length;
+          const share = signedAmt / splitEmails.length;
           splitEmails.forEach(em => {
-            if (netCny[em] !== undefined) netCny[em] -= share;
+            if (net[em] !== undefined) net[em] -= share;
           });
         }
       });
-      return netCny;
+      return net;
     }
 
     function renderDashboard() {
       const myEmail = currentMember.email.toLowerCase();
       const isClosed = Boolean(currentTrip.is_closed);
       const finalRate = getGlobalFinalRate();
+      const sym = getCurrSymbol();
+      const monthly = isMonthlyMode();
+      const participants = getActiveParticipants();
 
       const myFlaggedCount = expensesList.filter(e =>
         e.delete_flag && (
@@ -1049,58 +1160,79 @@
       document.getElementById('owner-flag-banner').classList.toggle('hidden', myFlaggedCount === 0 || isClosed);
       document.getElementById('my-flagged-count').textContent = myFlaggedCount;
 
-      let totalGroupCny = 0;
-      let myPaidSharedCny = 0, mySoloPersonalCny = 0, myCashSpentCny = 0;
-      let latestDayNum = 1;
-      const dayTotalsCny = {};
+      let totalMainAmt = 0;
+      let myPaidMainAmt = 0, mySoloPersonalAmt = 0, myCashSpentAmt = 0;
+      let latestPeriodKey = monthly ? getCurrentYYYYMM() : 1;
+      const periodTotals = {};
 
       expensesList.forEach(e => {
-        const signedCny = getSignedCny(e);
+        const signedAmt = getSignedAmt(e);
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
-        const dNum = Number(e.trip_day || 1);
+        const isSolo = isSoloPersonalExpense(e);
 
-        if (isSoloPersonalExpense(e)) {
+        // In Monthly mode with single participant, include all their expenses in main total
+        const isSinglePersonLedger = participants.length <= 1;
+
+        if (isSolo && !isSinglePersonLedger) {
           if (payerEm === myEmail) {
-            mySoloPersonalCny += signedCny;
-            if (e.payment_channel === 'cash') myCashSpentCny += signedCny;
+            mySoloPersonalAmt += signedAmt;
+            if (e.payment_channel === 'cash') myCashSpentAmt += signedAmt;
           }
         } else {
-          totalGroupCny += signedCny;
-          if (dNum > latestDayNum) latestDayNum = dNum;
-          dayTotalsCny[dNum] = (dayTotalsCny[dNum] || 0) + signedCny;
-          if (payerEm === myEmail) myPaidSharedCny += signedCny;
+          totalMainAmt += signedAmt;
+          if (monthly) {
+            const mKey = e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM();
+            if (mKey > latestPeriodKey) latestPeriodKey = mKey;
+            periodTotals[mKey] = (periodTotals[mKey] || 0) + signedAmt;
+          } else {
+            const dNum = Number(e.trip_day || 1);
+            if (dNum > latestPeriodKey) latestPeriodKey = dNum;
+            periodTotals[dNum] = (periodTotals[dNum] || 0) + signedAmt;
+          }
+          if (payerEm === myEmail) myPaidMainAmt += signedAmt;
         }
       });
 
-      const totalGroupThb = totalGroupCny * finalRate;
-      const latestDayCny = dayTotalsCny[latestDayNum] || 0;
-      const avgPerPersonCny = membersList.length > 0 ? totalGroupCny / membersList.length : 0;
+      const totalThb = totalMainAmt * finalRate;
+      const latestPeriodAmt = periodTotals[latestPeriodKey] || 0;
+      const avgPerPerson = participants.length > 0 ? totalMainAmt / participants.length : totalMainAmt;
 
-      document.getElementById('total-group-cny').textContent = `¥${totalGroupCny.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-      document.getElementById('total-group-thb').textContent = `THB ${totalGroupThb.toLocaleString('en-US', {minimumFractionDigits: 2})} (เรทกลาง ${finalRate})`;
-      document.getElementById('latest-day-summary').textContent = `วันล่าสุด (Day ${latestDayNum}): ¥${latestDayCny.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-      document.getElementById('avg-per-person-summary').textContent = `เฉลี่ยคนละ ¥${avgPerPersonCny.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+      document.getElementById('total-group-cny').textContent = `${sym}${totalMainAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('total-group-thb').textContent = isThbBase()
+        ? `ยอดรวมสุทธิทั้งหมด (${expensesList.length} รายการ)`
+        : `THB ${totalThb.toLocaleString('en-US', {minimumFractionDigits: 2})} (เรทกลาง ${finalRate})`;
 
-      document.getElementById('my-paid-cny').textContent = `¥${myPaidSharedCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
-      document.getElementById('my-solo-cny').textContent = `ส่วนตัวล้วน ¥${mySoloPersonalCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('latest-day-summary').textContent = monthly
+        ? `เดือนล่าสุด (${formatMonthLabel(latestPeriodKey)}): ${sym}${latestPeriodAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}`
+        : `วันล่าสุด (Day ${latestPeriodKey}): ${sym}${latestPeriodAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
-      document.getElementById('cash-init-val').textContent = `¥${myPersonalCashInit.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
-      document.getElementById('cash-spent-val').textContent = `¥${myCashSpentCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
-      document.getElementById('cash-rem-val').textContent = `¥${(myPersonalCashInit - myCashSpentCny).toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('avg-per-person-summary').textContent = participants.length > 1
+        ? `เฉลี่ยคนละ ${sym}${avgPerPerson.toLocaleString('en-US', {maximumFractionDigits: 0})}`
+        : `${expensesList.length} บิลทั้งหมด`;
 
-      const netCnyMap = computeMemberBalancesCny();
-      const myNetCny = netCnyMap[myEmail] || 0;
-      const myNetThb = myNetCny * finalRate;
+      document.getElementById('my-paid-cny').textContent = `${sym}${myPaidMainAmt.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('my-solo-cny').textContent = `ส่วนตัวล้วน ${sym}${mySoloPersonalAmt.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+
+      document.getElementById('cash-init-val').textContent = `${sym}${myPersonalCashInit.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('cash-spent-val').textContent = `${sym}${myCashSpentAmt.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('cash-rem-val').textContent = `${sym}${(myPersonalCashInit - myCashSpentAmt).toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+
+      const netMap = computeMemberBalances();
+      const myNet = netMap[myEmail] || 0;
+      const myNetThb = myNet * finalRate;
 
       const netEl = document.getElementById('my-net-status');
-      if (Math.abs(myNetCny) < 0.5) {
+      if (participants.length <= 1) {
+        netEl.textContent = 'สมุดส่วนตัว (ไม่ต้องหาร)';
+        netEl.className = 'text-xs font-semibold text-[#8C5867] mt-1';
+      } else if (Math.abs(myNet) < 0.5) {
         netEl.textContent = 'สมดุลแล้ว';
         netEl.className = 'text-sm font-semibold text-[#6B424E] mt-1';
-      } else if (myNetCny > 0) {
-        netEl.textContent = `รับคืน +¥${myNetCny.toFixed(0)} (฿${myNetThb.toFixed(0)})`;
+      } else if (myNet > 0) {
+        netEl.textContent = isThbBase() ? `รับคืน +฿${myNet.toFixed(0)}` : `รับคืน +${sym}${myNet.toFixed(0)} (฿${myNetThb.toFixed(0)})`;
         netEl.className = 'text-sm font-semibold text-emerald-700 mt-1';
       } else {
-        netEl.textContent = `โอนคืน -¥${Math.abs(myNetCny).toFixed(0)} (฿${Math.abs(myNetThb).toFixed(0)})`;
+        netEl.textContent = isThbBase() ? `โอนคืน -฿${Math.abs(myNet).toFixed(0)}` : `โอนคืน -${sym}${Math.abs(myNet).toFixed(0)} (฿${Math.abs(myNetThb).toFixed(0)})`;
         netEl.className = 'text-sm font-semibold text-rose-600 mt-1';
       }
 
@@ -1127,9 +1259,9 @@
       renderExpenseList();
     }
 
-    function toggleDayCollapse(dayNum) {
-      if (collapsedDays.has(dayNum)) collapsedDays.delete(dayNum);
-      else collapsedDays.add(dayNum);
+    function toggleGroupCollapse(groupKey) {
+      if (collapsedGroups.has(groupKey)) collapsedGroups.delete(groupKey);
+      else collapsedGroups.add(groupKey);
       renderExpenseList();
     }
 
@@ -1144,6 +1276,10 @@
       const myEmail = currentMember.email.toLowerCase();
       const isClosed = Boolean(currentTrip.is_closed);
       const finalRate = getGlobalFinalRate();
+      const sym = getCurrSymbol();
+      const monthly = isMonthlyMode();
+      const participants = getActiveParticipants();
+      const isSinglePersonLedger = participants.length <= 1;
       const searchQuery = (document.getElementById('search-expense-input')?.value || '').trim().toLowerCase();
 
       const filtered = expensesList.filter(e => {
@@ -1154,7 +1290,7 @@
         if (currentScopeFilter === 'personal') {
           if (!(isSolo && payerEm === myEmail)) return false;
         } else {
-          if (isSolo) return false;
+          if (isSolo && !isSinglePersonLedger) return false;
           if (!isSuperAdmin() && payerEm !== myEmail && !splitEmails.includes(myEmail)) return false;
         }
 
@@ -1174,33 +1310,39 @@
         return true;
       });
 
-      let totalSumCny = 0, totalSumThb = 0;
-      const dayGroups = {};
+      let totalSumAmt = 0, totalSumThb = 0;
+      const groups = {};
       filtered.forEach(e => {
-        const d = Number(e.trip_day || 1);
-        if (!dayGroups[d]) dayGroups[d] = [];
-        dayGroups[d].push(e);
-        totalSumCny += getSignedCny(e);
+        const gKey = monthly
+          ? (e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
+          : String(e.trip_day || 1);
+        if (!groups[gKey]) groups[gKey] = [];
+        groups[gKey].push(e);
+        totalSumAmt += getSignedAmt(e);
         totalSumThb += calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
       });
 
-      const sortedDays = Object.keys(dayGroups).map(Number).sort((a, b) => b - a);
-      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
+      const sortedKeys = Object.keys(groups).sort((a, b) => monthly ? b.localeCompare(a) : Number(b) - Number(a));
+      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม/บันเทิง', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก/บิล' };
 
-      const html = sortedDays.map(dayNum => {
-        const items = dayGroups[dayNum].sort((a, b) => {
+      const html = sortedKeys.map(gKey => {
+        const items = groups[gKey].sort((a, b) => {
+          if (monthly && a.expense_date !== b.expense_date) {
+            return (b.expense_date || '').localeCompare(a.expense_date || '');
+          }
           const tA = a.slip_time || new Date(a.created_at).toTimeString().slice(0, 5);
           const tB = b.slip_time || new Date(b.created_at).toTimeString().slice(0, 5);
           return tB.localeCompare(tA);
         });
 
-        const dayCny = items.reduce((s, x) => s + getSignedCny(x), 0);
-        const dayThb = items.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
-        const isCollapsed = collapsedDays.has(dayNum);
+        const groupAmt = items.reduce((s, x) => s + getSignedAmt(x), 0);
+        const groupThb = items.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
+        const isCollapsed = collapsedGroups.has(gKey);
+        const groupHeaderTitle = monthly ? formatMonthLabel(gKey) : `Day ${gKey}`;
 
         const cardsHtml = isCollapsed ? '' : items.map(e => {
-          const cny = Number(e.amount_cny);
-          const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee, e.is_refund);
+          const amt = Number(e.amount_cny);
+          const thb = calcFinalThb(amt, finalRate, e.has_alipay_fee, e.is_refund);
           const splitNames = (e.split_details?.emails || []).map(getMemberName).join(', ');
           const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
           const creatorEm = (e.created_by || '').toLowerCase();
@@ -1211,8 +1353,9 @@
           const payerInfo = getMemberInfo(payerEm);
           const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
           const displayTime = e.slip_time || uploadTimeStr;
-          const timeBadge = e.time_source === 'slip' ? `${displayTime} · สลิป` : `${displayTime} · บันทึก`;
-          const metaInfo = `เวลาสลิป: ${e.slip_time || '-'} | บันทึกเข้าระบบ: ${uploadTimeStr} โดย ${getMemberName(e.created_by)}`;
+          const datePrefix = monthly && e.expense_date ? `${e.expense_date.slice(8, 10)}/${e.expense_date.slice(5, 7)} · ` : '';
+          const timeBadge = `${datePrefix}${displayTime}`;
+          const metaInfo = `วันที่: ${e.expense_date || '-'} | เวลา: ${displayTime} | บันทึกโดย ${getMemberName(e.created_by)}`;
 
           let flagHtml = '';
           if (e.delete_flag && !isClosed) {
@@ -1245,12 +1388,12 @@
                   <h4 class="font-medium text-sm text-[#6B424E] mt-1 truncate">${e.title}</h4>
                 </div>
                 <div class="text-right shrink-0">
-                  <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'text-[#C45B79]'} text-sm">${e.is_refund ? '-' : ''}¥${cny.toFixed(2)}</p>
-                  <p class="text-[11px] text-[#B38895]">${e.is_refund ? '-' : ''}฿${Math.abs(thb).toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>
+                  <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'text-[#C45B79]'} text-sm">${e.is_refund ? '-' : ''}${sym}${amt.toFixed(2)}</p>
+                  ${!isThbBase() ? `<p class="text-[11px] text-[#B38895]">${e.is_refund ? '-' : ''}฿${Math.abs(thb).toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>` : ''}
                 </div>
               </div>
               <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-1.5 border-t border-[#FCEBF0]">
-                <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'ส่วนตัวล้วน' : 'หาร: ' + (splitNames || '-')}</span>
+                <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'รายการส่วนตัว' : 'หาร: ' + (splitNames || '-')}</span>
                 <div class="flex items-center gap-2 shrink-0">
                   <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white border-[#F2CFD9] text-[#A37B87]'}">
                     ${isVerified ? '✓ ตรวจแล้ว' : 'ติ๊กตรวจ'}
@@ -1267,13 +1410,13 @@
 
         return `
           <div class="space-y-2">
-            <button type="button" onclick="toggleDayCollapse(${dayNum})" class="w-full flex justify-between items-center bg-white/85 hover:bg-white px-3.5 py-2.5 rounded-2xl border border-[#F2CFD9] text-xs transition">
+            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center bg-white/85 hover:bg-white px-3.5 py-2.5 rounded-2xl border border-[#F2CFD9] text-xs transition">
               <div class="flex items-center gap-2">
-                <span class="font-semibold text-[#C45B79]">Day ${dayNum}</span>
+                <span class="font-semibold text-[#C45B79]">${groupHeaderTitle}</span>
                 <span class="text-[11px] text-[#A37B87]">(${items.length} รายการ)</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="font-semibold text-[#6B424E]">¥${dayCny.toFixed(2)} · ฿${dayThb.toFixed(0)}</span>
+                <span class="font-semibold text-[#6B424E]">${sym}${groupAmt.toFixed(2)}${!isThbBase() ? ` · ฿${groupThb.toFixed(0)}` : ''}</span>
                 <span class="text-[#B38895] text-[10px]">${isCollapsed ? '▼' : '▲'}</span>
               </div>
             </button>
@@ -1281,22 +1424,30 @@
           </div>`;
       }).join('');
 
-      document.getElementById('filtered-day-total').textContent = `¥${totalSumCny.toFixed(2)} · ฿${totalSumThb.toFixed(2)}`;
+      document.getElementById('filtered-day-total').textContent = isThbBase()
+        ? `฿${totalSumAmt.toFixed(2)}`
+        : `${sym}${totalSumAmt.toFixed(2)} · ฿${totalSumThb.toFixed(2)}`;
       document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
     }
 
-    // ================= EDIT EXISTING EXPENSE (WITH STRICT SLIP LOCK) =================
+    // ================= EDIT EXISTING EXPENSE =================
     function openEditExpenseModal(id) {
       const e = expensesList.find(x => x.id === id);
       if (!e) return;
 
+      const monthly = isMonthlyMode();
       document.getElementById('edit-exp-id').value = e.id;
+      document.getElementById('edit-day-field').classList.toggle('hidden', monthly);
+      document.getElementById('edit-month-field').classList.toggle('hidden', !monthly);
       document.getElementById('edit-exp-day').value = e.trip_day;
+      document.getElementById('edit-exp-date').value = e.expense_date || getTodayYYYYMMDD();
       document.getElementById('edit-exp-cat').value = e.category;
       document.getElementById('edit-exp-title').value = e.title;
       document.getElementById('edit-exp-time').value = e.slip_time || getCurrentHHMM();
       document.getElementById('edit-exp-fee').checked = Boolean(e.has_alipay_fee);
       document.getElementById('edit-exp-refund').checked = Boolean(e.is_refund);
+      document.getElementById('edit-amt-curr').textContent = getCurrCode();
+      document.getElementById('edit-fee-label').classList.toggle('hidden', isThbBase());
 
       const cnyInput = document.getElementById('edit-exp-cny');
       const lockBadge = document.getElementById('edit-cny-lock-badge');
@@ -1315,8 +1466,10 @@
         adminUnlockBtn.classList.add('hidden');
       }
 
+      const participants = getActiveParticipants();
+      document.getElementById('edit-split-section').classList.toggle('hidden', participants.length <= 1);
       const currentSplits = (e.split_details?.emails || []).map(x => x.toLowerCase());
-      document.getElementById('edit-exp-split-checkboxes').innerHTML = membersList.map(m => `
+      document.getElementById('edit-exp-split-checkboxes').innerHTML = participants.map(m => `
         <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
           <input type="checkbox" name="edit-split-member" value="${m.email}" ${currentSplits.includes(m.email.toLowerCase()) ? 'checked' : ''} class="rounded border-[#F2CFD9] text-[#D6718E]" />
           ${m.display_name}
@@ -1327,7 +1480,7 @@
 
     function adminUnlockEditCny() {
       if (!isSuperAdmin()) return;
-      if (!confirm('ยืนยันการปลดล็อกยอดเงินจากสลิป (เฉพาะกรณีสลิปมีส่วนลดคูปอง)?')) return;
+      if (!confirm('ยืนยันการปลดล็อกยอดเงินจากสลิป?')) return;
       const cnyInput = document.getElementById('edit-exp-cny');
       cnyInput.readOnly = false;
       cnyInput.className = 'w-full bg-white border border-[#C45B79] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1';
@@ -1340,8 +1493,13 @@
       const e = expensesList.find(x => x.id === id);
       if (!e) return;
 
-      const checkedEmails = Array.from(document.querySelectorAll('input[name="edit-split-member"]:checked')).map(el => el.value);
-      if (checkedEmails.length === 0) return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
+      const participants = getActiveParticipants();
+      let checkedEmails = Array.from(document.querySelectorAll('input[name="edit-split-member"]:checked')).map(el => el.value);
+      if (participants.length <= 1) {
+        checkedEmails = [e.paid_by_email || e.created_by];
+      } else if (checkedEmails.length === 0) {
+        return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
+      }
 
       const title = document.getElementById('edit-exp-title').value.trim();
       const amount_cny = parseFloat(document.getElementById('edit-exp-cny').value);
@@ -1353,9 +1511,13 @@
       try {
         const payerEmail = e.paid_by_email || e.created_by;
         const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === payerEmail.toLowerCase();
+        const monthly = isMonthlyMode();
+        const editDate = document.getElementById('edit-exp-date').value || e.expense_date || getTodayYYYYMMDD();
 
         const { error } = await db.from('expenses').update({
-          trip_day: parseInt(document.getElementById('edit-exp-day').value),
+          trip_day: monthly ? 1 : parseInt(document.getElementById('edit-exp-day').value),
+          expense_date: editDate,
+          expense_month: monthly ? editDate.slice(0, 7) : null,
           category: document.getElementById('edit-exp-cat').value,
           title,
           slip_time: document.getElementById('edit-exp-time').value,
@@ -1368,7 +1530,7 @@
 
         if (error) throw error;
 
-        await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ¥${amount_cny}`);
+        await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ${getCurrSymbol()}${amount_cny}`);
         closeModal('edit-expense-modal');
         await refreshAllData();
       } catch (err) {
@@ -1378,106 +1540,243 @@
       }
     }
 
-    // ================= DAILY DIGEST & RECEIPT VAULT =================
+    // ================= DAILY / MONTHLY DIGEST & RECEIPT VAULT =================
     function renderDailyDigest() {
       const myEmail = currentMember.email.toLowerCase();
       const finalRate = getGlobalFinalRate();
+      const sym = getCurrSymbol();
+      const monthly = isMonthlyMode();
+      const isSinglePersonLedger = getActiveParticipants().length <= 1;
 
       const relevant = expensesList.filter(e => {
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
         const isSolo = isSoloPersonalExpense(e);
-        if (isSolo) return payerEm === myEmail;
+        if (isSolo && !isSinglePersonLedger) return payerEm === myEmail;
         if (isSuperAdmin()) return true;
         return payerEm === myEmail || splitEmails.includes(myEmail);
       });
 
-      const byDay = {};
+      const byPeriod = {};
       relevant.forEach(e => {
-        const d = Number(e.trip_day || 1);
-        if (!byDay[d]) byDay[d] = [];
-        byDay[d].push(e);
+        const pKey = monthly
+          ? (e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
+          : String(e.trip_day || 1);
+        if (!byPeriod[pKey]) byPeriod[pKey] = [];
+        byPeriod[pKey].push(e);
       });
 
-      const days = Object.keys(byDay).map(Number).sort((a, b) => a - b);
-      const html = days.map(dayNum => {
-        const list = byDay[dayNum];
-        const groupList = list.filter(x => !isSoloPersonalExpense(x));
-        const soloList = list.filter(x => isSoloPersonalExpense(x));
+      const keys = Object.keys(byPeriod).sort((a, b) => monthly ? b.localeCompare(a) : Number(a) - Number(b));
+      const html = keys.map(pKey => {
+        const list = byPeriod[pKey];
+        const mainList = isSinglePersonLedger ? list : list.filter(x => !isSoloPersonalExpense(x));
+        const soloList = isSinglePersonLedger ? [] : list.filter(x => isSoloPersonalExpense(x));
 
-        const groupCny = groupList.reduce((s, x) => s + getSignedCny(x), 0);
-        const groupThb = groupList.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
-        const soloCny = soloList.reduce((s, x) => s + getSignedCny(x), 0);
+        const mainAmt = mainList.reduce((s, x) => s + getSignedAmt(x), 0);
+        const mainThb = mainList.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
+        const soloAmt = soloList.reduce((s, x) => s + getSignedAmt(x), 0);
         const slipCount = list.filter(x => x.receipt_image_url).length;
+        const badgeTitle = monthly ? formatMonthLabel(pKey) : `Day ${pKey}`;
 
         return `
           <div class="soft-card p-4 rounded-2xl space-y-2.5">
             <div class="flex justify-between items-center">
               <div>
-                <span class="bg-[#FFEBF0] text-[#C45B79] font-semibold text-xs px-2.5 py-0.5 rounded-lg">Day ${dayNum}</span>
-                <span class="text-[11px] text-[#A37B87] ml-1.5">ทั้งหมด ${list.length} บิล (มีสลิป ${slipCount} ใบ)</span>
+                <span class="bg-[#FFEBF0] text-[#C45B79] font-semibold text-xs px-2.5 py-0.5 rounded-lg">${badgeTitle}</span>
+                <span class="text-[11px] text-[#A37B87] ml-1.5">ทั้งหมด ${list.length} บิล (สลิป ${slipCount} ใบ)</span>
               </div>
-              <button onclick="openDayReceiptVault(${dayNum})" class="text-[11px] bg-[#FFF5F8] text-[#C45B79] border border-[#E893AC] px-3 py-1 rounded-xl font-medium">
+              <button onclick="openPeriodReceiptVault('${pKey}')" class="text-[11px] bg-[#FFF5F8] text-[#C45B79] border border-[#E893AC] px-3 py-1 rounded-xl font-medium">
                 ดูรวมสลิป (${slipCount})
               </button>
             </div>
-            <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+            <div class="grid ${isSinglePersonLedger ? 'grid-cols-1' : 'grid-cols-2'} gap-2 pt-1 text-xs">
               <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
-                <p class="text-[10px] text-[#A37B87]">ยอดรวมกลุ่ม (Day ${dayNum})</p>
-                <p class="font-semibold text-[#C45B79] mt-0.5">¥${groupCny.toFixed(2)} <span class="text-[10px] font-normal text-[#8C5867]">(฿${groupThb.toFixed(0)})</span></p>
+                <p class="text-[10px] text-[#A37B87]">ยอดรวม (${badgeTitle})</p>
+                <p class="font-semibold text-[#C45B79] mt-0.5">${sym}${mainAmt.toFixed(2)} ${!isThbBase() ? `<span class="text-[10px] font-normal text-[#8C5867]">(฿${mainThb.toFixed(0)})</span>` : ''}</p>
               </div>
+              ${!isSinglePersonLedger ? `
               <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
-                <p class="text-[10px] text-[#A37B87]">ส่วนตัวของคุณ (Day ${dayNum})</p>
-                <p class="font-semibold text-[#6B424E] mt-0.5">¥${soloCny.toFixed(2)}</p>
-              </div>
+                <p class="text-[10px] text-[#A37B87]">ส่วนตัวของคุณ</p>
+                <p class="font-semibold text-[#6B424E] mt-0.5">${sym}${soloAmt.toFixed(2)}</p>
+              </div>` : ''}
             </div>
           </div>`;
       }).join('');
 
-      document.getElementById('daily-digest-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีข้อมูลสรุปรายวัน</p>';
+      document.getElementById('daily-digest-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีข้อมูลสรุป</p>';
     }
 
-    function openDayReceiptVault(dayNum) {
+    function openPeriodReceiptVault(pKey) {
       const myEmail = currentMember.email.toLowerCase();
+      const monthly = isMonthlyMode();
+      const sym = getCurrSymbol();
+      const isSinglePersonLedger = getActiveParticipants().length <= 1;
+
       const items = expensesList.filter(e => {
-        if (Number(e.trip_day) !== dayNum) return false;
+        const itemKey = monthly
+          ? (e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
+          : String(e.trip_day || 1);
+        if (itemKey !== String(pKey)) return false;
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
         const isSolo = isSoloPersonalExpense(e);
-        if (isSolo) return payerEm === myEmail;
+        if (isSolo && !isSinglePersonLedger) return payerEm === myEmail;
         if (isSuperAdmin()) return true;
         return payerEm === myEmail || splitEmails.includes(myEmail);
       }).sort((a, b) => {
+        if (monthly && a.expense_date !== b.expense_date) return (a.expense_date || '').localeCompare(b.expense_date || '');
         const tA = a.slip_time || new Date(a.created_at).toTimeString().slice(0, 5);
         const tB = b.slip_time || new Date(b.created_at).toTimeString().slice(0, 5);
         return tA.localeCompare(tB);
       });
 
-      document.getElementById('day-vault-title').textContent = `สรุปรายการ & สลิป Day ${dayNum}`;
-      document.getElementById('day-vault-subtitle').textContent = `เรียงตามเวลาเช้าถึงค่ำ (${items.length} รายการ)`;
+      const titleLabel = monthly ? formatMonthLabel(pKey) : `Day ${pKey}`;
+      document.getElementById('day-vault-title').textContent = `สรุปรายการ & สลิป ${titleLabel}`;
+      document.getElementById('day-vault-subtitle').textContent = `เรียงตามลำดับเวลา (${items.length} รายการ)`;
 
       document.getElementById('day-vault-list').innerHTML = items.map(e => {
         const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
         const displayTime = e.slip_time || uploadTimeStr;
         const payerInfo = getMemberInfo(e.paid_by_email || e.created_by);
-        const metaInfo = `Day ${dayNum} · เวลา ${displayTime} · ${payerInfo.display_name} จ่าย ¥${Number(e.amount_cny).toFixed(2)}`;
+        const metaInfo = `${titleLabel} · เวลา ${displayTime} · ${payerInfo.display_name} จ่าย ${sym}${Number(e.amount_cny).toFixed(2)}`;
 
         return `
           <div class="p-3 bg-[#FFF9FA] rounded-2xl border border-[#F2CFD9] flex justify-between items-center gap-2" style="border-left: 3px solid ${payerInfo.accent_color};">
             <div class="min-w-0">
-              <p class="text-[10px] text-[#A37B87]">${displayTime} · <span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span></p>
+              <p class="text-[10px] text-[#A37B87]">${monthly && e.expense_date ? e.expense_date + ' · ' : ''}${displayTime} · <span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span></p>
               <p class="text-xs font-medium text-[#6B424E] truncate">${e.title}</p>
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
-              <span class="text-xs font-semibold text-[#C45B79]">¥${Number(e.amount_cny).toFixed(2)}</span>
+              <span class="text-xs font-semibold text-[#C45B79]">${sym}${Number(e.amount_cny).toFixed(2)}</span>
               ${e.receipt_image_url
                 ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[11px] luxury-gradient text-white px-2.5 py-1 rounded-lg">ดูสลิป</button>`
                 : `<span class="text-[10px] text-[#C9A3AF]">ไม่มีรูป</span>`}
             </div>
           </div>`;
-      }).join('') || '<p class="text-center text-xs text-[#B38895] py-6">ไม่มีรายการในวันนี้</p>';
+      }).join('') || '<p class="text-center text-xs text-[#B38895] py-6">ไม่มีรายการในช่วงเวลานี้</p>';
 
       openModal('day-receipts-modal');
+    }
+
+    // ================= PRINTABLE PDF REPORT WITH THUMBNAIL SLIPS =================
+    async function exportPrintablePdfReport() {
+      const myEmail = currentMember.email.toLowerCase();
+      const finalRate = getGlobalFinalRate();
+      const sym = getCurrSymbol();
+      const code = getCurrCode();
+      const monthly = isMonthlyMode();
+      const isSinglePersonLedger = getActiveParticipants().length <= 1;
+
+      const items = expensesList.filter(e => {
+        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
+        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+        const isSolo = isSoloPersonalExpense(e);
+        if (isSolo && !isSinglePersonLedger) return payerEm === myEmail;
+        if (isSuperAdmin()) return true;
+        return payerEm === myEmail || splitEmails.includes(myEmail);
+      }).sort((a, b) => {
+        if (monthly) return (a.expense_date || '').localeCompare(b.expense_date || '');
+        if (a.trip_day !== b.trip_day) return a.trip_day - b.trip_day;
+        return (a.slip_time || '').localeCompare(b.slip_time || '');
+      });
+
+      if (items.length === 0) return alert('ยังไม่มีรายการสำหรับสร้างรายงาน PDF');
+
+      const win = window.open('', '_blank');
+      if (!win) return alert('กรุณาอนุญาต Pop-up ในเบราว์เซอร์เพื่อเปิดหน้าพิมพ์รายงาน PDF');
+      win.document.write('<p style="font-family:sans-serif;padding:24px;color:#6B424E;">กำลังเตรียมเอกสารและโหลดรูปสลิปขนาดเล็ก กรุณารอสักครู่...</p>');
+
+      // Download compressed thumbnails as Data URLs
+      const thumbMap = {};
+      for (const e of items) {
+        if (!e.receipt_image_url) continue;
+        try {
+          let cleanPath = e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url;
+          const { data: blob } = await db.storage.from('trip-media').download(cleanPath);
+          if (blob) {
+            thumbMap[e.id] = await new Promise(res => {
+              const reader = new FileReader();
+              reader.onloadend = () => res(reader.result);
+              reader.readAsDataURL(blob);
+            });
+          }
+        } catch (err) {
+          console.warn('Thumb skip:', err);
+        }
+      }
+
+      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม/บันเทิง', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก/บิล' };
+      let grandAmt = 0, grandThb = 0;
+
+      const rowsHtml = items.map((e, idx) => {
+        const signedAmt = getSignedAmt(e);
+        const thb = calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
+        grandAmt += signedAmt;
+        grandThb += thb;
+        const periodCol = monthly ? (e.expense_date || formatMonthLabel(e.expense_month)) : `Day ${e.trip_day}`;
+        const thumbSrc = thumbMap[e.id];
+
+        return `
+          <tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td>${periodCol}<br><span style="color:#999;font-size:10px;">${e.slip_time || ''}</span></td>
+            <td><strong>${e.title}</strong><br><span style="color:#8C5867;font-size:10px;">${catNames[e.category] || e.category} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span></td>
+            <td style="text-align:right;font-weight:600;color:#C45B79;">${sym}${signedAmt.toFixed(2)}${!isThbBase() ? `<br><span style="color:#888;font-size:10px;">฿${thb.toFixed(2)}</span>` : ''}</td>
+            <td style="text-align:center;">
+              ${thumbSrc ? `<img src="${thumbSrc}" style="width:52px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #F2CFD9;" />` : '<span style="color:#ccc;font-size:10px;">ไม่มีรูป</span>'}
+            </td>
+          </tr>`;
+      }).join('');
+
+      win.document.open();
+      win.document.write(`
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+          <meta charset="UTF-8" />
+          <title>รายงานสรุป - ${currentTrip.name}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Sarabun", sans-serif; color: #4A2E36; padding: 24px; max-width: 800px; margin: auto; }
+            .header { border-bottom: 2px solid #E893AC; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+            h1 { margin: 0; font-size: 20px; color: #C45B79; }
+            .meta { font-size: 12px; color: #8C5867; margin-top: 4px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th { background: #FDF2F5; color: #6B424E; text-align: left; padding: 8px; border-bottom: 1px solid #E893AC; }
+            td { padding: 8px; border-bottom: 1px solid #F5D5DF; vertical-align: middle; }
+            .total-box { margin-top: 16px; text-align: right; font-size: 14px; font-weight: bold; color: #C45B79; background: #FFF5F8; padding: 12px; border-radius: 10px; }
+            @media print { .no-print { display: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="no-print" style="margin-bottom:16px;text-align:right;">
+            <button onclick="window.print()" style="background:#D6718E;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;cursor:pointer;">บันทึกเป็น PDF / สั่งพิมพ์</button>
+          </div>
+          <div class="header">
+            <div>
+              <h1>${currentTrip.name}</h1>
+              <div class="meta">รายงานสรุปค่าใช้จ่ายพร้อมสลิปย่อ · สกุลเงิน ${code} · ออกรายงานเมื่อ ${new Date().toLocaleDateString('th-TH')}</div>
+            </div>
+            <div style="text-align:right;font-size:12px;color:#8C5867;">ทั้งหมด ${items.length} รายการ</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:32px;text-align:center;">#</th>
+                <th style="width:95px;">วันที่/เวลา</th>
+                <th>รายการ / หมวดหมู่</th>
+                <th style="width:110px;text-align:right;">จำนวนเงิน</th>
+                <th style="width:70px;text-align:center;">สลิปย่อ</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+          <div class="total-box">
+            ยอดรวมสุทธิ: ${sym}${grandAmt.toLocaleString('en-US', {minimumFractionDigits: 2})} ${!isThbBase() ? `(฿${grandThb.toLocaleString('en-US', {minimumFractionDigits: 2})})` : ''}
+          </div>
+        </body>
+        </html>
+      `);
+      win.document.close();
     }
 
     // ================= FINAL SETTLEMENT & ADMIN GLOBAL RATE =================
@@ -1487,11 +1786,11 @@
     }
 
     function calculateOptimalTransfers(rate) {
-      const netCnyMap = computeMemberBalancesCny();
+      const netMap = computeMemberBalances();
       const debtors = [];
       const creditors = [];
-      membersList.forEach(m => {
-        const bal = netCnyMap[m.email.toLowerCase()] || 0;
+      getActiveParticipants().forEach(m => {
+        const bal = netMap[m.email.toLowerCase()] || 0;
         if (bal < -0.5) debtors.push({ name: m.display_name, color: m.accent_color, amount: Math.abs(bal) });
         else if (bal > 0.5) creditors.push({ name: m.display_name, color: m.accent_color, amount: bal });
       });
@@ -1502,19 +1801,19 @@
       const transfers = [];
       let i = 0, j = 0;
       while (i < debtors.length && j < creditors.length) {
-        const payCny = Math.min(debtors[i].amount, creditors[j].amount);
-        if (payCny > 0.5) {
+        const payAmt = Math.min(debtors[i].amount, creditors[j].amount);
+        if (payAmt > 0.5) {
           transfers.push({
             from: debtors[i].name,
             fromColor: debtors[i].color,
             to: creditors[j].name,
             toColor: creditors[j].color,
-            cny: Number(payCny.toFixed(2)),
-            thb: Number((payCny * rate).toFixed(2))
+            cny: Number(payAmt.toFixed(2)),
+            thb: Number((payAmt * rate).toFixed(2))
           });
         }
-        debtors[i].amount -= payCny;
-        creditors[j].amount -= payCny;
+        debtors[i].amount -= payAmt;
+        creditors[j].amount -= payAmt;
         if (debtors[i].amount < 0.5) i++;
         if (creditors[j].amount < 0.5) j++;
       }
@@ -1523,16 +1822,20 @@
 
     function renderSettleUpDetails() {
       const rate = getGlobalFinalRate();
-      document.getElementById('settle-global-rate-badge').textContent = `1¥ = ${rate}฿`;
-      const netCnyMap = computeMemberBalancesCny();
+      const sym = getCurrSymbol();
+      const code = getCurrCode();
+      document.getElementById('settle-rate-banner').classList.toggle('hidden', isThbBase());
+      document.getElementById('settle-global-rate-badge').textContent = `1 ${code} = ${rate}฿`;
+      const netMap = computeMemberBalances();
+      const participants = getActiveParticipants();
 
-      document.getElementById('settle-details').innerHTML = membersList.map(m => {
-        const valCny = netCnyMap[m.email.toLowerCase()] || 0;
-        const valThb = valCny * rate;
-        const status = valCny > 0.5
-          ? `<span class="text-emerald-700 font-semibold">+¥${valCny.toFixed(2)} (+฿${valThb.toFixed(0)})</span>`
-          : valCny < -0.5
-          ? `<span class="text-rose-600 font-semibold">-¥${Math.abs(valCny).toFixed(2)} (-฿${Math.abs(valThb).toFixed(0)})</span>`
+      document.getElementById('settle-details').innerHTML = participants.map(m => {
+        const valAmt = netMap[m.email.toLowerCase()] || 0;
+        const valThb = valAmt * rate;
+        const status = valAmt > 0.5
+          ? `<span class="text-emerald-700 font-semibold">+${sym}${valAmt.toFixed(2)} ${!isThbBase() ? `(+฿${valThb.toFixed(0)})` : ''}</span>`
+          : valAmt < -0.5
+          ? `<span class="text-rose-600 font-semibold">-${sym}${Math.abs(valAmt).toFixed(2)} ${!isThbBase() ? `(-฿${Math.abs(valThb).toFixed(0)})` : ''}</span>`
           : `<span class="text-[#B38895]">สมดุล 0.00</span>`;
         return `<div class="flex justify-between items-center p-2.5 bg-[#FFF9FA] rounded-xl border border-[#F5D5DF]">
           <span class="font-medium text-[#6B424E] flex items-center gap-2">
@@ -1556,10 +1859,10 @@
             </div>
             <div class="text-right">
               <p class="font-semibold text-[#C45B79]">฿${Number(t.thb).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-              <p class="text-[10px] text-[#B38895]">(¥${Number(t.cny).toFixed(2)})</p>
+              ${!isThbBase() ? `<p class="text-[10px] text-[#B38895]">(${sym}${Number(t.cny).toFixed(2)})</p>` : ''}
             </div>
           </div>`).join('')
-        : '<p class="text-center text-[#B38895] py-3 bg-[#FFF9FA] rounded-xl">ยอดของทุกคนสมดุลกันแล้ว ไม่ต้องโอนคืน</p>';
+        : '<p class="text-center text-[#B38895] py-3 bg-[#FFF9FA] rounded-xl">ยอดสมดุลกันแล้ว ไม่ต้องโอนคืน</p>';
     }
 
     async function saveTripStartDate() {
@@ -1570,29 +1873,29 @@
       if (error) return alert('บันทึกวันเริ่มทริปไม่สำเร็จ: ' + error.message);
       currentTrip.start_date = startDate;
       await writeLog('SET_START_DATE', `กำหนดวันเริ่มทริป (Day 1) เป็น ${startDate}`);
-      alert(`ตั้งค่า Day 1 = ${startDate} เรียบร้อยแล้ว AI จะเทียบวันที่บนสลิปเป็น Day ให้อัตโนมัติ`);
+      alert(`ตั้งค่า Day 1 = ${startDate} เรียบร้อยแล้ว`);
     }
 
     async function saveFinalRate() {
       if (!isSuperAdmin()) return;
       const newRate = parseFloat(document.getElementById('admin-final-rate-input').value);
-      if (!newRate || newRate <= 0) return alert('กรุณากรอกเรทเงินหยวนที่ถูกต้อง');
+      if (!newRate || newRate <= 0) return alert('กรุณากรอกเรทที่ถูกต้อง');
 
       const { error } = await db.from('trips').update({ final_rate: newRate, default_rate: newRate }).eq('id', currentTrip.id);
       if (error) return alert('บันทึกเรทไฟนอลไม่สำเร็จ: ' + error.message);
 
       currentTrip.final_rate = newRate;
       currentTrip.default_rate = newRate;
-      await writeLog('SET_FINAL_RATE', `กำหนดเรทเงินหยวนไฟนอลกลาง 1 CNY = ${newRate} THB`);
+      await writeLog('SET_FINAL_RATE', `กำหนดเรทไฟนอลกลาง 1 ${getCurrCode()} = ${newRate} THB`);
       await loadTripContext();
-      alert(`ตั้งเรทไฟนอลกลาง 1¥ = ${newRate}฿ เรียบร้อยแล้ว ทุกคนในทริปจะเห็นยอดโอนคำนวณตามเรทนี้`);
+      alert(`ตั้งเรทไฟนอลกลาง 1 ${getCurrCode()} = ${newRate}฿ เรียบร้อยแล้ว`);
     }
 
     async function toggleCloseTrip() {
       if (!isSuperAdmin()) return;
       const closing = !currentTrip.is_closed;
       if (closing) {
-        if (!confirm(`ยืนยันการ "ปิดทริป ${currentTrip.name}"?\nระบบจะล็อกข้อมูลทั้งหมดไม่ให้แก้ไขและบันทึกสรุปยอดโอนคืนถาวร`)) return;
+        if (!confirm(`ยืนยันการ "ปิดยอด ${currentTrip.name}"?\nระบบจะล็อกข้อมูลทั้งหมดไม่ให้แก้ไขและบันทึกสรุปยอดถาวร`)) return;
         const rate = getGlobalFinalRate();
         const summarySnapshot = {
           closed_at: new Date().toISOString(),
@@ -1600,18 +1903,35 @@
           transfers: calculateOptimalTransfers(rate)
         };
         const { error } = await db.from('trips').update({ is_closed: true, closed_summary: summarySnapshot }).eq('id', currentTrip.id);
-        if (error) return alert('ปิดทริปไม่สำเร็จ: ' + error.message);
+        if (error) return alert('ปิดยอดไม่สำเร็จ: ' + error.message);
         currentTrip.is_closed = true;
         currentTrip.closed_summary = summarySnapshot;
-        await writeLog('CLOSE_TRIP', `ปิดทริป "${currentTrip.name}" และล็อกรายงานสรุปยอดถาวร (เรท ${rate})`);
+        await writeLog('CLOSE_TRIP', `ปิดยอด "${currentTrip.name}" และล็อกรายงานสรุปถาวร`);
       } else {
-        if (!confirm('ยืนยันการเปิดทริปนี้อีกครั้งเพื่อให้แก้ไขข้อมูลได้?')) return;
+        if (!confirm('ยืนยันการเปิดใช้งานสมุดนี้อีกครั้ง?')) return;
         const { error } = await db.from('trips').update({ is_closed: false }).eq('id', currentTrip.id);
-        if (error) return alert('เปิดทริปไม่สำเร็จ: ' + error.message);
+        if (error) return alert('เปิดใช้งานไม่สำเร็จ: ' + error.message);
         currentTrip.is_closed = false;
-        await writeLog('REOPEN_TRIP', `เปิดทริป "${currentTrip.name}" อีกครั้ง`);
+        await writeLog('REOPEN_TRIP', `เปิดใช้งาน "${currentTrip.name}" อีกครั้ง`);
       }
       await loadTripContext();
+    }
+
+    async function purgeOldReceiptImages() {
+      if (!isSuperAdmin()) return;
+      const itemsWithImages = expensesList.filter(e => e.receipt_image_url);
+      if (itemsWithImages.length === 0) return alert('ไม่มีไฟล์รูปสลิปค้างอยู่ในสมุดนี้');
+      if (!confirm(`ยืนยันการลบไฟล์รูปสลิปทั้ง ${itemsWithImages.length} ใบออกจาก Storage เพื่อคืนพื้นที่?\n(แนะนำให้กด Export PDF สลิป เก็บไว้ก่อน — ข้อมูลตัวเลขและกราฟทั้งหมดจะยังอยู่ครบ 100%)`)) return;
+
+      const paths = itemsWithImages.map(e =>
+        e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url
+      );
+
+      await db.storage.from('trip-media').remove(paths);
+      await db.from('expenses').update({ receipt_image_url: null }).eq('trip_id', currentTrip.id);
+      await writeLog('PURGE_IMAGES', `ล้างไฟล์รูปสลิปเก่า ${paths.length} ใบเพื่อคืนพื้นที่ Storage (คงข้อมูลตัวเลขไว้ครบ)`);
+      await refreshAllData();
+      alert('ล้างไฟล์รูปสลิปเก่าเรียบร้อยแล้ว ข้อมูลตัวเลขและกราฟยังคงอยู่ครบ 100%');
     }
 
     // ================= FLAG & OWNER CONFIRM DELETE =================
@@ -1656,37 +1976,47 @@
     // ================= ANALYTICS & CHARTS =================
     function renderAnalytics() {
       const finalRate = getGlobalFinalRate();
-      let grandThb = 0, grandCny = 0;
-      const dayTotals = {};
-      const catTotals = { Food: 0, Transport: 0, Ticket: 0, Shopping: 0, Hotel: 0 };
-      const catLabels = { Food: 'อาหาร / เครื่องดื่ม', Transport: 'เดินทาง / รถไฟ / DiDi', Ticket: 'ค่าเข้าสถานที่', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก' };
+      const sym = getCurrSymbol();
+      const monthly = isMonthlyMode();
+      const participants = getActiveParticipants();
+      const isSinglePersonLedger = participants.length <= 1;
 
-      expensesList.filter(e => !isSoloPersonalExpense(e)).forEach(e => {
-        const signedCny = getSignedCny(e);
+      let grandThb = 0, grandOrig = 0;
+      const periodTotals = {};
+      const catTotals = { Food: 0, Transport: 0, Ticket: 0, Shopping: 0, Hotel: 0 };
+      const catLabels = { Food: 'อาหาร / เครื่องดื่ม', Transport: 'เดินทาง / รถไฟ / น้ำมัน', Ticket: 'ค่าเข้าสถานที่ / บันเทิง', Shopping: 'ช้อปปิ้ง / ของใช้', Hotel: 'ที่พัก / บิลรายเดือน' };
+
+      expensesList.filter(e => isSinglePersonLedger || !isSoloPersonalExpense(e)).forEach(e => {
+        const signedAmt = getSignedAmt(e);
         const thb = calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
-        grandCny += signedCny; grandThb += thb;
-        const dKey = `Day ${e.trip_day}`;
-        dayTotals[dKey] = (dayTotals[dKey] || 0) + thb;
-        catTotals[e.category] = (catTotals[e.category] || 0) + thb;
+        grandOrig += signedAmt; grandThb += thb;
+        const pKey = monthly
+          ? formatMonthLabel(e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
+          : `Day ${e.trip_day}`;
+        periodTotals[pKey] = (periodTotals[pKey] || 0) + (isThbBase() ? signedAmt : thb);
+        catTotals[e.category] = (catTotals[e.category] || 0) + (isThbBase() ? signedAmt : thb);
       });
 
-      const activeDaysCount = Object.keys(dayTotals).length || 1;
-      const memberCount = membersList.length || 1;
+      const activeCount = Object.keys(periodTotals).length || 1;
+      const memberCount = participants.length || 1;
+      const displayGrand = isThbBase() ? grandOrig : grandThb;
 
-      document.getElementById('stat-grand-thb').textContent = `฿${grandThb.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
-      document.getElementById('stat-grand-cny').textContent = `¥${grandCny.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
-      document.getElementById('stat-avg-day').textContent = `฿${(grandThb / activeDaysCount).toLocaleString('en-US', {maximumFractionDigits: 0})}`;
-      document.getElementById('stat-avg-person').textContent = `เฉลี่ยคนละ ฿${(grandThb / memberCount).toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+      document.getElementById('stat-grand-thb').textContent = `฿${displayGrand.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+      document.getElementById('stat-grand-cny').textContent = isThbBase() ? `${expensesList.length} รายการ` : `${sym}${grandOrig.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('stat-avg-label').textContent = monthly ? 'เฉลี่ยต่อเดือน' : 'เฉลี่ยต่อวัน';
+      document.getElementById('stat-avg-day').textContent = `฿${(displayGrand / activeCount).toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+      document.getElementById('stat-avg-person').textContent = memberCount > 1 ? `เฉลี่ยคนละ ฿${(displayGrand / memberCount).toLocaleString('en-US', {maximumFractionDigits: 0})}` : 'สมุดรายบุคคล';
+      document.getElementById('bar-chart-title').textContent = monthly ? 'กราฟค่าใช้จ่ายรายเดือน (บาท)' : 'กราฟค่าใช้จ่ายรายวัน (บาท)';
 
-      const sortedDays = Object.keys(dayTotals).sort((a, b) => parseInt(a.replace('Day ', '')) - parseInt(b.replace('Day ', '')));
+      const sortedKeys = Object.keys(periodTotals);
       if (dailyChartInstance) dailyChartInstance.destroy();
       dailyChartInstance = new Chart(document.getElementById('dailyChart'), {
         type: 'bar',
         data: {
-          labels: sortedDays.length ? sortedDays : ['Day 1'],
+          labels: sortedKeys.length ? sortedKeys : [monthly ? 'เดือนนี้' : 'Day 1'],
           datasets: [{
             label: 'ยอดใช้จ่าย (บาท)',
-            data: sortedDays.length ? sortedDays.map(k => dayTotals[k]) : [0],
+            data: sortedKeys.length ? sortedKeys.map(k => periodTotals[k]) : [0],
             backgroundColor: '#E389A3',
             borderRadius: 8
           }]
@@ -1725,7 +2055,7 @@
       });
 
       document.getElementById('category-breakdown-list').innerHTML = catKeys.map((k, i) => {
-        const pct = grandThb > 0 ? ((catTotals[k] / grandThb) * 100).toFixed(1) : 0;
+        const pct = displayGrand > 0 ? ((catTotals[k] / displayGrand) * 100).toFixed(1) : 0;
         return `<div class="flex justify-between items-center">
           <span class="flex items-center gap-2 text-[#8C5867]"><span class="w-2.5 h-2.5 rounded-full" style="background:${pastelColors[i % pastelColors.length]}"></span>${catLabels[k]}</span>
           <span class="font-semibold text-[#6B424E]">฿${catTotals[k].toLocaleString('en-US', {maximumFractionDigits: 0})} <span class="text-[#B38895] font-normal">(${pct}%)</span></span>
@@ -1733,7 +2063,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE AI RECEIPT SCANNER WITH DUPLICATE OVERRIDE =================
+    // ================= MULTI-FILE AI RECEIPT SCANNER (CURRENCY-AWARE) =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -1769,8 +2099,10 @@
 
     async function scanSingleReceiptFile(file, apiKey) {
       const fallbackTime = getCurrentHHMM();
+      const todayStr = getTodayYYYYMMDD();
       const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
       const fileHash = await computeFileHash(file);
+      const currCode = getCurrCode();
 
       const hashDup = findDuplicateExpense({ hash: fileHash });
       if (hashDup) {
@@ -1779,6 +2111,7 @@
           fileHash,
           slipRef: null,
           trip_day: hashDup.item.trip_day,
+          slip_date: hashDup.item.expense_date || todayStr,
           date_from_slip: false,
           title: hashDup.item.title,
           amount_cny: hashDup.item.amount_cny,
@@ -1796,6 +2129,7 @@
           fileHash,
           slipRef: null,
           trip_day: defaultDay,
+          slip_date: todayStr,
           date_from_slip: false,
           title: file.name.replace(/\.[^/.]+$/, ''),
           amount_cny: '',
@@ -1808,13 +2142,14 @@
       }
 
       const base64Data = await fileToBase64(file);
-      const prompt = `Analyze this receipt or payment screenshot (Chinese, English, or Thai such as Alipay, WeChat Pay, printed receipt, or handwritten bill).
-1. Extract the final net paid amount in CNY (number).
-2. Write a concise Thai description with original merchant name in parentheses.
+      const prompt = `Analyze this receipt or bank transfer slip (Thai, Chinese, or English such as Thai bank PromptPay slip, Alipay, WeChat Pay, printed receipt, or bill).
+The target ledger currency is ${currCode}.
+1. Extract the final net paid amount in ${currCode} (number only).
+2. Write a concise Thai description with original merchant/recipient name in parentheses.
 3. Choose category from: Food, Transport, Ticket, Shopping, Hotel.
-4. Look for a printed transaction date (YYYY-MM-DD) and time (HH:MM in 24-hour format). If handwritten or no printed date/time, return null for "slip_date" and "slip_time".
+4. Look for a printed transaction date (YYYY-MM-DD, convert Buddhist Era year like 2569 to Gregorian 2026 if Thai slip) and time (HH:MM in 24-hour format). If handwritten or no printed date/time, return null for "slip_date" and "slip_time".
 5. Extract transaction reference number / order ID if printed on the slip (or null if none).
-Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food", "slip_date": "2026-11-17", "slip_time": "18:06", "slip_ref": "..."}`;
+Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "Food", "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
 
       try {
         const rawText = await callGeminiWithFallback(apiKey, prompt, base64Data);
@@ -1828,7 +2163,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           const timeSourceFinal = validTime ? 'slip' : 'upload';
           const slipRefFinal = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' ? String(parsed.slip_ref).trim() : null;
 
-          const mappedDay = parsed.slip_date ? mapSlipDateToTripDay(parsed.slip_date.trim()) : null;
+          const validSlipDate = parsed.slip_date && /^\d{4}-\d{2}-\d{2}$/.test(parsed.slip_date.trim()) ? parsed.slip_date.trim() : null;
+          const mappedDay = validSlipDate ? mapSlipDateToTripDay(validSlipDate) : null;
           const finalDay = mappedDay || defaultDay;
           const parsedAmt = Number(parsed.amount_cny) > 0 ? Number(parsed.amount_cny) : '';
 
@@ -1846,7 +2182,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
             fileHash,
             slipRef: slipRefFinal,
             trip_day: finalDay,
-            date_from_slip: Boolean(mappedDay),
+            slip_date: validSlipDate || todayStr,
+            date_from_slip: Boolean(validSlipDate),
             title: parsed.title || 'รายการจากสลิป',
             amount_cny: parsedAmt,
             amount_locked: Boolean(parsedAmt),
@@ -1865,6 +2202,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         fileHash,
         slipRef: null,
         trip_day: defaultDay,
+        slip_date: todayStr,
         date_from_slip: false,
         title: '',
         amount_cny: '',
@@ -1895,6 +2233,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       const files = Array.from(input.files);
       const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
       const statusEl = document.getElementById('ocr-status');
+      const sym = getCurrSymbol();
       statusEl.classList.remove('hidden');
       showDuplicateAlert(null);
 
@@ -1903,7 +2242,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         document.getElementById('batch-queue-section').classList.add('hidden');
         document.getElementById('single-expense-fields').classList.remove('hidden');
 
-        statusEl.textContent = 'กำลังตรวจสอบสลิปซ้ำและอ่านยอดเงิน/เวลา...';
+        statusEl.textContent = 'กำลังตรวจสอบสลิปซ้ำและอ่านข้อมูล...';
         const res = await scanSingleReceiptFile(files[0], apiKey);
         currentSingleSlipHash = res.fileHash;
         currentSingleSlipRef = res.slipRef;
@@ -1912,7 +2251,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         if (res.amount_cny) {
           document.getElementById('exp-cny').value = res.amount_cny;
           setSingleCnyLockState(true);
-          if (Number(res.amount_cny) > 200) document.getElementById('exp-fee').checked = true;
+          if (!isThbBase() && Number(res.amount_cny) > 200) document.getElementById('exp-fee').checked = true;
           calcThbPreview();
         } else {
           setSingleCnyLockState(false);
@@ -1926,6 +2265,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           renderDayOptions();
         }
         document.getElementById('exp-day').value = res.trip_day;
+        document.getElementById('exp-date-input').value = res.slip_date;
         document.getElementById('exp-day-badge').textContent = res.date_from_slip ? '(จากสลิป)' : '(วันนี้)';
 
         document.getElementById('exp-time').value = res.slip_time;
@@ -1937,7 +2277,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           statusEl.textContent = 'พบสลิปซ้ำกับรายการในระบบ กรุณาตรวจสอบก่อนกดบันทึก';
         } else {
           statusEl.textContent = res.amount_cny
-            ? `สแกนสำเร็จ: "${res.title}" ยอด ¥${res.amount_cny} (ล็อกยอดตามสลิปแล้ว)`
+            ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${res.amount_cny} (ล็อกยอดตามสลิปแล้ว)`
             : 'แนบรูปเรียบร้อยแล้ว กรุณากรอกรายละเอียดเพิ่มเติม';
         }
       } else {
@@ -1982,17 +2322,24 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     function renderBatchQueue() {
       const validCount = batchQueue.filter(x => !x.duplicateMatch).length;
       document.getElementById('batch-count').textContent = `${validCount}/${batchQueue.length}`;
+      const monthly = isMonthlyMode();
 
       document.getElementById('batch-items-list').innerHTML = batchQueue.map((item, idx) => {
         const isDup = Boolean(item.duplicateMatch);
-        let dayOpts = '';
-        for (let d = 1; d <= totalDays; d++) {
-          dayOpts += `<option value="${d}" ${Number(item.trip_day) === d ? 'selected' : ''}>Day ${d}</option>`;
+        let periodControlHtml = '';
+        if (monthly) {
+          periodControlHtml = `<input type="date" value="${item.slip_date}" onchange="batchQueue[${idx}].slip_date = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1 text-[10px]" />`;
+        } else {
+          let dayOpts = '';
+          for (let d = 1; d <= totalDays; d++) {
+            dayOpts += `<option value="${d}" ${Number(item.trip_day) === d ? 'selected' : ''}>Day ${d}</option>`;
+          }
+          periodControlHtml = `<select onchange="batchQueue[${idx}].trip_day = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">${dayOpts}</select>`;
         }
 
         const cnyFieldHtml = item.amount_locked
           ? `<input type="number" step="0.01" value="${item.amount_cny}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#8C5867] cursor-not-allowed" />`
-          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอด CNY" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />`;
+          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />`;
 
         return `
         <div class="p-3 rounded-xl border space-y-2 ${isDup ? 'bg-[#FFF0F4] border-[#C45B79]' : 'bg-white border-[#F2CFD9]'}">
@@ -2007,7 +2354,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
           </div>
           ${isDup ? `<p class="text-[10px] text-[#C45B79]">${item.duplicateMatch.reason}</p>` : ''}
           <div class="grid grid-cols-3 gap-1.5">
-            <select onchange="batchQueue[${idx}].trip_day = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">${dayOpts}</select>
+            ${periodControlHtml}
             <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs" />
           </div>
           <div class="grid grid-cols-3 gap-1.5">
@@ -2016,9 +2363,9 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
             <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">
               <option value="Food" ${item.category === 'Food' ? 'selected' : ''}>อาหาร</option>
               <option value="Transport" ${item.category === 'Transport' ? 'selected' : ''}>เดินทาง</option>
-              <option value="Ticket" ${item.category === 'Ticket' ? 'selected' : ''}>เข้าชม</option>
+              <option value="Ticket" ${item.category === 'Ticket' ? 'selected' : ''}>เข้าชม/บันเทิง</option>
               <option value="Shopping" ${item.category === 'Shopping' ? 'selected' : ''}>ช้อปปิ้ง</option>
-              <option value="Hotel" ${item.category === 'Hotel' ? 'selected' : ''}>ที่พัก</option>
+              <option value="Hotel" ${item.category === 'Hotel' ? 'selected' : ''}>ที่พัก/บิล</option>
             </select>
           </div>
         </div>`;
@@ -2100,8 +2447,20 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     }
 
     function openExpenseModal() {
-      if (currentTrip.is_closed) return alert('ทริปนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
+      if (currentTrip.is_closed) return alert('สมุดนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
       clearBatchQueue();
+      const monthly = isMonthlyMode();
+      const code = getCurrCode();
+
+      document.getElementById('modal-curr-badge').textContent = code;
+      document.getElementById('ocr-curr-hint').textContent = code;
+      document.getElementById('exp-amt-curr').textContent = code;
+      document.getElementById('single-day-field').classList.toggle('hidden', monthly);
+      document.getElementById('single-month-field').classList.toggle('hidden', !monthly);
+      document.getElementById('exp-date-input').value = getTodayYYYYMMDD();
+      document.getElementById('exp-rate-box').classList.toggle('hidden', isThbBase());
+      document.getElementById('exp-fee-label').classList.toggle('hidden', isThbBase());
+
       document.getElementById('exp-title').value = '';
       document.getElementById('exp-cny').value = '';
       document.getElementById('exp-time').value = getCurrentHHMM();
@@ -2112,7 +2471,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       document.getElementById('exp-refund').checked = false;
       calcThbPreview();
 
-      const hasProxyRight = canCurrentUserProxy();
+      const participants = getActiveParticipants();
+      const hasProxyRight = canCurrentUserProxy() && participants.length > 1;
       const lockedBox = document.getElementById('locked-payer-display');
       const proxySelect = document.getElementById('proxy-payer-select');
       const proxyTag = document.getElementById('proxy-active-tag');
@@ -2121,17 +2481,19 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         lockedBox.classList.add('hidden');
         proxySelect.classList.remove('hidden');
         proxyTag.classList.remove('hidden');
-        proxySelect.innerHTML = membersList.map(m =>
+        proxySelect.innerHTML = participants.map(m =>
           `<option value="${m.email}" ${m.email.toLowerCase() === currentMember.email.toLowerCase() ? 'selected' : ''}>${m.display_name}${m.email.toLowerCase() === currentMember.email.toLowerCase() ? ' (คุณ)' : ' (อัปแทน)'}</option>`
         ).join('');
       } else {
         lockedBox.classList.remove('hidden');
         proxySelect.classList.add('hidden');
         proxyTag.classList.add('hidden');
-        lockedBox.textContent = `${currentMember.display_name} (คุณ)`;
+        const defaultActor = currentMember.is_observer_only && participants[0] ? participants[0] : currentMember;
+        lockedBox.textContent = `${defaultActor.display_name}`;
       }
 
-      document.getElementById('exp-split-checkboxes').innerHTML = membersList.map(m => `
+      document.getElementById('split-members-section').classList.toggle('hidden', participants.length <= 1);
+      document.getElementById('exp-split-checkboxes').innerHTML = participants.map(m => `
         <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
           <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
           ${m.display_name}
@@ -2140,8 +2502,12 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     }
 
     function getSelectedPayerEmail() {
-      if (canCurrentUserProxy()) {
+      const participants = getActiveParticipants();
+      if (canCurrentUserProxy() && participants.length > 1) {
         return document.getElementById('proxy-payer-select').value || currentMember.email;
+      }
+      if (currentMember.is_observer_only && participants[0]) {
+        return participants[0].email;
       }
       return currentMember.email;
     }
@@ -2161,46 +2527,55 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     }
 
     function calcThbPreview() {
-      const cny = document.getElementById('exp-cny').value || 0;
+      const amt = document.getElementById('exp-cny').value || 0;
       const rate = getGlobalFinalRate();
       const fee = document.getElementById('exp-fee').checked;
-      document.getElementById('exp-thb-preview').textContent = `THB ${calcFinalThb(cny, rate, fee).toFixed(2)}`;
+      document.getElementById('exp-thb-preview').textContent = `THB ${calcFinalThb(amt, rate, fee).toFixed(2)}`;
     }
 
     async function saveExpense() {
-      if (currentTrip.is_closed) return alert('ทริปนี้ปิดยอดแล้ว');
+      if (currentTrip.is_closed) return alert('สมุดนี้ปิดยอดแล้ว');
       const btn = document.getElementById('btn-save-expense');
-      const checkedEmails = Array.from(document.querySelectorAll('input[name="split-member"]:checked')).map(el => el.value);
-      if (checkedEmails.length === 0) return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
+      const participants = getActiveParticipants();
+      const actualPayerEmail = getSelectedPayerEmail();
+      let checkedEmails = Array.from(document.querySelectorAll('input[name="split-member"]:checked')).map(el => el.value);
+
+      if (participants.length <= 1) {
+        checkedEmails = [actualPayerEmail];
+      } else if (checkedEmails.length === 0) {
+        return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
+      }
 
       const rate = getGlobalFinalRate();
       const payment_channel = document.getElementById('exp-channel').value;
-      const actualPayerEmail = getSelectedPayerEmail();
-      const defaultDay = parseInt(document.getElementById('exp-day').value);
+      const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
+      const monthly = isMonthlyMode();
 
       if (batchQueue.length > 0) {
         const validItems = batchQueue.filter(item => !item.duplicateMatch);
         if (validItems.length === 0) return alert('ไม่มีรายการใหม่ให้บันทึก (ทุกรายการซ้ำกับข้อมูลเดิม กด "บันทึกซ้ำได้" หากต้องการบันทึก)');
 
         const invalid = validItems.find(item => !item.title.trim() || !parseFloat(item.amount_cny));
-        if (invalid) return alert('กรุณากรอกชื่อรายการและยอดเงิน CNY ให้ครบทุกบิลที่ยังไม่ซ้ำ');
+        if (invalid) return alert('กรุณากรอกชื่อรายการและยอดเงินให้ครบทุกบิลที่ยังไม่ซ้ำ');
 
         btn.disabled = true; btn.textContent = `กำลังบันทึก ${validItems.length} รายการ...`;
         try {
           const payloads = [];
           for (const item of validItems) {
             const receiptPath = await uploadFileToStorage(item.file, 'receipts');
-            const cny = parseFloat(item.amount_cny);
+            const amt = parseFloat(item.amount_cny);
             const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
+            const itemDate = item.slip_date || getTodayYYYYMMDD();
             payloads.push({
               trip_id: currentTrip.id,
-              trip_day: parseInt(item.trip_day || defaultDay),
-              expense_date: new Date().toISOString().split('T')[0],
+              trip_day: monthly ? 1 : parseInt(item.trip_day || defaultDay),
+              expense_date: itemDate,
+              expense_month: monthly ? itemDate.slice(0, 7) : null,
               title: item.title.trim(),
               category: item.category,
-              amount_cny: cny,
+              amount_cny: amt,
               exchange_rate: rate,
-              has_alipay_fee: cny > 200,
+              has_alipay_fee: !isThbBase() && amt > 200,
               is_refund: false,
               paid_by_type: isSolo ? 'personal' : 'pool',
               paid_by_email: actualPayerEmail,
@@ -2233,7 +2608,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       const title = document.getElementById('exp-title').value.trim();
       const amount_cny = parseFloat(document.getElementById('exp-cny').value);
       const slipTimeVal = document.getElementById('exp-time').value || getCurrentHHMM();
-      if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและจำนวนเงินหยวน');
+      const expDateVal = monthly ? (document.getElementById('exp-date-input').value || getTodayYYYYMMDD()) : getTodayYYYYMMDD();
+      if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและจำนวนเงิน');
 
       const dupCheck = findDuplicateExpense({
         hash: currentSingleSlipHash,
@@ -2262,8 +2638,9 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
         const payload = {
           trip_id: currentTrip.id,
-          trip_day: defaultDay,
-          expense_date: new Date().toISOString().split('T')[0],
+          trip_day: monthly ? 1 : defaultDay,
+          expense_date: expDateVal,
+          expense_month: monthly ? expDateVal.slice(0, 7) : null,
           title,
           category: document.getElementById('exp-cat').value,
           amount_cny,
@@ -2285,14 +2662,14 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
         const { error } = await db.from('expenses').insert([payload]);
         if (error) throw error;
 
-        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" ยอด ¥${amount_cny} (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
+        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" ยอด ${getCurrSymbol()}${amount_cny} (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
         closeModal('expense-modal');
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-cny').value = '';
         clearBatchQueue();
         await refreshAllData();
       } catch (err) {
-        alert('บันทึกไม่สำเร็จ (ข้อมูลและรูปสลิปยังอยู่ครบ กดบันทึกใหม่เมื่อเน็ต/VPN เสถียร): ' + err.message);
+        alert('บันทึกไม่สำเร็จ (ข้อมูลและรูปสลิปยังอยู่ครบ กดบันทึกใหม่เมื่อเน็ตเสถียร): ' + err.message);
       } finally {
         btn.disabled = false; btn.textContent = 'บันทึกรายการ';
       }
@@ -2308,27 +2685,64 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       }
     }
 
-    // ================= MULTI-TRIP, SHARED API KEY & LOG BACKUP SYSTEM =================
+    // ================= MULTI-LEDGER CREATION & MEMBER MANAGEMENT =================
+    function handleNewLedgerTypeChange() {
+      const type = document.getElementById('new-ledger-type').value;
+      const currSelect = document.getElementById('new-ledger-currency');
+      if (type === 'monthly') {
+        currSelect.value = 'THB|฿|1';
+        document.getElementById('new-trip-rate').value = '1';
+        document.getElementById('new-admin-observer-only').checked = true;
+      } else {
+        currSelect.value = 'CNY|¥|4.85';
+        document.getElementById('new-trip-rate').value = '4.85';
+        document.getElementById('new-admin-observer-only').checked = false;
+      }
+    }
+
+    function handleNewCurrencyChange() {
+      const parts = document.getElementById('new-ledger-currency').value.split('|');
+      document.getElementById('new-trip-rate').value = parts[2] || '1';
+    }
+
     async function createNewTrip() {
       const name = document.getElementById('new-trip-name').value.trim();
-      const start_date = document.getElementById('new-trip-start').value || new Date().toISOString().split('T')[0];
-      const default_rate = parseFloat(document.getElementById('new-trip-rate').value) || 4.85;
-      if (!name) return alert('กรุณาระบุชื่อทริปใหม่');
+      const ledger_type = document.getElementById('new-ledger-type').value;
+      const [currency_code, currency_symbol] = document.getElementById('new-ledger-currency').value.split('|');
+      const start_date = document.getElementById('new-trip-start').value || getTodayYYYYMMDD();
+      const default_rate = parseFloat(document.getElementById('new-trip-rate').value) || 1;
+      const adminObserverOnly = document.getElementById('new-admin-observer-only').checked;
+
+      if (!name) return alert('กรุณาระบุชื่อทริปหรือชื่อสมุดรายเดือน');
 
       const { data: newTrip, error } = await db.from('trips').insert([{
-        name, start_date, default_rate, final_rate: default_rate, is_closed: false, created_by: currentUser.email.toLowerCase()
+        name,
+        ledger_type,
+        currency_code,
+        currency_symbol,
+        start_date,
+        default_rate,
+        final_rate: default_rate,
+        is_closed: false,
+        created_by: currentUser.email.toLowerCase()
       }]).select().single();
 
-      if (error) return alert('สร้างทริปไม่สำเร็จ: ' + error.message);
+      if (error) return alert('สร้างสมุดไม่สำเร็จ: ' + error.message);
 
       await db.from('trip_members').insert([{
-        trip_id: newTrip.id, email: currentUser.email.toLowerCase(), display_name: SUPER_ADMIN_NAME, role: 'host', accent_color: '#D6718E', can_proxy_pay: true
+        trip_id: newTrip.id,
+        email: currentUser.email.toLowerCase(),
+        display_name: SUPER_ADMIN_NAME,
+        role: 'host',
+        accent_color: '#D6718E',
+        can_proxy_pay: true,
+        is_observer_only: adminObserverOnly
       }]);
 
       document.getElementById('new-trip-name').value = '';
       localStorage.setItem('selected_trip_id', newTrip.id);
       await initApp(currentUser);
-      alert(`สร้างทริป "${name}" (เริ่ม ${start_date}) เรียบร้อยแล้ว สามารถเพิ่มรายชื่อสมาชิกของทริปนี้ได้ทันที`);
+      alert(`สร้าง "${name}" (${ledger_type === 'monthly' ? 'รายจ่ายรายเดือน' : 'ทริป'} · ${currency_code}) เรียบร้อยแล้ว สามารถเพิ่มรายชื่อผู้ใช้งานด้านล่างได้ทันที`);
     }
 
     async function saveGeminiKey() {
@@ -2337,7 +2751,7 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
       if (error) return alert('บันทึกไม่สำเร็จ: ' + error.message);
       globalGeminiKey = key;
       localStorage.setItem('gemini_ocr_key', key);
-      alert('บันทึก Gemini API Key ลงระบบถาวรแล้ว ใช้สแกนบิลได้ทุกทริปทุกคน');
+      alert('บันทึก Gemini API Key ลงระบบถาวรแล้ว ใช้สแกนบิลได้ทุกสมุดทุกคน');
     }
 
     function renderMembers() {
@@ -2350,8 +2764,8 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
             <p class="font-medium text-[#6B424E] text-xs flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full inline-block shrink-0" style="background:${m.accent_color}"></span>
               <span>${m.display_name}</span>
-              <span class="text-[10px] text-[#D6718E] font-normal">${m.role === 'host' ? 'Host' : ''}</span>
-              ${m.can_proxy_pay ? '<span class="text-[9px] bg-[#FFEBF0] text-[#C45B79] px-1.5 py-0.5 rounded-md">อัปแทนได้</span>' : ''}
+              <span class="text-[10px] text-[#D6718E] font-normal">${m.is_observer_only ? 'ผู้ดูแล (ไม่หาร)' : (m.role === 'host' ? 'Host' : '')}</span>
+              ${m.can_proxy_pay && !isAdminEmail ? '<span class="text-[9px] bg-[#FFEBF0] text-[#C45B79] px-1.5 py-0.5 rounded-md">อัปแทนได้</span>' : ''}
             </p>
             <p class="text-[11px] text-[#B38895] pl-4 truncate">${isAdminEmail ? 'Administrator' : m.email}</p>
           </div>
@@ -2372,21 +2786,31 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
     async function addMember() {
       const display_name = document.getElementById('new-member-name').value.trim();
       const email = document.getElementById('new-member-email').value.trim().toLowerCase();
+      const is_observer_only = document.getElementById('new-member-observer').checked;
       if (!display_name || !email) return alert('กรุณากรอกชื่อและอีเมล');
 
       const usedColors = membersList.map(m => (m.accent_color || '').toLowerCase());
       const freeColorObj = PASTEL_PALETTE.find(c => !usedColors.includes(c.hex.toLowerCase())) || PASTEL_PALETTE[membersList.length % PASTEL_PALETTE.length];
 
-      const { error } = await db.from('trip_members').insert([{ trip_id: currentTrip.id, email, display_name, role: 'member', accent_color: freeColorObj.hex, can_proxy_pay: false }]);
+      const { error } = await db.from('trip_members').insert([{
+        trip_id: currentTrip.id,
+        email,
+        display_name,
+        role: 'member',
+        accent_color: freeColorObj.hex,
+        can_proxy_pay: false,
+        is_observer_only
+      }]);
       if (error) return alert('เพิ่มไม่ได้: ' + error.message);
       await writeLog('ADD_MEMBER', `เพิ่มสิทธิ์ ${display_name} (${email})`);
       document.getElementById('new-member-name').value = '';
       document.getElementById('new-member-email').value = '';
+      document.getElementById('new-member-observer').checked = false;
       await loadTripContext();
     }
 
     async function removeMember(id, email) {
-      if (!confirm(`ยืนยันการลบสิทธิ์ของ ${email} ออกจากทริปนี้`)) return;
+      if (!confirm(`ยืนยันการลบสิทธิ์ของ ${email} ออกจากสมุดนี้`)) return;
       const { error } = await db.from('trip_members').delete().eq('id', id);
       if (!error) {
         await writeLog('REMOVE_MEMBER', `ลบสิทธิ์อีเมล ${email}`);
@@ -2483,33 +2907,38 @@ Respond ONLY with valid JSON: {"title": "...", "amount_cny": 0.00, "category": "
 
     function exportToExcel() {
       const finalRate = getGlobalFinalRate();
-      let csv = '\uFEFF';
-      csv += `สรุปรายการค่าใช้จ่าย - ${currentTrip.name} (เรทไฟนอลกลาง ${finalRate} THB/CNY)\n`;
-      csv += 'วันที่ (Day),เวลา,ที่มาเวลา,หมวดหมู่,รายการ,ประเภท,ยอดหยวน (CNY),ค่าธรรมเนียม 3%,ยอดบาทตามเรทไฟนอล (THB),ผู้สแกนจ่าย,ผู้อัปโหลด,ผู้ร่วมหาร\n';
+      const code = getCurrCode();
+      const monthly = isMonthlyMode();
+      const isSinglePersonLedger = getActiveParticipants().length <= 1;
 
-      expensesList.filter(e => !isSoloPersonalExpense(e)).forEach(e => {
-        const cny = Number(e.amount_cny);
-        const thb = calcFinalThb(cny, finalRate, e.has_alipay_fee, e.is_refund);
+      let csv = '\uFEFF';
+      csv += `สรุปรายการค่าใช้จ่าย - ${currentTrip.name} (สกุลเงิน ${code})\n`;
+      csv += `${monthly ? 'วันที่' : 'วันที่ (Day)'},เวลา,หมวดหมู่,รายการ,ประเภท,ยอดเงิน (${code}),ยอดบาทสุทธิ (THB),ผู้สแกนจ่าย,ผู้ร่วมหาร\n`;
+
+      expensesList.filter(e => isSinglePersonLedger || !isSoloPersonalExpense(e)).forEach(e => {
+        const amt = Number(e.amount_cny);
+        const thb = calcFinalThb(amt, finalRate, e.has_alipay_fee, e.is_refund);
         const splitNames = (e.split_details?.emails || []).map(getMemberName).join(' / ');
         const paidBy = getMemberName(e.paid_by_email);
-        const uploadedBy = getMemberName(e.created_by);
         const cleanTitle = `"${(e.title || '').replace(/"/g, '""')}"`;
         const timeVal = e.slip_time || new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-        const timeSrc = e.time_source === 'slip' ? 'เวลาสลิป' : 'เวลาอัปโหลด';
+        const periodStr = monthly ? (e.expense_date || '') : `Day ${e.trip_day}`;
         const kind = e.is_refund ? 'คืนเงิน' : 'รายจ่าย';
-        csv += `Day ${e.trip_day},${timeVal},${timeSrc},${e.category},${cleanTitle},${kind},${(e.is_refund ? -cny : cny).toFixed(2)},${e.has_alipay_fee ? 'ใช่' : 'ไม่'},${thb.toFixed(2)},${paidBy},${uploadedBy},"${splitNames}"\n`;
+        csv += `${periodStr},${timeVal},${e.category},${cleanTitle},${kind},${(e.is_refund ? -amt : amt).toFixed(2)},${thb.toFixed(2)},${paidBy},"${splitNames}"\n`;
       });
 
-      csv += '\nสรุปยอดโอนคืนจบทริป (เรทไฟนอลกลาง)\n';
-      csv += 'ผู้โอน,ผู้รับเงิน,ยอดหยวน (CNY),ยอดบาทสุทธิ (THB)\n';
-      calculateOptimalTransfers(finalRate).forEach(t => {
-        csv += `${t.from},${t.to},${t.cny.toFixed(2)},${t.thb.toFixed(2)}\n`;
-      });
+      if (!isSinglePersonLedger) {
+        csv += '\nสรุปยอดโอนคืนไฟนอล\n';
+        csv += `ผู้โอน,ผู้รับเงิน,ยอด (${code}),ยอดบาทสุทธิ (THB)\n`;
+        calculateOptimalTransfers(finalRate).forEach(t => {
+          csv += `${t.from},${t.to},${t.cny.toFixed(2)},${t.thb.toFixed(2)}\n`;
+        });
+      }
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `${currentTrip.name.replace(/\s+/g, '_')}_Final_Summary.csv`;
+      a.download = `${currentTrip.name.replace(/\s+/g, '_')}_Summary.csv`;
       a.click();
     }
 
