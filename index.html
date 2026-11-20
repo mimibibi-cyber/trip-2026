@@ -711,16 +711,33 @@
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function findDuplicateExpense({ hash, ref, title, amount_cny, slip_time, time_source }) {
-      if (hash) {
-        const byHash = expensesList.find(e => e.slip_hash && e.slip_hash === hash);
-        if (byHash) return { reason: 'ไฟล์รูปสลิปนี้ซ้ำกับรายการที่มีอยู่แล้ว', item: byHash };
-      }
-      if (ref) {
-        const byRef = expensesList.find(e => e.slip_ref && e.slip_ref.toLowerCase() === ref.toLowerCase());
-        if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ซ้ำกับรายการที่มีอยู่แล้ว`, item: byRef };
-        return null;
-      }
+      function findDuplicateExpense({ hash, ref, title, amount_cny, slip_time, time_source }) {
+  const activeList = expensesList.filter(e => !e.delete_flag);
+  if (hash) {
+    const byHash = activeList.find(e => e.slip_hash && e.slip_hash === hash);
+    if (byHash) return { reason: 'ไฟล์รูปสลิปนี้ซ้ำกับรายการที่มีอยู่แล้ว', item: byHash };
+  }
+  if (ref) {
+    const byRef = activeList.find(e => e.slip_ref && e.slip_ref.toLowerCase() === ref.toLowerCase());
+    if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ซ้ำกับรายการที่มีอยู่แล้ว`, item: byRef };
+    return null;
+  }
+  const numAmt = Number(amount_cny);
+  if (numAmt > 0 && time_source === 'slip' && slip_time) {
+    const normTitle = (title || '').trim().toLowerCase();
+    const bySlipSignature = activeList.find(e =>
+      !e.slip_ref &&
+      Math.abs(Number(e.amount_cny) - numAmt) < 0.01 &&
+      e.slip_time === slip_time &&
+      (e.title || '').trim().toLowerCase() === normTitle
+    );
+    if (bySlipSignature) {
+      return { reason: `ยอดเงิน ¥${numAmt} เวลาสลิป ${slip_time} และร้านค้าตรงกับรายการที่บันทึกไว้แล้ว`, item: bySlipSignature };
+    }
+  }
+  return null;
+ }
+
       const numAmt = Number(amount_cny);
       if (numAmt > 0 && time_source === 'slip' && slip_time) {
         const normTitle = (title || '').trim().toLowerCase();
