@@ -90,7 +90,6 @@
 
     <!-- TAB 1: DASHBOARD & COLLAPSIBLE LEDGER -->
     <main id="tab-expenses" class="p-5 space-y-4">
-      <!-- Closed Trip 30-Day Retention Banner -->
       <div id="closed-trip-banner" class="hidden bg-[#4A4447] text-white rounded-3xl p-4 space-y-2 shadow-sm">
         <div class="flex justify-between items-center gap-2">
           <p class="text-xs font-semibold">ปิดทริปแล้ว (ล็อกแก้ไขข้อมูล)</p>
@@ -205,10 +204,8 @@
         <button onclick="exportPrintablePdfReport()" class="text-[11px] luxury-gradient text-white px-3 py-1.5 rounded-xl font-medium shrink-0">PDF พร้อมสลิปย่อ</button>
       </div>
 
-      <!-- Current Period Digest Cards -->
       <div id="daily-digest-list" class="space-y-3"></div>
 
-      <!-- Locked Past Monthly Archives (Text-Only Summary Files, Zero Storage Bloat) -->
       <div id="monthly-archive-section" class="hidden pt-3 border-t border-[#F5D5DF] space-y-2.5">
         <div>
           <h3 class="text-xs font-semibold text-[#6B424E]">ประวัติปิดยอดเดือนก่อนหน้า (Locked · ตัวเลขล้วนไม่เปลืองพื้นที่)</h3>
@@ -232,7 +229,7 @@
           <p id="stat-grand-cny" class="text-[11px] text-[#B38895]">0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl">
-          <p id="stat-avg-label" class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
+          <p class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
           <p id="stat-avg-day" class="text-lg font-semibold text-[#6B424E] mt-1">0</p>
           <p id="stat-avg-person" class="text-[11px] text-[#B38895]">เฉลี่ยคนละ 0</p>
         </div>
@@ -273,7 +270,6 @@
           <h2 class="font-semibold text-sm text-[#6B424E]">สร้างทริป / รายเดือน · ตั้งค่าสกุลเงิน · ปิดยอด</h2>
         </div>
 
-        <!-- Current Ledger Settings -->
         <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-3">
           <div id="admin-trip-date-box">
             <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">วันเริ่มทริป (Day 1) — เทียบจากสลิปหรือวันที่ถ่ายรูป</label>
@@ -292,7 +288,6 @@
           </div>
         </div>
 
-        <!-- Close / Reopen Ledger & Storage Cleanup -->
         <div class="pt-2 border-t border-[#F5D5DF] space-y-2.5">
           <div class="flex justify-between items-center gap-2">
             <div>
@@ -306,7 +301,6 @@
           </button>
         </div>
 
-        <!-- Create New Trip OR Monthly Expense Ledger -->
         <div class="space-y-2.5 pt-3 border-t border-[#F5D5DF]">
           <p class="text-[11px] font-semibold text-[#8C5867]">สร้างสมุดบัญชีใหม่ (ทริปท่องเที่ยว หรือ บันทึกรายเดือน)</p>
           <div class="grid grid-cols-2 gap-2">
@@ -335,7 +329,6 @@
           <button onclick="createNewTrip()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">+ สร้างสมุดบัญชีใหม่</button>
         </div>
 
-        <!-- Global Gemini API Key -->
         <div class="pt-3 border-t border-[#F5D5DF] space-y-2">
           <label class="block text-[11px] font-medium text-[#8C5867]">Gemini API Key (ตั้งครั้งเดียว ใช้สแกนได้ทุกสมุดทุกคน)</label>
           <div class="flex gap-2">
@@ -424,7 +417,7 @@
         <div class="flex justify-between items-center gap-2">
           <div>
             <p class="text-xs font-semibold text-[#C45B79]">สแกนสลิปอัตโนมัติ (คัดกรองรูปไม่ใช่สลิปออกอัตโนมัติ)</p>
-            <p id="scanner-rule-hint" class="text-[10px] text-[#A37B87]">จับวันที่จากสลิปหรือวันที่ถ่ายภาพ · ยอดสแกนถูกล็อกห้ามแก้</p>
+            <p id="scanner-rule-hint" class="text-[10px] text-[#A37B87]">แปลง พ.ศ. ไทยอัตโนมัติ · ยอดสแกนถูกล็อกห้ามแก้</p>
           </div>
           <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shrink-0 shadow-xs">
             เลือกรูปสแกน
@@ -798,6 +791,28 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
+    // Automatically converts Thai Buddhist Era years (e.g., 2569 -> 2026) and prevents 1-year AI subtraction glitches
+    function normalizeSlipDate(rawDateStr, fallbackDateStr) {
+      if (!rawDateStr) return null;
+      const m = rawDateStr.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return null;
+      let year = parseInt(m[1], 10);
+      const month = m[2];
+      const day = m[3];
+
+      if (year > 2400) {
+        year -= 543;
+      }
+
+      if (fallbackDateStr) {
+        const fbParts = fallbackDateStr.split('-');
+        if (fbParts.length === 3 && fbParts[1] === month && fbParts[2] === day && Math.abs(parseInt(fbParts[0], 10) - year) === 1) {
+          year = parseInt(fbParts[0], 10);
+        }
+      }
+      return `${year}-${month}-${day}`;
+    }
+
     function mapSlipDateToTripDay(dateStr) {
       if (!dateStr || !currentTrip?.start_date) return null;
       const start = new Date(currentTrip.start_date + 'T00:00:00');
@@ -1074,9 +1089,6 @@
       await loadTripContext();
     }
 
-    // Automatic Lifecycle Check:
-    // 1. Monthly mode: auto-archive past months as text-only summary & purge past month slip images
-    // 2. Closed Trip mode: auto-purge slip images 30 days after closed_at
     async function runLifecycleMaintenance() {
       if (isMonthlyMode()) {
         const currentYm = getCurrentYYYYMM();
@@ -1115,7 +1127,6 @@
               summary_rows: summaryRows
             }, { onConflict: 'trip_id,month_key' });
 
-            // Purge receipt images for archived past month to save Storage
             const imgPaths = items.filter(x => x.receipt_image_url).map(x =>
               x.receipt_image_url.includes('/trip-media/') ? x.receipt_image_url.split('/trip-media/')[1].split('?')[0] : x.receipt_image_url
             );
@@ -1288,7 +1299,6 @@
 
       expensesList.forEach(e => {
         const mKey = e.expense_month || (e.expense_date || '').slice(0, 7) || currentYm;
-        // In Monthly Mode, Hero card focuses on the active current month
         if (monthly && mKey !== currentYm) return;
 
         const signedAmt = getSignedAmt(e);
@@ -1742,7 +1752,6 @@
 
       document.getElementById('daily-digest-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีข้อมูลสรุป</p>';
 
-      // Render Locked Text-Only Monthly Archive Files
       if (monthly) {
         document.getElementById('monthly-archive-list').innerHTML = monthlyArchivesList.map(a => `
           <div class="soft-card p-3.5 rounded-2xl flex justify-between items-center gap-2 bg-[#FFF9FA]">
@@ -1840,7 +1849,7 @@
       const items = expensesList.filter(e => {
         if (monthly) {
           const mKey = e.expense_month || (e.expense_date || '').slice(0, 7);
-          if (mKey !== currentYm) return false; // PDF with slips applies to active current month
+          if (mKey !== currentYm) return false;
         }
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
@@ -2241,7 +2250,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE AI RECEIPT SCANNER (NON-RECEIPT REJECTION + PHOTO DATE FALLBACK) =================
+    // ================= MULTI-FILE AI RECEIPT SCANNER =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -2277,7 +2286,7 @@
 
     async function scanSingleReceiptFile(file, apiKey) {
       const fallbackTime = getCurrentHHMM();
-      const photoCapturedDate = getFileCaptureDate(file); // Date photo was taken from file metadata
+      const photoCapturedDate = getFileCaptureDate(file);
       const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
       const fileHash = await computeFileHash(file);
       const currCode = getCurrCode();
@@ -2329,7 +2338,7 @@ Step 2: If "is_receipt" is true, extract the following for target currency ${cur
 - "amount_cny": final net paid amount in ${currCode} (number only).
 - "title": concise Thai description with original merchant/recipient name in parentheses.
 - "category": one of Food, Transport, Ticket, Shopping, Hotel.
-- "slip_date": printed transaction date (YYYY-MM-DD, converting Thai Buddhist Era like 2569 to Gregorian 2026) or null if none.
+- "slip_date": printed transaction date in YYYY-MM-DD format (IMPORTANT: Thai receipts use Buddhist Era B.E., e.g. 2569 = 2026 A.D. because 2569 - 543 = 2026) or null if none.
 - "slip_time": printed transaction time (HH:MM 24-hour) or null if none.
 - "slip_ref": transaction reference number / order ID if printed, or null.
 Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny": 0.00, "category": "Food", "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
@@ -2350,8 +2359,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
           const timeSourceFinal = validTime ? 'slip' : 'upload';
           const slipRefFinal = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' ? String(parsed.slip_ref).trim() : null;
 
-          // Priority 1: Printed slip date -> Priority 2: Photo capture date (file.lastModified)
-          const validSlipDate = parsed.slip_date && /^\d{4}-\d{2}-\d{2}$/.test(parsed.slip_date.trim()) ? parsed.slip_date.trim() : null;
+          const validSlipDate = normalizeSlipDate(parsed.slip_date, photoCapturedDate);
           const resolvedDate = validSlipDate || photoCapturedDate;
           const dateSourceLabel = validSlipDate ? 'จากสลิป' : 'จากวันที่ถ่ายภาพ';
 
@@ -2446,7 +2454,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         return;
       }
 
-      // Check month-lock rule on Monthly Expense Mode
       if (monthly) {
         validReceipts.forEach(item => {
           if (item.slip_date && item.slip_date.slice(0, 7) !== currentYm) {
