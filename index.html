@@ -90,6 +90,18 @@
 
     <!-- TAB 1: DASHBOARD & COLLAPSIBLE LEDGER -->
     <main id="tab-expenses" class="p-5 space-y-4">
+      <!-- Smart Shared Slip Quick-Scan Banner (Triggered when opened via iOS Share Shortcut or Clipboard) -->
+      <div id="shared-clipboard-banner" class="hidden bg-[#FFF0F4] border-2 border-[#D6718E] rounded-2xl p-3.5 flex items-center justify-between gap-2.5 shadow-sm">
+        <div class="min-w-0">
+          <p class="text-xs font-semibold text-[#C45B79]">📋 พบสลิปที่แชร์เข้ามาในคลิปบอร์ด!</p>
+          <p class="text-[11px] text-[#8C5867] truncate">แตะปุ่มด้านขวาเพื่ออ่านยอดเงินทันที</p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="scanFromClipboard()" class="luxury-gradient text-white text-xs font-medium px-3.5 py-2 rounded-xl shadow-xs">สแกนสลิปนี้</button>
+          <button onclick="dismissClipboardBanner()" class="text-[#B38895] px-1.5 py-1 text-base">&times;</button>
+        </div>
+      </div>
+
       <div id="closed-trip-banner" class="hidden bg-[#4A4447] text-white rounded-3xl p-4 space-y-2 shadow-sm">
         <div class="flex justify-between items-center gap-2">
           <p class="text-xs font-semibold">ปิดทริปแล้ว (ล็อกแก้ไขข้อมูล)</p>
@@ -169,7 +181,7 @@
         </div>
       </div>
 
-      <!-- Search & Quick Filters (Includes Payment Channels: โอน / บัตรเครดิต / เงินสด) -->
+      <!-- Search & Quick Filters -->
       <div class="space-y-2">
         <div class="relative">
           <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, รายการ, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border border-[#F2CFD9] rounded-xl pl-9 pr-3 py-2 text-xs" />
@@ -231,13 +243,13 @@
           <p id="stat-grand-cny" class="text-[11px] text-[#B38895]">0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl">
-          <p id="stat-avg-label" class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
+          <p class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
           <p id="stat-avg-day" class="text-lg font-semibold text-[#6B424E] mt-1">0</p>
           <p id="stat-avg-person" class="text-[11px] text-[#B38895]">เฉลี่ยคนละ 0</p>
         </div>
       </div>
 
-      <!-- Payment Channel Summary Card (1. โอน / 2. บัตรเครดิต / 3. เงินสด) -->
+      <!-- Payment Channel Summary Card -->
       <div class="soft-card p-4 rounded-3xl space-y-3">
         <div class="flex justify-between items-center gap-2">
           <h3 class="text-xs font-semibold text-[#6B424E]">สรุปแยกตามช่องทางจ่ายเงิน</h3>
@@ -265,7 +277,6 @@
           </div>
         </div>
 
-        <!-- Stacked Visual Progress Bar -->
         <div class="w-full h-2.5 rounded-full bg-[#FCEBF0] overflow-hidden flex">
           <div id="ch-bar-transfer" class="bg-sky-400 h-full transition-all" style="width:0%"></div>
           <div id="ch-bar-credit" class="bg-purple-400 h-full transition-all" style="width:0%"></div>
@@ -417,10 +428,20 @@
       </div>
     </main>
 
-    <!-- Floating Add Expense Button -->
-    <button id="fab-add-expense" onclick="openExpenseModal()" aria-label="Add Expense" class="fixed bottom-20 right-5 luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center z-30 transition">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-    </button>
+    <!-- Dual Floating Action Buttons (Quick Camera Scan + Standard Multi-Upload / Manual Add) -->
+    <div id="fab-container" class="fixed bottom-20 right-5 flex flex-col items-center gap-2.5 z-30">
+      <label for="quick-camera-input" title="ถ่ายรูปบิลด่วนทันที" aria-label="Quick Camera Scan" class="bg-white text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-3 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/>
+        </svg>
+        <input id="quick-camera-input" type="file" accept="image/*" capture="environment" onchange="handleQuickCameraCapture(this)" class="hidden" />
+      </label>
+
+      <button id="fab-add-expense" onclick="openExpenseModal()" title="เพิ่มรายการ / เลือกหลายสลิป" aria-label="Add Expense" class="luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center transition active:scale-95">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      </button>
+    </div>
 
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#F5D5DF] flex justify-around py-2.5 max-w-md mx-auto z-20 text-[10px] font-medium">
@@ -451,16 +472,21 @@
         <button onclick="closeModal('expense-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
       </div>
 
-      <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
-        <div class="flex justify-between items-center gap-2">
-          <div>
-            <p class="text-xs font-semibold text-[#C45B79]">สแกนสลิปอัตโนมัติ (แยก โอน / บัตรเครดิต ให้อัตโนมัติ)</p>
+      <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-semibold text-[#C45B79]">สแกนสลิป / ถ่ายบิล / วางสลิปที่แชร์</p>
             <p id="scanner-rule-hint" class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน · สลับช่องทางจ่ายเองได้ตลอด</p>
           </div>
-          <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shrink-0 shadow-xs">
-            เลือกรูปสแกน
-            <input id="exp-file" type="file" accept="image/*" multiple onchange="handleMultiReceiptScan(this)" class="hidden" />
-          </label>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="scanFromClipboard()" title="วางสลิปที่แชร์หรือคัดลอกไว้" class="bg-white text-[#C45B79] border border-[#E893AC] hover:bg-[#FFEBF0] text-[11px] font-medium px-2.5 py-2 rounded-xl">
+              📋 วางสลิป
+            </button>
+            <label class="luxury-gradient text-white text-[11px] font-medium px-3 py-2 rounded-xl cursor-pointer shadow-xs">
+              เลือกรูป
+              <input id="exp-file" type="file" accept="image/*" multiple onchange="handleMultiReceiptScan(this)" class="hidden" />
+            </label>
+          </div>
         </div>
         <p id="ocr-status" class="hidden text-[11px] text-[#C45B79] font-medium"></p>
       </div>
@@ -763,7 +789,7 @@
     let globalGeminiKey = '';
     let currentScopeFilter = 'shared';
     let currentQuickFilter = 'all';
-    let currentChannelStatScope = 'all'; // 'all' | 'mine'
+    let currentChannelStatScope = 'all';
     let collapsedGroups = new Set();
     let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
     let totalDays = 6;
@@ -771,6 +797,7 @@
     let categoryChartInstance = null;
 
     let batchQueue = [];
+    let activeSingleFile = null; // Stores file from Direct Camera or Clipboard Paste
     let currentTimeSource = 'upload';
     let currentSingleSlipHash = null;
     let currentSingleSlipRef = null;
@@ -779,10 +806,73 @@
 
     window.onload = async () => {
       const { data: { session } } = await db.auth.getSession();
-      if (session) initApp(session.user);
+      if (session) {
+        await initApp(session.user);
+        checkUrlShareTrigger();
+      }
     };
 
-    // Normalize legacy 'alipay' value to 'transfer'
+    // Check if opened via Apple Shortcut (?share=1) or detect clipboard image on focus
+    function checkUrlShareTrigger() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('share') === '1' && currentTrip && !currentTrip.is_closed) {
+        document.getElementById('shared-clipboard-banner').classList.remove('hidden');
+        // Clean query param so reload won't re-trigger
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    window.addEventListener('focus', () => {
+      if (currentTrip && !currentTrip.is_closed) {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('share') === '1') {
+          document.getElementById('shared-clipboard-banner').classList.remove('hidden');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    });
+
+    function dismissClipboardBanner() {
+      document.getElementById('shared-clipboard-banner').classList.add('hidden');
+    }
+
+    async function scanFromClipboard() {
+      if (!navigator.clipboard || !navigator.clipboard.read) {
+        return alert('เบราว์เซอร์ไม่รองรับการอ่านรูปจากคลิปบอร์ด กรุณากดปุ่ม "เลือกรูป" แทน');
+      }
+      try {
+        const clipboardItems = await navigator.clipboard.read();
+        let imageFile = null;
+        for (const item of clipboardItems) {
+          const imgType = item.types.find(t => t.startsWith('image/'));
+          if (imgType) {
+            const blob = await item.getType(imgType);
+            imageFile = new File([blob], `Shared_Slip_${Date.now()}.png`, { type: imgType, lastModified: Date.now() });
+            break;
+          }
+        }
+        if (!imageFile) {
+          return alert('ไม่พบรูปภาพในคลิปบอร์ด กรุณากดแชร์สลิปผ่านคำสั่งลัดหรือคัดลอกรูปภาพก่อนครับ');
+        }
+        dismissClipboardBanner();
+        if (document.getElementById('expense-modal').classList.contains('hidden')) {
+          openExpenseModal();
+        }
+        await processSelectedFiles([imageFile]);
+      } catch (err) {
+        alert('ไม่สามารถอ่านรูปจากคลิปบอร์ดได้ (กรุณากดปุ่ม "เลือกรูป" จากอัลบั้มแทน): ' + err.message);
+      }
+    }
+
+    async function handleQuickCameraCapture(input) {
+      if (!input.files || input.files.length === 0) return;
+      if (currentTrip?.is_closed) return alert('สมุดนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
+      const capturedFile = input.files[0];
+      openExpenseModal();
+      await processSelectedFiles([capturedFile]);
+      input.value = '';
+    }
+
     function normalizeChannel(ch) {
       if (ch === 'credit_card') return 'credit_card';
       if (ch === 'cash') return 'cash';
@@ -946,7 +1036,8 @@
       showAuthError('');
       const { data, error } = await db.auth.signInWithPassword({ email, password });
       if (error) return showAuthError('เข้าสู่ระบบไม่สำเร็จ: ' + error.message);
-      initApp(data.user);
+      await initApp(data.user);
+      checkUrlShareTrigger();
     }
 
     async function handleSignUp() {
@@ -955,7 +1046,7 @@
       showAuthError('');
       const { data, error } = await db.auth.signUp({ email, password });
       if (error) return showAuthError('ลงทะเบียนไม่สำเร็จ: ' + error.message);
-      if (data.user) initApp(data.user);
+      if (data.user) await initApp(data.user);
     }
 
     async function handleLogout() {
@@ -1072,7 +1163,7 @@
       document.getElementById('ledger-mode-pill').textContent = monthly ? `Monthly · ${code}` : `Trip · ${code}`;
       document.getElementById('trip-closed-pill').classList.toggle('hidden', !isClosed);
       document.getElementById('closed-trip-banner').classList.toggle('hidden', !isClosed);
-      document.getElementById('fab-add-expense').classList.toggle('hidden', isClosed);
+      document.getElementById('fab-container').classList.toggle('hidden', isClosed);
       document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed || monthly);
 
       if (isClosed && currentTrip.closed_at) {
@@ -2276,7 +2367,6 @@
       const catTotals = { Food: 0, Transport: 0, Ticket: 0, Shopping: 0, Hotel: 0 };
       const catLabels = { Food: 'อาหาร / เครื่องดื่ม', Transport: 'เดินทาง / รถไฟ / น้ำมัน', Ticket: 'ค่าเข้าสถานที่ / บันเทิง', Shopping: 'ช้อปปิ้ง / ของใช้', Hotel: 'ที่พัก / บิลรายเดือน' };
 
-      // Payment channel totals (1. Transfer, 2. Credit Card, 3. Cash)
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
 
       expensesList.forEach(e => {
@@ -2286,7 +2376,6 @@
         const normCh = normalizeChannel(e.payment_channel);
         const valInDisplayCurr = isThbBase() ? signedAmt : thb;
 
-        // Channel breakdown supports both 'all' and 'mine'
         if (currentChannelStatScope === 'mine') {
           if (payerEm === myEmail) {
             chTotals[normCh] += valInDisplayCurr;
@@ -2308,7 +2397,6 @@
         }
       });
 
-      // Update Payment Channel Summary Card
       const chSumTotal = Math.max(0, chTotals.transfer) + Math.max(0, chTotals.credit_card) + Math.max(0, chTotals.cash);
       const pctTr = chSumTotal > 0 ? ((Math.max(0, chTotals.transfer) / chSumTotal) * 100).toFixed(0) : 0;
       const pctCr = chSumTotal > 0 ? ((Math.max(0, chTotals.credit_card) / chSumTotal) * 100).toFixed(0) : 0;
@@ -2390,7 +2478,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE AI RECEIPT SCANNER (DETECTS TRANSFER VS CREDIT CARD, USER CAN OVERRIDE) =================
+    // ================= MULTI-FILE, QUICK CAMERA & CLIPBOARD AI SCANNER =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -2583,7 +2671,10 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
     async function handleMultiReceiptScan(input) {
       if (!input.files || input.files.length === 0) return;
-      const files = Array.from(input.files);
+      await processSelectedFiles(Array.from(input.files));
+    }
+
+    async function processSelectedFiles(files) {
       const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
       const statusEl = document.getElementById('ocr-status');
       const sym = getCurrSymbol();
@@ -2619,6 +2710,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       if (validReceipts.length === 1) {
         const res = validReceipts[0];
         batchQueue = [];
+        activeSingleFile = res.file;
         document.getElementById('batch-queue-section').classList.add('hidden');
         document.getElementById('single-expense-fields').classList.remove('hidden');
         document.getElementById('single-channel-box').classList.remove('hidden');
@@ -2638,7 +2730,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
         if (res.category) document.getElementById('exp-cat').value = res.category;
 
-        // Set detected channel, while keeping dropdown fully interactive so user can switch anytime (e.g. restaurant bill)
         document.getElementById('exp-channel').value = res.payment_channel;
         document.getElementById('exp-channel-badge').textContent = res.channel_detected ? '(จากสลิป)' : '(เลือกเองได้)';
 
@@ -2665,6 +2756,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
             : `แนบรูปเรียบร้อยแล้ว${rejectNote}`;
         }
       } else {
+        activeSingleFile = null;
         document.getElementById('single-expense-fields').classList.add('hidden');
         document.getElementById('single-channel-box').classList.add('hidden');
         document.getElementById('batch-queue-section').classList.remove('hidden');
@@ -2768,6 +2860,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
     function clearBatchQueue() {
       batchQueue = [];
+      activeSingleFile = null;
       currentSingleSlipHash = null;
       currentSingleSlipRef = null;
       setSingleCnyLockState(false);
@@ -3029,8 +3122,9 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       try {
         let receiptPath = null;
         const fileInput = document.getElementById('exp-file');
-        if (fileInput.files.length > 0) {
-          receiptPath = await uploadFileToStorage(fileInput.files[0], 'receipts');
+        const fileToUpload = activeSingleFile || (fileInput.files.length > 0 ? fileInput.files[0] : null);
+        if (fileToUpload) {
+          receiptPath = await uploadFileToStorage(fileToUpload, 'receipts');
         }
 
         const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
