@@ -434,9 +434,7 @@
       </div>
     </main>
 
-    <!-- Dual Floating Action Buttons:
-         1. Camera (Direct Capture)
-         2. + (1-Tap Album Picker: Opens Photo Library immediately; if cancelled, opens manual form) -->
+    <!-- Dual Floating Action Buttons -->
     <div id="fab-container" class="fixed bottom-20 right-4 flex flex-col items-center gap-2.5 z-30">
       <label for="quick-camera-input" title="ถ่ายรูปบิลด่วนทันที" aria-label="Quick Camera Scan" class="bg-white/95 text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -495,18 +493,18 @@
         <p id="ocr-status" class="hidden text-[11px] text-[#C45B79] font-medium"></p>
       </div>
 
-      <div id="duplicate-alert-box" class="hidden bg-[#FFF0F4] border border-[#C45B79] rounded-2xl p-3.5 space-y-1">
-        <p class="text-xs font-semibold text-[#C45B79]">แจ้งเตือนสลิปซ้ำ / เงื่อนไขวันที่</p>
+      <div id="duplicate-alert-box" class="hidden bg-amber-50 border border-amber-400 rounded-2xl p-3.5 space-y-1">
+        <p class="text-xs font-semibold text-amber-800">⚠️ แจ้งเตือนตรวจสอบ (ยังสามารถกดบันทึกได้ตามปกติ)</p>
         <p id="duplicate-alert-detail" class="text-[11px] text-[#6B424E] leading-relaxed"></p>
       </div>
 
       <!-- Batch Queue Preview -->
       <div id="batch-queue-section" class="hidden space-y-2.5 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
         <div class="flex justify-between items-center">
-          <p class="text-xs font-semibold text-[#6B424E]">สลิปที่ผ่านการคัดกรอง (<span id="batch-count">0</span>)</p>
+          <p class="text-xs font-semibold text-[#6B424E]">รายการพร้อมบันทึก (<span id="batch-count">0</span>)</p>
           <button onclick="clearBatchQueue()" class="text-[11px] text-[#B38895] underline">ล้างทั้งหมด</button>
         </div>
-        <div id="batch-items-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
+        <div id="batch-items-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
       </div>
 
       <!-- Single Item Fields -->
@@ -517,7 +515,7 @@
             <select id="exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
           </div>
           <div id="single-month-field" class="hidden">
-            <label class="text-[11px] text-[#8C5867]">วันที่ (<span id="current-month-only-label">เดือนนี้เท่านั้น</span>)</label>
+            <label class="text-[11px] text-[#8C5867]">วันที่ (<span id="current-month-only-label">เดือนนี้</span>)</label>
             <input id="exp-date-input" type="date" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
           </div>
           <div>
@@ -616,7 +614,7 @@
           <select id="edit-exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
         <div id="edit-month-field" class="hidden">
-          <label class="text-[11px] text-[#8C5867]">วันที่รายการ (เฉพาะเดือนปัจจุบัน)</label>
+          <label class="text-[11px] text-[#8C5867]">วันที่รายการ</label>
           <input id="edit-exp-date" type="date" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
         </div>
         <div>
@@ -822,7 +820,7 @@
     let isSingleAmountLockedBySlip = false;
     let flaggingExpenseId = null;
 
-    // Smart Money Formatter: Comma-separated thousands, hides ".00" if whole number, keeps decimals when present
+    // Smart Money Formatter: Comma-separated thousands, hides ".00" if whole number
     function fmtNum(val) {
       const num = Number(val || 0);
       if (isNaN(num)) return '0';
@@ -839,10 +837,7 @@
       if (session) await initApp(session.user);
     };
 
-    // 1-Tap Album Picker:
-    // Tapping '+' immediately opens iPhone/Android Photo Library.
-    // If user selects images -> opens modal & scans immediately.
-    // If user taps Cancel on Photo Library -> opens empty manual entry modal.
+    // 1-Tap Album Picker
     let oneTapPickerPending = false;
     function handleOneTapAlbumClick() {
       if (currentTrip?.is_closed) {
@@ -961,22 +956,28 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
+    // Accurate Thai Buddhist Era (B.E. 2569 / 69 -> 2026) & Photo Date Cross-Check
     function normalizeSlipDate(rawDateStr, fallbackDateStr) {
       if (!rawDateStr) return null;
-      const m = rawDateStr.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const m = rawDateStr.trim().match(/^(\d{2,4})-(\d{2})-(\d{2})$/);
       if (!m) return null;
       let year = parseInt(m[1], 10);
       const month = m[2];
       const day = m[3];
 
-      if (year > 2400) {
+      if (year < 100) {
+        year = year >= 60 ? (2500 + year - 543) : (2000 + year);
+      } else if (year >= 2500) {
         year -= 543;
       }
 
       if (fallbackDateStr) {
         const fbParts = fallbackDateStr.split('-');
-        if (fbParts.length === 3 && fbParts[1] === month && fbParts[2] === day && Math.abs(parseInt(fbParts[0], 10) - year) === 1) {
-          year = parseInt(fbParts[0], 10);
+        if (fbParts.length === 3 && fbParts[1] === month && fbParts[2] === day) {
+          const fbYear = parseInt(fbParts[0], 10);
+          if (Math.abs(fbYear - year) === 1) {
+            year = fbYear;
+          }
         }
       }
       return `${year}-${month}-${day}`;
@@ -1001,11 +1002,11 @@
       const activeList = expensesList.filter(e => !e.delete_flag);
       if (hash) {
         const byHash = activeList.find(e => e.slip_hash && e.slip_hash === hash);
-        if (byHash) return { reason: 'ไฟล์รูปสลิปนี้ซ้ำกับรายการที่มีอยู่แล้ว', item: byHash };
+        if (byHash) return { reason: 'รูปภาพนี้ตรงกับรายการที่มีอยู่ในสมุดตอนนี้', item: byHash };
       }
       if (ref) {
         const byRef = activeList.find(e => e.slip_ref && e.slip_ref.toLowerCase() === ref.toLowerCase());
-        if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ซ้ำกับรายการที่มีอยู่แล้ว`, item: byRef };
+        if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ตรงกับรายการที่มีอยู่แล้ว`, item: byRef };
         return null;
       }
       const numAmt = Number(amount_cny);
@@ -1018,7 +1019,7 @@
           (e.title || '').trim().toLowerCase() === normTitle
         );
         if (bySlipSignature) {
-          return { reason: `ยอดเงิน ${getCurrSymbol()}${fmtNum(numAmt)} เวลาสลิป ${slip_time} และร้านค้าตรงกับรายการที่บันทึกไว้แล้ว`, item: bySlipSignature };
+          return { reason: `ยอด ${getCurrSymbol()}${fmtNum(numAmt)} เวลา ${slip_time} ตรงกับรายการเดิม`, item: bySlipSignature };
         }
       }
       return null;
@@ -1032,7 +1033,7 @@
         return;
       }
       const e = dupMatch.item;
-      detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ${getCurrSymbol()}${fmtNum(e.amount_cny)} (บันทึกโดย ${getMemberName(e.created_by)})`;
+      detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ${getCurrSymbol()}${fmtNum(e.amount_cny)} (โดย ${getMemberName(e.created_by)})`;
       box.classList.remove('hidden');
     }
 
@@ -1130,7 +1131,6 @@
       await loadTripContext();
     }
 
-    // Admin Rename Current Trip / Ledger (Both from Header pencil icon and Admin panel)
     async function renameCurrentTrip() {
       if (!isSuperAdmin()) return;
       const nextName = prompt('แก้ไขชื่อสมุดบัญชี / หัวข้อทริป:', currentTrip.name);
@@ -1786,7 +1786,6 @@
       if (isLockedPastMonth(e)) return alert('รายการของเดือนก่อนหน้าถูกล็อกแล้ว ไม่สามารถแก้ไขได้');
 
       const monthly = isMonthlyMode();
-      const bounds = getCurrentMonthBounds();
       document.getElementById('edit-exp-id').value = e.id;
       document.getElementById('edit-day-field').classList.toggle('hidden', monthly);
       document.getElementById('edit-month-field').classList.toggle('hidden', !monthly);
@@ -1794,10 +1793,6 @@
 
       const editDateInput = document.getElementById('edit-exp-date');
       editDateInput.value = e.expense_date || getTodayYYYYMMDD();
-      if (monthly) {
-        editDateInput.min = bounds.min;
-        editDateInput.max = bounds.max;
-      }
 
       document.getElementById('edit-exp-cat').value = e.category;
       document.getElementById('edit-exp-title').value = e.title;
@@ -1854,9 +1849,6 @@
 
       const monthly = isMonthlyMode();
       const editDate = document.getElementById('edit-exp-date').value || e.expense_date || getTodayYYYYMMDD();
-      if (monthly && editDate.slice(0, 7) !== getCurrentYYYYMM()) {
-        return alert(`ไม่อนุญาตให้แก้ไขวันที่ย้อนหลังหรือข้ามเดือน (อนุญาตเฉพาะเดือน ${formatMonthLabel(getCurrentYYYYMM())} เท่านั้น)`);
-      }
 
       const participants = getActiveParticipants();
       let checkedEmails = Array.from(document.querySelectorAll('input[name="edit-split-member"]:checked')).map(el => el.value);
@@ -2587,7 +2579,7 @@
           trip_day: mappedFromPhoto || defaultDay,
           slip_date: photoCapturedDate,
           date_source_label: 'จากวันที่ถ่ายภาพ',
-          title: file.name.replace(/\.[^/.]+$/, ''),
+          title: file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป',
           amount_cny: '',
           amount_locked: false,
           category: 'Food',
@@ -2606,9 +2598,14 @@ Step 2: If "is_receipt" is true, extract the following for target currency ${cur
 - "amount_cny": final net paid amount in ${currCode} (number only).
 - "title": concise Thai description with original merchant/recipient name in parentheses.
 - "category": one of Food, Transport, Ticket, Shopping, Hotel.
-- "payment_channel": detect payment method if clearly shown on slip: use "credit_card" if VISA, Mastercard, JCB, UnionPay, AMEX, CREDIT, or Approval Code appears; use "cash" if explicitly marked CASH / เงินสด; otherwise default to "transfer" (for PromptPay, bank transfer, Alipay, WeChat Pay, or general restaurant bill).
-- "channel_explicit": true if payment method was explicitly printed on the slip, false if it is a general restaurant/store bill where user may choose.
-- "slip_date": printed transaction date in YYYY-MM-DD format (IMPORTANT: Thai receipts use Buddhist Era B.E., e.g. 2569 = 2026 A.D. because 2569 - 543 = 2026) or null if none.
+- "payment_channel": detect payment method if clearly shown on slip: use "credit_card" if VISA, Mastercard, JCB, UnionPay, AMEX, CREDIT, or Approval Code appears; use "cash" if explicitly marked CASH / เงินสด; otherwise default to "transfer".
+- "channel_explicit": true if payment method was explicitly printed on the slip, false otherwise.
+- "slip_date": transaction date in YYYY-MM-DD format.
+  CRITICAL THAI DATE RULES:
+  1. Thai slips use Day/Month/Year (DD/MM/YYYY) and Buddhist Era (พ.ศ. / B.E.).
+  2. Convert B.E. year to A.D. year by subtracting 543: 2569 (or 69) = 2026; 2568 (or 68) = 2025; 2570 (or 70) = 2027.
+  3. Example: "18 พ.ย. 2569" or "18/11/69" MUST be "2026-11-18".
+  4. Return null if no date is visible.
 - "slip_time": printed transaction time (HH:MM 24-hour) or null if none.
 - "slip_ref": transaction reference number / order ID if printed, or null.
 Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny": 0, "category": "Food", "payment_channel": "transfer", "channel_explicit": false, "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
@@ -2627,7 +2624,9 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
             : null;
           const slipTimeFinal = validTime || fallbackTime;
           const timeSourceFinal = validTime ? 'slip' : 'upload';
-          const slipRefFinal = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' ? String(parsed.slip_ref).trim() : null;
+          const slipRefFinal = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' && String(parsed.slip_ref).trim() !== ''
+            ? String(parsed.slip_ref).trim()
+            : null;
 
           const validSlipDate = normalizeSlipDate(parsed.slip_date, photoCapturedDate);
           const resolvedDate = validSlipDate || photoCapturedDate;
@@ -2679,7 +2678,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         trip_day: mappedFromPhoto || defaultDay,
         slip_date: photoCapturedDate,
         date_source_label: 'จากวันที่ถ่ายภาพ',
-        title: '',
+        title: file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป',
         amount_cny: '',
         amount_locked: false,
         category: 'Food',
@@ -2711,6 +2710,12 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
     }
 
     async function processSelectedFiles(files) {
+      // Sync latest DB state immediately before scanning to avoid stale memory after delete
+      try {
+        const { data: latestExps } = await db.from('expenses').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false });
+        if (latestExps) expensesList = latestExps;
+      } catch (_) {}
+
       const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
       const statusEl = document.getElementById('ocr-status');
       const sym = getCurrSymbol();
@@ -2721,7 +2726,14 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       showDuplicateAlert(null);
       statusEl.textContent = `กำลังคัดกรองสลิปและวิเคราะห์ข้อมูล ${files.length} รูป...`;
 
-      const rawResults = await Promise.all(files.map(f => scanSingleReceiptFile(f, apiKey)));
+      // Process in chunks of 3 to keep mobile browser responsive & prevent API rate limit
+      const rawResults = [];
+      for (let i = 0; i < files.length; i += 3) {
+        const chunk = files.slice(i, i + 3);
+        const chunkRes = await Promise.all(chunk.map(f => scanSingleReceiptFile(f, apiKey)));
+        rawResults.push(...chunkRes);
+      }
+
       const rejectedNonReceipts = rawResults.filter(r => r.is_valid_receipt === false).length;
       const validReceipts = rawResults.filter(r => r.is_valid_receipt !== false);
 
@@ -2734,9 +2746,9 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
       if (monthly) {
         validReceipts.forEach(item => {
-          if (item.slip_date && item.slip_date.slice(0, 7) !== currentYm) {
+          if (!item.duplicateMatch && item.slip_date && item.slip_date.slice(0, 7) !== currentYm) {
             item.duplicateMatch = {
-              reason: `สลิปลงวันที่ ${item.slip_date} อยู่นอกเดือนปัจจุบัน (${formatMonthLabel(currentYm)}) — ระบบไม่อนุญาตให้ลงย้อนหลังข้ามเดือน`,
+              reason: `วันที่สลิป (${item.slip_date}) อยู่นอกเดือน ${formatMonthLabel(currentYm)} (แก้ไขวันที่ได้หาก AI อ่านผิด)`,
               item
             };
           }
@@ -2785,7 +2797,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         const rejectNote = rejectedNonReceipts > 0 ? ` · คัดรูปไม่ใช่สลิปออก ${rejectedNonReceipts} รูป` : '';
         if (res.duplicateMatch) {
           showDuplicateAlert(res.duplicateMatch);
-          statusEl.textContent = `พบข้อจำกัดรายการ${rejectNote}`;
+          statusEl.textContent = `พบข้อสังเกต (ยังบันทึกได้ตามปกติ)${rejectNote}`;
         } else {
           statusEl.textContent = res.amount_cny
             ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel)})${rejectNote}`
@@ -2804,43 +2816,32 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
             totalDays = item.trip_day;
             localStorage.setItem(`days_${currentTrip.id}`, totalDays);
           }
-          if (item.duplicateMatch) return;
-          if (seenHashes.has(item.fileHash) || (item.slipRef && seenRefs.has(item.slipRef))) {
-            item.duplicateMatch = { reason: 'สลิปซ้ำกับรูปอื่นที่เลือกมาพร้อมกันในชุดนี้', item };
-          } else {
-            seenHashes.add(item.fileHash);
-            if (item.slipRef) seenRefs.add(item.slipRef);
+          if (!item.duplicateMatch) {
+            if (seenHashes.has(item.fileHash) || (item.slipRef && seenRefs.has(item.slipRef))) {
+              item.duplicateMatch = { reason: 'สลิปซ้ำกับรูปอื่นในชุดนี้', item };
+            }
           }
+          seenHashes.add(item.fileHash);
+          if (item.slipRef) seenRefs.add(item.slipRef);
         });
 
         renderDayOptions();
         batchQueue = validReceipts.sort((a, b) => a.slip_time.localeCompare(b.slip_time));
         renderBatchQueue();
         const rejectNote = rejectedNonReceipts > 0 ? ` (คัดรูปไม่ใช่สลิปออก ${rejectedNonReceipts} รูป)` : '';
-        statusEl.textContent = `พบสลิปที่ถูกต้อง ${batchQueue.length} รายการ (เลือกช่องทางจ่ายแยกแต่ละใบได้)${rejectNote}`;
+        statusEl.textContent = `พร้อมบันทึกทั้งหมด ${batchQueue.length} รายการ (เลือกช่องทางจ่ายแยกแต่ละใบได้)${rejectNote}`;
       }
-    }
-
-    function allowDuplicateBatchItem(idx) {
-      if (!batchQueue[idx]) return;
-      if (isMonthlyMode() && batchQueue[idx].slip_date?.slice(0, 7) !== getCurrentYYYYMM()) {
-        return alert(`ไม่อนุญาตให้ลงบิลข้ามเดือน (อนุญาตเฉพาะเดือน ${formatMonthLabel(getCurrentYYYYMM())} เท่านั้น)`);
-      }
-      batchQueue[idx].duplicateMatch = null;
-      renderBatchQueue();
     }
 
     function renderBatchQueue() {
-      const validCount = batchQueue.filter(x => !x.duplicateMatch).length;
-      document.getElementById('batch-count').textContent = `${validCount}/${batchQueue.length}`;
+      document.getElementById('batch-count').textContent = `${batchQueue.length}`;
       const monthly = isMonthlyMode();
-      const bounds = getCurrentMonthBounds();
 
       document.getElementById('batch-items-list').innerHTML = batchQueue.map((item, idx) => {
-        const isDup = Boolean(item.duplicateMatch);
+        const hasWarning = Boolean(item.duplicateMatch);
         let periodControlHtml = '';
         if (monthly) {
-          periodControlHtml = `<input type="date" min="${bounds.min}" max="${bounds.max}" value="${item.slip_date}" onchange="batchQueue[${idx}].slip_date = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1 text-[10px]" />`;
+          periodControlHtml = `<input type="date" value="${item.slip_date}" onchange="batchQueue[${idx}].slip_date = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1 text-[10px]" />`;
         } else {
           let dayOpts = '';
           for (let d = 1; d <= totalDays; d++) {
@@ -2854,17 +2855,13 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
           : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />`;
 
         return `
-        <div class="p-3 rounded-xl border space-y-2 ${isDup ? 'bg-[#FFF0F4] border-[#C45B79]' : 'bg-white border-[#F2CFD9]'}">
-          <div class="flex justify-between items-center text-[10px]">
-            <span class="font-semibold text-[#C45B79]">
-              ${isDup ? 'ข้ามอัตโนมัติ' : `บิลที่ ${idx + 1} · ${item.date_source_label} · ${item.slip_time}`}
+        <div class="p-3 rounded-xl border space-y-2 ${hasWarning ? 'bg-amber-50/70 border-amber-400' : 'bg-white border-[#F2CFD9]'}">
+          <div class="flex justify-between items-center text-[10px] gap-1">
+            <span class="font-semibold truncate ${hasWarning ? 'text-amber-700' : 'text-[#C45B79]'}">
+              ${hasWarning ? `⚠️ ${item.duplicateMatch.reason}` : `บิลที่ ${idx + 1} · ${item.date_source_label} · ${item.slip_time}`}
             </span>
-            <div class="flex items-center gap-2">
-              ${isDup ? `<button type="button" onclick="allowDuplicateBatchItem(${idx})" class="text-[#C45B79] underline font-semibold">อนุญาต</button>` : ''}
-              <button type="button" onclick="removeBatchItem(${idx})" class="text-[#B38895] hover:text-rose-600">เอาออก</button>
-            </div>
+            <button type="button" onclick="removeBatchItem(${idx})" class="text-[#B38895] hover:text-rose-600 shrink-0 ml-1">เอาออก</button>
           </div>
-          ${isDup ? `<p class="text-[10px] text-[#C45B79]">${item.duplicateMatch.reason}</p>` : ''}
           <div class="grid grid-cols-3 gap-1.5">
             ${periodControlHtml}
             <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs" />
@@ -2927,7 +2924,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       });
     }
 
-    // ================= STORAGE & MEDIA =================
+    // ================= STORAGE & MEDIA (WITH AUTO-RETRY) =================
     async function viewStorageImage(pathOrUrl, metaText = '') {
       let cleanPath = pathOrUrl.includes('/trip-media/') ? pathOrUrl.split('/trip-media/')[1].split('?')[0] : pathOrUrl;
       const { data, error } = await db.storage.from('trip-media').download(cleanPath);
@@ -2958,10 +2955,35 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
     async function uploadFileToStorage(file, folder) {
       const compressed = await compressImage(file);
-      const filePath = `${currentTrip.id}/${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
-      const { error } = await db.storage.from('trip-media').upload(filePath, compressed, { contentType: 'image/jpeg' });
-      if (error) throw error;
-      return filePath;
+      let lastErr = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const filePath = `${currentTrip.id}/${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
+        const { error } = await db.storage.from('trip-media').upload(filePath, compressed, { contentType: 'image/jpeg' });
+        if (!error) return filePath;
+        lastErr = error;
+      }
+      throw lastErr;
+    }
+
+    // Safe DB Insert: Automatically strips duplicate unique constraint keys if re-uploading deleted slips
+    async function safeInsertExpenseRow(payload) {
+      const cleanPayload = {
+        ...payload,
+        slip_ref: payload.slip_ref && String(payload.slip_ref).trim() !== '' ? String(payload.slip_ref).trim() : null,
+        slip_hash: payload.slip_hash && String(payload.slip_hash).trim() !== '' ? String(payload.slip_hash).trim() : null
+      };
+
+      const { error } = await db.from('expenses').insert([cleanPayload]);
+      if (!error) return;
+
+      // If Supabase has a strict unique index on slip_hash / slip_ref, retry safely with nullified dedup keys
+      if (error.code === '23505' || (error.message && error.message.toLowerCase().includes('unique'))) {
+        const retryPayload = { ...cleanPayload, slip_hash: null, slip_ref: null };
+        const { error: retryErr } = await db.from('expenses').insert([retryPayload]);
+        if (!retryErr) return;
+        throw retryErr;
+      }
+      throw error;
     }
 
     function openExpenseModal() {
@@ -2979,8 +3001,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const dateInput = document.getElementById('exp-date-input');
       dateInput.value = getTodayYYYYMMDD();
       if (monthly) {
-        dateInput.min = bounds.min;
-        dateInput.max = bounds.max;
         document.getElementById('current-month-only-label').textContent = formatMonthLabel(bounds.ym);
       }
 
@@ -3066,35 +3086,33 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const rate = getGlobalFinalRate();
       const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
       const monthly = isMonthlyMode();
-      const currentYm = getCurrentYYYYMM();
 
+      // ================= RESILIENT BATCH SAVE =================
       if (batchQueue.length > 0) {
-        const validItems = batchQueue.filter(item => !item.duplicateMatch);
-        if (validItems.length === 0) return alert('ไม่มีรายการใหม่ให้บันทึก');
+        const missingAmt = batchQueue.find(item => !parseFloat(item.amount_cny));
+        if (missingAmt) return alert(`กรุณาระบุยอดเงินสำหรับรายการ "${missingAmt.title || 'บิลที่ยังไม่มีตัวเลข'}"`);
 
-        if (monthly) {
-          const outOfMonth = validItems.find(item => (item.slip_date || '').slice(0, 7) !== currentYm);
-          if (outOfMonth) return alert(`ไม่อนุญาตให้บันทึกรายการนอกเดือนปัจจุบัน (${formatMonthLabel(currentYm)})`);
-        }
+        btn.disabled = true;
+        let savedCount = 0;
+        const failedItems = [];
 
-        const invalid = validItems.find(item => !item.title.trim() || !parseFloat(item.amount_cny));
-        if (invalid) return alert('กรุณากรอกชื่อรายการและยอดเงินให้ครบทุกบิล');
-
-        btn.disabled = true; btn.textContent = `กำลังบันทึก ${validItems.length} รายการ...`;
-        try {
-          const payloads = [];
-          for (const item of validItems) {
+        for (let i = 0; i < batchQueue.length; i++) {
+          const item = batchQueue[i];
+          btn.textContent = `กำลังบันทึก ${i + 1}/${batchQueue.length}...`;
+          try {
             const receiptPath = await uploadFileToStorage(item.file, 'receipts');
             const amt = parseFloat(item.amount_cny);
+            const titleClean = (item.title || '').trim() || `รายการสลิป ${i + 1}`;
             const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
             const itemDate = item.slip_date || getTodayYYYYMMDD();
-            payloads.push({
+
+            await safeInsertExpenseRow({
               trip_id: currentTrip.id,
               trip_day: monthly ? 1 : parseInt(item.trip_day || defaultDay),
               expense_date: itemDate,
               expense_month: monthly ? itemDate.slice(0, 7) : null,
-              title: item.title.trim(),
-              category: item.category,
+              title: titleClean,
+              category: item.category || 'Food',
               amount_cny: amt,
               exchange_rate: rate,
               has_alipay_fee: !isThbBase() && amt > 200,
@@ -3104,38 +3122,50 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
               payment_channel: normalizeChannel(item.payment_channel),
               split_details: { emails: checkedEmails },
               receipt_image_url: receiptPath,
-              slip_time: item.slip_time,
-              time_source: item.time_source,
+              slip_time: item.slip_time || getCurrentHHMM(),
+              time_source: item.time_source || 'upload',
               slip_hash: item.fileHash,
               slip_ref: item.slipRef,
               created_by: currentMember.email
             });
+            savedCount += 1;
+          } catch (itemErr) {
+            console.error('Batch item save error:', itemErr);
+            failedItems.push({ item, reason: itemErr.message });
           }
+        }
 
-          const { error } = await db.from('expenses').insert(payloads);
-          if (error) throw error;
+        btn.disabled = false;
+        btn.textContent = 'บันทึกรายการ';
 
-          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${payloads.length} รายการ (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
+        if (savedCount > 0) {
+          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${savedCount} รายการ (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
+        }
+
+        if (failedItems.length === 0) {
           closeModal('expense-modal');
           clearBatchQueue();
           await refreshAllData();
-        } catch (err) {
-          alert('บันทึกไม่สำเร็จ (ข้อมูลยังอยู่ครบ กดบันทึกใหม่เมื่อเน็ตเสถียร): ' + err.message);
-        } finally {
-          btn.disabled = false; btn.textContent = 'บันทึกรายการ';
+        } else {
+          // Keep only failed items in queue so user never loses them or double-saves succeeded ones
+          batchQueue = failedItems.map(f => ({
+            ...f.item,
+            duplicateMatch: { reason: `บันทึกไม่สำเร็จ (${f.reason}) — กดบันทึกอีกครั้ง`, item: f.item }
+          }));
+          renderBatchQueue();
+          await refreshAllData();
+          alert(`บันทึกสำเร็จ ${savedCount} รายการ และค้างอีก ${failedItems.length} รายการ (สามารถกดบันทึกซ้ำได้ทันที)`);
         }
         return;
       }
 
+      // ================= SINGLE ITEM SAVE =================
       const title = document.getElementById('exp-title').value.trim();
       const amount_cny = parseFloat(document.getElementById('exp-cny').value);
       const slipTimeVal = document.getElementById('exp-time').value || getCurrentHHMM();
       const payment_channel = normalizeChannel(document.getElementById('exp-channel').value);
       const expDateVal = monthly ? (document.getElementById('exp-date-input').value || getTodayYYYYMMDD()) : getTodayYYYYMMDD();
 
-      if (monthly && expDateVal.slice(0, 7) !== currentYm) {
-        return alert(`ไม่อนุญาตให้บันทึกย้อนหลังหรือข้ามเดือน (อนุญาตเฉพาะวันที่ 1 ถึงสิ้นเดือน ${formatMonthLabel(currentYm)} เท่านั้น)`);
-      }
       if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและจำนวนเงิน');
 
       const dupCheck = findDuplicateExpense({
@@ -3149,7 +3179,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
       if (dupCheck) {
         showDuplicateAlert(dupCheck);
-        if (!confirm(`⚠️ ตรวจพบสลิปซ้ำ: ${dupCheck.reason}\nคุณยืนยันว่าไม่ใช่รายการซ้ำและต้องการบันทึกใช่หรือไม่?`)) {
+        if (!confirm(`⚠️ แจ้งเตือน: ${dupCheck.reason}\nคุณยืนยันต้องการบันทึกรายการนี้ใช่หรือไม่?`)) {
           return;
         }
       }
@@ -3164,7 +3194,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         }
 
         const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
-        const payload = {
+        await safeInsertExpenseRow({
           trip_id: currentTrip.id,
           trip_day: monthly ? 1 : defaultDay,
           expense_date: expDateVal,
@@ -3185,10 +3215,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
           slip_hash: currentSingleSlipHash,
           slip_ref: currentSingleSlipRef,
           created_by: currentMember.email
-        };
-
-        const { error } = await db.from('expenses').insert([payload]);
-        if (error) throw error;
+        });
 
         await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" (${getChannelLabel(payment_channel)}) ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
         closeModal('expense-modal');
@@ -3208,11 +3235,23 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const e = expensesList.find(x => x.id === id);
       if (e && isLockedPastMonth(e)) return alert('รายการของเดือนก่อนหน้าถูกล็อกแล้ว ไม่สามารถลบได้');
       if (!confirm(`ยืนยันการลบรายการ "${title}"`)) return;
+
+      // Instant optimistic removal from memory so re-uploading never triggers false duplicate
+      const backupList = [...expensesList];
+      expensesList = expensesList.filter(x => x.id !== id);
+      renderDashboard();
+      renderDailyDigest();
+      renderAnalytics();
+
       const { error } = await db.from('expenses').delete().eq('id', id);
-      if (!error) {
-        await writeLog('DELETE_EXPENSE', `ยืนยันลบรายการ "${title}"`);
-        await refreshAllData();
+      if (error) {
+        expensesList = backupList;
+        renderDashboard();
+        return alert('ลบรายการไม่สำเร็จ: ' + error.message);
       }
+
+      await writeLog('DELETE_EXPENSE', `ยืนยันลบรายการ "${title}"`);
+      await refreshAllData();
     }
 
     // ================= MULTI-LEDGER CREATION & MEMBER MANAGEMENT =================
