@@ -23,9 +23,15 @@
     input:focus, select:focus { border-color: #DF829D; box-shadow: 0 0 0 3px rgba(223, 130, 157, 0.18); }
     .luxury-gradient { background: linear-gradient(135deg, #E893AC 0%, #D6718E 55%, #C45B79 100%); }
     .soft-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border: 1px solid #F5D5DF; box-shadow: 0 6px 24px -6px rgba(214, 113, 142, 0.12); }
+    @media print {
+      body * { visibility: hidden !important; }
+      #pdf-report-modal, #pdf-report-modal * { visibility: visible !important; }
+      #pdf-report-modal { position: absolute !important; inset: 0 !important; background: #fff !important; padding: 0 !important; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
-<body class="pb-24 antialiased">
+<body class="pb-40 antialiased">
 
   <!-- ================= LOGIN / REGISTER SCREEN ================= -->
   <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
@@ -74,14 +80,17 @@
       <div class="flex justify-between items-center gap-2">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1.5">
-            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#6B424E] bg-transparent border-none p-0 pr-5 truncate max-w-[175px] cursor-pointer"></select>
+            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#6B424E] bg-transparent border-none p-0 pr-5 truncate max-w-[165px] cursor-pointer"></select>
+            <button id="btn-edit-trip-name" onclick="renameCurrentTrip()" title="แก้ไขชื่อสมุดบัญชีนี้" class="hidden text-[#D6718E] hover:text-[#C45B79] p-1 rounded-lg hover:bg-[#FFEBF0] shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
+            </button>
             <span id="ledger-mode-pill" class="text-[10px] bg-[#FFEBF0] text-[#C45B79] px-2 py-0.5 rounded-lg font-medium shrink-0">Trip</span>
             <span id="trip-closed-pill" class="hidden text-[10px] bg-[#4A4447] text-white px-2 py-0.5 rounded-lg font-medium shrink-0">ปิดยอดแล้ว</span>
           </div>
           <p id="user-badge" class="text-[11px] text-[#B38895] mt-0.5 truncate">Loading...</p>
         </div>
         <div class="flex items-center gap-1 shrink-0">
-          <button onclick="exportPrintablePdfReport()" title="ส่งออกรายงาน PDF พร้อมรูปสลิปขนาดเล็ก" class="text-[11px] luxury-gradient text-white px-2.5 py-1.5 rounded-xl font-medium shadow-xs">PDF สลิป</button>
+          <button onclick="exportPrintablePdfReport()" title="ดูรายงาน PDF พร้อมรูปสลิปขนาดเล็ก" class="text-[11px] luxury-gradient text-white px-2.5 py-1.5 rounded-xl font-medium shadow-xs">PDF สลิป</button>
           <button onclick="exportToExcel()" class="text-[11px] text-[#C45B79] hover:bg-[#FFEBF0] px-2 py-1.5 rounded-xl border border-[#F5D5DF] bg-[#FFF8FA] font-medium">Excel</button>
           <button onclick="handleLogout()" class="text-[11px] text-[#B38895] hover:text-[#6B424E] px-1.5 py-1">ออก</button>
         </div>
@@ -89,19 +98,7 @@
     </header>
 
     <!-- TAB 1: DASHBOARD & COLLAPSIBLE LEDGER -->
-    <main id="tab-expenses" class="p-5 space-y-4">
-      <!-- Smart Shared Slip Quick-Scan Banner (Triggered when opened via iOS Share Shortcut or Clipboard) -->
-      <div id="shared-clipboard-banner" class="hidden bg-[#FFF0F4] border-2 border-[#D6718E] rounded-2xl p-3.5 flex items-center justify-between gap-2.5 shadow-sm">
-        <div class="min-w-0">
-          <p class="text-xs font-semibold text-[#C45B79]">📋 พบสลิปที่แชร์เข้ามาในคลิปบอร์ด!</p>
-          <p class="text-[11px] text-[#8C5867] truncate">แตะปุ่มด้านขวาเพื่ออ่านยอดเงินทันที</p>
-        </div>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="scanFromClipboard()" class="luxury-gradient text-white text-xs font-medium px-3.5 py-2 rounded-xl shadow-xs">สแกนสลิปนี้</button>
-          <button onclick="dismissClipboardBanner()" class="text-[#B38895] px-1.5 py-1 text-base">&times;</button>
-        </div>
-      </div>
-
+    <main id="tab-expenses" class="p-5 pb-28 space-y-4">
       <div id="closed-trip-banner" class="hidden bg-[#4A4447] text-white rounded-3xl p-4 space-y-2 shadow-sm">
         <div class="flex justify-between items-center gap-2">
           <p class="text-xs font-semibold">ปิดทริปแล้ว (ล็อกแก้ไขข้อมูล)</p>
@@ -120,13 +117,13 @@
         <div class="flex justify-between items-start gap-2">
           <div>
             <p id="hero-title-label" class="text-[10px] uppercase tracking-[0.16em] text-white/85">Total Group Spend</p>
-            <p id="total-group-cny" class="text-3xl font-light tracking-tight mt-1">¥0.00</p>
-            <p id="total-group-thb" class="text-xs text-white/90 mt-0.5">THB 0.00</p>
+            <p id="total-group-cny" class="text-3xl font-light tracking-tight mt-1">¥0</p>
+            <p id="total-group-thb" class="text-xs text-white/90 mt-0.5">THB 0</p>
           </div>
           <button onclick="switchTab('digest')" id="btn-hero-digest" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium px-3 py-1.5 rounded-xl backdrop-blur-xs transition shrink-0">สรุปรายวัน</button>
         </div>
         <div class="pt-2.5 border-t border-white/20 flex justify-between items-center text-[11px] text-white/95">
-          <span id="latest-day-summary">ล่าสุด: ¥0.00</span>
+          <span id="latest-day-summary">ล่าสุด: ¥0</span>
           <span id="avg-per-person-summary">เฉลี่ยคนละ ¥0</span>
         </div>
       </div>
@@ -201,7 +198,7 @@
       <!-- Summary Strip -->
       <div class="flex justify-between items-center py-1.5 border-b border-[#F5D5DF] text-xs">
         <span id="filtered-day-label" class="text-[#8C5867]">ยอดรวมที่แสดง</span>
-        <span id="filtered-day-total" class="font-semibold text-[#C45B79]">0.00</span>
+        <span id="filtered-day-total" class="font-semibold text-[#C45B79]">0</span>
       </div>
 
       <!-- Collapsible Day / Month Grouped Expense List -->
@@ -209,7 +206,7 @@
     </main>
 
     <!-- TAB 2: DAILY / MONTHLY DIGEST & ARCHIVED SUMMARIES -->
-    <main id="tab-digest" class="hidden p-5 space-y-4">
+    <main id="tab-digest" class="hidden p-5 pb-28 space-y-4">
       <div class="flex justify-between items-start gap-2">
         <div>
           <h2 id="digest-heading" class="font-semibold text-base text-[#6B424E]">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
@@ -230,7 +227,7 @@
     </main>
 
     <!-- TAB 3: ANALYTICS, PAYMENT CHANNEL SUMMARY & CHARTS -->
-    <main id="tab-analytics" class="hidden p-5 space-y-5">
+    <main id="tab-analytics" class="hidden p-5 pb-28 space-y-5">
       <div>
         <h2 class="font-semibold text-base text-[#6B424E]">สรุปภาพรวม & ช่องทางจ่ายเงิน</h2>
         <p id="analytics-subtitle" class="text-xs text-[#A37B87]">สรุปยอดแยกตามช่องทาง โอน · บัตรเครดิต · เงินสด และหมวดหมู่</p>
@@ -243,7 +240,7 @@
           <p id="stat-grand-cny" class="text-[11px] text-[#B38895]">0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
+          <p id="stat-avg-label" class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
           <p id="stat-avg-day" class="text-lg font-semibold text-[#6B424E] mt-1">0</p>
           <p id="stat-avg-person" class="text-[11px] text-[#B38895]">เฉลี่ยคนละ 0</p>
         </div>
@@ -301,7 +298,7 @@
     </main>
 
     <!-- TAB 4: MEMBERS, COMPACT CIRCLE COLOR PICKER, PROXY RIGHTS & ADMIN -->
-    <main id="tab-members" class="hidden p-5 space-y-5">
+    <main id="tab-members" class="hidden p-5 pb-28 space-y-5">
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center">
           <div>
@@ -316,7 +313,16 @@
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
-          <h2 class="font-semibold text-sm text-[#6B424E]">สร้างทริป / รายเดือน · ตั้งค่าสกุลเงิน · ปิดยอด</h2>
+          <h2 class="font-semibold text-sm text-[#6B424E]">จัดการชื่อสมุด · สกุลเงิน · ปิดยอด · สร้างสมุดใหม่</h2>
+        </div>
+
+        <!-- Rename Current Trip / Ledger -->
+        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-2">
+          <label class="block text-[11px] font-semibold text-[#6B424E]">แก้ไขชื่อสมุดบัญชีปัจจุบัน</label>
+          <div class="flex gap-2">
+            <input id="admin-rename-trip-input" type="text" placeholder="ชื่อทริป หรือ ชื่อสมุดรายเดือน" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs font-medium text-[#6B424E]" />
+            <button onclick="saveRenamedTrip()" class="luxury-gradient text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0">เปลี่ยนชื่อ</button>
+          </div>
         </div>
 
         <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-3">
@@ -428,9 +434,11 @@
       </div>
     </main>
 
-    <!-- Dual Floating Action Buttons (Quick Camera Scan + Standard Multi-Upload / Manual Add) -->
-    <div id="fab-container" class="fixed bottom-20 right-5 flex flex-col items-center gap-2.5 z-30">
-      <label for="quick-camera-input" title="ถ่ายรูปบิลด่วนทันที" aria-label="Quick Camera Scan" class="bg-white text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-3 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
+    <!-- Dual Floating Action Buttons:
+         1. Camera (Direct Capture)
+         2. + (1-Tap Album Picker: Opens Photo Library immediately; if cancelled, opens manual form) -->
+    <div id="fab-container" class="fixed bottom-20 right-4 flex flex-col items-center gap-2.5 z-30">
+      <label for="quick-camera-input" title="ถ่ายรูปบิลด่วนทันที" aria-label="Quick Camera Scan" class="bg-white/95 text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/>
@@ -438,9 +446,10 @@
         <input id="quick-camera-input" type="file" accept="image/*" capture="environment" onchange="handleQuickCameraCapture(this)" class="hidden" />
       </label>
 
-      <button id="fab-add-expense" onclick="openExpenseModal()" title="เพิ่มรายการ / เลือกหลายสลิป" aria-label="Add Expense" class="luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center transition active:scale-95">
+      <label for="one-tap-album-input" id="fab-add-expense" title="แตะเพื่อเลือกรูปสลิปทันที (หรือกดยกเลิกเพื่อกรอกเอง)" aria-label="1-Tap Add Expense" class="luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-      </button>
+        <input id="one-tap-album-input" type="file" accept="image/*" multiple onclick="handleOneTapAlbumClick()" onchange="handleOneTapAlbumSelected(this)" class="hidden" />
+      </label>
     </div>
 
     <!-- Bottom Navigation -->
@@ -469,24 +478,19 @@
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base text-[#6B424E]">บันทึกรายจ่าย (<span id="modal-curr-badge">CNY</span>)</h3>
-        <button onclick="closeModal('expense-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+        <button onclick="closeModal('expense-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
-      <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2.5">
-        <div class="flex flex-wrap justify-between items-center gap-2">
+      <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
+        <div class="flex justify-between items-center gap-2">
           <div class="min-w-0 flex-1">
-            <p class="text-xs font-semibold text-[#C45B79]">สแกนสลิป / ถ่ายบิล / วางสลิปที่แชร์</p>
-            <p id="scanner-rule-hint" class="text-[10px] text-[#A37B87]">เลือกได้หลายรูปพร้อมกัน · สลับช่องทางจ่ายเองได้ตลอด</p>
+            <p class="text-xs font-semibold text-[#C45B79]">สแกนสลิป / ใบเสร็จ (เลือกได้หลายใบพร้อมกัน)</p>
+            <p id="scanner-rule-hint" class="text-[10px] text-[#A37B87]">เลือกหรือสลับ โอน / บัตรเครดิต / เงินสด ได้ตลอด</p>
           </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" onclick="scanFromClipboard()" title="วางสลิปที่แชร์หรือคัดลอกไว้" class="bg-white text-[#C45B79] border border-[#E893AC] hover:bg-[#FFEBF0] text-[11px] font-medium px-2.5 py-2 rounded-xl">
-              📋 วางสลิป
-            </button>
-            <label class="luxury-gradient text-white text-[11px] font-medium px-3 py-2 rounded-xl cursor-pointer shadow-xs">
-              เลือกรูป
-              <input id="exp-file" type="file" accept="image/*" multiple onchange="handleMultiReceiptScan(this)" class="hidden" />
-            </label>
-          </div>
+          <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shadow-xs shrink-0">
+            เลือกรูปเพิ่ม
+            <input id="exp-file" type="file" accept="image/*" multiple onchange="handleMultiReceiptScan(this)" class="hidden" />
+          </label>
         </div>
         <p id="ocr-status" class="hidden text-[11px] text-[#C45B79] font-medium"></p>
       </div>
@@ -545,7 +549,7 @@
               <span>จำนวนเงิน (<span id="exp-amt-curr">CNY</span>)</span>
               <span id="exp-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อก</span>
             </label>
-            <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0.00" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
+            <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
           </div>
           <div id="exp-rate-box">
             <label class="text-[11px] text-[#8C5867]">เรทกลาง (THB)</label>
@@ -562,7 +566,7 @@
                 คืนเงิน (Refund)
               </label>
             </div>
-            <span id="exp-thb-preview" class="text-xs font-semibold text-[#C45B79]">THB 0.00</span>
+            <span id="exp-thb-preview" class="text-xs font-semibold text-[#C45B79]">THB 0</span>
           </div>
         </div>
       </div>
@@ -601,7 +605,7 @@
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base text-[#6B424E]">แก้ไขรายการค่าใช้จ่าย</h3>
-        <button onclick="closeModal('edit-expense-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+        <button onclick="closeModal('edit-expense-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
       <input type="hidden" id="edit-exp-id" />
@@ -688,9 +692,23 @@
           <h3 id="day-vault-title" class="font-semibold text-base text-[#6B424E]">รวมสลิป</h3>
           <p id="day-vault-subtitle" class="text-[11px] text-[#A37B87]">เรียงตามเวลาสำหรับตรวจสอบ</p>
         </div>
-        <button onclick="closeModal('day-receipts-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+        <button onclick="closeModal('day-receipts-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
       </div>
       <div id="day-vault-list" class="space-y-2.5"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: IN-APP PDF REPORT WITH THUMBNAIL SLIPS ================= -->
+  <div id="pdf-report-modal" class="hidden fixed inset-0 bg-[#6B424E]/50 backdrop-blur-xs z-50 flex items-center justify-center p-2 sm:p-5">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#F5D5DF] flex flex-col max-h-[92vh] overflow-hidden">
+      <div class="no-print px-5 py-3.5 bg-[#FFF5F8] border-b border-[#F2CFD9] flex justify-between items-center gap-2 shrink-0">
+        <p class="text-xs font-semibold text-[#C45B79]">รายงานสรุปพร้อมรูปสลิปย่อ</p>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="luxury-gradient text-white text-xs font-medium px-3.5 py-1.5 rounded-xl shadow-xs">สั่งพิมพ์ / บันทึก PDF</button>
+          <button onclick="closeModal('pdf-report-modal')" aria-label="ปิดหน้าต่าง" class="w-8 h-8 rounded-full bg-white border border-[#F2CFD9] text-[#6B424E] hover:bg-[#FFEBF0] flex items-center justify-center text-base font-bold">✕</button>
+        </div>
+      </div>
+      <div id="pdf-report-body" class="p-5 overflow-y-auto flex-1 text-[#4A2E36]"></div>
     </div>
   </div>
 
@@ -699,7 +717,7 @@
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base text-[#6B424E]">สรุปเคลียร์ยอดไฟนอล</h3>
-        <button onclick="closeModal('settle-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+        <button onclick="closeModal('settle-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
       <div id="settle-rate-banner" class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] flex justify-between items-center">
@@ -729,7 +747,7 @@
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base text-[#6B424E]">แจ้งตรวจสอบ / ขอลบรายการ</h3>
-        <button onclick="closeModal('flag-modal')" class="text-[#B38895] hover:text-[#6B424E] text-xl leading-none">&times;</button>
+        <button onclick="closeModal('flag-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
       </div>
       <p id="flag-target-title" class="text-xs font-medium text-[#C45B79] bg-[#FFF5F8] p-2.5 rounded-xl border border-[#F5D5DF]"></p>
       <div class="space-y-2">
@@ -748,13 +766,13 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: IMAGE VIEWER ================= -->
-  <div id="image-viewer-modal" class="hidden fixed inset-0 bg-[#3A2229]/92 z-50 flex flex-col items-center justify-center p-4">
-    <div class="w-full max-w-md flex justify-between items-center mb-2">
-      <div id="viewer-time-info" class="text-[11px] text-pink-100"></div>
-      <button onclick="closeModal('image-viewer-modal')" class="text-white text-xs bg-white/15 px-3.5 py-1.5 rounded-xl shrink-0">ปิดหน้าต่าง</button>
+  <!-- ================= MODAL: IMAGE VIEWER (WITH CLEAR X BUTTON) ================= -->
+  <div id="image-viewer-modal" onclick="if(event.target === this) closeModal('image-viewer-modal')" class="hidden fixed inset-0 bg-[#3A2229]/92 z-50 flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md flex justify-between items-center gap-2 mb-3">
+      <div id="viewer-time-info" class="text-[11px] text-pink-100 leading-snug"></div>
+      <button onclick="closeModal('image-viewer-modal')" aria-label="ปิดรูปภาพ" class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center text-lg font-bold shrink-0">✕</button>
     </div>
-    <img id="viewer-img" src="" class="max-h-[78vh] max-w-full rounded-2xl object-contain bg-black" />
+    <img id="viewer-img" src="" class="max-h-[78vh] max-w-full rounded-2xl object-contain bg-black shadow-2xl" />
   </div>
 
   <script>
@@ -797,71 +815,59 @@
     let categoryChartInstance = null;
 
     let batchQueue = [];
-    let activeSingleFile = null; // Stores file from Direct Camera or Clipboard Paste
+    let activeSingleFile = null;
     let currentTimeSource = 'upload';
     let currentSingleSlipHash = null;
     let currentSingleSlipRef = null;
     let isSingleAmountLockedBySlip = false;
     let flaggingExpenseId = null;
 
+    // Smart Money Formatter: Comma-separated thousands, hides ".00" if whole number, keeps decimals when present
+    function fmtNum(val) {
+      const num = Number(val || 0);
+      if (isNaN(num)) return '0';
+      const rounded = Math.round(num * 100) / 100;
+      const isWhole = Math.abs(rounded - Math.round(rounded)) < 0.001;
+      return rounded.toLocaleString('en-US', {
+        minimumFractionDigits: isWhole ? 0 : 2,
+        maximumFractionDigits: isWhole ? 0 : 2
+      });
+    }
+
     window.onload = async () => {
       const { data: { session } } = await db.auth.getSession();
-      if (session) {
-        await initApp(session.user);
-        checkUrlShareTrigger();
-      }
+      if (session) await initApp(session.user);
     };
 
-    // Check if opened via Apple Shortcut (?share=1) or detect clipboard image on focus
-    function checkUrlShareTrigger() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('share') === '1' && currentTrip && !currentTrip.is_closed) {
-        document.getElementById('shared-clipboard-banner').classList.remove('hidden');
-        // Clean query param so reload won't re-trigger
-        window.history.replaceState({}, document.title, window.location.pathname);
+    // 1-Tap Album Picker:
+    // Tapping '+' immediately opens iPhone/Android Photo Library.
+    // If user selects images -> opens modal & scans immediately.
+    // If user taps Cancel on Photo Library -> opens empty manual entry modal.
+    let oneTapPickerPending = false;
+    function handleOneTapAlbumClick() {
+      if (currentTrip?.is_closed) {
+        alert('สมุดนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
+        return;
       }
-    }
-
-    window.addEventListener('focus', () => {
-      if (currentTrip && !currentTrip.is_closed) {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('share') === '1') {
-          document.getElementById('shared-clipboard-banner').classList.remove('hidden');
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      }
-    });
-
-    function dismissClipboardBanner() {
-      document.getElementById('shared-clipboard-banner').classList.add('hidden');
-    }
-
-    async function scanFromClipboard() {
-      if (!navigator.clipboard || !navigator.clipboard.read) {
-        return alert('เบราว์เซอร์ไม่รองรับการอ่านรูปจากคลิปบอร์ด กรุณากดปุ่ม "เลือกรูป" แทน');
-      }
-      try {
-        const clipboardItems = await navigator.clipboard.read();
-        let imageFile = null;
-        for (const item of clipboardItems) {
-          const imgType = item.types.find(t => t.startsWith('image/'));
-          if (imgType) {
-            const blob = await item.getType(imgType);
-            imageFile = new File([blob], `Shared_Slip_${Date.now()}.png`, { type: imgType, lastModified: Date.now() });
-            break;
+      oneTapPickerPending = true;
+      window.addEventListener('focus', () => {
+        setTimeout(() => {
+          const input = document.getElementById('one-tap-album-input');
+          if (oneTapPickerPending && (!input.files || input.files.length === 0)) {
+            oneTapPickerPending = false;
+            openExpenseModal();
           }
-        }
-        if (!imageFile) {
-          return alert('ไม่พบรูปภาพในคลิปบอร์ด กรุณากดแชร์สลิปผ่านคำสั่งลัดหรือคัดลอกรูปภาพก่อนครับ');
-        }
-        dismissClipboardBanner();
-        if (document.getElementById('expense-modal').classList.contains('hidden')) {
-          openExpenseModal();
-        }
-        await processSelectedFiles([imageFile]);
-      } catch (err) {
-        alert('ไม่สามารถอ่านรูปจากคลิปบอร์ดได้ (กรุณากดปุ่ม "เลือกรูป" จากอัลบั้มแทน): ' + err.message);
-      }
+        }, 350);
+      }, { once: true });
+    }
+
+    async function handleOneTapAlbumSelected(input) {
+      oneTapPickerPending = false;
+      if (!input.files || input.files.length === 0) return;
+      const files = Array.from(input.files);
+      openExpenseModal();
+      await processSelectedFiles(files);
+      input.value = '';
     }
 
     async function handleQuickCameraCapture(input) {
@@ -1012,7 +1018,7 @@
           (e.title || '').trim().toLowerCase() === normTitle
         );
         if (bySlipSignature) {
-          return { reason: `ยอดเงิน ${getCurrSymbol()}${numAmt} เวลาสลิป ${slip_time} และร้านค้าตรงกับรายการที่บันทึกไว้แล้ว`, item: bySlipSignature };
+          return { reason: `ยอดเงิน ${getCurrSymbol()}${fmtNum(numAmt)} เวลาสลิป ${slip_time} และร้านค้าตรงกับรายการที่บันทึกไว้แล้ว`, item: bySlipSignature };
         }
       }
       return null;
@@ -1026,7 +1032,7 @@
         return;
       }
       const e = dupMatch.item;
-      detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ${getCurrSymbol()}${Number(e.amount_cny).toFixed(2)} (บันทึกโดย ${getMemberName(e.created_by)})`;
+      detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ${getCurrSymbol()}${fmtNum(e.amount_cny)} (บันทึกโดย ${getMemberName(e.created_by)})`;
       box.classList.remove('hidden');
     }
 
@@ -1037,7 +1043,6 @@
       const { data, error } = await db.auth.signInWithPassword({ email, password });
       if (error) return showAuthError('เข้าสู่ระบบไม่สำเร็จ: ' + error.message);
       await initApp(data.user);
-      checkUrlShareTrigger();
     }
 
     async function handleSignUp() {
@@ -1077,6 +1082,14 @@
       return membersList.filter(m => !m.is_observer_only);
     }
 
+    function renderTripSwitcherOptions() {
+      const switcher = document.getElementById('trip-switcher');
+      switcher.innerHTML = userTrips.map(t => {
+        const tag = t.ledger_type === 'monthly' ? ' [รายเดือน]' : '';
+        return `<option value="${t.id}" ${t.id === currentTrip.id ? 'selected' : ''}>${t.name}${tag}</option>`;
+      }).join('');
+    }
+
     async function initApp(user) {
       currentUser = user;
       document.getElementById('auth-screen').classList.add('hidden');
@@ -1097,14 +1110,11 @@
       const savedTripId = localStorage.getItem('selected_trip_id');
       currentTrip = trips.find(t => t.id === savedTripId) || trips[0];
 
-      const switcher = document.getElementById('trip-switcher');
-      switcher.innerHTML = trips.map(t => {
-        const tag = t.ledger_type === 'monthly' ? ' [รายเดือน]' : '';
-        return `<option value="${t.id}" ${t.id === currentTrip.id ? 'selected' : ''}>${t.name}${tag}</option>`;
-      }).join('');
+      renderTripSwitcherOptions();
 
       if (isSuperAdmin()) {
         document.getElementById('super-admin-panel').classList.remove('hidden');
+        document.getElementById('btn-edit-trip-name').classList.remove('hidden');
         document.getElementById('btn-backup-clear-logs').classList.remove('hidden');
         document.getElementById('admin-backup-archive').classList.remove('hidden');
         document.getElementById('proxy-admin-hint').classList.remove('hidden');
@@ -1118,6 +1128,39 @@
       localStorage.setItem('selected_trip_id', tripId);
       collapsedGroups.clear();
       await loadTripContext();
+    }
+
+    // Admin Rename Current Trip / Ledger (Both from Header pencil icon and Admin panel)
+    async function renameCurrentTrip() {
+      if (!isSuperAdmin()) return;
+      const nextName = prompt('แก้ไขชื่อสมุดบัญชี / หัวข้อทริป:', currentTrip.name);
+      if (!nextName || !nextName.trim() || nextName.trim() === currentTrip.name) return;
+      await applyTripRename(nextName.trim());
+    }
+
+    async function saveRenamedTrip() {
+      if (!isSuperAdmin()) return;
+      const nextName = document.getElementById('admin-rename-trip-input').value.trim();
+      if (!nextName) return alert('กรุณาระบุชื่อสมุดบัญชี');
+      await applyTripRename(nextName);
+    }
+
+    async function applyTripRename(cleanName) {
+      const oldName = currentTrip.name;
+      const { error } = await db.from('trips').update({ name: cleanName }).eq('id', currentTrip.id);
+      if (error) return alert('เปลี่ยนชื่อไม่สำเร็จ: ' + error.message);
+
+      currentTrip.name = cleanName;
+      const idx = userTrips.findIndex(t => t.id === currentTrip.id);
+      if (idx !== -1) userTrips[idx].name = cleanName;
+
+      renderTripSwitcherOptions();
+      if (document.getElementById('admin-rename-trip-input')) {
+        document.getElementById('admin-rename-trip-input').value = cleanName;
+      }
+      await writeLog('RENAME_TRIP', `เปลี่ยนชื่อสมุดจาก "${oldName}" เป็น "${cleanName}"`);
+      await loadLogs();
+      alert(`เปลี่ยนชื่อเป็น "${cleanName}" เรียบร้อยแล้ว`);
     }
 
     async function loadTripContext() {
@@ -1193,6 +1236,7 @@
 
       document.getElementById('exp-rate').value = finalRate;
       if (document.getElementById('admin-final-rate-input')) {
+        document.getElementById('admin-rename-trip-input').value = currentTrip.name || '';
         document.getElementById('admin-final-rate-input').value = finalRate;
         document.getElementById('admin-rate-curr-code').textContent = code;
         document.getElementById('admin-rate-box').classList.toggle('hidden', isThbBase());
@@ -1496,25 +1540,25 @@
       const latestPeriodAmt = periodTotals[latestPeriodKey] || 0;
       const avgPerPerson = participants.length > 0 ? totalMainAmt / participants.length : totalMainAmt;
 
-      document.getElementById('total-group-cny').textContent = `${sym}${totalMainAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('total-group-cny').textContent = `${sym}${fmtNum(totalMainAmt)}`;
       document.getElementById('total-group-thb').textContent = isThbBase()
         ? (monthly ? `ยอดรวมเดือน ${formatMonthLabel(currentYm)}` : `ยอดรวมสุทธิทั้งหมด`)
-        : `THB ${totalThb.toLocaleString('en-US', {minimumFractionDigits: 2})} (เรทกลาง ${finalRate})`;
+        : `THB ${fmtNum(totalThb)} (เรทกลาง ${finalRate})`;
 
       document.getElementById('latest-day-summary').textContent = monthly
         ? `รอบเดือนปัจจุบัน: ${formatMonthLabel(currentYm)}`
-        : `วันล่าสุด (Day ${latestPeriodKey}): ${sym}${latestPeriodAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        : `วันล่าสุด (Day ${latestPeriodKey}): ${sym}${fmtNum(latestPeriodAmt)}`;
 
       document.getElementById('avg-per-person-summary').textContent = participants.length > 1
-        ? `เฉลี่ยคนละ ${sym}${avgPerPerson.toLocaleString('en-US', {maximumFractionDigits: 0})}`
+        ? `เฉลี่ยคนละ ${sym}${fmtNum(avgPerPerson)}`
         : (monthly ? `ปิดยอดอัตโนมัติสิ้นเดือน` : `${expensesList.length} บิลทั้งหมด`);
 
-      document.getElementById('my-paid-cny').textContent = `${sym}${myPaidMainAmt.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
-      document.getElementById('my-solo-cny').textContent = `ส่วนตัวล้วน ${sym}${mySoloPersonalAmt.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('my-paid-cny').textContent = `${sym}${fmtNum(myPaidMainAmt)}`;
+      document.getElementById('my-solo-cny').textContent = `ส่วนตัวล้วน ${sym}${fmtNum(mySoloPersonalAmt)}`;
 
-      document.getElementById('cash-init-val').textContent = `${sym}${myPersonalCashInit.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
-      document.getElementById('cash-spent-val').textContent = `${sym}${myCashSpentAmt.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
-      document.getElementById('cash-rem-val').textContent = `${sym}${(myPersonalCashInit - myCashSpentAmt).toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('cash-init-val').textContent = `${sym}${fmtNum(myPersonalCashInit)}`;
+      document.getElementById('cash-spent-val').textContent = `${sym}${fmtNum(myCashSpentAmt)}`;
+      document.getElementById('cash-rem-val').textContent = `${sym}${fmtNum(myPersonalCashInit - myCashSpentAmt)}`;
 
       const netMap = computeMemberBalances();
       const myNet = netMap[myEmail] || 0;
@@ -1528,10 +1572,10 @@
         netEl.textContent = 'สมดุลแล้ว';
         netEl.className = 'text-sm font-semibold text-[#6B424E] mt-1';
       } else if (myNet > 0) {
-        netEl.textContent = isThbBase() ? `รับคืน +฿${myNet.toFixed(0)}` : `รับคืน +${sym}${myNet.toFixed(0)} (฿${myNetThb.toFixed(0)})`;
+        netEl.textContent = isThbBase() ? `รับคืน +฿${fmtNum(myNet)}` : `รับคืน +${sym}${fmtNum(myNet)} (฿${fmtNum(myNetThb)})`;
         netEl.className = 'text-sm font-semibold text-emerald-700 mt-1';
       } else {
-        netEl.textContent = isThbBase() ? `โอนคืน -฿${Math.abs(myNet).toFixed(0)}` : `โอนคืน -${sym}${Math.abs(myNet).toFixed(0)} (฿${Math.abs(myNetThb).toFixed(0)})`;
+        netEl.textContent = isThbBase() ? `โอนคืน -฿${fmtNum(Math.abs(myNet))}` : `โอนคืน -${sym}${fmtNum(Math.abs(myNet))} (฿${fmtNum(Math.abs(myNetThb))})`;
         netEl.className = 'text-sm font-semibold text-rose-600 mt-1';
       }
 
@@ -1693,13 +1737,13 @@
                   <h4 class="font-medium text-sm text-[#6B424E] mt-1 truncate">${e.title}</h4>
                 </div>
                 <div class="text-right shrink-0">
-                  <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'text-[#C45B79]'} text-sm">${e.is_refund ? '-' : ''}${sym}${amt.toFixed(2)}</p>
-                  ${!isThbBase() ? `<p class="text-[11px] text-[#B38895]">${e.is_refund ? '-' : ''}฿${Math.abs(thb).toFixed(2)} ${e.has_alipay_fee ? '+3%' : ''}</p>` : ''}
+                  <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'text-[#C45B79]'} text-sm">${e.is_refund ? '-' : ''}${sym}${fmtNum(amt)}</p>
+                  ${!isThbBase() ? `<p class="text-[11px] text-[#B38895]">${e.is_refund ? '-' : ''}฿${fmtNum(Math.abs(thb))} ${e.has_alipay_fee ? '+3%' : ''}</p>` : ''}
                 </div>
               </div>
               <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-1.5 border-t border-[#FCEBF0]">
                 <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'รายการส่วนตัว' : 'หาร: ' + (splitNames || '-')}</span>
-                <div class="flex items-center gap-2 shrink-0">
+                <div class="flex items-center gap-2.5 shrink-0">
                   <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white border-[#F2CFD9] text-[#A37B87]'}">
                     ${isVerified ? '✓ ตรวจแล้ว' : 'ติ๊กตรวจ'}
                   </button>
@@ -1721,7 +1765,7 @@
                 <span class="text-[11px] text-[#A37B87]">(${items.length} รายการ)</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="font-semibold text-[#6B424E]">${sym}${groupAmt.toFixed(2)}${!isThbBase() ? ` · ฿${groupThb.toFixed(0)}` : ''}</span>
+                <span class="font-semibold text-[#6B424E]">${sym}${fmtNum(groupAmt)}${!isThbBase() ? ` · ฿${fmtNum(groupThb)}` : ''}</span>
                 <span class="text-[#B38895] text-[10px]">${isCollapsed ? '▼' : '▲'}</span>
               </div>
             </button>
@@ -1730,8 +1774,8 @@
       }).join('');
 
       document.getElementById('filtered-day-total').textContent = isThbBase()
-        ? `฿${totalSumAmt.toFixed(2)}`
-        : `${sym}${totalSumAmt.toFixed(2)} · ฿${totalSumThb.toFixed(2)}`;
+        ? `฿${fmtNum(totalSumAmt)}`
+        : `${sym}${fmtNum(totalSumAmt)} · ฿${fmtNum(totalSumThb)}`;
       document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
     }
 
@@ -1850,7 +1894,7 @@
 
         if (error) throw error;
 
-        await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ${getCurrSymbol()}${amount_cny}`);
+        await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
         closeModal('edit-expense-modal');
         await refreshAllData();
       } catch (err) {
@@ -1913,12 +1957,12 @@
             <div class="grid ${isSinglePersonLedger ? 'grid-cols-1' : 'grid-cols-2'} gap-2 pt-1 text-xs">
               <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
                 <p class="text-[10px] text-[#A37B87]">ยอดรวม (${badgeTitle})</p>
-                <p class="font-semibold text-[#C45B79] mt-0.5">${sym}${mainAmt.toFixed(2)} ${!isThbBase() ? `<span class="text-[10px] font-normal text-[#8C5867]">(฿${mainThb.toFixed(0)})</span>` : ''}</p>
+                <p class="font-semibold text-[#C45B79] mt-0.5">${sym}${fmtNum(mainAmt)} ${!isThbBase() ? `<span class="text-[10px] font-normal text-[#8C5867]">(฿${fmtNum(mainThb)})</span>` : ''}</p>
               </div>
               ${!isSinglePersonLedger ? `
               <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
                 <p class="text-[10px] text-[#A37B87]">ส่วนตัวของคุณ</p>
-                <p class="font-semibold text-[#6B424E] mt-0.5">${sym}${soloAmt.toFixed(2)}</p>
+                <p class="font-semibold text-[#6B424E] mt-0.5">${sym}${fmtNum(soloAmt)}</p>
               </div>` : ''}
             </div>
           </div>`;
@@ -1931,7 +1975,7 @@
           <div class="soft-card p-3.5 rounded-2xl flex justify-between items-center gap-2 bg-[#FFF9FA]">
             <div>
               <p class="text-xs font-semibold text-[#6B424E]">🔒 สรุปปิดเดือน ${a.month_label}</p>
-              <p class="text-[11px] text-[#A37B87]">${a.item_count} รายการ · รวม ${a.currency_symbol}${Number(a.total_amount).toLocaleString('en-US', {minimumFractionDigits: 2})} (ไฟล์ตัวเลขล้วน)</p>
+              <p class="text-[11px] text-[#A37B87]">${a.item_count} รายการ · รวม ${a.currency_symbol}${fmtNum(a.total_amount)} (ไฟล์ตัวเลขล้วน)</p>
             </div>
             <button onclick="downloadMonthlyArchiveCsv('${a.id}')" class="text-[11px] bg-white text-[#C45B79] border border-[#F2CFD9] px-3 py-1.5 rounded-xl font-medium shrink-0">โหลดสรุป CSV</button>
           </div>
@@ -1947,9 +1991,9 @@
       csv += `วันที่,เวลา,ช่องทางจ่าย,หมวดหมู่,รายการ,ยอดเงิน (${a.currency_code}),ผู้จ่าย\n`;
       (a.summary_rows || []).forEach(r => {
         const cleanTitle = `"${(r.title || '').replace(/"/g, '""')}"`;
-        csv += `${r.date},${r.time},${r.channel || 'โอน'},${r.category},${cleanTitle},${Number(r.amount).toFixed(2)},${r.payer}\n`;
+        csv += `${r.date},${r.time},${r.channel || 'โอน'},${r.category},${cleanTitle},${Number(r.amount)},${r.payer}\n`;
       });
-      csv += `\nยอดรวมสุทธิประจำเดือน,${Number(a.total_amount).toFixed(2)} ${a.currency_code}\n`;
+      csv += `\nยอดรวมสุทธิประจำเดือน,${Number(a.total_amount)} ${a.currency_code}\n`;
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -1990,7 +2034,7 @@
         const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
         const displayTime = e.slip_time || uploadTimeStr;
         const payerInfo = getMemberInfo(e.paid_by_email || e.created_by);
-        const metaInfo = `${titleLabel} · เวลา ${displayTime} · ${getChannelLabel(e.payment_channel)} · ${payerInfo.display_name} จ่าย ${sym}${Number(e.amount_cny).toFixed(2)}`;
+        const metaInfo = `${titleLabel} · เวลา ${displayTime} · ${getChannelLabel(e.payment_channel)} · ${payerInfo.display_name} จ่าย ${sym}${fmtNum(e.amount_cny)}`;
 
         return `
           <div class="p-3 bg-[#FFF9FA] rounded-2xl border border-[#F2CFD9] flex justify-between items-center gap-2" style="border-left: 3px solid ${payerInfo.accent_color};">
@@ -1999,7 +2043,7 @@
               <p class="text-xs font-medium text-[#6B424E] truncate">${e.title}</p>
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
-              <span class="text-xs font-semibold text-[#C45B79]">${sym}${Number(e.amount_cny).toFixed(2)}</span>
+              <span class="text-xs font-semibold text-[#C45B79]">${sym}${fmtNum(e.amount_cny)}</span>
               ${e.receipt_image_url
                 ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[11px] luxury-gradient text-white px-2.5 py-1 rounded-lg">ดูสลิป</button>`
                 : `<span class="text-[10px] text-[#C9A3AF]">ไม่มีรูป</span>`}
@@ -2010,7 +2054,7 @@
       openModal('day-receipts-modal');
     }
 
-    // ================= PRINTABLE PDF REPORT WITH THUMBNAIL SLIPS & CHANNEL SUMMARY =================
+    // ================= IN-APP PDF REPORT MODAL WITH THUMBNAIL SLIPS =================
     async function exportPrintablePdfReport() {
       const myEmail = currentMember.email.toLowerCase();
       const finalRate = getGlobalFinalRate();
@@ -2039,9 +2083,9 @@
 
       if (items.length === 0) return alert(monthly ? `ยังไม่มีรายการในเดือน ${formatMonthLabel(currentYm)}` : 'ยังไม่มีรายการสำหรับสร้างรายงาน PDF');
 
-      const win = window.open('', '_blank');
-      if (!win) return alert('กรุณาอนุญาต Pop-up ในเบราว์เซอร์เพื่อเปิดหน้าพิมพ์รายงาน PDF');
-      win.document.write('<p style="font-family:sans-serif;padding:24px;color:#6B424E;">กำลังเตรียมเอกสารและโหลดรูปสลิปขนาดเล็ก กรุณารอสักครู่...</p>');
+      const bodyEl = document.getElementById('pdf-report-body');
+      bodyEl.innerHTML = '<div class="py-12 text-center text-xs text-[#8C5867]">กำลังเตรียมรายงานและโหลดรูปสลิปขนาดเล็ก กรุณารอสักครู่...</div>';
+      openModal('pdf-report-modal');
 
       const thumbMap = {};
       for (const e of items) {
@@ -2076,74 +2120,66 @@
         const thumbSrc = thumbMap[e.id];
 
         return `
-          <tr>
-            <td style="text-align:center;">${idx + 1}</td>
-            <td>${periodCol}<br><span style="color:#999;font-size:10px;">${e.slip_time || ''}</span></td>
-            <td><strong>${e.title}</strong><br><span style="color:#8C5867;font-size:10px;">${getChannelLabel(normCh)} · ${catNames[e.category] || e.category} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span></td>
-            <td style="text-align:right;font-weight:600;color:#C45B79;">${sym}${signedAmt.toFixed(2)}${!isThbBase() ? `<br><span style="color:#888;font-size:10px;">฿${thb.toFixed(2)}</span>` : ''}</td>
-            <td style="text-align:center;">
-              ${thumbSrc ? `<img src="${thumbSrc}" style="width:52px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #F2CFD9;" />` : '<span style="color:#ccc;font-size:10px;">ไม่มีรูป</span>'}
+          <tr class="border-b border-[#F5D5DF]">
+            <td class="py-2 px-1.5 text-center text-[11px] text-[#A37B87]">${idx + 1}</td>
+            <td class="py-2 px-1.5 text-[11px]">${periodCol}<br><span class="text-[10px] text-[#B38895]">${e.slip_time || ''}</span></td>
+            <td class="py-2 px-1.5 text-xs">
+              <strong class="text-[#6B424E]">${e.title}</strong><br>
+              <span class="text-[10px] text-[#8C5867]">${getChannelLabel(normCh)} · ${catNames[e.category] || e.category} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span>
+            </td>
+            <td class="py-2 px-1.5 text-right text-xs font-semibold text-[#C45B79] whitespace-nowrap">
+              ${sym}${fmtNum(signedAmt)}${!isThbBase() ? `<br><span class="text-[10px] font-normal text-[#A37B87]">฿${fmtNum(thb)}</span>` : ''}
+            </td>
+            <td class="py-2 px-1.5 text-center">
+              ${thumbSrc ? `<img src="${thumbSrc}" class="w-11 h-14 object-cover rounded-md border border-[#F2CFD9] mx-auto" />` : '<span class="text-[10px] text-[#C9A3AF]">-</span>'}
             </td>
           </tr>`;
       }).join('');
 
       const subtitle = monthly ? `รอบเดือน ${formatMonthLabel(currentYm)}` : `ทริปท่องเที่ยว`;
-      win.document.open();
-      win.document.write(`
-        <!DOCTYPE html>
-        <html lang="th">
-        <head>
-          <meta charset="UTF-8" />
-          <title>รายงานสรุป - ${currentTrip.name}</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Sarabun", sans-serif; color: #4A2E36; padding: 24px; max-width: 800px; margin: auto; }
-            .header { border-bottom: 2px solid #E893AC; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
-            h1 { margin: 0; font-size: 20px; color: #C45B79; }
-            .meta { font-size: 12px; color: #8C5867; margin-top: 4px; }
-            .ch-grid { display: flex; gap: 10px; margin-bottom: 16px; }
-            .ch-card { flex: 1; background: #FDF2F5; border: 1px solid #F2CFD9; border-radius: 10px; padding: 10px; text-align: center; font-size: 12px; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th { background: #FDF2F5; color: #6B424E; text-align: left; padding: 8px; border-bottom: 1px solid #E893AC; }
-            td { padding: 8px; border-bottom: 1px solid #F5D5DF; vertical-align: middle; }
-            .total-box { margin-top: 16px; text-align: right; font-size: 14px; font-weight: bold; color: #C45B79; background: #FFF5F8; padding: 12px; border-radius: 10px; }
-            @media print { .no-print { display: none; } }
-          </style>
-        </head>
-        <body>
-          <div class="no-print" style="margin-bottom:16px;text-align:right;">
-            <button onclick="window.print()" style="background:#D6718E;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;cursor:pointer;">บันทึกเป็น PDF / สั่งพิมพ์</button>
-          </div>
-          <div class="header">
+      bodyEl.innerHTML = `
+        <div class="space-y-4">
+          <div class="border-b-2 border-[#E893AC] pb-3 flex justify-between items-end gap-2">
             <div>
-              <h1>${currentTrip.name} (${subtitle})</h1>
-              <div class="meta">รายงานสรุปค่าใช้จ่ายพร้อมสลิปย่อ · สกุลเงิน ${code} · ออกรายงานเมื่อ ${new Date().toLocaleDateString('th-TH')}</div>
+              <h1 class="text-lg font-bold text-[#C45B79]">${currentTrip.name} (${subtitle})</h1>
+              <p class="text-[11px] text-[#8C5867] mt-0.5">สกุลเงิน ${code} · ออกรายงานเมื่อ ${new Date().toLocaleDateString('th-TH')}</p>
             </div>
-            <div style="text-align:right;font-size:12px;color:#8C5867;">ทั้งหมด ${items.length} รายการ</div>
+            <span class="text-xs text-[#8C5867] shrink-0">ทั้งหมด ${items.length} รายการ</span>
           </div>
-          <div class="ch-grid">
-            <div class="ch-card"><strong>1. โอน:</strong> ${sym}${chTotals.transfer.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-            <div class="ch-card"><strong>2. บัตรเครดิต:</strong> ${sym}${chTotals.credit_card.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-            <div class="ch-card"><strong>3. เงินสด:</strong> ${sym}${chTotals.cash.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="bg-[#FDF2F5] border border-[#F2CFD9] rounded-xl p-2.5">
+              <span class="text-[10px] text-[#8C5867] block">1. โอน</span>
+              <strong class="text-[#6B424E]">${sym}${fmtNum(chTotals.transfer)}</strong>
+            </div>
+            <div class="bg-[#FDF2F5] border border-[#F2CFD9] rounded-xl p-2.5">
+              <span class="text-[10px] text-[#8C5867] block">2. บัตรเครดิต</span>
+              <strong class="text-[#6B424E]">${sym}${fmtNum(chTotals.credit_card)}</strong>
+            </div>
+            <div class="bg-[#FDF2F5] border border-[#F2CFD9] rounded-xl p-2.5">
+              <span class="text-[10px] text-[#8C5867] block">3. เงินสด</span>
+              <strong class="text-[#6B424E]">${sym}${fmtNum(chTotals.cash)}</strong>
+            </div>
           </div>
-          <table>
+
+          <table class="w-full border-collapse text-left">
             <thead>
-              <tr>
-                <th style="width:32px;text-align:center;">#</th>
-                <th style="width:95px;">วันที่/เวลา</th>
-                <th>รายการ / ช่องทางจ่าย / หมวดหมู่</th>
-                <th style="width:110px;text-align:right;">จำนวนเงิน</th>
-                <th style="width:70px;text-align:center;">สลิปย่อ</th>
+              <tr class="bg-[#FDF2F5] text-[#6B424E] text-[11px] border-b border-[#E893AC]">
+                <th class="py-2 px-1.5 text-center w-8">#</th>
+                <th class="py-2 px-1.5 w-20">วันที่/เวลา</th>
+                <th class="py-2 px-1.5">รายการ / ช่องทางจ่าย</th>
+                <th class="py-2 px-1.5 text-right w-24">จำนวนเงิน</th>
+                <th class="py-2 px-1.5 text-center w-14">สลิป</th>
               </tr>
             </thead>
             <tbody>${rowsHtml}</tbody>
           </table>
-          <div class="total-box">
-            ยอดรวมสุทธิ: ${sym}${grandAmt.toLocaleString('en-US', {minimumFractionDigits: 2})} ${!isThbBase() ? `(฿${grandThb.toLocaleString('en-US', {minimumFractionDigits: 2})})` : ''}
+
+          <div class="bg-[#FFF5F8] border border-[#F2CFD9] rounded-2xl p-3.5 text-right text-sm font-bold text-[#C45B79]">
+            ยอดรวมสุทธิ: ${sym}${fmtNum(grandAmt)} ${!isThbBase() ? `(฿${fmtNum(grandThb)})` : ''}
           </div>
-        </body>
-        </html>
-      `);
-      win.document.close();
+        </div>
+      `;
     }
 
     // ================= FINAL SETTLEMENT & ADMIN GLOBAL RATE =================
@@ -2200,10 +2236,10 @@
         const valAmt = netMap[m.email.toLowerCase()] || 0;
         const valThb = valAmt * rate;
         const status = valAmt > 0.5
-          ? `<span class="text-emerald-700 font-semibold">+${sym}${valAmt.toFixed(2)} ${!isThbBase() ? `(+฿${valThb.toFixed(0)})` : ''}</span>`
+          ? `<span class="text-emerald-700 font-semibold">+${sym}${fmtNum(valAmt)} ${!isThbBase() ? `(+฿${fmtNum(valThb)})` : ''}</span>`
           : valAmt < -0.5
-          ? `<span class="text-rose-600 font-semibold">-${sym}${Math.abs(valAmt).toFixed(2)} ${!isThbBase() ? `(-฿${Math.abs(valThb).toFixed(0)})` : ''}</span>`
-          : `<span class="text-[#B38895]">สมดุล 0.00</span>`;
+          ? `<span class="text-rose-600 font-semibold">-${sym}${fmtNum(Math.abs(valAmt))} ${!isThbBase() ? `(-฿${fmtNum(Math.abs(valThb))})` : ''}</span>`
+          : `<span class="text-[#B38895]">สมดุล 0</span>`;
         return `<div class="flex justify-between items-center p-2.5 bg-[#FFF9FA] rounded-xl border border-[#F5D5DF]">
           <span class="font-medium text-[#6B424E] flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full" style="background:${m.accent_color}"></span>${m.display_name}
@@ -2225,8 +2261,8 @@
               <span class="font-semibold" style="color:${t.toColor || '#6B424E'}">${t.to}</span>
             </div>
             <div class="text-right">
-              <p class="font-semibold text-[#C45B79]">฿${Number(t.thb).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-              ${!isThbBase() ? `<p class="text-[10px] text-[#B38895]">(${sym}${Number(t.cny).toFixed(2)})</p>` : ''}
+              <p class="font-semibold text-[#C45B79]">฿${fmtNum(t.thb)}</p>
+              ${!isThbBase() ? `<p class="text-[10px] text-[#B38895]">(${sym}${fmtNum(t.cny)})</p>` : ''}
             </div>
           </div>`).join('')
         : '<p class="text-center text-[#B38895] py-3 bg-[#FFF9FA] rounded-xl">ยอดสมดุลกันแล้ว ไม่ต้องโอนคืน</p>';
@@ -2398,13 +2434,13 @@
       });
 
       const chSumTotal = Math.max(0, chTotals.transfer) + Math.max(0, chTotals.credit_card) + Math.max(0, chTotals.cash);
-      const pctTr = chSumTotal > 0 ? ((Math.max(0, chTotals.transfer) / chSumTotal) * 100).toFixed(0) : 0;
-      const pctCr = chSumTotal > 0 ? ((Math.max(0, chTotals.credit_card) / chSumTotal) * 100).toFixed(0) : 0;
-      const pctCa = chSumTotal > 0 ? ((Math.max(0, chTotals.cash) / chSumTotal) * 100).toFixed(0) : 0;
+      const pctTr = chSumTotal > 0 ? Math.round((Math.max(0, chTotals.transfer) / chSumTotal) * 100) : 0;
+      const pctCr = chSumTotal > 0 ? Math.round((Math.max(0, chTotals.credit_card) / chSumTotal) * 100) : 0;
+      const pctCa = chSumTotal > 0 ? Math.round((Math.max(0, chTotals.cash) / chSumTotal) * 100) : 0;
 
-      document.getElementById('ch-sum-transfer').textContent = `฿${chTotals.transfer.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
-      document.getElementById('ch-sum-credit').textContent = `฿${chTotals.credit_card.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
-      document.getElementById('ch-sum-cash').textContent = `฿${chTotals.cash.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
+      document.getElementById('ch-sum-transfer').textContent = `฿${fmtNum(chTotals.transfer)}`;
+      document.getElementById('ch-sum-credit').textContent = `฿${fmtNum(chTotals.credit_card)}`;
+      document.getElementById('ch-sum-cash').textContent = `฿${fmtNum(chTotals.cash)}`;
       document.getElementById('ch-pct-transfer').textContent = `${pctTr}%`;
       document.getElementById('ch-pct-credit').textContent = `${pctCr}%`;
       document.getElementById('ch-pct-cash').textContent = `${pctCa}%`;
@@ -2416,11 +2452,11 @@
       const memberCount = participants.length || 1;
       const displayGrand = isThbBase() ? grandOrig : grandThb;
 
-      document.getElementById('stat-grand-thb').textContent = `฿${displayGrand.toLocaleString('en-US', {maximumFractionDigits: 0})}`;
-      document.getElementById('stat-grand-cny').textContent = isThbBase() ? `${expensesList.length} รายการ` : `${sym}${grandOrig.toLocaleString('en-US', {maximumFractionDigits: 1})}`;
+      document.getElementById('stat-grand-thb').textContent = `฿${fmtNum(displayGrand)}`;
+      document.getElementById('stat-grand-cny').textContent = isThbBase() ? `${expensesList.length} รายการ` : `${sym}${fmtNum(grandOrig)}`;
       document.getElementById('stat-avg-label').textContent = monthly ? 'เฉลี่ยต่อเดือน' : 'เฉลี่ยต่อวัน';
-      document.getElementById('stat-avg-day').textContent = `฿${(displayGrand / activeCount).toLocaleString('en-US', {maximumFractionDigits: 0})}`;
-      document.getElementById('stat-avg-person').textContent = memberCount > 1 ? `เฉลี่ยคนละ ฿${(displayGrand / memberCount).toLocaleString('en-US', {maximumFractionDigits: 0})}` : 'สมุดรายบุคคล';
+      document.getElementById('stat-avg-day').textContent = `฿${fmtNum(displayGrand / activeCount)}`;
+      document.getElementById('stat-avg-person').textContent = memberCount > 1 ? `เฉลี่ยคนละ ฿${fmtNum(displayGrand / memberCount)}` : 'สมุดรายบุคคล';
       document.getElementById('bar-chart-title').textContent = monthly ? 'กราฟค่าใช้จ่ายรายเดือน (บาท)' : 'กราฟค่าใช้จ่ายรายวัน (บาท)';
 
       const sortedKeys = Object.keys(periodTotals);
@@ -2470,15 +2506,15 @@
       });
 
       document.getElementById('category-breakdown-list').innerHTML = catKeys.map((k, i) => {
-        const pct = displayGrand > 0 ? ((catTotals[k] / displayGrand) * 100).toFixed(1) : 0;
+        const pct = displayGrand > 0 ? Math.round((catTotals[k] / displayGrand) * 100) : 0;
         return `<div class="flex justify-between items-center">
           <span class="flex items-center gap-2 text-[#8C5867]"><span class="w-2.5 h-2.5 rounded-full" style="background:${pastelColors[i % pastelColors.length]}"></span>${catLabels[k]}</span>
-          <span class="font-semibold text-[#6B424E]">฿${catTotals[k].toLocaleString('en-US', {maximumFractionDigits: 0})} <span class="text-[#B38895] font-normal">(${pct}%)</span></span>
+          <span class="font-semibold text-[#6B424E]">฿${fmtNum(catTotals[k])} <span class="text-[#B38895] font-normal">(${pct}%)</span></span>
         </div>`;
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE, QUICK CAMERA & CLIPBOARD AI SCANNER =================
+    // ================= MULTI-FILE & 1-TAP AI RECEIPT SCANNER =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -2575,7 +2611,7 @@ Step 2: If "is_receipt" is true, extract the following for target currency ${cur
 - "slip_date": printed transaction date in YYYY-MM-DD format (IMPORTANT: Thai receipts use Buddhist Era B.E., e.g. 2569 = 2026 A.D. because 2569 - 543 = 2026) or null if none.
 - "slip_time": printed transaction time (HH:MM 24-hour) or null if none.
 - "slip_ref": transaction reference number / order ID if printed, or null.
-Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny": 0.00, "category": "Food", "payment_channel": "transfer", "channel_explicit": false, "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
+Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny": 0, "category": "Food", "payment_channel": "transfer", "channel_explicit": false, "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
 
       try {
         const rawText = await callGeminiWithFallback(apiKey, prompt, base64Data);
@@ -2752,7 +2788,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
           statusEl.textContent = `พบข้อจำกัดรายการ${rejectNote}`;
         } else {
           statusEl.textContent = res.amount_cny
-            ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${res.amount_cny} (${getChannelLabel(res.payment_channel)})${rejectNote}`
+            ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel)})${rejectNote}`
             : `แนบรูปเรียบร้อยแล้ว${rejectNote}`;
         }
       } else {
@@ -2814,7 +2850,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         }
 
         const cnyFieldHtml = item.amount_locked
-          ? `<input type="number" step="0.01" value="${item.amount_cny}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#8C5867] cursor-not-allowed" />`
+          ? `<input type="text" value="${fmtNum(item.amount_cny)}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#8C5867] cursor-not-allowed" />`
           : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />`;
 
         return `
@@ -3011,7 +3047,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const amt = document.getElementById('exp-cny').value || 0;
       const rate = getGlobalFinalRate();
       const fee = document.getElementById('exp-fee').checked;
-      document.getElementById('exp-thb-preview').textContent = `THB ${calcFinalThb(amt, rate, fee).toFixed(2)}`;
+      document.getElementById('exp-thb-preview').textContent = `THB ${fmtNum(calcFinalThb(amt, rate, fee))}`;
     }
 
     async function saveExpense() {
@@ -3154,7 +3190,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         const { error } = await db.from('expenses').insert([payload]);
         if (error) throw error;
 
-        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" (${getChannelLabel(payment_channel)}) ยอด ${getCurrSymbol()}${amount_cny}`);
+        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" (${getChannelLabel(payment_channel)}) ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
         closeModal('expense-modal');
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-cny').value = '';
@@ -3423,20 +3459,20 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         const timeVal = e.slip_time || new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
         const periodStr = monthly ? (e.expense_date || '') : `Day ${e.trip_day}`;
         const kind = e.is_refund ? 'คืนเงิน' : 'รายจ่าย';
-        csv += `${periodStr},${timeVal},${getChannelLabel(normCh)},${e.category},${cleanTitle},${kind},${signedAmt.toFixed(2)},${thb.toFixed(2)},${paidBy},"${splitNames}"\n`;
+        csv += `${periodStr},${timeVal},${getChannelLabel(normCh)},${e.category},${cleanTitle},${kind},${signedAmt},${thb},${paidBy},"${splitNames}"\n`;
       });
 
       csv += '\nสรุปยอดแยกตามช่องทางจ่ายเงิน\n';
       csv += `ช่องทางจ่าย,ยอดรวม (${code})\n`;
-      csv += `1. โอน,${chTotals.transfer.toFixed(2)}\n`;
-      csv += `2. บัตรเครดิต,${chTotals.credit_card.toFixed(2)}\n`;
-      csv += `3. เงินสด,${chTotals.cash.toFixed(2)}\n`;
+      csv += `1. โอน,${chTotals.transfer}\n`;
+      csv += `2. บัตรเครดิต,${chTotals.credit_card}\n`;
+      csv += `3. เงินสด,${chTotals.cash}\n`;
 
       if (!isSinglePersonLedger) {
         csv += '\nสรุปยอดโอนคืนไฟนอล\n';
         csv += `ผู้โอน,ผู้รับเงิน,ยอด (${code}),ยอดบาทสุทธิ (THB)\n`;
         calculateOptimalTransfers(finalRate).forEach(t => {
-          csv += `${t.from},${t.to},${t.cny.toFixed(2)},${t.thb.toFixed(2)}\n`;
+          csv += `${t.from},${t.to},${t.cny},${t.thb}\n`;
         });
       }
 
