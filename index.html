@@ -434,9 +434,11 @@
       </div>
     </main>
 
-    <!-- Dual Floating Action Buttons -->
+    <!-- Dual Floating Action Buttons:
+         1. Camera (Direct Live Photo Capture -> Forces receipt OCR without rejecting background)
+         2. + (1-Tap Album Picker -> Opens Photo Library immediately; if cancelled, opens manual form) -->
     <div id="fab-container" class="fixed bottom-20 right-4 flex flex-col items-center gap-2.5 z-30">
-      <label for="quick-camera-input" title="ถ่ายรูปบิลด่วนทันที" aria-label="Quick Camera Scan" class="bg-white/95 text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
+      <label for="quick-camera-input" title="ถ่ายรูปใบเสร็จสดทันที" aria-label="Quick Camera Scan" class="bg-white/95 text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/>
@@ -861,16 +863,18 @@
       if (!input.files || input.files.length === 0) return;
       const files = Array.from(input.files);
       openExpenseModal();
-      await processSelectedFiles(files);
+      await processSelectedFiles(files, { isDirectCamera: false });
       input.value = '';
     }
 
+    // Live Camera Capture: Waits briefly for iOS Safari resume, then forces receipt extraction
     async function handleQuickCameraCapture(input) {
       if (!input.files || input.files.length === 0) return;
       if (currentTrip?.is_closed) return alert('สมุดนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
       const capturedFile = input.files[0];
       openExpenseModal();
-      await processSelectedFiles([capturedFile]);
+      await new Promise(r => setTimeout(r, 250));
+      await processSelectedFiles([capturedFile], { isDirectCamera: true });
       input.value = '';
     }
 
@@ -2506,7 +2510,7 @@
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE & 1-TAP AI RECEIPT SCANNER =================
+    // ================= MULTI-FILE & LIVE CAMERA AI RECEIPT SCANNER =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -2540,33 +2544,36 @@
       throw new Error(lastError);
     }
 
-    async function scanSingleReceiptFile(file, apiKey) {
+    async function scanSingleReceiptFile(file, apiKey, options = {}) {
+      const isDirectCamera = Boolean(options.isDirectCamera);
       const fallbackTime = getCurrentHHMM();
       const photoCapturedDate = getFileCaptureDate(file);
       const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
       const fileHash = await computeFileHash(file);
       const currCode = getCurrCode();
 
-      const hashDup = findDuplicateExpense({ hash: fileHash });
-      if (hashDup) {
-        return {
-          is_valid_receipt: true,
-          file,
-          fileHash,
-          slipRef: null,
-          trip_day: hashDup.item.trip_day,
-          slip_date: hashDup.item.expense_date || photoCapturedDate,
-          date_source_label: 'จากข้อมูลเดิม',
-          title: hashDup.item.title,
-          amount_cny: hashDup.item.amount_cny,
-          amount_locked: true,
-          category: hashDup.item.category,
-          payment_channel: normalizeChannel(hashDup.item.payment_channel),
-          channel_detected: false,
-          slip_time: hashDup.item.slip_time || fallbackTime,
-          time_source: hashDup.item.time_source || 'upload',
-          duplicateMatch: hashDup
-        };
+      if (!isDirectCamera) {
+        const hashDup = findDuplicateExpense({ hash: fileHash });
+        if (hashDup) {
+          return {
+            is_valid_receipt: true,
+            file,
+            fileHash,
+            slipRef: null,
+            trip_day: hashDup.item.trip_day,
+            slip_date: hashDup.item.expense_date || photoCapturedDate,
+            date_source_label: 'จากข้อมูลเดิม',
+            title: hashDup.item.title,
+            amount_cny: hashDup.item.amount_cny,
+            amount_locked: true,
+            category: hashDup.item.category,
+            payment_channel: normalizeChannel(hashDup.item.payment_channel),
+            channel_detected: false,
+            slip_time: hashDup.item.slip_time || fallbackTime,
+            time_source: hashDup.item.time_source || 'upload',
+            duplicateMatch: hashDup
+          };
+        }
       }
 
       if (!apiKey) {
@@ -2579,11 +2586,11 @@
           trip_day: mappedFromPhoto || defaultDay,
           slip_date: photoCapturedDate,
           date_source_label: 'จากวันที่ถ่ายภาพ',
-          title: file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป',
+          title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
           amount_cny: '',
           amount_locked: false,
           category: 'Food',
-          payment_channel: 'transfer',
+          payment_channel: isDirectCamera ? 'cash' : 'transfer',
           channel_detected: false,
           slip_time: fallbackTime,
           time_source: 'upload',
@@ -2591,31 +2598,35 @@
         };
       }
 
-      const base64Data = await fileToBase64(file);
+      const base64Data = await fileToBase64(file, isDirectCamera);
+      const step1Rule = isDirectCamera
+        ? `This image was captured directly with the user's camera to record a bill or receipt. Even if table background, hands, or food items appear around the paper receipt, ALWAYS set "is_receipt": true and carefully read the printed or handwritten total amount on the receipt.`
+        : `Step 1: Determine if this image is a genuine financial receipt, payment slip, bank transfer confirmation, credit card charge slip, invoice, or handwritten bill ("is_receipt": true). Only set "is_receipt": false if there is NO receipt, bill, price list, or payment slip anywhere in the image.`;
+
       const prompt = `Analyze this image carefully.
-Step 1: Determine if this image is a genuine financial receipt, payment slip, bank transfer confirmation, credit card charge slip, invoice, or handwritten bill ("is_receipt": true). If it is a selfie, portrait of people, scenery, food photo without a bill, or unrelated picture, return ONLY: {"is_receipt": false}.
-Step 2: If "is_receipt" is true, extract the following for target currency ${currCode}:
-- "amount_cny": final net paid amount in ${currCode} (number only).
-- "title": concise Thai description with original merchant/recipient name in parentheses.
+${step1Rule}
+Extract the following for target currency ${currCode}:
+- "amount_cny": final net total / grand total paid amount in ${currCode} (number only, look for Total, Grand Total, ยอดรวม, สุทธิ, Amount).
+- "title": concise Thai description with original merchant/store name in parentheses.
 - "category": one of Food, Transport, Ticket, Shopping, Hotel.
-- "payment_channel": detect payment method if clearly shown on slip: use "credit_card" if VISA, Mastercard, JCB, UnionPay, AMEX, CREDIT, or Approval Code appears; use "cash" if explicitly marked CASH / เงินสด; otherwise default to "transfer".
-- "channel_explicit": true if payment method was explicitly printed on the slip, false otherwise.
+- "payment_channel": detect payment method if clearly shown on receipt: use "credit_card" if VISA, Mastercard, JCB, UnionPay, AMEX, CREDIT, or Approval Code appears; use "cash" if CASH / เงินสด / เงินทอน appears; otherwise default to "${isDirectCamera ? 'cash' : 'transfer'}".
+- "channel_explicit": true if payment method was explicitly printed on the receipt, false otherwise.
 - "slip_date": transaction date in YYYY-MM-DD format.
   CRITICAL THAI DATE RULES:
-  1. Thai slips use Day/Month/Year (DD/MM/YYYY) and Buddhist Era (พ.ศ. / B.E.).
+  1. Thai receipts use Day/Month/Year (DD/MM/YYYY) and Buddhist Era (พ.ศ. / B.E.).
   2. Convert B.E. year to A.D. year by subtracting 543: 2569 (or 69) = 2026; 2568 (or 68) = 2025; 2570 (or 70) = 2027.
   3. Example: "18 พ.ย. 2569" or "18/11/69" MUST be "2026-11-18".
   4. Return null if no date is visible.
 - "slip_time": printed transaction time (HH:MM 24-hour) or null if none.
-- "slip_ref": transaction reference number / order ID if printed, or null.
-Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny": 0, "category": "Food", "payment_channel": "transfer", "channel_explicit": false, "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
+- "slip_ref": transaction reference number / receipt no / tax inv no if printed, or null.
+Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny": 0, "category": "Food", "payment_channel": "${isDirectCamera ? 'cash' : 'transfer'}", "channel_explicit": false, "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
 
       try {
         const rawText = await callGeminiWithFallback(apiKey, prompt, base64Data);
         const jsonMatch = rawText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.is_receipt === false) {
+          if (!isDirectCamera && parsed.is_receipt === false) {
             return { is_valid_receipt: false, file };
           }
 
@@ -2630,12 +2641,12 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
           const validSlipDate = normalizeSlipDate(parsed.slip_date, photoCapturedDate);
           const resolvedDate = validSlipDate || photoCapturedDate;
-          const dateSourceLabel = validSlipDate ? 'จากสลิป' : 'จากวันที่ถ่ายภาพ';
+          const dateSourceLabel = validSlipDate ? 'จากใบเสร็จ' : 'จากวันที่ถ่ายภาพ';
 
           const mappedDay = mapSlipDateToTripDay(resolvedDate);
           const finalDay = mappedDay || defaultDay;
           const parsedAmt = Number(parsed.amount_cny) > 0 ? Number(parsed.amount_cny) : '';
-          const detectedChannel = normalizeChannel(parsed.payment_channel);
+          const detectedChannel = normalizeChannel(parsed.payment_channel || (isDirectCamera ? 'cash' : 'transfer'));
 
           const semanticDup = findDuplicateExpense({
             hash: fileHash,
@@ -2654,7 +2665,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
             trip_day: finalDay,
             slip_date: resolvedDate,
             date_source_label: dateSourceLabel,
-            title: parsed.title || 'รายการจากสลิป',
+            title: parsed.title || (isDirectCamera ? 'ใบเสร็จจากกล้อง' : 'รายการจากสลิป'),
             amount_cny: parsedAmt,
             amount_locked: Boolean(parsedAmt),
             category: parsed.category || 'Food',
@@ -2678,11 +2689,11 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         trip_day: mappedFromPhoto || defaultDay,
         slip_date: photoCapturedDate,
         date_source_label: 'จากวันที่ถ่ายภาพ',
-        title: file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป',
+        title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
         amount_cny: '',
         amount_locked: false,
         category: 'Food',
-        payment_channel: 'transfer',
+        payment_channel: isDirectCamera ? 'cash' : 'transfer',
         channel_detected: false,
         slip_time: fallbackTime,
         time_source: 'upload',
@@ -2706,11 +2717,11 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
     async function handleMultiReceiptScan(input) {
       if (!input.files || input.files.length === 0) return;
-      await processSelectedFiles(Array.from(input.files));
+      await processSelectedFiles(Array.from(input.files), { isDirectCamera: false });
     }
 
-    async function processSelectedFiles(files) {
-      // Sync latest DB state immediately before scanning to avoid stale memory after delete
+    async function processSelectedFiles(files, options = {}) {
+      const isDirectCamera = Boolean(options.isDirectCamera);
       try {
         const { data: latestExps } = await db.from('expenses').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false });
         if (latestExps) expensesList = latestExps;
@@ -2724,13 +2735,14 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
       statusEl.classList.remove('hidden');
       showDuplicateAlert(null);
-      statusEl.textContent = `กำลังคัดกรองสลิปและวิเคราะห์ข้อมูล ${files.length} รูป...`;
+      statusEl.textContent = isDirectCamera
+        ? 'กำลังอ่านตัวเลขและรายละเอียดจากใบเสร็จที่ถ่าย...'
+        : `กำลังคัดกรองสลิปและวิเคราะห์ข้อมูล ${files.length} รูป...`;
 
-      // Process in chunks of 3 to keep mobile browser responsive & prevent API rate limit
       const rawResults = [];
       for (let i = 0; i < files.length; i += 3) {
         const chunk = files.slice(i, i + 3);
-        const chunkRes = await Promise.all(chunk.map(f => scanSingleReceiptFile(f, apiKey)));
+        const chunkRes = await Promise.all(chunk.map(f => scanSingleReceiptFile(f, apiKey, { isDirectCamera })));
         rawResults.push(...chunkRes);
       }
 
@@ -2748,7 +2760,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         validReceipts.forEach(item => {
           if (!item.duplicateMatch && item.slip_date && item.slip_date.slice(0, 7) !== currentYm) {
             item.duplicateMatch = {
-              reason: `วันที่สลิป (${item.slip_date}) อยู่นอกเดือน ${formatMonthLabel(currentYm)} (แก้ไขวันที่ได้หาก AI อ่านผิด)`,
+              reason: `วันที่ใบเสร็จ (${item.slip_date}) อยู่นอกเดือน ${formatMonthLabel(currentYm)} (แก้ไขวันที่ได้หาก AI อ่านผิด)`,
               item
             };
           }
@@ -2792,7 +2804,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
         document.getElementById('exp-time').value = res.slip_time;
         currentTimeSource = res.time_source;
-        document.getElementById('exp-time-badge').textContent = res.time_source === 'slip' ? '(จากสลิป)' : '(เวลาอัปโหลด)';
+        document.getElementById('exp-time-badge').textContent = res.time_source === 'slip' ? '(จากใบเสร็จ)' : '(เวลาถ่ายภาพ)';
 
         const rejectNote = rejectedNonReceipts > 0 ? ` · คัดรูปไม่ใช่สลิปออก ${rejectedNonReceipts} รูป` : '';
         if (res.duplicateMatch) {
@@ -2801,7 +2813,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         } else {
           statusEl.textContent = res.amount_cny
             ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel)})${rejectNote}`
-            : `แนบรูปเรียบร้อยแล้ว${rejectNote}`;
+            : `แนบรูปเรียบร้อยแล้ว สามารถกรอกยอดเงินด้านล่างได้ทันที${rejectNote}`;
         }
       } else {
         activeSingleFile = null;
@@ -2905,21 +2917,46 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       showDuplicateAlert(null);
     }
 
-    function fileToBase64(file) {
+    // Upgraded HEIC-safe & High-Resolution Camera Image Decoder with Contrast Boost for Thermal Receipts
+    async function fileToBase64(file, enhanceReceiptContrast = false) {
+      const targetMaxDim = enhanceReceiptContrast ? 1400 : 1024;
+      try {
+        if (typeof createImageBitmap === 'function') {
+          const bitmap = await createImageBitmap(file);
+          const scale = Math.min(1, targetMaxDim / Math.max(bitmap.width, bitmap.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(bitmap.width * scale);
+          canvas.height = Math.round(bitmap.height * scale);
+          const ctx = canvas.getContext('2d');
+          if (enhanceReceiptContrast) {
+            ctx.filter = 'contrast(1.18) brightness(1.03)';
+          }
+          ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          bitmap.close();
+          return canvas.toDataURL('image/jpeg', 0.86).split(',')[1];
+        }
+      } catch (_) {}
+
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           const img = new Image();
           img.src = e.target.result;
+          try { if (img.decode) await img.decode(); } catch (_) {}
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const scale = Math.min(1, 1024 / img.width);
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]);
+            const scale = Math.min(1, targetMaxDim / Math.max(img.width || 1024, img.height || 1024));
+            canvas.width = Math.round((img.width || 1024) * scale);
+            canvas.height = Math.round((img.height || 1024) * scale);
+            const ctx = canvas.getContext('2d');
+            if (enhanceReceiptContrast) {
+              ctx.filter = 'contrast(1.18) brightness(1.03)';
+            }
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.86).split(',')[1]);
           };
+          if (img.complete && img.naturalWidth > 0) img.onload();
         };
       });
     }
@@ -2934,7 +2971,20 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       openModal('image-viewer-modal');
     }
 
-    function compressImage(file, maxWidth = 1000) {
+    async function compressImage(file, maxWidth = 1100) {
+      try {
+        if (typeof createImageBitmap === 'function') {
+          const bitmap = await createImageBitmap(file);
+          const scale = Math.min(1, maxWidth / Math.max(bitmap.width, bitmap.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(bitmap.width * scale);
+          canvas.height = Math.round(bitmap.height * scale);
+          canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          bitmap.close();
+          return await new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.78));
+        }
+      } catch (_) {}
+
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -2947,7 +2997,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
             canvas.width = img.width * scale;
             canvas.height = img.height * scale;
             canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.75);
+            canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.78);
           };
         };
       });
@@ -2965,7 +3015,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       throw lastErr;
     }
 
-    // Safe DB Insert: Automatically strips duplicate unique constraint keys if re-uploading deleted slips
     async function safeInsertExpenseRow(payload) {
       const cleanPayload = {
         ...payload,
@@ -2976,7 +3025,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const { error } = await db.from('expenses').insert([cleanPayload]);
       if (!error) return;
 
-      // If Supabase has a strict unique index on slip_hash / slip_ref, retry safely with nullified dedup keys
       if (error.code === '23505' || (error.message && error.message.toLowerCase().includes('unique'))) {
         const retryPayload = { ...cleanPayload, slip_hash: null, slip_ref: null };
         const { error: retryErr } = await db.from('expenses').insert([retryPayload]);
@@ -3087,7 +3135,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
       const monthly = isMonthlyMode();
 
-      // ================= RESILIENT BATCH SAVE =================
       if (batchQueue.length > 0) {
         const missingAmt = batchQueue.find(item => !parseFloat(item.amount_cny));
         if (missingAmt) return alert(`กรุณาระบุยอดเงินสำหรับรายการ "${missingAmt.title || 'บิลที่ยังไม่มีตัวเลข'}"`);
@@ -3147,7 +3194,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
           clearBatchQueue();
           await refreshAllData();
         } else {
-          // Keep only failed items in queue so user never loses them or double-saves succeeded ones
           batchQueue = failedItems.map(f => ({
             ...f.item,
             duplicateMatch: { reason: `บันทึกไม่สำเร็จ (${f.reason}) — กดบันทึกอีกครั้ง`, item: f.item }
@@ -3159,7 +3205,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         return;
       }
 
-      // ================= SINGLE ITEM SAVE =================
       const title = document.getElementById('exp-title').value.trim();
       const amount_cny = parseFloat(document.getElementById('exp-cny').value);
       const slipTimeVal = document.getElementById('exp-time').value || getCurrentHHMM();
@@ -3236,7 +3281,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       if (e && isLockedPastMonth(e)) return alert('รายการของเดือนก่อนหน้าถูกล็อกแล้ว ไม่สามารถลบได้');
       if (!confirm(`ยืนยันการลบรายการ "${title}"`)) return;
 
-      // Instant optimistic removal from memory so re-uploading never triggers false duplicate
       const backupList = [...expensesList];
       expensesList = expensesList.filter(x => x.id !== id);
       renderDashboard();
