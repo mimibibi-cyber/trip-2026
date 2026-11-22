@@ -144,13 +144,16 @@
         </div>
       </div>
 
-      <!-- View Scope Switcher -->
+      <!-- View Scope Switcher & Quick Recurring Pull (Admin Monthly) -->
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-1.5">
           <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">รายการหลัก</button>
           <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 text-[#8C5867] border border-[#F5D5DF]">ส่วนตัว & เงินสด</button>
         </div>
-        <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1] shrink-0">+ เพิ่มวัน</button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="btn-pull-recurring-top" onclick="applyRecurringTemplatesToCurrentMonth()" class="hidden text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1]">+ ดึงรายการประจำ</button>
+          <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1]">+ เพิ่มวัน</button>
+        </div>
       </div>
 
       <!-- Personal Cash Wallet Card -->
@@ -181,7 +184,7 @@
       <!-- Search & Quick Filters -->
       <div class="space-y-2">
         <div class="relative">
-          <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, รายการ, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border border-[#F2CFD9] rounded-xl pl-9 pr-3 py-2 text-xs" />
+          <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, หมวดหมู่, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border border-[#F2CFD9] rounded-xl pl-9 pr-3 py-2 text-xs" />
           <svg class="w-4 h-4 text-[#B38895] absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
         </div>
         <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px]">
@@ -297,7 +300,7 @@
       </div>
     </main>
 
-    <!-- TAB 4: MEMBERS, COMPACT CIRCLE COLOR PICKER, PROXY RIGHTS & ADMIN -->
+    <!-- TAB 4: MEMBERS, CUSTOM CATEGORIES, RECURRING, LEDGER MANAGEMENT & ADMIN -->
     <main id="tab-members" class="hidden p-5 pb-28 space-y-5">
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center">
@@ -313,7 +316,47 @@
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
-          <h2 class="font-semibold text-sm text-[#6B424E]">จัดการชื่อสมุด · สกุลเงิน · ปิดยอด · สร้างสมุดใหม่</h2>
+          <h2 class="font-semibold text-sm text-[#6B424E]">จัดการหมวดหมู่ · รายการประจำ · สมุดบัญชี</h2>
+        </div>
+
+        <!-- 1. Dynamic Categories Management (Admin adds, everyone in ledger sees & charts auto-sync) -->
+        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-2.5">
+          <div>
+            <label class="block text-[11px] font-semibold text-[#6B424E]">จัดการหมวดหมู่ของสมุดนี้ (อัปเดตหน้าสรุป & กราฟทันที)</label>
+            <p class="text-[10px] text-[#A37B87]">เพิ่มหมวดหมู่เฉพาะของสมุดนี้ สมาชิกทุกคนและ AI จะเลือกใช้ได้ทันที</p>
+          </div>
+          <div id="admin-categories-list" class="flex flex-wrap gap-1.5"></div>
+          <div class="flex gap-2 pt-1">
+            <input id="admin-new-cat-input" type="text" placeholder="ชื่อหมวดหมู่ใหม่ (เช่น สุขภาพ / สัตว์เลี้ยง / ผ่อนชำระ)" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs" />
+            <button onclick="addCustomCategory()" class="luxury-gradient text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0">+ เพิ่มหมวด</button>
+          </div>
+        </div>
+
+        <!-- 2. Recurring Fixed Expenses (Monthly Mode) -->
+        <div id="admin-recurring-panel" class="hidden bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-2.5">
+          <div class="flex justify-between items-center gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-[#C45B79]">รายการประจำเดือนอัตโนมัติ (Recurring Fixed)</label>
+              <p class="text-[10px] text-[#A37B87]">ตั้งค่าบิลจ่ายประจำ กดดึงลงเดือนใหม่ได้ในปุ่มเดียว</p>
+            </div>
+            <button onclick="applyRecurringTemplatesToCurrentMonth()" class="luxury-gradient text-white px-3 py-1.5 rounded-xl text-[11px] font-medium shrink-0">ดึงลงเดือนนี้</button>
+          </div>
+          <div id="admin-recurring-list" class="space-y-1.5 text-xs"></div>
+          <div class="pt-1.5 border-t border-[#F2CFD9] space-y-1.5">
+            <div class="grid grid-cols-3 gap-1.5">
+              <input id="rec-new-title" type="text" placeholder="ชื่อบิลประจำ (เช่น ค่าเน็ต)" class="col-span-2 px-2.5 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs" />
+              <input id="rec-new-amt" type="number" step="0.01" placeholder="ยอดเงิน" class="px-2.5 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs font-semibold text-[#C45B79]" />
+            </div>
+            <div class="grid grid-cols-3 gap-1.5">
+              <select id="rec-new-cat" class="px-2 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-[11px]"></select>
+              <select id="rec-new-channel" class="px-2 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-[11px]">
+                <option value="transfer">1. โอน</option>
+                <option value="credit_card">2. บัตรเครดิต</option>
+                <option value="cash">3. เงินสด</option>
+              </select>
+              <button onclick="addRecurringTemplate()" class="bg-[#8C5867] text-white rounded-xl text-[11px] font-medium py-1.5">+ เพิ่มบิลประจำ</button>
+            </div>
+          </div>
         </div>
 
         <!-- Rename Current Trip / Ledger -->
@@ -343,6 +386,7 @@
           </div>
         </div>
 
+        <!-- Close / Purge / Delete Ledger -->
         <div class="pt-2 border-t border-[#F5D5DF] space-y-2.5">
           <div class="flex justify-between items-center gap-2">
             <div>
@@ -353,6 +397,9 @@
           </div>
           <button onclick="purgeOldReceiptImages()" class="w-full bg-white hover:bg-[#FFF5F8] text-[#8C5867] border border-[#F2CFD9] py-2 rounded-xl text-[11px] font-medium">
             ล้างไฟล์รูปสลิปทันทีเพื่อคืนพื้นที่ Storage (คงตัวเลขไว้ 100%)
+          </button>
+          <button onclick="deleteCurrentLedgerPermanently()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-2 rounded-xl text-[11px] font-semibold">
+            ลบสมุดบัญชีนี้ถาวร (Delete Ledger)
           </button>
         </div>
 
@@ -434,9 +481,7 @@
       </div>
     </main>
 
-    <!-- Dual Floating Action Buttons:
-         1. Camera (Direct Live Photo Capture -> Forces receipt OCR without rejecting background)
-         2. + (1-Tap Album Picker -> Opens Photo Library immediately; if cancelled, opens manual form) -->
+    <!-- Dual Floating Action Buttons -->
     <div id="fab-container" class="fixed bottom-20 right-4 flex flex-col items-center gap-2.5 z-30">
       <label for="quick-camera-input" title="ถ่ายรูปใบเสร็จสดทันที" aria-label="Quick Camera Scan" class="bg-white/95 text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -522,13 +567,7 @@
           </div>
           <div>
             <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
-            <select id="exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
-              <option value="Food">อาหาร / เครื่องดื่ม</option>
-              <option value="Transport">เดินทาง / รถไฟ / น้ำมัน</option>
-              <option value="Ticket">ค่าเข้าสถานที่ / บันเทิง</option>
-              <option value="Shopping">ช้อปปิ้ง / ของใช้</option>
-              <option value="Hotel">ที่พัก / บิลรายเดือน</option>
-            </select>
+            <select id="exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
           </div>
         </div>
 
@@ -600,7 +639,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: EDIT EXISTING EXPENSE ================= -->
+  <!-- ================= MODAL: EDIT EXISTING EXPENSE (WITH ADMIN MOVE LEDGER) ================= -->
   <div id="edit-expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-[#F5D5DF]">
       <div class="flex justify-between items-center">
@@ -609,6 +648,12 @@
       </div>
 
       <input type="hidden" id="edit-exp-id" />
+
+      <!-- Admin: Move Expense to Another Ledger -->
+      <div id="edit-move-ledger-box" class="hidden bg-[#FFF5F8] p-3 rounded-2xl border border-[#F2CFD9] space-y-1">
+        <label class="block text-[10px] font-semibold text-[#C45B79]">Admin: ย้ายรายการนี้ไปสมุดบัญชีอื่น (กรณีอัปผิดสมุด)</label>
+        <select id="edit-exp-target-trip" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-xs font-medium text-[#6B424E]"></select>
+      </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div id="edit-day-field">
@@ -621,13 +666,7 @@
         </div>
         <div>
           <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
-          <select id="edit-exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1">
-            <option value="Food">อาหาร / เครื่องดื่ม</option>
-            <option value="Transport">เดินทาง / รถไฟ / น้ำมัน</option>
-            <option value="Ticket">ค่าเข้าสถานที่ / บันเทิง</option>
-            <option value="Shopping">ช้อปปิ้ง / ของใช้</option>
-            <option value="Hotel">ที่พัก / บิลรายเดือน</option>
-          </select>
+          <select id="edit-exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
       </div>
 
@@ -782,6 +821,19 @@
     const SUPER_ADMIN_NAME = 'yuranun';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    const DEFAULT_CATEGORIES = [
+      { key: 'Food', label: 'อาหาร / เครื่องดื่ม', short: 'อาหาร' },
+      { key: 'Transport', label: 'เดินทาง / รถไฟ / น้ำมัน', short: 'เดินทาง' },
+      { key: 'Ticket', label: 'ค่าเข้าสถานที่ / บันเทิง', short: 'เข้าชม/บันเทิง' },
+      { key: 'Shopping', label: 'ช้อปปิ้ง / ของใช้', short: 'ช้อปปิ้ง' },
+      { key: 'Hotel', label: 'ที่พัก / บิลรายเดือน', short: 'ที่พัก/บิล' }
+    ];
+
+    const CHART_COLORS = [
+      '#D6718E', '#F2A2B8', '#9E8AC9', '#6FA8DC', '#7DB894',
+      '#E69173', '#D4A359', '#E5B8C4', '#85C1E9', '#A3E4D7', '#F5B7B1', '#D7BDE2'
+    ];
+
     const PASTEL_PALETTE = [
       { hex: '#D6718E', label: 'Rose' },
       { hex: '#E69173', label: 'Peach' },
@@ -801,6 +853,8 @@
     let membersList = [];
     let expensesList = [];
     let monthlyArchivesList = [];
+    let customCategories = [...DEFAULT_CATEGORIES];
+    let recurringTemplates = [];
     let myPersonalCashInit = 0;
     let currentLogsList = [];
     let backupFilesList = [];
@@ -832,6 +886,280 @@
         minimumFractionDigits: isWhole ? 0 : 2,
         maximumFractionDigits: isWhole ? 0 : 2
       });
+    }
+
+    // Dynamic Category Helpers (Auto-sync across forms, feed badges, charts, PDF & Excel)
+    function getCategoryShortName(key) {
+      if (!key) return 'ทั่วไป';
+      const found = customCategories.find(c => c.key === key || c.label === key);
+      if (found) return found.short || found.label;
+      const def = DEFAULT_CATEGORIES.find(c => c.key === key);
+      return def ? def.short : key;
+    }
+
+    function getCategoryFullLabel(key) {
+      if (!key) return 'ทั่วไป';
+      const found = customCategories.find(c => c.key === key || c.label === key);
+      if (found) return found.label;
+      const def = DEFAULT_CATEGORIES.find(c => c.key === key);
+      return def ? def.label : key;
+    }
+
+    function buildCategoryOptionsHtml(selectedKey = 'Food', useShort = false) {
+      const list = [...customCategories];
+      if (selectedKey && !list.some(c => c.key === selectedKey)) {
+        list.push({ key: selectedKey, label: selectedKey, short: selectedKey });
+      }
+      return list.map(c =>
+        `<option value="${c.key}" ${c.key === selectedKey ? 'selected' : ''}>${useShort ? (c.short || c.label) : c.label}</option>`
+      ).join('');
+    }
+
+    function syncCategorySelects() {
+      const htmlFull = buildCategoryOptionsHtml('Food', false);
+      if (document.getElementById('exp-cat')) document.getElementById('exp-cat').innerHTML = htmlFull;
+      if (document.getElementById('edit-exp-cat')) document.getElementById('edit-exp-cat').innerHTML = htmlFull;
+      if (document.getElementById('rec-new-cat')) document.getElementById('rec-new-cat').innerHTML = buildCategoryOptionsHtml('Hotel', true);
+    }
+
+    async function loadLedgerMetadata() {
+      const catKey = `cats_${currentTrip.id}`;
+      const recKey = `rec_${currentTrip.id}`;
+      const { data } = await db.from('app_settings').select('key, value').in('key', [catKey, recKey]);
+
+      const catRow = (data || []).find(r => r.key === catKey);
+      if (catRow?.value) {
+        try {
+          const parsed = JSON.parse(catRow.value);
+          customCategories = Array.isArray(parsed) && parsed.length > 0 ? parsed : [...DEFAULT_CATEGORIES];
+        } catch (_) {
+          customCategories = [...DEFAULT_CATEGORIES];
+        }
+      } else {
+        customCategories = [...DEFAULT_CATEGORIES];
+      }
+
+      const recRow = (data || []).find(r => r.key === recKey);
+      if (recRow?.value) {
+        try {
+          const parsed = JSON.parse(recRow.value);
+          recurringTemplates = Array.isArray(parsed) ? parsed : [];
+        } catch (_) {
+          recurringTemplates = [];
+        }
+      } else {
+        recurringTemplates = [];
+      }
+
+      syncCategorySelects();
+      renderAdminCategories();
+      renderAdminRecurringTemplates();
+    }
+
+    function renderAdminCategories() {
+      const container = document.getElementById('admin-categories-list');
+      if (!container) return;
+      container.innerHTML = customCategories.map((c, idx) => {
+        const isDefault = DEFAULT_CATEGORIES.some(d => d.key === c.key);
+        return `
+          <span class="inline-flex items-center gap-1 bg-white border border-[#F2CFD9] text-[#6B424E] text-[11px] px-2.5 py-1 rounded-xl">
+            <span>${c.label}</span>
+            ${!isDefault ? `<button type="button" onclick="removeCustomCategory(${idx})" title="ลบหมวดหมู่นี้" class="text-rose-500 hover:text-rose-700 font-bold ml-1">✕</button>` : ''}
+          </span>`;
+      }).join('');
+    }
+
+    async function addCustomCategory() {
+      if (!isSuperAdmin()) return;
+      const input = document.getElementById('admin-new-cat-input');
+      const rawName = input.value.trim();
+      if (!rawName) return alert('กรุณากรอกชื่อหมวดหมู่ใหม่');
+
+      if (customCategories.some(c => c.key.toLowerCase() === rawName.toLowerCase() || c.label.toLowerCase() === rawName.toLowerCase())) {
+        return alert('มีหมวดหมู่นี้อยู่แล้วครับ');
+      }
+
+      const nextList = [...customCategories, { key: rawName, label: rawName, short: rawName }];
+      const { error } = await db.from('app_settings').upsert({
+        key: `cats_${currentTrip.id}`,
+        value: JSON.stringify(nextList)
+      });
+      if (error) return alert('เพิ่มหมวดหมู่ไม่สำเร็จ: ' + error.message);
+
+      customCategories = nextList;
+      input.value = '';
+      syncCategorySelects();
+      renderAdminCategories();
+      renderDashboard();
+      renderAnalytics();
+      await writeLog('ADD_CATEGORY', `เพิ่มหมวดหมู่ใหม่ "${rawName}"`);
+    }
+
+    async function removeCustomCategory(idx) {
+      if (!isSuperAdmin()) return;
+      const target = customCategories[idx];
+      if (!target) return;
+      if (!confirm(`ยืนยันการลบหมวดหมู่ "${target.label}"? (บิลเก่าที่เคยใช้หมวดนี้จะยังคงแสดงชื่อหมวดเดิมครบถ้วน)`)) return;
+
+      const nextList = customCategories.filter((_, i) => i !== idx);
+      const { error } = await db.from('app_settings').upsert({
+        key: `cats_${currentTrip.id}`,
+        value: JSON.stringify(nextList)
+      });
+      if (error) return alert('ลบหมวดหมู่ไม่สำเร็จ: ' + error.message);
+
+      customCategories = nextList;
+      syncCategorySelects();
+      renderAdminCategories();
+      renderDashboard();
+      renderAnalytics();
+      await writeLog('REMOVE_CATEGORY', `ลบหมวดหมู่ "${target.label}"`);
+    }
+
+    // ================= RECURRING FIXED EXPENSES (MONTHLY MODE) =================
+    function renderAdminRecurringTemplates() {
+      const container = document.getElementById('admin-recurring-list');
+      if (!container) return;
+      const sym = getCurrSymbol();
+      if (recurringTemplates.length === 0) {
+        container.innerHTML = '<p class="text-[11px] text-[#B38895] text-center py-2">ยังไม่มีรายการประจำเดือนที่ตั้งไว้</p>';
+        return;
+      }
+      container.innerHTML = recurringTemplates.map((r, idx) => `
+        <div class="flex justify-between items-center bg-white px-3 py-2 rounded-xl border border-[#F2CFD9]">
+          <div class="min-w-0 pr-2">
+            <p class="font-medium text-[#6B424E] truncate">${r.title}</p>
+            <p class="text-[10px] text-[#A37B87]">${getCategoryShortName(r.category)} · ${getChannelLabel(r.payment_channel)}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="font-semibold text-[#C45B79]">${sym}${fmtNum(r.amount)}</span>
+            <button type="button" onclick="removeRecurringTemplate(${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-bold">✕</button>
+          </div>
+        </div>`).join('');
+    }
+
+    async function addRecurringTemplate() {
+      if (!isSuperAdmin()) return;
+      const title = document.getElementById('rec-new-title').value.trim();
+      const amount = parseFloat(document.getElementById('rec-new-amt').value);
+      const category = document.getElementById('rec-new-cat').value || 'Hotel';
+      const payment_channel = document.getElementById('rec-new-channel').value || 'transfer';
+
+      if (!title || !amount || amount <= 0) return alert('กรุณากรอกชื่อบิลประจำและยอดเงินให้ครบ');
+
+      const nextList = [...recurringTemplates, { id: `rec_${Date.now()}`, title, amount, category, payment_channel }];
+      const { error } = await db.from('app_settings').upsert({
+        key: `rec_${currentTrip.id}`,
+        value: JSON.stringify(nextList)
+      });
+      if (error) return alert('บันทึกรายการประจำไม่สำเร็จ: ' + error.message);
+
+      recurringTemplates = nextList;
+      document.getElementById('rec-new-title').value = '';
+      document.getElementById('rec-new-amt').value = '';
+      renderAdminRecurringTemplates();
+      await writeLog('ADD_RECURRING', `เพิ่มรายการประจำเดือน "${title}" (${getCurrSymbol()}${fmtNum(amount)})`);
+    }
+
+    async function removeRecurringTemplate(idx) {
+      if (!isSuperAdmin()) return;
+      const target = recurringTemplates[idx];
+      if (!target || !confirm(`ลบรายการประจำ "${target.title}"?`)) return;
+
+      const nextList = recurringTemplates.filter((_, i) => i !== idx);
+      const { error } = await db.from('app_settings').upsert({
+        key: `rec_${currentTrip.id}`,
+        value: JSON.stringify(nextList)
+      });
+      if (error) return alert('ลบไม่สำเร็จ: ' + error.message);
+
+      recurringTemplates = nextList;
+      renderAdminRecurringTemplates();
+    }
+
+    async function applyRecurringTemplatesToCurrentMonth() {
+      if (!isSuperAdmin()) return;
+      if (currentTrip.is_closed) return alert('สมุดนี้ปิดยอดแล้ว');
+      if (recurringTemplates.length === 0) {
+        switchTab('members');
+        return alert('ยังไม่มีรายการประจำเดือนที่ตั้งไว้ กรุณาเพิ่มรายการประจำในหน้าจัดการด้านล่างก่อนครับ');
+      }
+
+      const currentYm = getCurrentYYYYMM();
+      const todayStr = getTodayYYYYMMDD();
+      const monthLabel = formatMonthLabel(currentYm);
+      if (!confirm(`ยืนยันดึงรายการประจำเดือนทั้ง ${recurringTemplates.length} รายการ ลงในรอบเดือน ${monthLabel}?`)) return;
+
+      const participants = getActiveParticipants();
+      const payerEmail = currentMember.is_observer_only && participants[0] ? participants[0].email : currentMember.email;
+      const splitEmails = participants.length > 0 ? participants.map(m => m.email) : [payerEmail];
+      const isSolo = splitEmails.length === 1 && splitEmails[0].toLowerCase() === payerEmail.toLowerCase();
+      const rate = getGlobalFinalRate();
+
+      const payloads = recurringTemplates.map(r => ({
+        trip_id: currentTrip.id,
+        trip_day: 1,
+        expense_date: todayStr,
+        expense_month: currentYm,
+        title: r.title,
+        category: r.category,
+        amount_cny: Number(r.amount),
+        exchange_rate: rate,
+        has_alipay_fee: false,
+        is_refund: false,
+        paid_by_type: isSolo ? 'personal' : 'pool',
+        paid_by_email: payerEmail,
+        payment_channel: normalizeChannel(r.payment_channel),
+        split_details: { emails: splitEmails },
+        receipt_image_url: null,
+        slip_time: getCurrentHHMM(),
+        time_source: 'upload',
+        slip_hash: null,
+        slip_ref: null,
+        created_by: currentMember.email
+      }));
+
+      const { error } = await db.from('expenses').insert(payloads);
+      if (error) return alert('ดึงรายการประจำไม่สำเร็จ: ' + error.message);
+
+      await writeLog('APPLY_RECURRING', `ดึงรายการประจำเดือน ${payloads.length} รายการลงรอบเดือน ${monthLabel}`);
+      await refreshAllData();
+      alert(`ดึงรายการประจำ ${payloads.length} รายการลงในเดือน ${monthLabel} เรียบร้อยแล้ว`);
+    }
+
+    // ================= DELETE LEDGER PERMANENTLY (ADMIN) =================
+    async function deleteCurrentLedgerPermanently() {
+      if (!isSuperAdmin()) return;
+      const typedName = prompt(`⚠️ คำเตือน: การลบสมุดบัญชีจะลบรายการบิล สมาชิก และประวัติทั้งหมดในสมุดนี้ถาวร\n\nพิมพ์ชื่อสมุด "${currentTrip.name}" เพื่อยืนยันการลบ:`);
+      if (typedName === null) return;
+      if (typedName.trim() !== currentTrip.name.trim()) {
+        return alert('ชื่อสมุดไม่ตรงกัน ยกเลิกการลบครับ');
+      }
+
+      const targetId = currentTrip.id;
+      const targetName = currentTrip.name;
+
+      // Remove storage files first if any exist
+      const imgPaths = expensesList.filter(e => e.receipt_image_url).map(e =>
+        e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url
+      );
+      if (imgPaths.length > 0) {
+        await db.storage.from('trip-media').remove(imgPaths);
+      }
+
+      await db.from('expenses').delete().eq('trip_id', targetId);
+      await db.from('trip_members').delete().eq('trip_id', targetId);
+      await db.from('audit_logs').delete().eq('trip_id', targetId);
+      await db.from('monthly_archives').delete().eq('trip_id', targetId);
+      await db.from('personal_cash_wallets').delete().eq('trip_id', targetId);
+      await db.from('app_settings').delete().in('key', [`cats_${targetId}`, `rec_${targetId}`]);
+
+      const { error } = await db.from('trips').delete().eq('id', targetId);
+      if (error) return alert('ลบสมุดไม่สำเร็จ: ' + error.message);
+
+      localStorage.removeItem('selected_trip_id');
+      alert(`ลบสมุด "${targetName}" ออกจากระบบเรียบร้อยแล้ว`);
+      await initApp(currentUser);
     }
 
     window.onload = async () => {
@@ -867,7 +1195,6 @@
       input.value = '';
     }
 
-    // Live Camera Capture: Waits briefly for iOS Safari resume, then forces receipt extraction
     async function handleQuickCameraCapture(input) {
       if (!input.files || input.files.length === 0) return;
       if (currentTrip?.is_closed) return alert('สมุดนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
@@ -960,7 +1287,6 @@
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    // Accurate Thai Buddhist Era (B.E. 2569 / 69 -> 2026) & Photo Date Cross-Check
     function normalizeSlipDate(rawDateStr, fallbackDateStr) {
       if (!rawDateStr) return null;
       const m = rawDateStr.trim().match(/^(\d{2,4})-(\d{2})-(\d{2})$/);
@@ -1107,6 +1433,7 @@
 
       const { data: trips, error } = await db.from('trips').select('*').order('created_at', { ascending: false });
       if (error || !trips || trips.length === 0) {
+        document.getElementById('app-screen').classList.add('hidden');
         document.getElementById('unauth-screen').classList.remove('hidden');
         return;
       }
@@ -1168,6 +1495,8 @@
     }
 
     async function loadTripContext() {
+      await loadLedgerMetadata();
+
       const { data: members } = await db.from('trip_members').select('*').eq('trip_id', currentTrip.id);
       membersList = (members || []).map(m => ({
         ...m,
@@ -1212,6 +1541,7 @@
       document.getElementById('closed-trip-banner').classList.toggle('hidden', !isClosed);
       document.getElementById('fab-container').classList.toggle('hidden', isClosed);
       document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed || monthly);
+      document.getElementById('btn-pull-recurring-top').classList.toggle('hidden', isClosed || !monthly || !isSuperAdmin());
 
       if (isClosed && currentTrip.closed_at) {
         const closedDate = new Date(currentTrip.closed_at);
@@ -1240,6 +1570,7 @@
 
       document.getElementById('exp-rate').value = finalRate;
       if (document.getElementById('admin-final-rate-input')) {
+        document.getElementById('admin-recurring-panel').classList.toggle('hidden', !monthly);
         document.getElementById('admin-rename-trip-input').value = currentTrip.name || '';
         document.getElementById('admin-final-rate-input').value = finalRate;
         document.getElementById('admin-rate-curr-code').textContent = code;
@@ -1323,7 +1654,7 @@
               date: x.expense_date,
               time: x.slip_time || '',
               title: x.title,
-              category: x.category,
+              category: getCategoryShortName(x.category),
               channel: getChannelLabel(x.payment_channel),
               amount: getSignedAmt(x),
               payer: getMemberName(x.paid_by_email)
@@ -1655,7 +1986,8 @@
           const payerMatch = payerName.includes(searchQuery);
           const amtMatch = String(e.amount_cny).includes(searchQuery);
           const chMatch = getChannelLabel(normCh).includes(searchQuery);
-          if (!titleMatch && !payerMatch && !amtMatch && !chMatch) return false;
+          const catMatch = getCategoryFullLabel(e.category).toLowerCase().includes(searchQuery);
+          if (!titleMatch && !payerMatch && !amtMatch && !chMatch && !catMatch) return false;
         }
 
         return true;
@@ -1674,7 +2006,6 @@
       });
 
       const sortedKeys = Object.keys(groups).sort((a, b) => monthly ? b.localeCompare(a) : Number(b) - Number(a));
-      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม/บันเทิง', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก/บิล' };
 
       const html = sortedKeys.map(gKey => {
         const items = groups[gKey].sort((a, b) => {
@@ -1733,7 +2064,7 @@
                       ${payerInfo.display_name}${isProxy ? ` (${getMemberName(creatorEm)} อัปแทน)` : ''}
                     </span>
                     ${getChannelBadgeHtml(e.payment_channel)}
-                    <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-md border border-[#F5D5DF]">${catNames[e.category] || e.category}</span>
+                    <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-md border border-[#F5D5DF]">${getCategoryShortName(e.category)}</span>
                     ${!e.receipt_image_url ? '<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md">ไม่มีรูป</span>' : ''}
                     ${e.is_refund ? '<span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-200">คืนเงิน</span>' : ''}
                     <span class="text-[#B38895]">${timeBadge}</span>
@@ -1783,7 +2114,7 @@
       document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
     }
 
-    // ================= EDIT EXISTING EXPENSE =================
+    // ================= EDIT EXISTING EXPENSE (WITH ADMIN MOVE LEDGER) =================
     function openEditExpenseModal(id) {
       const e = expensesList.find(x => x.id === id);
       if (!e) return;
@@ -1791,6 +2122,19 @@
 
       const monthly = isMonthlyMode();
       document.getElementById('edit-exp-id').value = e.id;
+
+      // Admin Move Ledger selector
+      const moveBox = document.getElementById('edit-move-ledger-box');
+      const moveSelect = document.getElementById('edit-exp-target-trip');
+      if (isSuperAdmin() && userTrips.length > 1) {
+        moveBox.classList.remove('hidden');
+        moveSelect.innerHTML = userTrips.map(t =>
+          `<option value="${t.id}" ${t.id === currentTrip.id ? 'selected' : ''}>${t.name}${t.id === currentTrip.id ? ' (สมุดปัจจุบัน)' : ' (ย้ายไปสมุดนี้)'}</option>`
+        ).join('');
+      } else {
+        moveBox.classList.add('hidden');
+      }
+
       document.getElementById('edit-day-field').classList.toggle('hidden', monthly);
       document.getElementById('edit-month-field').classList.toggle('hidden', !monthly);
       document.getElementById('edit-exp-day').value = e.trip_day;
@@ -1798,7 +2142,7 @@
       const editDateInput = document.getElementById('edit-exp-date');
       editDateInput.value = e.expense_date || getTodayYYYYMMDD();
 
-      document.getElementById('edit-exp-cat').value = e.category;
+      document.getElementById('edit-exp-cat').innerHTML = buildCategoryOptionsHtml(e.category, false);
       document.getElementById('edit-exp-title').value = e.title;
       document.getElementById('edit-exp-time').value = e.slip_time || getCurrentHHMM();
       document.getElementById('edit-exp-channel').value = normalizeChannel(e.payment_channel);
@@ -1851,12 +2195,17 @@
       const e = expensesList.find(x => x.id === id);
       if (!e) return;
 
-      const monthly = isMonthlyMode();
-      const editDate = document.getElementById('edit-exp-date').value || e.expense_date || getTodayYYYYMMDD();
+      const targetTripId = isSuperAdmin() && document.getElementById('edit-exp-target-trip')?.value
+        ? document.getElementById('edit-exp-target-trip').value
+        : currentTrip.id;
+      const isMovingLedger = targetTripId !== currentTrip.id;
+      const targetTripObj = userTrips.find(t => t.id === targetTripId) || currentTrip;
+      const targetIsMonthly = targetTripObj.ledger_type === 'monthly';
 
+      const editDate = document.getElementById('edit-exp-date').value || e.expense_date || getTodayYYYYMMDD();
       const participants = getActiveParticipants();
       let checkedEmails = Array.from(document.querySelectorAll('input[name="edit-split-member"]:checked')).map(el => el.value);
-      if (participants.length <= 1) {
+      if (participants.length <= 1 || isMovingLedger) {
         checkedEmails = [e.paid_by_email || e.created_by];
       } else if (checkedEmails.length === 0) {
         return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
@@ -1867,16 +2216,17 @@
       if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและยอดเงินให้ครบ');
 
       const btn = document.getElementById('btn-update-expense');
-      btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+      btn.disabled = true; btn.textContent = isMovingLedger ? 'กำลังย้ายสมุด...' : 'กำลังบันทึก...';
 
       try {
         const payerEmail = e.paid_by_email || e.created_by;
         const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === payerEmail.toLowerCase();
 
         const { error } = await db.from('expenses').update({
-          trip_day: monthly ? 1 : parseInt(document.getElementById('edit-exp-day').value),
+          trip_id: targetTripId,
+          trip_day: targetIsMonthly ? 1 : parseInt(document.getElementById('edit-exp-day').value),
           expense_date: editDate,
-          expense_month: monthly ? editDate.slice(0, 7) : null,
+          expense_month: targetIsMonthly ? editDate.slice(0, 7) : null,
           category: document.getElementById('edit-exp-cat').value,
           title,
           slip_time: document.getElementById('edit-exp-time').value,
@@ -1890,9 +2240,14 @@
 
         if (error) throw error;
 
-        await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
+        if (isMovingLedger) {
+          await writeLog('MOVE_EXPENSE', `ย้ายรายการ "${title}" (${getCurrSymbol()}${fmtNum(amount_cny)}) ไปสมุด "${targetTripObj.name}"`);
+        } else {
+          await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
+        }
         closeModal('edit-expense-modal');
         await refreshAllData();
+        if (isMovingLedger) alert(`ย้ายรายการ "${title}" ไปยังสมุด "${targetTripObj.name}" เรียบร้อยแล้ว`);
       } catch (err) {
         alert('แก้ไขไม่สำเร็จ: ' + err.message);
       } finally {
@@ -2101,7 +2456,6 @@
         }
       }
 
-      const catNames = { Food: 'อาหาร', Transport: 'เดินทาง', Ticket: 'เข้าชม/บันเทิง', Shopping: 'ช้อปปิ้ง', Hotel: 'ที่พัก/บิล' };
       let grandAmt = 0, grandThb = 0;
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
 
@@ -2121,7 +2475,7 @@
             <td class="py-2 px-1.5 text-[11px]">${periodCol}<br><span class="text-[10px] text-[#B38895]">${e.slip_time || ''}</span></td>
             <td class="py-2 px-1.5 text-xs">
               <strong class="text-[#6B424E]">${e.title}</strong><br>
-              <span class="text-[10px] text-[#8C5867]">${getChannelLabel(normCh)} · ${catNames[e.category] || e.category} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span>
+              <span class="text-[10px] text-[#8C5867]">${getChannelLabel(normCh)} · ${getCategoryShortName(e.category)} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span>
             </td>
             <td class="py-2 px-1.5 text-right text-xs font-semibold text-[#C45B79] whitespace-nowrap">
               ${sym}${fmtNum(signedAmt)}${!isThbBase() ? `<br><span class="text-[10px] font-normal text-[#A37B87]">฿${fmtNum(thb)}</span>` : ''}
@@ -2376,7 +2730,7 @@
       }
     }
 
-    // ================= ANALYTICS, PAYMENT CHANNEL SUMMARY & CHARTS =================
+    // ================= ANALYTICS, DYNAMIC CATEGORY CHARTS & CHANNEL SUMMARY =================
     function setChannelStatScope(scope) {
       currentChannelStatScope = scope;
       const activeBtn = 'px-2.5 py-1 rounded-lg luxury-gradient text-white font-medium';
@@ -2396,8 +2750,8 @@
 
       let grandThb = 0, grandOrig = 0;
       const periodTotals = {};
-      const catTotals = { Food: 0, Transport: 0, Ticket: 0, Shopping: 0, Hotel: 0 };
-      const catLabels = { Food: 'อาหาร / เครื่องดื่ม', Transport: 'เดินทาง / รถไฟ / น้ำมัน', Ticket: 'ค่าเข้าสถานที่ / บันเทิง', Shopping: 'ช้อปปิ้ง / ของใช้', Hotel: 'ที่พัก / บิลรายเดือน' };
+      const catTotals = {};
+      customCategories.forEach(c => { catTotals[c.key] = 0; });
 
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
 
@@ -2425,7 +2779,8 @@
             ? formatMonthLabel(e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
             : `Day ${e.trip_day}`;
           periodTotals[pKey] = (periodTotals[pKey] || 0) + valInDisplayCurr;
-          catTotals[e.category] = (catTotals[e.category] || 0) + valInDisplayCurr;
+          const catKey = e.category || 'Food';
+          catTotals[catKey] = (catTotals[catKey] || 0) + valInDisplayCurr;
         }
       });
 
@@ -2480,15 +2835,14 @@
       });
 
       const catKeys = Object.keys(catTotals).filter(k => catTotals[k] > 0);
-      const pastelColors = ['#D6718E', '#F2A2B8', '#FFB5C8', '#E5B8C4', '#D8B4E2'];
       if (categoryChartInstance) categoryChartInstance.destroy();
       categoryChartInstance = new Chart(document.getElementById('categoryChart'), {
         type: 'doughnut',
         data: {
-          labels: catKeys.map(k => catLabels[k]),
+          labels: catKeys.map(k => getCategoryFullLabel(k)),
           datasets: [{
             data: catKeys.map(k => catTotals[k]),
-            backgroundColor: pastelColors,
+            backgroundColor: catKeys.map((_, idx) => CHART_COLORS[idx % CHART_COLORS.length]),
             borderWidth: 2,
             borderColor: '#FFFFFF'
           }]
@@ -2504,7 +2858,7 @@
       document.getElementById('category-breakdown-list').innerHTML = catKeys.map((k, i) => {
         const pct = displayGrand > 0 ? Math.round((catTotals[k] / displayGrand) * 100) : 0;
         return `<div class="flex justify-between items-center">
-          <span class="flex items-center gap-2 text-[#8C5867]"><span class="w-2.5 h-2.5 rounded-full" style="background:${pastelColors[i % pastelColors.length]}"></span>${catLabels[k]}</span>
+          <span class="flex items-center gap-2 text-[#8C5867]"><span class="w-2.5 h-2.5 rounded-full" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>${getCategoryFullLabel(k)}</span>
           <span class="font-semibold text-[#6B424E]">฿${fmtNum(catTotals[k])} <span class="text-[#B38895] font-normal">(${pct}%)</span></span>
         </div>`;
       }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
@@ -2599,6 +2953,7 @@
       }
 
       const base64Data = await fileToBase64(file, isDirectCamera);
+      const availableCategoryKeys = customCategories.map(c => c.key).join(', ');
       const step1Rule = isDirectCamera
         ? `This image was captured directly with the user's camera to record a bill or receipt. Even if table background, hands, or food items appear around the paper receipt, ALWAYS set "is_receipt": true and carefully read the printed or handwritten total amount on the receipt.`
         : `Step 1: Determine if this image is a genuine financial receipt, payment slip, bank transfer confirmation, credit card charge slip, invoice, or handwritten bill ("is_receipt": true). Only set "is_receipt": false if there is NO receipt, bill, price list, or payment slip anywhere in the image.`;
@@ -2608,7 +2963,7 @@ ${step1Rule}
 Extract the following for target currency ${currCode}:
 - "amount_cny": final net total / grand total paid amount in ${currCode} (number only, look for Total, Grand Total, ยอดรวม, สุทธิ, Amount).
 - "title": concise Thai description with original merchant/store name in parentheses.
-- "category": one of Food, Transport, Ticket, Shopping, Hotel.
+- "category": choose the best matching key from: [${availableCategoryKeys}].
 - "payment_channel": detect payment method if clearly shown on receipt: use "credit_card" if VISA, Mastercard, JCB, UnionPay, AMEX, CREDIT, or Approval Code appears; use "cash" if CASH / เงินสด / เงินทอน appears; otherwise default to "${isDirectCamera ? 'cash' : 'transfer'}".
 - "channel_explicit": true if payment method was explicitly printed on the receipt, false otherwise.
 - "slip_date": transaction date in YYYY-MM-DD format.
@@ -2647,6 +3002,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
           const finalDay = mappedDay || defaultDay;
           const parsedAmt = Number(parsed.amount_cny) > 0 ? Number(parsed.amount_cny) : '';
           const detectedChannel = normalizeChannel(parsed.payment_channel || (isDirectCamera ? 'cash' : 'transfer'));
+          const matchedCat = customCategories.some(c => c.key === parsed.category) ? parsed.category : 'Food';
 
           const semanticDup = findDuplicateExpense({
             hash: fileHash,
@@ -2668,7 +3024,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
             title: parsed.title || (isDirectCamera ? 'ใบเสร็จจากกล้อง' : 'รายการจากสลิป'),
             amount_cny: parsedAmt,
             amount_locked: Boolean(parsedAmt),
-            category: parsed.category || 'Food',
+            category: matchedCat,
             payment_channel: detectedChannel,
             channel_detected: Boolean(parsed.channel_explicit),
             slip_time: slipTimeFinal,
@@ -2788,7 +3144,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
           setSingleCnyLockState(false);
         }
 
-        if (res.category) document.getElementById('exp-cat').value = res.category;
+        document.getElementById('exp-cat').innerHTML = buildCategoryOptionsHtml(res.category, false);
 
         document.getElementById('exp-channel').value = res.payment_channel;
         document.getElementById('exp-channel-badge').textContent = res.channel_detected ? '(จากสลิป)' : '(เลือกเองได้)';
@@ -2886,11 +3242,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
               <option value="cash" ${item.payment_channel === 'cash' ? 'selected' : ''}>3. เงินสด</option>
             </select>
             <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">
-              <option value="Food" ${item.category === 'Food' ? 'selected' : ''}>อาหาร</option>
-              <option value="Transport" ${item.category === 'Transport' ? 'selected' : ''}>เดินทาง</option>
-              <option value="Ticket" ${item.category === 'Ticket' ? 'selected' : ''}>เข้าชม/บันเทิง</option>
-              <option value="Shopping" ${item.category === 'Shopping' ? 'selected' : ''}>ช้อปปิ้ง</option>
-              <option value="Hotel" ${item.category === 'Hotel' ? 'selected' : ''}>ที่พัก/บิล</option>
+              ${buildCategoryOptionsHtml(item.category, true)}
             </select>
           </div>
         </div>`;
@@ -2917,7 +3269,6 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       showDuplicateAlert(null);
     }
 
-    // Upgraded HEIC-safe & High-Resolution Camera Image Decoder with Contrast Boost for Thermal Receipts
     async function fileToBase64(file, enhanceReceiptContrast = false) {
       const targetMaxDim = enhanceReceiptContrast ? 1400 : 1024;
       try {
@@ -3055,6 +3406,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       document.getElementById('exp-rate-box').classList.toggle('hidden', isThbBase());
       document.getElementById('exp-fee-label').classList.toggle('hidden', isThbBase());
 
+      document.getElementById('exp-cat').innerHTML = buildCategoryOptionsHtml('Food', false);
       document.getElementById('exp-title').value = '';
       document.getElementById('exp-cny').value = '';
       document.getElementById('exp-time').value = getCurrentHHMM();
@@ -3542,7 +3894,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         const timeVal = e.slip_time || new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
         const periodStr = monthly ? (e.expense_date || '') : `Day ${e.trip_day}`;
         const kind = e.is_refund ? 'คืนเงิน' : 'รายจ่าย';
-        csv += `${periodStr},${timeVal},${getChannelLabel(normCh)},${e.category},${cleanTitle},${kind},${signedAmt},${thb},${paidBy},"${splitNames}"\n`;
+        csv += `${periodStr},${timeVal},${getChannelLabel(normCh)},${getCategoryShortName(e.category)},${cleanTitle},${kind},${signedAmt},${thb},${paidBy},"${splitNames}"\n`;
       });
 
       csv += '\nสรุปยอดแยกตามช่องทางจ่ายเงิน\n';
