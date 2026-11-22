@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Maison Voyage · Dreamy Pastel Wealth & Trip Ledger</title>
+  <title>Maison Voyage · Celestial Armillary & Wealth Ledger</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Maison Voyage">
@@ -420,18 +420,9 @@
       </div>
     </main>
 
-    <!-- TAB 4: PERSONAL APP THEME, MEMBER COLOR, CUSTOM CATEGORIES, RECURRING & ADMIN -->
+    <!-- TAB 4: MEMBERS, ADMIN-CONTROLLED SCREEN THEMES, CUSTOM CATEGORIES & RECURRING -->
     <main id="tab-members" class="hidden p-5 pb-28 space-y-5">
-      <!-- Personal App Theme Switcher (Stored locally per device, 0 DB overhead) -->
-      <div class="soft-card p-5 rounded-3xl space-y-3">
-        <div>
-          <h2 class="font-semibold text-sm theme-text-main">ธีมสีหน้าจอของคุณ (เลือกอิสระเฉพาะเครื่องคุณ)</h2>
-          <p class="text-[11px] theme-text-muted">เปลี่ยนบรรยากาศสีทั้งแอปตามสไตล์ที่คุณชอบ ไม่กระทบหน้าจอเพื่อน</p>
-        </div>
-        <div id="app-theme-picker-row" class="grid grid-cols-3 gap-2 pt-1"></div>
-      </div>
-
-      <!-- Member Badge Color -->
+      <!-- Member Badge Color (Read-only display for members if locked, or personal badge color) -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div>
           <h2 class="font-semibold text-sm theme-text-main">สีป้ายชื่อคนจ่ายของคุณ (ห้ามซ้ำกันในสมุด)</h2>
@@ -440,11 +431,20 @@
         <div id="color-picker-row" class="flex items-center justify-between gap-2 pt-1"></div>
       </div>
 
-      <!-- Super Admin Panel -->
+      <!-- Super Admin Panel (Only Admin can configure App Screen Theme, Categories, Recurring, Ledgers) -->
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 theme-border-mid">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">Administration</p>
-          <h2 class="font-semibold text-sm theme-text-main">จัดการหมวดหมู่ · รายการประจำ · สมุดบัญชี</h2>
+          <h2 class="font-semibold text-sm theme-text-main">ตั้งค่าธีมสีทั้งแอป · หมวดหมู่ · รายการประจำ · สมุดบัญชี</h2>
+        </div>
+
+        <!-- Admin-Only Global Screen Theme Control (Applies to everyone in the app; allows repeat/any selection by Admin) -->
+        <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-2.5">
+          <div>
+            <label class="block text-[11px] font-semibold theme-text-primary">ธีมสีหน้าจอทั้งแอป (กำหนดโดยแอดมิน · แสดงผลเหมือนกันทุกคน)</label>
+            <p class="text-[10px] theme-text-muted">แอดมินเลือกหรือเปลี่ยนสลับธีมได้อิสระตลอดเวลา</p>
+          </div>
+          <div id="admin-global-theme-row" class="grid grid-cols-3 gap-2 pt-0.5"></div>
         </div>
 
         <!-- 1. Dynamic Categories Management (Admin can add & delete ANY category) -->
@@ -948,7 +948,7 @@
     const SUPER_ADMIN_NAME = 'yuranun';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Personal App Themes (Stored locally per user device)
+    // Admin-Controlled App Themes (Synced across all users via Supabase app_settings)
     const APP_THEMES = [
       { id: 'blush', name: 'Soft Blush', swatch: '#D6718E', dark: false, vars: { '--bg-top': '#FDF2F5', '--bg-bottom': '#FCE7ED', '--text-main': '#6B424E', '--text-sub': '#8C5867', '--text-muted': '#A37B87', '--primary': '#D6718E', '--primary-dark': '#C45B79', '--primary-light': '#E893AC', '--soft-pill': '#FFEBF0', '--soft-surface': '#FFF9FA', '--soft-tint': '#FFF5F8', '--border-soft': '#F5D5DF', '--border-mid': '#F2CFD9', '--card-bg': 'rgba(255, 255, 255, 0.92)', '--header-bg': 'rgba(255, 255, 255, 0.88)' } },
       { id: 'sky', name: 'Sky Mist', swatch: '#4B89DC', dark: false, vars: { '--bg-top': '#F0F6FC', '--bg-bottom': '#E1EEFA', '--text-main': '#2C435E', '--text-sub': '#4A6585', '--text-muted': '#6E88A6', '--primary': '#4B89DC', '--primary-dark': '#346CB8', '--primary-light': '#74A9EC', '--soft-pill': '#E3EFFD', '--soft-surface': '#F7FAFE', '--soft-tint': '#EDF4FC', '--border-soft': '#D0E2F5', '--border-mid': '#C2D9F2', '--card-bg': 'rgba(255, 255, 255, 0.93)', '--header-bg': 'rgba(255, 255, 255, 0.90)' } },
@@ -996,6 +996,7 @@
     let currentLogsList = [];
     let backupFilesList = [];
     let globalGeminiKey = '';
+    let activeGlobalThemeId = 'blush';
     let currentScopeFilter = 'shared';
     let currentQuickFilter = 'all';
     let currentChannelStatScope = 'all';
@@ -1019,116 +1020,177 @@
     let qcAccumulated = 0;
     let qcHasPendingPlus = false;
 
-    // Generate Luxury Dreamy Pastel Rainbow Cloud + MV Gold Coin Apple Touch Icon
-    function generateDreamyCloudAppIcon() {
+    // Generate No. 20 Celestial Star Globe + Pastel Clouds + MV Monogram (Full-Bleed Edge-to-Edge, NO square borders)
+    function generateCelestialStarGlobeIcon() {
       try {
         const canvas = document.createElement('canvas');
         canvas.width = 512;
         canvas.height = 512;
         const ctx = canvas.getContext('2d');
 
-        // 1. Dusty Rose Metallic Luxury Background
+        // 1. Full-Bleed Edge-to-Edge Soft Blush & Warm Champagne Sky Gradient (No inner borders so iOS squircle mask clips cleanly)
         const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
-        bgGrad.addColorStop(0, '#A8576C');
-        bgGrad.addColorStop(0.5, '#8A4155');
-        bgGrad.addColorStop(1, '#6E3042');
+        bgGrad.addColorStop(0, '#F5DCE0');
+        bgGrad.addColorStop(0.5, '#EBD3D8');
+        bgGrad.addColorStop(1, '#DEC2C8');
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, 512, 512);
 
-        // 2. Royal Gold Double Frame
-        const goldGrad = ctx.createLinearGradient(0, 0, 512, 512);
-        goldGrad.addColorStop(0, '#F5D8A8');
-        goldGrad.addColorStop(0.5, '#D4A359');
-        goldGrad.addColorStop(1, '#F7E1BA');
-        ctx.strokeStyle = goldGrad;
-        ctx.lineWidth = 6;
-        ctx.strokeRect(26, 26, 460, 460);
-        ctx.lineWidth = 2;
-        ctx.strokeRect(36, 36, 440, 440);
+        // Soft ambient radial glow behind globe
+        const radialGlow = ctx.createRadialGradient(256, 235, 20, 256, 235, 220);
+        radialGlow.addColorStop(0, 'rgba(255, 248, 242, 0.85)');
+        radialGlow.addColorStop(1, 'rgba(255, 248, 242, 0)');
+        ctx.fillStyle = radialGlow;
+        ctx.fillRect(0, 0, 512, 512);
 
-        // 3. Ascending Rainbow Trend Arc Behind Cloud
-        const rainbowColors = ['#F7C59F', '#F4A2B8', '#B8D8F8', '#D3B8F2'];
-        rainbowColors.forEach((col, i) => {
-          const r = 148 - i * 11;
-          ctx.beginPath();
-          ctx.arc(256, 255, r, Math.PI * 1.05, Math.PI * 1.95);
-          ctx.strokeStyle = col;
-          ctx.lineWidth = 9;
-          ctx.lineCap = 'round';
-          ctx.stroke();
-        });
+        // 2. Rose-Gold / Champagne Metallic Gradients
+        const goldRingGrad = ctx.createLinearGradient(120, 100, 392, 370);
+        goldRingGrad.addColorStop(0, '#F6DFC2');
+        goldRingGrad.addColorStop(0.5, '#C99A74');
+        goldRingGrad.addColorStop(1, '#9E6E4E');
 
-        // Ascending Trend Arrow Tip on Right
+        const lightGoldGrad = ctx.createLinearGradient(140, 120, 370, 350);
+        lightGoldGrad.addColorStop(0, '#FFF1DF');
+        lightGoldGrad.addColorStop(1, '#D6A882');
+
+        // 3. Back Half of Celestial Armillary Rings
+        ctx.save();
+        ctx.translate(256, 235);
+
+        // Outer Meridian Ring
         ctx.beginPath();
-        ctx.moveTo(368, 175);
-        ctx.lineTo(395, 152);
-        ctx.lineTo(422, 165);
-        ctx.lineTo(445, 130);
-        ctx.strokeStyle = '#F5D8A8';
+        ctx.arc(0, 0, 134, 0, Math.PI * 2);
+        ctx.strokeStyle = goldRingGrad;
         ctx.lineWidth = 10;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
         ctx.stroke();
 
-        // 4. Fluffy Pastel Rainbow 3D Cloud
-        const cloudGrad = ctx.createLinearGradient(110, 180, 400, 340);
-        cloudGrad.addColorStop(0, '#FFD6E0');
-        cloudGrad.addColorStop(0.45, '#FFF5F8');
-        cloudGrad.addColorStop(0.75, '#E3D7FF');
-        cloudGrad.addColorStop(1, '#CFE6FF');
+        // Tilted Back Orbital Ring 1
+        ctx.save();
+        ctx.rotate(-0.48);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 152, 46, 0, Math.PI, Math.PI * 2);
+        ctx.strokeStyle = goldRingGrad;
+        ctx.lineWidth = 9;
+        ctx.stroke();
+        ctx.restore();
+
+        // Tilted Back Orbital Ring 2
+        ctx.save();
+        ctx.rotate(0.52);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 148, 42, 0, Math.PI, Math.PI * 2);
+        ctx.strokeStyle = lightGoldGrad;
+        ctx.lineWidth = 7;
+        ctx.stroke();
+        ctx.restore();
+
+        // 4. Center Pearl-White & Soft Blush Celestial Globe Sphere
+        const sphereGrad = ctx.createRadialGradient(-28, -32, 12, 0, 0, 96);
+        sphereGrad.addColorStop(0, '#FFFFFF');
+        sphereGrad.addColorStop(0.55, '#FAF0F2');
+        sphereGrad.addColorStop(1, '#DFC4CA');
 
         ctx.save();
-        ctx.shadowColor = 'rgba(42, 16, 24, 0.35)';
-        ctx.shadowBlur = 24;
-        ctx.shadowOffsetY = 12;
+        ctx.shadowColor = 'rgba(92, 54, 64, 0.25)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 8;
+        ctx.beginPath();
+        ctx.arc(0, 0, 94, 0, Math.PI * 2);
+        ctx.fillStyle = sphereGrad;
+        ctx.fill();
+        ctx.restore();
+
+        // Subtle Latitude & Longitude Engraved Lines on Globe
+        ctx.strokeStyle = 'rgba(184, 134, 96, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 92, 28, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 34, 92, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Center Rose-Gold Emblem "MV"
+        ctx.fillStyle = '#8C5848';
+        ctx.font = 'bold 46px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('MV', 0, 4);
+
+        // 5. Front Half of Celestial Armillary Rings (Wrapping around globe)
+        ctx.save();
+        ctx.rotate(-0.48);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 152, 46, 0, 0, Math.PI);
+        ctx.strokeStyle = lightGoldGrad;
+        ctx.lineWidth = 9;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.rotate(0.52);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 148, 42, 0, 0, Math.PI);
+        ctx.strokeStyle = goldRingGrad;
+        ctx.lineWidth = 7;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.restore();
+
+        // Top Finial Crown & Pedestal Base of Armillary Sphere
+        ctx.beginPath();
+        ctx.arc(0, -146, 8, 0, Math.PI * 2);
+        ctx.fillStyle = lightGoldGrad;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.roundRect(-42, 134, 84, 12, 6);
+        ctx.fillStyle = goldRingGrad;
+        ctx.fill();
+
+        ctx.restore();
+
+        // 6. Soft Fluffy Pastel Clouds Framing the Bottom (Full-bleed style)
+        const cloudGrad = ctx.createLinearGradient(60, 320, 452, 460);
+        cloudGrad.addColorStop(0, '#FFF6F8');
+        cloudGrad.addColorStop(0.5, '#F9E6EC');
+        cloudGrad.addColorStop(1, '#EADAE8');
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(92, 54, 64, 0.18)';
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 6;
         ctx.fillStyle = cloudGrad;
 
         ctx.beginPath();
-        ctx.arc(175, 290, 56, 0, Math.PI * 2);
-        ctx.arc(235, 252, 72, 0, Math.PI * 2);
-        ctx.arc(305, 265, 62, 0, Math.PI * 2);
-        ctx.arc(352, 298, 46, 0, Math.PI * 2);
-        ctx.roundRect(145, 282, 232, 64, 32);
+        ctx.arc(115, 385, 58, 0, Math.PI * 2);
+        ctx.arc(185, 372, 68, 0, Math.PI * 2);
+        ctx.arc(265, 382, 62, 0, Math.PI * 2);
+        ctx.arc(340, 370, 70, 0, Math.PI * 2);
+        ctx.arc(410, 388, 56, 0, Math.PI * 2);
+        ctx.rect(55, 380, 405, 95);
         ctx.fill();
         ctx.restore();
 
-        // 5. Center Rose-Gold MV Wealth Coin
-        const coinGrad = ctx.createLinearGradient(195, 215, 315, 335);
-        coinGrad.addColorStop(0, '#FCE5C8');
-        coinGrad.addColorStop(0.5, '#E0A882');
-        coinGrad.addColorStop(1, '#B87856');
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(80, 32, 46, 0.35)';
-        ctx.shadowBlur = 14;
-        ctx.shadowOffsetY = 6;
-        ctx.beginPath();
-        ctx.arc(256, 276, 56, 0, Math.PI * 2);
-        ctx.fillStyle = coinGrad;
-        ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = '#FFF3E0';
-        ctx.stroke();
-        ctx.restore();
-
-        // Monogram "MV" on Coin
-        ctx.fillStyle = '#5C2C38';
-        ctx.font = 'bold 40px Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('MV', 256, 279);
-
-        // 6. Floating Gold Coins & Sparkles Below Cloud
-        const miniCoins = [{ x: 182, y: 382, r: 14 }, { x: 256, y: 396, r: 11 }, { x: 332, y: 378, r: 15 }];
-        miniCoins.forEach(c => {
+        // 7. Delicate Four-Pointed Gold Stars
+        const drawSparkle = (sx, sy, size) => {
+          ctx.save();
+          ctx.translate(sx, sy);
+          ctx.fillStyle = '#D9AE84';
           ctx.beginPath();
-          ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-          ctx.fillStyle = goldGrad;
+          ctx.moveTo(0, -size);
+          ctx.quadraticCurveTo(0, 0, size, 0);
+          ctx.quadraticCurveTo(0, 0, 0, size);
+          ctx.quadraticCurveTo(0, 0, -size, 0);
+          ctx.quadraticCurveTo(0, 0, 0, -size);
           ctx.fill();
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = '#FFF6E5';
-          ctx.stroke();
-        });
+          ctx.restore();
+        };
+        drawSparkle(98, 125, 14);
+        drawSparkle(418, 138, 16);
+        drawSparkle(428, 255, 11);
+        drawSparkle(86, 265, 10);
 
         const dataUrl = canvas.toDataURL('image/png');
         const appleLink = document.getElementById('apple-touch-icon-link');
@@ -1138,24 +1200,24 @@
       } catch (_) {}
     }
 
-    // Personal App Theme Management (0 DB storage, saved per device)
+    // Admin-Controlled Global App Screen Theme Management
     function applyAppTheme(themeId) {
       const theme = APP_THEMES.find(t => t.id === themeId) || APP_THEMES[0];
+      activeGlobalThemeId = theme.id;
       const root = document.documentElement;
       Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
       document.body.classList.toggle('dark-theme', Boolean(theme.dark));
-      localStorage.setItem('mv_personal_theme', theme.id);
-      renderAppThemePicker();
+      localStorage.setItem('mv_global_theme_cache', theme.id);
+      renderAdminGlobalThemePicker();
     }
 
-    function renderAppThemePicker() {
-      const container = document.getElementById('app-theme-picker-row');
+    function renderAdminGlobalThemePicker() {
+      const container = document.getElementById('admin-global-theme-row');
       if (!container) return;
-      const activeId = localStorage.getItem('mv_personal_theme') || 'blush';
       container.innerHTML = APP_THEMES.map(t => {
-        const isSelected = t.id === activeId;
+        const isSelected = t.id === activeGlobalThemeId;
         return `
-          <button type="button" onclick="applyAppTheme('${t.id}')"
+          <button type="button" onclick="adminSelectGlobalTheme('${t.id}')"
             class="flex items-center gap-2 px-2.5 py-2 rounded-xl border text-left text-xs transition ${isSelected ? 'ring-2 ring-offset-1 ring-[#6B424E] font-semibold bg-white' : 'bg-white/80 opacity-85 hover:opacity-100'}"
             style="border-color:${t.swatch}">
             <span class="w-4 h-4 rounded-full shrink-0 border border-black/10" style="background:${t.swatch}"></span>
@@ -1164,7 +1226,22 @@
       }).join('');
     }
 
-    // Smart Money Formatter: Comma-separated thousands, hides ".00" if whole number
+    async function adminSelectGlobalTheme(themeId) {
+      if (!isSuperAdmin()) return;
+      const theme = APP_THEMES.find(t => t.id === themeId) || APP_THEMES[0];
+      applyAppTheme(theme.id);
+      const { error } = await db.from('app_settings').upsert({
+        key: 'global_app_theme',
+        value: theme.id
+      });
+      if (error) return alert('บันทึกธีมไม่สำเร็จ: ' + error.message);
+      await writeLog('SET_APP_THEME', `เปลี่ยนธีมสีหน้าจอทั้งแอปเป็น "${theme.name}"`);
+      if (!document.getElementById('tab-analytics').classList.contains('hidden')) {
+        renderAnalytics();
+      }
+    }
+
+    // Smart Money Formatter
     function fmtNum(val) {
       const num = Number(val || 0);
       if (isNaN(num)) return '0';
@@ -1248,7 +1325,6 @@
       renderAdminRecurringTemplates();
     }
 
-    // Admin can delete ANY category (including default ones) down to at least 1 category
     function renderAdminCategories() {
       const container = document.getElementById('admin-categories-list');
       if (!container) return;
@@ -1581,8 +1657,8 @@
     }
 
     window.onload = async () => {
-      generateDreamyCloudAppIcon();
-      applyAppTheme(localStorage.getItem('mv_personal_theme') || 'blush');
+      generateCelestialStarGlobeIcon();
+      applyAppTheme(localStorage.getItem('mv_global_theme_cache') || 'blush');
       const { data: { session } } = await db.auth.getSession();
       if (session) await initApp(session.user);
     };
@@ -1845,10 +1921,17 @@
       currentUser = user;
       document.getElementById('auth-screen').classList.add('hidden');
 
-      const { data: setting } = await db.from('app_settings').select('value').eq('key', 'gemini_ocr_key').maybeSingle();
-      globalGeminiKey = setting?.value || localStorage.getItem('gemini_ocr_key') || '';
+      const { data: settings } = await db.from('app_settings').select('key, value').in('key', ['gemini_ocr_key', 'global_app_theme']);
+      const keyRow = (settings || []).find(s => s.key === 'gemini_ocr_key');
+      const themeRow = (settings || []).find(s => s.key === 'global_app_theme');
+
+      globalGeminiKey = keyRow?.value || localStorage.getItem('gemini_ocr_key') || '';
       if (document.getElementById('gemini-api-key')) {
         document.getElementById('gemini-api-key').value = globalGeminiKey;
+      }
+
+      if (themeRow?.value) {
+        applyAppTheme(themeRow.value);
       }
 
       const { data: trips, error } = await db.from('trips').select('*').order('created_at', { ascending: false });
@@ -1863,7 +1946,6 @@
       currentTrip = trips.find(t => t.id === savedTripId) || trips[0];
 
       renderTripSwitcherOptions();
-      renderAppThemePicker();
 
       if (isSuperAdmin()) {
         document.getElementById('super-admin-panel').classList.remove('hidden');
@@ -1871,6 +1953,7 @@
         document.getElementById('btn-backup-clear-logs').classList.remove('hidden');
         document.getElementById('admin-backup-archive').classList.remove('hidden');
         document.getElementById('proxy-admin-hint').classList.remove('hidden');
+        renderAdminGlobalThemePicker();
       }
 
       await loadTripContext();
@@ -3177,7 +3260,6 @@
       const participants = getActiveParticipants();
       const isSinglePersonLedger = participants.length <= 1;
 
-      // Render Interactive Category Filter Pills
       const filterBar = document.getElementById('analytics-cat-filter-bar');
       if (filterBar) {
         const pills = [{ key: 'ALL', label: 'ทุกหมวดหมู่' }, ...customCategories.map(c => ({ key: c.key, label: c.short || c.label }))];
@@ -3197,7 +3279,6 @@
 
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
 
-      // 1. If Monthly Mode: seed archived months first so trend chart compares across months
       if (monthly && monthlyArchivesList.length > 0) {
         [...monthlyArchivesList].reverse().forEach(arch => {
           const mKey = arch.month_key;
@@ -3239,7 +3320,6 @@
           grandThb += thb;
           catTotals[catKey] = (catTotals[catKey] || 0) + valInDisplayCurr;
 
-          // Trend chart honors selected category filter
           if (analyticsCategoryFilter === 'ALL' || catKey === analyticsCategoryFilter) {
             const pKey = monthly
               ? (e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
@@ -3408,7 +3488,6 @@
       throw new Error(lastError);
     }
 
-    // Returns an ARRAY of extracted items per image (supports 1 screenshot containing 10 credit card notifications!)
     async function scanReceiptOrNotificationImage(file, apiKey, options = {}) {
       const isDirectCamera = Boolean(options.isDirectCamera);
       const fallbackTime = getCurrentHHMM();
@@ -3506,7 +3585,6 @@ Respond ONLY with valid JSON:
             const detectedChannel = normalizeChannel(it.payment_channel || (isDirectCamera ? 'cash' : 'transfer'));
             const matchedCat = customCategories.some(c => c.key === it.category) ? it.category : defaultCatKey;
 
-            // For multi-notification screenshot, match duplicates by individual item signature rather than image hash
             const itemHashToCheck = isMultiFromOneImage ? null : fileHash;
             const semanticDup = findDuplicateExpense({
               hash: itemHashToCheck,
@@ -4002,7 +4080,6 @@ Respond ONLY with valid JSON:
         btn.disabled = true;
         let savedCount = 0;
         const failedItems = [];
-        // Deduplicate Storage upload when multiple items come from the SAME notification screenshot!
         const uploadedFileCache = new Map();
 
         for (let i = 0; i < batchQueue.length; i++) {
