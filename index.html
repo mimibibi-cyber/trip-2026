@@ -3,26 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Maison Voyage · Soft Blush Trip & Monthly Ledger</title>
+  <title>Maison Voyage · Dreamy Pastel Wealth & Trip Ledger</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Maison Voyage">
+  <link id="apple-touch-icon-link" rel="apple-touch-icon" href="" />
+  <link id="favicon-link" rel="icon" type="image/png" href="" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --bg-top: #FDF2F5;
+      --bg-bottom: #FCE7ED;
+      --text-main: #6B424E;
+      --text-sub: #8C5867;
+      --text-muted: #A37B87;
+      --primary: #D6718E;
+      --primary-dark: #C45B79;
+      --primary-light: #E893AC;
+      --soft-pill: #FFEBF0;
+      --soft-surface: #FFF9FA;
+      --soft-tint: #FFF5F8;
+      --border-soft: #F5D5DF;
+      --border-mid: #F2CFD9;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --header-bg: rgba(255, 255, 255, 0.88);
+    }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(180deg, #FDF2F5 0%, #FCE7ED 100%);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
       background-attachment: fixed;
-      color: #6B424E;
+      color: var(--text-main);
       -webkit-tap-highlight-color: transparent;
       letter-spacing: -0.01em;
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     input, select { outline: none; transition: all 0.15s ease; }
-    input:focus, select:focus { border-color: #DF829D; box-shadow: 0 0 0 3px rgba(223, 130, 157, 0.18); }
-    .luxury-gradient { background: linear-gradient(135deg, #E893AC 0%, #D6718E 55%, #C45B79 100%); }
-    .soft-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border: 1px solid #F5D5DF; box-shadow: 0 6px 24px -6px rgba(214, 113, 142, 0.12); }
+    input:focus, select:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent); }
+    .luxury-gradient { background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 55%, var(--primary-dark) 100%); }
+    .soft-card { background: var(--card-bg); backdrop-filter: blur(8px); border: 1px solid var(--border-soft); box-shadow: 0 6px 24px -6px color-mix(in srgb, var(--primary) 14%, transparent); }
+    .app-header { background: var(--header-bg); border-color: var(--border-soft); }
+    .theme-text-main { color: var(--text-main); }
+    .theme-text-sub { color: var(--text-sub); }
+    .theme-text-muted { color: var(--text-muted); }
+    .theme-text-primary { color: var(--primary-dark); }
+    .theme-bg-pill { background-color: var(--soft-pill); color: var(--primary-dark); }
+    .theme-bg-surface { background-color: var(--soft-surface); }
+    .theme-bg-tint { background-color: var(--soft-tint); }
+    .theme-border { border-color: var(--border-soft); }
+    .theme-border-mid { border-color: var(--border-mid); }
+
+    body.dark-theme input, body.dark-theme select {
+      background-color: #26222B !important;
+      color: #F4EDF2 !important;
+      border-color: #3E3647 !important;
+    }
+    body.dark-theme .bg-white, body.dark-theme .bg-white\/95, body.dark-theme .bg-white\/90, body.dark-theme .bg-white\/85 {
+      background-color: #211D26 !important;
+      color: #F4EDF2 !important;
+    }
+    body.dark-theme .bg-\[\#FFF9FA\], body.dark-theme .bg-\[\#FFF5F8\] {
+      background-color: #28232E !important;
+    }
+    body.dark-theme .bg-\[\#FFEBF0\] {
+      background-color: #382834 !important;
+    }
+    body.dark-theme .border-\[\#F5D5DF\], body.dark-theme .border-\[\#F2CFD9\] {
+      border-color: #3B3344 !important;
+    }
+
     @media print {
       body * { visibility: hidden !important; }
       #pdf-report-modal, #pdf-report-modal * { visibility: visible !important; }
@@ -37,27 +87,27 @@
   <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
     <div class="soft-card w-full max-w-sm rounded-3xl p-8 space-y-6">
       <div class="space-y-1.5 text-center">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D6718E]">Private Travel & Monthly Ledger</p>
-        <h1 class="text-2xl font-semibold tracking-tight text-[#6B424E]">Maison Voyage</h1>
-        <p class="text-xs text-[#A37B87]">ระบบบันทึกค่าใช้จ่ายทริปและรายจ่ายรายเดือน</p>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.22em]" style="color:var(--primary)">Private Travel & Monthly Ledger</p>
+        <h1 class="text-2xl font-semibold tracking-tight theme-text-main">Maison Voyage</h1>
+        <p class="text-xs theme-text-muted">ระบบบันทึกค่าใช้จ่ายทริปและรายจ่ายรายเดือน</p>
       </div>
 
       <div id="auth-error" class="hidden bg-[#FFF0F4] text-[#C45B79] text-xs p-3 rounded-xl border border-[#F5C2D1]"></div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-[#8C5867] mb-1.5">อีเมลที่ได้รับเชิญ</label>
+          <label class="block text-xs font-medium theme-text-sub mb-1.5">อีเมลที่ได้รับเชิญ</label>
           <input id="auth-email" type="email" placeholder="name@domain.com" class="w-full px-4 py-2.5 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-medium text-[#8C5867] mb-1.5">รหัสผ่าน</label>
+          <label class="block text-xs font-medium theme-text-sub mb-1.5">รหัสผ่าน</label>
           <input id="auth-password" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full px-4 py-2.5 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-sm" />
         </div>
       </div>
 
       <div class="space-y-2.5 pt-1">
         <button onclick="handleLogin()" class="w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition">เข้าสู่ระบบ</button>
-        <button onclick="handleSignUp()" class="w-full bg-white hover:bg-[#FFF5F8] text-[#C45B79] border border-[#F2CFD9] font-medium py-2.5 rounded-xl text-sm transition">ลงทะเบียนครั้งแรก</button>
+        <button onclick="handleSignUp()" class="w-full bg-white hover:bg-[#FFF5F8] theme-text-primary border border-[#F2CFD9] font-medium py-2.5 rounded-xl text-sm transition">ลงทะเบียนครั้งแรก</button>
       </div>
     </div>
   </div>
@@ -65,39 +115,39 @@
   <!-- ================= UNAUTHORIZED SCREEN ================= -->
   <div id="unauth-screen" class="hidden min-h-screen flex items-center justify-center p-6 text-center">
     <div class="max-w-xs space-y-4 soft-card p-7 rounded-3xl">
-      <div class="w-11 h-11 mx-auto rounded-full bg-[#FFEBF0] flex items-center justify-center text-[#D6718E]">
+      <div class="w-11 h-11 mx-auto rounded-full theme-bg-pill flex items-center justify-center">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
       </div>
-      <h2 class="text-base font-semibold text-[#6B424E]">ยังไม่มีสมุดบัญชีที่ได้รับเชิญ</h2>
-      <p class="text-xs text-[#A37B87] leading-relaxed">อีเมลของคุณยังไม่ได้ถูกเพิ่มในทริปหรือสมุดรายเดือนใดๆ กรุณาติดต่อผู้ดูแลระบบ</p>
+      <h2 class="text-base font-semibold theme-text-main">ยังไม่มีสมุดบัญชีที่ได้รับเชิญ</h2>
+      <p class="text-xs theme-text-muted leading-relaxed">อีเมลของคุณยังไม่ได้ถูกเพิ่มในทริปหรือสมุดรายเดือนใดๆ กรุณาติดต่อผู้ดูแลระบบ</p>
       <button onclick="handleLogout()" class="w-full luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">ออกจากระบบ</button>
     </div>
   </div>
 
   <!-- ================= MAIN APP SCREEN ================= -->
   <div id="app-screen" class="hidden max-w-md mx-auto">
-    <header class="bg-white/85 backdrop-blur-md border-b border-[#F5D5DF] px-5 py-3.5 sticky top-0 z-20">
+    <header class="app-header backdrop-blur-md border-b px-5 py-3.5 sticky top-0 z-20">
       <div class="flex justify-between items-center gap-2">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1.5">
-            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight text-[#6B424E] bg-transparent border-none p-0 pr-5 truncate max-w-[165px] cursor-pointer"></select>
-            <button id="btn-edit-trip-name" onclick="renameCurrentTrip()" title="แก้ไขชื่อสมุดบัญชีนี้" class="hidden text-[#D6718E] hover:text-[#C45B79] p-1 rounded-lg hover:bg-[#FFEBF0] shrink-0">
+            <select id="trip-switcher" onchange="switchTrip(this.value)" class="font-semibold text-base tracking-tight theme-text-main bg-transparent border-none p-0 pr-5 truncate max-w-[165px] cursor-pointer"></select>
+            <button id="btn-edit-trip-name" onclick="renameCurrentTrip()" title="แก้ไขชื่อสมุดบัญชีนี้" class="hidden theme-text-primary p-1 rounded-lg hover:bg-[#FFEBF0] shrink-0">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
             </button>
-            <span id="ledger-mode-pill" class="text-[10px] bg-[#FFEBF0] text-[#C45B79] px-2 py-0.5 rounded-lg font-medium shrink-0">Trip</span>
+            <span id="ledger-mode-pill" class="text-[10px] theme-bg-pill px-2 py-0.5 rounded-lg font-medium shrink-0">Trip</span>
             <span id="trip-closed-pill" class="hidden text-[10px] bg-[#4A4447] text-white px-2 py-0.5 rounded-lg font-medium shrink-0">ปิดยอดแล้ว</span>
           </div>
-          <p id="user-badge" class="text-[11px] text-[#B38895] mt-0.5 truncate">Loading...</p>
+          <p id="user-badge" class="text-[11px] theme-text-muted mt-0.5 truncate">Loading...</p>
         </div>
         <div class="flex items-center gap-1 shrink-0">
           <button onclick="exportPrintablePdfReport()" title="ดูรายงาน PDF พร้อมรูปสลิปขนาดเล็ก" class="text-[11px] luxury-gradient text-white px-2.5 py-1.5 rounded-xl font-medium shadow-xs">PDF สลิป</button>
-          <button onclick="exportToExcel()" class="text-[11px] text-[#C45B79] hover:bg-[#FFEBF0] px-2 py-1.5 rounded-xl border border-[#F5D5DF] bg-[#FFF8FA] font-medium">Excel</button>
-          <button onclick="handleLogout()" class="text-[11px] text-[#B38895] hover:text-[#6B424E] px-1.5 py-1">ออก</button>
+          <button onclick="exportToExcel()" class="text-[11px] theme-text-primary hover:bg-[#FFEBF0] px-2 py-1.5 rounded-xl border theme-border bg-[#FFF8FA] font-medium">Excel</button>
+          <button onclick="handleLogout()" class="text-[11px] theme-text-muted px-1.5 py-1">ออก</button>
         </div>
       </div>
     </header>
 
-    <!-- TAB 1: DASHBOARD & COLLAPSIBLE LEDGER -->
+    <!-- TAB 1: DASHBOARD, QUICK CALCULATOR WIDGET & COLLAPSIBLE LEDGER -->
     <main id="tab-expenses" class="p-5 pb-28 space-y-4">
       <div id="closed-trip-banner" class="hidden bg-[#4A4447] text-white rounded-3xl p-4 space-y-2 shadow-sm">
         <div class="flex justify-between items-center gap-2">
@@ -131,51 +181,111 @@
       <!-- Personal Summary & Settlement Entry -->
       <div class="grid grid-cols-2 gap-3">
         <div class="soft-card p-4 rounded-2xl">
-          <p id="my-paid-label" class="text-[11px] text-[#A37B87]">ยอดที่คุณสแกนจ่าย</p>
-          <p id="my-paid-cny" class="text-lg font-semibold text-[#6B424E] mt-1">¥0</p>
-          <p id="my-solo-cny" class="text-[11px] text-[#B38895]">ส่วนตัวล้วน ¥0</p>
+          <p id="my-paid-label" class="text-[11px] theme-text-muted">ยอดที่คุณสแกนจ่าย</p>
+          <p id="my-paid-cny" class="text-lg font-semibold theme-text-main mt-1">¥0</p>
+          <p id="my-solo-cny" class="text-[11px] theme-text-muted">ส่วนตัวล้วน ¥0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl flex flex-col justify-between">
           <div>
-            <p id="settle-card-title" class="text-[11px] text-[#A37B87]">สรุปเคลียร์ยอดไฟนอล</p>
-            <p id="my-net-status" class="text-sm font-semibold text-[#6B424E] mt-1">สมดุลแล้ว</p>
+            <p id="settle-card-title" class="text-[11px] theme-text-muted">สรุปเคลียร์ยอดไฟนอล</p>
+            <p id="my-net-status" class="text-sm font-semibold theme-text-main mt-1">สมดุลแล้ว</p>
           </div>
-          <button onclick="openSettleModal()" class="text-[11px] text-[#D6718E] underline text-left mt-1 font-medium">ดูรายละเอียด & ยอดโอน</button>
+          <button onclick="openSettleModal()" class="text-[11px] theme-text-primary underline text-left mt-1 font-medium">ดูรายละเอียด & ยอดโอน</button>
         </div>
       </div>
 
-      <!-- View Scope Switcher & Quick Recurring Pull (Admin Monthly) -->
-      <div class="flex items-center justify-between gap-2">
+      <!-- View Scope Switcher, Quick Calculator Toggle & Actions -->
+      <div class="flex items-center justify-between gap-1.5">
         <div class="flex items-center gap-1.5">
-          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">รายการหลัก</button>
-          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 text-[#8C5867] border border-[#F5D5DF]">ส่วนตัว & เงินสด</button>
+          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">รายการหลัก</button>
+          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border">ส่วนตัว & เงินสด</button>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
-          <button id="btn-pull-recurring-top" onclick="applyRecurringTemplatesToCurrentMonth()" class="hidden text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1]">+ ดึงรายการประจำ</button>
-          <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1.5 rounded-xl font-medium border border-[#F5C2D1]">+ เพิ่มวัน</button>
+          <button id="btn-toggle-calc-widget" onclick="toggleQuickCalcWidget()" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-2.5 py-1.5 rounded-xl font-medium shadow-2xs">⌨️ จดด่วน</button>
+          <button id="btn-pull-recurring-top" onclick="applyRecurringTemplatesToCurrentMonth()" class="hidden text-[11px] theme-bg-pill px-2.5 py-1.5 rounded-xl font-medium border theme-border">+ ดึงประจำ</button>
+          <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] theme-bg-pill px-2.5 py-1.5 rounded-xl font-medium border theme-border">+ วัน</button>
+        </div>
+      </div>
+
+      <!-- COLLAPSIBLE IN-APP QUICK CALCULATOR WIDGET (MANUAL FAST ENTRY) -->
+      <div id="quick-calc-widget" class="hidden soft-card p-4 rounded-3xl space-y-3 border-2 theme-border-mid">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-semibold theme-text-primary">เครื่องคิดเลขจดด่วน</span>
+            <span id="qc-curr-label" class="text-[10px] theme-bg-pill px-2 py-0.5 rounded-md font-medium">THB</span>
+          </div>
+          <button onclick="toggleQuickCalcWidget()" class="text-xs theme-text-muted px-2 py-0.5 rounded-lg">พับเก็บ ✕</button>
+        </div>
+
+        <!-- Quick Preset Chips -->
+        <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px]">
+          <button type="button" onclick="setQuickCalcPreset('ค่าอาหาร')" class="bg-[#FFF5F8] theme-text-sub border theme-border px-2.5 py-1 rounded-lg shrink-0">อาหาร</button>
+          <button type="button" onclick="setQuickCalcPreset('กาแฟ / เครื่องดื่ม')" class="bg-[#FFF5F8] theme-text-sub border theme-border px-2.5 py-1 rounded-lg shrink-0">กาแฟ</button>
+          <button type="button" onclick="setQuickCalcPreset('เดินทาง / Grab')" class="bg-[#FFF5F8] theme-text-sub border theme-border px-2.5 py-1 rounded-lg shrink-0">เดินทาง</button>
+          <button type="button" onclick="setQuickCalcPreset('7-11 / ของใช้')" class="bg-[#FFF5F8] theme-text-sub border theme-border px-2.5 py-1 rounded-lg shrink-0">7-11</button>
+          <button type="button" onclick="setQuickCalcPreset('ช้อปปิ้ง')" class="bg-[#FFF5F8] theme-text-sub border theme-border px-2.5 py-1 rounded-lg shrink-0">ช้อปปิ้ง</button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5">
+          <input id="qc-title" type="text" placeholder="ชื่อรายการ (เช่น ข้าวมันไก่)" class="col-span-3 bg-[#FFF9FA] border theme-border-mid rounded-xl px-3 py-2 text-xs font-medium" />
+          <select id="qc-cat" class="bg-[#FFF9FA] border theme-border-mid rounded-xl px-2 py-1.5 text-[11px]"></select>
+          <select id="qc-channel" class="bg-[#FFF9FA] border theme-border-mid rounded-xl px-2 py-1.5 text-[11px] font-medium">
+            <option value="transfer">1. โอน</option>
+            <option value="credit_card">2. บัตรเครดิต</option>
+            <option value="cash">3. เงินสด</option>
+          </select>
+          <select id="qc-period" class="bg-[#FFF9FA] border theme-border-mid rounded-xl px-2 py-1.5 text-[11px]"></select>
+        </div>
+
+        <!-- Calculator Display -->
+        <div class="bg-[#FFF5F8] border theme-border-mid rounded-2xl px-3.5 py-2.5 flex justify-between items-center">
+          <span id="qc-expr-display" class="text-[11px] theme-text-muted truncate max-w-[45%]"></span>
+          <span id="qc-total-display" class="text-2xl font-semibold theme-text-primary tracking-tight">0</span>
+        </div>
+
+        <!-- Calculator Keypad Grid -->
+        <div class="grid grid-cols-4 gap-1.5 text-sm font-semibold select-none">
+          <button type="button" onclick="qcPress('7')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">7</button>
+          <button type="button" onclick="qcPress('8')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">8</button>
+          <button type="button" onclick="qcPress('9')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">9</button>
+          <button type="button" onclick="qcBackspace()" class="bg-[#FFF5F8] theme-text-sub border theme-border py-2.5 rounded-xl active:scale-95 transition">⌫</button>
+
+          <button type="button" onclick="qcPress('4')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">4</button>
+          <button type="button" onclick="qcPress('5')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">5</button>
+          <button type="button" onclick="qcPress('6')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">6</button>
+          <button type="button" onclick="qcPlus()" class="bg-[#FFF5F8] theme-text-primary border theme-border py-2.5 rounded-xl text-base active:scale-95 transition">+</button>
+
+          <button type="button" onclick="qcPress('1')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">1</button>
+          <button type="button" onclick="qcPress('2')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">2</button>
+          <button type="button" onclick="qcPress('3')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">3</button>
+          <button type="button" onclick="qcClear()" class="bg-[#FFF5F8] text-rose-600 border theme-border py-2.5 rounded-xl text-xs active:scale-95 transition">C</button>
+
+          <button type="button" onclick="qcPress('0')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">0</button>
+          <button type="button" onclick="qcPress('.')" class="bg-white hover:bg-[#FFF5F8] theme-text-main border theme-border py-2.5 rounded-xl active:scale-95 transition">.</button>
+          <button type="button" id="btn-qc-save" onclick="qcSaveImmediately()" class="col-span-2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-semibold shadow-xs active:scale-95 transition">บันทึกทันที</button>
         </div>
       </div>
 
       <!-- Personal Cash Wallet Card -->
-      <div id="personal-cash-card" class="hidden soft-card p-4 rounded-2xl border-[#E893AC] bg-[#FFF9FA] space-y-2.5">
+      <div id="personal-cash-card" class="hidden soft-card p-4 rounded-2xl theme-border-mid bg-[#FFF9FA] space-y-2.5">
         <div class="flex justify-between items-center">
           <div>
-            <p class="text-[11px] font-semibold text-[#C45B79]">กระเป๋าเงินสดส่วนตัว (Personal Cash)</p>
-            <p class="text-[10px] text-[#A37B87]">เช็กเงินสดที่พกติดตัวมาเอง (เห็นเฉพาะคุณคนเดียว)</p>
+            <p class="text-[11px] font-semibold theme-text-primary">กระเป๋าเงินสดส่วนตัว (Personal Cash)</p>
+            <p class="text-[10px] theme-text-muted">เช็กเงินสดที่พกติดตัวมาเอง (เห็นเฉพาะคุณคนเดียว)</p>
           </div>
-          <button onclick="setPersonalCashBudget()" class="text-[11px] bg-[#FFEBF0] text-[#C45B79] px-3 py-1 rounded-xl font-medium">ตั้งงบเงินสด</button>
+          <button onclick="setPersonalCashBudget()" class="text-[11px] theme-bg-pill px-3 py-1 rounded-xl font-medium">ตั้งงบเงินสด</button>
         </div>
         <div class="grid grid-cols-3 gap-2 pt-1 text-center">
-          <div class="bg-white p-2 rounded-xl border border-[#F5D5DF]">
-            <p class="text-[10px] text-[#A37B87]">เงินสดพกมา</p>
-            <p id="cash-init-val" class="text-xs font-semibold text-[#6B424E] mt-0.5">0</p>
+          <div class="bg-white p-2 rounded-xl border theme-border">
+            <p class="text-[10px] theme-text-muted">เงินสดพกมา</p>
+            <p id="cash-init-val" class="text-xs font-semibold theme-text-main mt-0.5">0</p>
           </div>
-          <div class="bg-white p-2 rounded-xl border border-[#F5D5DF]">
-            <p class="text-[10px] text-[#A37B87]">ใช้เงินสดไป</p>
+          <div class="bg-white p-2 rounded-xl border theme-border">
+            <p class="text-[10px] theme-text-muted">ใช้เงินสดไป</p>
             <p id="cash-spent-val" class="text-xs font-semibold text-rose-600 mt-0.5">0</p>
           </div>
-          <div class="bg-white p-2 rounded-xl border border-[#F5D5DF]">
-            <p class="text-[10px] text-[#A37B87]">เงินสดคงเหลือ</p>
+          <div class="bg-white p-2 rounded-xl border theme-border">
+            <p class="text-[10px] theme-text-muted">เงินสดคงเหลือ</p>
             <p id="cash-rem-val" class="text-xs font-semibold text-emerald-700 mt-0.5">0</p>
           </div>
         </div>
@@ -184,24 +294,24 @@
       <!-- Search & Quick Filters -->
       <div class="space-y-2">
         <div class="relative">
-          <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, หมวดหมู่, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border border-[#F2CFD9] rounded-xl pl-9 pr-3 py-2 text-xs" />
-          <svg class="w-4 h-4 text-[#B38895] absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+          <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, หมวดหมู่, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border theme-border-mid rounded-xl pl-9 pr-3 py-2 text-xs" />
+          <svg class="w-4 h-4 theme-text-muted absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
         </div>
         <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px]">
-          <button onclick="setQuickFilter('all')" id="qf-all" class="qf-btn bg-[#6B424E] text-white px-2.5 py-1 rounded-lg shrink-0">ทั้งหมด</button>
-          <button onclick="setQuickFilter('transfer')" id="qf-transfer" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">โอน</button>
-          <button onclick="setQuickFilter('credit_card')" id="qf-credit_card" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">บัตรเครดิต</button>
-          <button onclick="setQuickFilter('cash')" id="qf-cash" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">เงินสด</button>
-          <button onclick="setQuickFilter('mine')" id="qf-mine" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">ฉันจ่าย</button>
-          <button onclick="setQuickFilter('unverified')" id="qf-unverified" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">ยังไม่ติ๊กตรวจ</button>
-          <button onclick="setQuickFilter('flagged')" id="qf-flagged" class="qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0">แจ้งผิด</button>
+          <button onclick="setQuickFilter('all')" id="qf-all" class="qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0">ทั้งหมด</button>
+          <button onclick="setQuickFilter('transfer')" id="qf-transfer" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">โอน</button>
+          <button onclick="setQuickFilter('credit_card')" id="qf-credit_card" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">บัตรเครดิต</button>
+          <button onclick="setQuickFilter('cash')" id="qf-cash" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">เงินสด</button>
+          <button onclick="setQuickFilter('mine')" id="qf-mine" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">ฉันจ่าย</button>
+          <button onclick="setQuickFilter('unverified')" id="qf-unverified" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">ยังไม่ติ๊กตรวจ</button>
+          <button onclick="setQuickFilter('flagged')" id="qf-flagged" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">แจ้งผิด</button>
         </div>
       </div>
 
       <!-- Summary Strip -->
-      <div class="flex justify-between items-center py-1.5 border-b border-[#F5D5DF] text-xs">
-        <span id="filtered-day-label" class="text-[#8C5867]">ยอดรวมที่แสดง</span>
-        <span id="filtered-day-total" class="font-semibold text-[#C45B79]">0</span>
+      <div class="flex justify-between items-center py-1.5 border-b theme-border text-xs">
+        <span id="filtered-day-label" class="theme-text-sub">ยอดรวมที่แสดง</span>
+        <span id="filtered-day-total" class="font-semibold theme-text-primary">0</span>
       </div>
 
       <!-- Collapsible Day / Month Grouped Expense List -->
@@ -212,67 +322,84 @@
     <main id="tab-digest" class="hidden p-5 pb-28 space-y-4">
       <div class="flex justify-between items-start gap-2">
         <div>
-          <h2 id="digest-heading" class="font-semibold text-base text-[#6B424E]">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
-          <p id="digest-subheading" class="text-xs text-[#A37B87]">สรุปยอดใช้จ่ายแยกตามช่วงเวลา พร้อมคลังไฟล์สรุปปิดเดือน</p>
+          <h2 id="digest-heading" class="font-semibold text-base theme-text-main">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
+          <p id="digest-subheading" class="text-xs theme-text-muted">สรุปยอดใช้จ่ายแยกตามช่วงเวลา พร้อมคลังไฟล์สรุปปิดเดือน</p>
         </div>
         <button onclick="exportPrintablePdfReport()" class="text-[11px] luxury-gradient text-white px-3 py-1.5 rounded-xl font-medium shrink-0">PDF พร้อมสลิปย่อ</button>
       </div>
 
       <div id="daily-digest-list" class="space-y-3"></div>
 
-      <div id="monthly-archive-section" class="hidden pt-3 border-t border-[#F5D5DF] space-y-2.5">
+      <div id="monthly-archive-section" class="hidden pt-3 border-t theme-border space-y-2.5">
         <div>
-          <h3 class="text-xs font-semibold text-[#6B424E]">ประวัติปิดยอดเดือนก่อนหน้า (Locked · ตัวเลขล้วนไม่เปลืองพื้นที่)</h3>
-          <p class="text-[10px] text-[#A37B87]">ระบบสร้างไฟล์สรุปและลบรูปสลิปของเดือนที่จบไปแล้วอัตโนมัติ</p>
+          <h3 class="text-xs font-semibold theme-text-main">ประวัติปิดยอดเดือนก่อนหน้า (Locked · ตัวเลขล้วนไม่เปลืองพื้นที่)</h3>
+          <p class="text-[10px] theme-text-muted">ระบบสร้างไฟล์สรุปและลบรูปสลิปของเดือนที่จบไปแล้วอัตโนมัติ</p>
         </div>
         <div id="monthly-archive-list" class="space-y-2"></div>
       </div>
     </main>
 
-    <!-- TAB 3: ANALYTICS, PAYMENT CHANNEL SUMMARY & CHARTS -->
+    <!-- TAB 3: ANALYTICS, INTERACTIVE TREND COMPARISON & CATEGORY FILTER -->
     <main id="tab-analytics" class="hidden p-5 pb-28 space-y-5">
       <div>
-        <h2 class="font-semibold text-base text-[#6B424E]">สรุปภาพรวม & ช่องทางจ่ายเงิน</h2>
-        <p id="analytics-subtitle" class="text-xs text-[#A37B87]">สรุปยอดแยกตามช่องทาง โอน · บัตรเครดิต · เงินสด และหมวดหมู่</p>
+        <h2 class="font-semibold text-base theme-text-main">สรุปภาพรวม & เทรนด์เปรียบเทียบ</h2>
+        <p id="analytics-subtitle" class="text-xs theme-text-muted">เลือกโฟกัสหมวดหมู่เพื่อดูแนวโน้มเทียบระหว่างเดือนหรือรายวัน</p>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div class="soft-card p-4 rounded-2xl">
-          <p class="text-[11px] text-[#A37B87]">ยอดใช้จ่ายรวม</p>
-          <p id="stat-grand-thb" class="text-lg font-semibold text-[#C45B79] mt-1">0</p>
-          <p id="stat-grand-cny" class="text-[11px] text-[#B38895]">0</p>
+          <p class="text-[11px] theme-text-muted">ยอดใช้จ่ายรวม</p>
+          <p id="stat-grand-thb" class="text-lg font-semibold theme-text-primary mt-1">0</p>
+          <p id="stat-grand-cny" class="text-[11px] theme-text-muted">0</p>
         </div>
         <div class="soft-card p-4 rounded-2xl">
-          <p id="stat-avg-label" class="text-[11px] text-[#A37B87]">เฉลี่ยต่อช่วงเวลา</p>
-          <p id="stat-avg-day" class="text-lg font-semibold text-[#6B424E] mt-1">0</p>
-          <p id="stat-avg-person" class="text-[11px] text-[#B38895]">เฉลี่ยคนละ 0</p>
+          <p id="stat-avg-label" class="text-[11px] theme-text-muted">เฉลี่ยต่อช่วงเวลา</p>
+          <p id="stat-avg-day" class="text-lg font-semibold theme-text-main mt-1">0</p>
+          <p id="stat-avg-person" class="text-[11px] theme-text-muted">เฉลี่ยคนละ 0</p>
+        </div>
+      </div>
+
+      <!-- Interactive Trend & Category Comparison Chart Card -->
+      <div class="soft-card p-4 rounded-3xl space-y-3">
+        <div class="flex justify-between items-start gap-2">
+          <div>
+            <h3 id="bar-chart-title" class="text-xs font-semibold theme-text-main">กราฟเทรนด์เปรียบเทียบ</h3>
+            <p id="trend-comparison-badge" class="text-[11px] theme-text-primary font-medium mt-0.5">กำลังคำนวณแนวโน้ม...</p>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div id="analytics-cat-filter-bar" class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px] pb-0.5"></div>
+
+        <div class="h-56">
+          <canvas id="dailyChart"></canvas>
         </div>
       </div>
 
       <!-- Payment Channel Summary Card -->
       <div class="soft-card p-4 rounded-3xl space-y-3">
         <div class="flex justify-between items-center gap-2">
-          <h3 class="text-xs font-semibold text-[#6B424E]">สรุปแยกตามช่องทางจ่ายเงิน</h3>
-          <div class="flex bg-[#FFF5F8] p-0.5 rounded-xl border border-[#F2CFD9] text-[10px]">
+          <h3 class="text-xs font-semibold theme-text-main">สรุปแยกตามช่องทางจ่ายเงิน</h3>
+          <div class="flex bg-[#FFF5F8] p-0.5 rounded-xl border theme-border-mid text-[10px]">
             <button type="button" onclick="setChannelStatScope('all')" id="ch-scope-all" class="px-2.5 py-1 rounded-lg luxury-gradient text-white font-medium">ทั้งสมุด</button>
-            <button type="button" onclick="setChannelStatScope('mine')" id="ch-scope-mine" class="px-2.5 py-1 rounded-lg text-[#8C5867]">เฉพาะฉันจ่าย</button>
+            <button type="button" onclick="setChannelStatScope('mine')" id="ch-scope-mine" class="px-2.5 py-1 rounded-lg theme-text-sub">เฉพาะฉันจ่าย</button>
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-2 text-center">
           <div class="bg-sky-50/70 p-2.5 rounded-2xl border border-sky-200/80">
             <p class="text-[10px] font-medium text-sky-700">1. โอน</p>
-            <p id="ch-sum-transfer" class="text-xs font-bold text-[#6B424E] mt-1">0</p>
+            <p id="ch-sum-transfer" class="text-xs font-bold theme-text-main mt-1">0</p>
             <p id="ch-pct-transfer" class="text-[10px] text-sky-700/80 mt-0.5">0%</p>
           </div>
           <div class="bg-purple-50/70 p-2.5 rounded-2xl border border-purple-200/80">
             <p class="text-[10px] font-medium text-purple-700">2. บัตรเครดิต</p>
-            <p id="ch-sum-credit" class="text-xs font-bold text-[#6B424E] mt-1">0</p>
+            <p id="ch-sum-credit" class="text-xs font-bold theme-text-main mt-1">0</p>
             <p id="ch-pct-credit" class="text-[10px] text-purple-700/80 mt-0.5">0%</p>
           </div>
           <div class="bg-amber-50/70 p-2.5 rounded-2xl border border-amber-200/80">
             <p class="text-[10px] font-medium text-amber-700">3. เงินสด</p>
-            <p id="ch-sum-cash" class="text-xs font-bold text-[#6B424E] mt-1">0</p>
+            <p id="ch-sum-cash" class="text-xs font-bold theme-text-main mt-1">0</p>
             <p id="ch-pct-cash" class="text-[10px] text-amber-700/80 mt-0.5">0%</p>
           </div>
         </div>
@@ -285,71 +412,72 @@
       </div>
 
       <div class="soft-card p-4 rounded-3xl space-y-3">
-        <h3 id="bar-chart-title" class="text-xs font-semibold text-[#6B424E]">กราฟค่าใช้จ่าย</h3>
-        <div class="h-52">
-          <canvas id="dailyChart"></canvas>
-        </div>
-      </div>
-
-      <div class="soft-card p-4 rounded-3xl space-y-3">
-        <h3 class="text-xs font-semibold text-[#6B424E]">สัดส่วนแยกตามหมวดหมู่</h3>
+        <h3 class="text-xs font-semibold theme-text-main">สัดส่วนแยกตามหมวดหมู่</h3>
         <div class="h-52 flex items-center justify-center">
           <canvas id="categoryChart"></canvas>
         </div>
-        <div id="category-breakdown-list" class="space-y-2 pt-2 border-t border-[#FCEBF0] text-xs"></div>
+        <div id="category-breakdown-list" class="space-y-2 pt-2 border-t theme-border text-xs"></div>
       </div>
     </main>
 
-    <!-- TAB 4: MEMBERS, CUSTOM CATEGORIES, RECURRING, LEDGER MANAGEMENT & ADMIN -->
+    <!-- TAB 4: PERSONAL APP THEME, MEMBER COLOR, CUSTOM CATEGORIES, RECURRING & ADMIN -->
     <main id="tab-members" class="hidden p-5 pb-28 space-y-5">
+      <!-- Personal App Theme Switcher (Stored locally per device, 0 DB overhead) -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
-        <div class="flex justify-between items-center">
-          <div>
-            <h2 class="font-semibold text-sm text-[#6B424E]">สีประจำตัวของคุณ (ห้ามซ้ำกัน)</h2>
-            <p class="text-[11px] text-[#A37B87]">แตะวงกลมสีที่ว่างเพื่อเปลี่ยนสีแถบบิลของคุณ</p>
-          </div>
+        <div>
+          <h2 class="font-semibold text-sm theme-text-main">ธีมสีหน้าจอของคุณ (เลือกอิสระเฉพาะเครื่องคุณ)</h2>
+          <p class="text-[11px] theme-text-muted">เปลี่ยนบรรยากาศสีทั้งแอปตามสไตล์ที่คุณชอบ ไม่กระทบหน้าจอเพื่อน</p>
+        </div>
+        <div id="app-theme-picker-row" class="grid grid-cols-3 gap-2 pt-1"></div>
+      </div>
+
+      <!-- Member Badge Color -->
+      <div class="soft-card p-5 rounded-3xl space-y-3">
+        <div>
+          <h2 class="font-semibold text-sm theme-text-main">สีป้ายชื่อคนจ่ายของคุณ (ห้ามซ้ำกันในสมุด)</h2>
+          <p class="text-[11px] theme-text-muted">แตะวงกลมสีที่ว่างเพื่อเปลี่ยนสีแถบบิลของคุณ</p>
         </div>
         <div id="color-picker-row" class="flex items-center justify-between gap-2 pt-1"></div>
       </div>
 
       <!-- Super Admin Panel -->
-      <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 border-[#F2BFD0]">
+      <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 theme-border-mid">
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Administration</p>
-          <h2 class="font-semibold text-sm text-[#6B424E]">จัดการหมวดหมู่ · รายการประจำ · สมุดบัญชี</h2>
+          <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">Administration</p>
+          <h2 class="font-semibold text-sm theme-text-main">จัดการหมวดหมู่ · รายการประจำ · สมุดบัญชี</h2>
         </div>
 
-        <!-- 1. Dynamic Categories Management (Admin adds, everyone in ledger sees & charts auto-sync) -->
-        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-2.5">
+        <!-- 1. Dynamic Categories Management (Admin can add & delete ANY category) -->
+        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border-mid space-y-2.5">
           <div>
-            <label class="block text-[11px] font-semibold text-[#6B424E]">จัดการหมวดหมู่ของสมุดนี้ (อัปเดตหน้าสรุป & กราฟทันที)</label>
-            <p class="text-[10px] text-[#A37B87]">เพิ่มหมวดหมู่เฉพาะของสมุดนี้ สมาชิกทุกคนและ AI จะเลือกใช้ได้ทันที</p>
+            <label class="block text-[11px] font-semibold theme-text-main">จัดการหมวดหมู่ของสมุดนี้ (แอดมินเพิ่ม/ลบได้ทุกหมวด)</label>
+            <p class="text-[10px] theme-text-muted">ทุกคนในสมุดและ AI จะเห็นหมวดหมู่ที่ตั้งไว้และอัปเดตลงกราฟทันที</p>
           </div>
           <div id="admin-categories-list" class="flex flex-wrap gap-1.5"></div>
           <div class="flex gap-2 pt-1">
-            <input id="admin-new-cat-input" type="text" placeholder="ชื่อหมวดหมู่ใหม่ (เช่น สุขภาพ / สัตว์เลี้ยง / ผ่อนชำระ)" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="admin-new-cat-input" type="text" placeholder="ชื่อหมวดหมู่ใหม่ (เช่น สุขภาพ / สัตว์เลี้ยง / ผ่อนชำระ)" class="w-full px-3 py-1.5 bg-white border theme-border-mid rounded-xl text-xs" />
             <button onclick="addCustomCategory()" class="luxury-gradient text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0">+ เพิ่มหมวด</button>
           </div>
         </div>
 
         <!-- 2. Recurring Fixed Expenses (Monthly Mode) -->
-        <div id="admin-recurring-panel" class="hidden bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-2.5">
+        <div id="admin-recurring-panel" class="hidden bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-2.5">
           <div class="flex justify-between items-center gap-2">
             <div>
-              <label class="block text-[11px] font-semibold text-[#C45B79]">รายการประจำเดือนอัตโนมัติ (Recurring Fixed)</label>
-              <p class="text-[10px] text-[#A37B87]">ตั้งค่าบิลจ่ายประจำ กดดึงลงเดือนใหม่ได้ในปุ่มเดียว</p>
+              <label class="block text-[11px] font-semibold theme-text-primary">รายการประจำเดือนอัตโนมัติ (Recurring Fixed)</label>
+              <p class="text-[10px] theme-text-muted">ตั้งค่าบิลจ่ายประจำ กดดึงลงเดือนใหม่ได้ในปุ่มเดียว</p>
             </div>
             <button onclick="applyRecurringTemplatesToCurrentMonth()" class="luxury-gradient text-white px-3 py-1.5 rounded-xl text-[11px] font-medium shrink-0">ดึงลงเดือนนี้</button>
           </div>
           <div id="admin-recurring-list" class="space-y-1.5 text-xs"></div>
-          <div class="pt-1.5 border-t border-[#F2CFD9] space-y-1.5">
+          <div class="pt-1.5 border-t theme-border-mid space-y-1.5">
             <div class="grid grid-cols-3 gap-1.5">
-              <input id="rec-new-title" type="text" placeholder="ชื่อบิลประจำ (เช่น ค่าเน็ต)" class="col-span-2 px-2.5 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs" />
-              <input id="rec-new-amt" type="number" step="0.01" placeholder="ยอดเงิน" class="px-2.5 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs font-semibold text-[#C45B79]" />
+              <input id="rec-new-title" type="text" placeholder="ชื่อบิลประจำ (เช่น ค่าเน็ต)" class="col-span-2 px-2.5 py-1.5 bg-white border theme-border-mid rounded-xl text-xs" />
+              <input id="rec-new-amt" type="number" step="0.01" placeholder="ยอดเงิน" class="px-2.5 py-1.5 bg-white border theme-border-mid rounded-xl text-xs font-semibold theme-text-primary" />
             </div>
             <div class="grid grid-cols-3 gap-1.5">
-              <select id="rec-new-cat" class="px-2 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-[11px]"></select>
-              <select id="rec-new-channel" class="px-2 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-[11px]">
+              <select id="rec-new-cat" class="px-2 py-1.5 bg-white border theme-border-mid rounded-xl text-[11px]"></select>
+              <select id="rec-new-channel" class="px-2 py-1.5 bg-white border theme-border-mid rounded-xl text-[11px]">
                 <option value="transfer">1. โอน</option>
                 <option value="credit_card">2. บัตรเครดิต</option>
                 <option value="cash">3. เงินสด</option>
@@ -360,42 +488,42 @@
         </div>
 
         <!-- Rename Current Trip / Ledger -->
-        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-2">
-          <label class="block text-[11px] font-semibold text-[#6B424E]">แก้ไขชื่อสมุดบัญชีปัจจุบัน</label>
+        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border-mid space-y-2">
+          <label class="block text-[11px] font-semibold theme-text-main">แก้ไขชื่อสมุดบัญชีปัจจุบัน</label>
           <div class="flex gap-2">
-            <input id="admin-rename-trip-input" type="text" placeholder="ชื่อทริป หรือ ชื่อสมุดรายเดือน" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs font-medium text-[#6B424E]" />
+            <input id="admin-rename-trip-input" type="text" placeholder="ชื่อทริป หรือ ชื่อสมุดรายเดือน" class="w-full px-3 py-1.5 bg-white border theme-border-mid rounded-xl text-xs font-medium" />
             <button onclick="saveRenamedTrip()" class="luxury-gradient text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0">เปลี่ยนชื่อ</button>
           </div>
         </div>
 
-        <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] space-y-3">
+        <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-3">
           <div id="admin-trip-date-box">
-            <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">วันเริ่มทริป (Day 1) — เทียบจากสลิปหรือวันที่ถ่ายรูป</label>
+            <label class="block text-[11px] font-semibold theme-text-primary mb-1">วันเริ่มทริป (Day 1) — เทียบจากสลิปหรือวันที่ถ่ายรูป</label>
             <div class="flex gap-2">
-              <input id="admin-start-date-input" type="date" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-xs" />
+              <input id="admin-start-date-input" type="date" class="w-full px-3 py-1.5 bg-white border theme-border-mid rounded-xl text-xs" />
               <button onclick="saveTripStartDate()" class="bg-[#8C5867] text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shrink-0">บันทึกวัน</button>
             </div>
           </div>
 
-          <div id="admin-rate-box" class="pt-2 border-t border-[#F2CFD9]">
-            <label class="block text-[11px] font-semibold text-[#C45B79] mb-1">เรทแปลงเป็นเงินบาทไฟนอลกลาง (1 <span id="admin-rate-curr-code">CNY</span> = ? THB)</label>
+          <div id="admin-rate-box" class="pt-2 border-t theme-border-mid">
+            <label class="block text-[11px] font-semibold theme-text-primary mb-1">เรทแปลงเป็นเงินบาทไฟนอลกลาง (1 <span id="admin-rate-curr-code">CNY</span> = ? THB)</label>
             <div class="flex gap-2">
-              <input id="admin-final-rate-input" type="number" step="0.01" value="4.85" class="w-full px-3 py-1.5 bg-white border border-[#F2CFD9] rounded-xl text-sm font-semibold text-[#C45B79]" />
+              <input id="admin-final-rate-input" type="number" step="0.01" value="4.85" class="w-full px-3 py-1.5 bg-white border theme-border-mid rounded-xl text-sm font-semibold theme-text-primary" />
               <button onclick="saveFinalRate()" class="luxury-gradient text-white px-4 py-1.5 rounded-xl text-xs font-medium shrink-0">ตั้งเรทกลาง</button>
             </div>
           </div>
         </div>
 
         <!-- Close / Purge / Delete Ledger -->
-        <div class="pt-2 border-t border-[#F5D5DF] space-y-2.5">
+        <div class="pt-2 border-t theme-border space-y-2.5">
           <div class="flex justify-between items-center gap-2">
             <div>
-              <p class="text-xs font-semibold text-[#6B424E]">สถานะ: <span id="admin-trip-status-text" class="text-[#C45B79]">เปิดใช้งาน</span></p>
-              <p class="text-[10px] text-[#A37B87]">ทริปที่ปิดแล้วจะเก็บรูปต่ออีก 30 วันเพื่อกันข้อโต้แย้ง</p>
+              <p class="text-xs font-semibold theme-text-main">สถานะ: <span id="admin-trip-status-text" class="theme-text-primary">เปิดใช้งาน</span></p>
+              <p class="text-[10px] theme-text-muted">ทริปที่ปิดแล้วจะเก็บรูปต่ออีก 30 วันเพื่อกันข้อโต้แย้ง</p>
             </div>
             <button id="btn-toggle-close-trip" onclick="toggleCloseTrip()" class="bg-[#4A4447] text-white px-3.5 py-2 rounded-xl text-xs font-medium shrink-0">ปิดทริปนี้</button>
           </div>
-          <button onclick="purgeOldReceiptImages()" class="w-full bg-white hover:bg-[#FFF5F8] text-[#8C5867] border border-[#F2CFD9] py-2 rounded-xl text-[11px] font-medium">
+          <button onclick="purgeOldReceiptImages()" class="w-full bg-white hover:bg-[#FFF5F8] theme-text-sub border theme-border-mid py-2 rounded-xl text-[11px] font-medium">
             ล้างไฟล์รูปสลิปทันทีเพื่อคืนพื้นที่ Storage (คงตัวเลขไว้ 100%)
           </button>
           <button onclick="deleteCurrentLedgerPermanently()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-2 rounded-xl text-[11px] font-semibold">
@@ -403,14 +531,14 @@
           </button>
         </div>
 
-        <div class="space-y-2.5 pt-3 border-t border-[#F5D5DF]">
-          <p class="text-[11px] font-semibold text-[#8C5867]">สร้างสมุดบัญชีใหม่ (ทริปท่องเที่ยว หรือ บันทึกรายเดือน)</p>
+        <div class="space-y-2.5 pt-3 border-t theme-border">
+          <p class="text-[11px] font-semibold theme-text-sub">สร้างสมุดบัญชีใหม่ (ทริปท่องเที่ยว หรือ บันทึกรายเดือน)</p>
           <div class="grid grid-cols-2 gap-2">
-            <select id="new-ledger-type" onchange="handleNewLedgerTypeChange()" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs font-medium text-[#6B424E]">
+            <select id="new-ledger-type" onchange="handleNewLedgerTypeChange()" class="w-full px-3 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs font-medium">
               <option value="trip">ทริปท่องเที่ยว (Trip)</option>
               <option value="monthly">รายจ่ายรายเดือน (Monthly)</option>
             </select>
-            <select id="new-ledger-currency" onchange="handleNewCurrencyChange()" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs font-medium text-[#C45B79]">
+            <select id="new-ledger-currency" onchange="handleNewCurrencyChange()" class="w-full px-3 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs font-medium theme-text-primary">
               <option value="CNY|¥|4.85">CNY (¥ หยวนจีน)</option>
               <option value="THB|฿|1">THB (฿ บาทไทย)</option>
               <option value="JPY|¥|0.23">JPY (¥ เยนญี่ปุ่น)</option>
@@ -419,22 +547,22 @@
               <option value="EUR|€|37.00">EUR (€ ยูโร)</option>
             </select>
           </div>
-          <input id="new-trip-name" type="text" placeholder="ชื่อทริป หรือ ชื่อสมุดรายเดือน (เช่น Monthly · B)" class="w-full px-3.5 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+          <input id="new-trip-name" type="text" placeholder="ชื่อทริป หรือ ชื่อสมุดรายเดือน (เช่น Monthly · B)" class="w-full px-3.5 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs" />
           <div class="grid grid-cols-2 gap-2">
-            <input id="new-trip-start" type="date" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
-            <input id="new-trip-rate" type="number" step="0.001" value="4.85" placeholder="เรทเทียบเงินบาท" class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="new-trip-start" type="date" class="w-full px-3 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs" />
+            <input id="new-trip-rate" type="number" step="0.001" value="4.85" placeholder="เรทเทียบเงินบาท" class="w-full px-3 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs" />
           </div>
-          <label class="flex items-center gap-2 text-[11px] text-[#8C5867] pt-0.5">
-            <input id="new-admin-observer-only" type="checkbox" class="rounded border-[#F2CFD9] text-[#D6718E]" />
+          <label class="flex items-center gap-2 text-[11px] theme-text-sub pt-0.5">
+            <input id="new-admin-observer-only" type="checkbox" class="rounded border-[#F2CFD9]" />
             <span>แอดมินเป็นผู้ดูแลอย่างเดียว (ไม่ดึงชื่อแอดมินไปร่วมหารยอดในสมุดนี้)</span>
           </label>
           <button onclick="createNewTrip()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">+ สร้างสมุดบัญชีใหม่</button>
         </div>
 
-        <div class="pt-3 border-t border-[#F5D5DF] space-y-2">
-          <label class="block text-[11px] font-medium text-[#8C5867]">Gemini API Key (ตั้งครั้งเดียว ใช้สแกนได้ทุกสมุดทุกคน)</label>
+        <div class="pt-3 border-t theme-border space-y-2">
+          <label class="block text-[11px] font-medium theme-text-sub">Gemini API Key (ตั้งครั้งเดียว ใช้สแกนได้ทุกสมุดทุกคน)</label>
           <div class="flex gap-2">
-            <input id="gemini-api-key" type="password" placeholder="วางรหัส AQ. หรือ AIzaSy..." class="w-full px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="gemini-api-key" type="password" placeholder="วางรหัส AQ. หรือ AIzaSy..." class="w-full px-3 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs" />
             <button onclick="saveGeminiKey()" class="bg-[#8C5867] text-white px-3.5 py-2 rounded-xl text-xs shrink-0">บันทึก</button>
           </div>
         </div>
@@ -443,19 +571,19 @@
       <!-- Member Management -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div>
-          <h2 class="font-semibold text-sm text-[#6B424E]">ผู้ใช้งานในสมุดนี้ (<span id="member-count">0</span>/10)</h2>
-          <p id="proxy-admin-hint" class="hidden text-[10px] text-[#A37B87] mt-0.5">แอดมินสามารถเปิด-ปิดสิทธิ์ "อัปแทนเพื่อน" รายบุคคลได้</p>
+          <h2 class="font-semibold text-sm theme-text-main">ผู้ใช้งานในสมุดนี้ (<span id="member-count">0</span>/10)</h2>
+          <p id="proxy-admin-hint" class="hidden text-[10px] theme-text-muted mt-0.5">แอดมินสามารถเปิด-ปิดสิทธิ์ "อัปแทนเพื่อน" รายบุคคลได้</p>
         </div>
         <div id="member-list" class="divide-y divide-[#FCEBF0] text-sm"></div>
 
-        <div id="host-add-member" class="hidden pt-3 border-t border-[#F5D5DF] space-y-2.5">
-          <p class="text-xs font-medium text-[#A37B87]">เพิ่มผู้ใช้งานเข้าสมุดนี้ (ใช้ได้ทั้งคนเดียวหรือหลายคน)</p>
+        <div id="host-add-member" class="hidden pt-3 border-t theme-border space-y-2.5">
+          <p class="text-xs font-medium theme-text-muted">เพิ่มผู้ใช้งานเข้าสมุดนี้ (ใช้ได้ทั้งคนเดียวหรือหลายคน)</p>
           <div class="flex gap-2">
-            <input id="new-member-name" type="text" placeholder="ชื่อ" class="w-1/3 px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
-            <input id="new-member-email" type="email" placeholder="อีเมล" class="w-2/3 px-3 py-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl text-xs" />
+            <input id="new-member-name" type="text" placeholder="ชื่อ" class="w-1/3 px-3 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs" />
+            <input id="new-member-email" type="email" placeholder="อีเมล" class="w-2/3 px-3 py-2 bg-[#FFF9FA] border theme-border-mid rounded-xl text-xs" />
           </div>
-          <label class="flex items-center gap-2 text-[11px] text-[#8C5867]">
-            <input id="new-member-observer" type="checkbox" class="rounded border-[#F2CFD9] text-[#D6718E]" />
+          <label class="flex items-center gap-2 text-[11px] theme-text-sub">
+            <input id="new-member-observer" type="checkbox" class="rounded border-[#F2CFD9]" />
             <span>เพิ่มในฐานะผู้ดูแลอย่างเดียว (ไม่นำชื่อไปหารค่าใช้จ่าย)</span>
           </label>
           <button onclick="addMember()" class="w-full luxury-gradient text-white text-xs font-medium py-2.5 rounded-xl">เพิ่มสิทธิ์อีเมลนี้</button>
@@ -465,17 +593,17 @@
       <!-- Audit Log -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center gap-2">
-          <h2 class="font-semibold text-sm text-[#6B424E]">ประวัติการบันทึก (Audit Log)</h2>
-          <button id="btn-backup-clear-logs" onclick="backupAndClearLogs()" class="hidden text-[11px] bg-[#FFEBF0] text-[#C45B79] hover:bg-[#FFDCE6] px-2.5 py-1 rounded-xl border border-[#F5C2D1] font-medium shrink-0">Backup & เคลียร์ Log</button>
+          <h2 class="font-semibold text-sm theme-text-main">ประวัติการบันทึก (Audit Log)</h2>
+          <button id="btn-backup-clear-logs" onclick="backupAndClearLogs()" class="hidden text-[11px] theme-bg-pill px-2.5 py-1 rounded-xl border theme-border font-medium shrink-0">Backup & เคลียร์ Log</button>
         </div>
-        <div id="audit-log-list" class="space-y-2.5 max-h-72 overflow-y-auto text-xs text-[#A37B87]"></div>
+        <div id="audit-log-list" class="space-y-2.5 max-h-72 overflow-y-auto text-xs theme-text-muted"></div>
       </div>
 
       <!-- Admin Log Backup Archive -->
-      <div id="admin-backup-archive" class="hidden soft-card p-5 rounded-3xl space-y-3 border-[#F2BFD0]">
+      <div id="admin-backup-archive" class="hidden soft-card p-5 rounded-3xl space-y-3 theme-border-mid">
         <div>
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-[#D6718E]">Log Backup Files</p>
-          <h2 class="font-semibold text-sm text-[#6B424E]">คลังไฟล์สำรอง Log เรียงตามวันที่</h2>
+          <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">Log Backup Files</p>
+          <h2 class="font-semibold text-sm theme-text-main">คลังไฟล์สำรอง Log เรียงตามวันที่</h2>
         </div>
         <div id="log-backup-list" class="space-y-2 text-xs"></div>
       </div>
@@ -483,7 +611,7 @@
 
     <!-- Dual Floating Action Buttons -->
     <div id="fab-container" class="fixed bottom-20 right-4 flex flex-col items-center gap-2.5 z-30">
-      <label for="quick-camera-input" title="ถ่ายรูปใบเสร็จสดทันที" aria-label="Quick Camera Scan" class="bg-white/95 text-[#C45B79] border-2 border-[#E893AC] hover:bg-[#FFF5F8] p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
+      <label for="quick-camera-input" title="ถ่ายรูปใบเสร็จสดทันที" aria-label="Quick Camera Scan" class="bg-white/95 theme-text-primary border-2 theme-border-mid p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/>
@@ -491,27 +619,27 @@
         <input id="quick-camera-input" type="file" accept="image/*" capture="environment" onchange="handleQuickCameraCapture(this)" class="hidden" />
       </label>
 
-      <label for="one-tap-album-input" id="fab-add-expense" title="แตะเพื่อเลือกรูปสลิปทันที (หรือกดยกเลิกเพื่อกรอกเอง)" aria-label="1-Tap Add Expense" class="luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition active:scale-95">
+      <label for="one-tap-album-input" id="fab-add-expense" title="แตะเพื่อเลือกรูปสลิปหรือหน้าจอโนติทันที (หรือกดยกเลิกเพื่อกรอกเอง)" aria-label="1-Tap Add Expense" class="luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         <input id="one-tap-album-input" type="file" accept="image/*" multiple onclick="handleOneTapAlbumClick()" onchange="handleOneTapAlbumSelected(this)" class="hidden" />
       </label>
     </div>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#F5D5DF] flex justify-around py-2.5 max-w-md mx-auto z-20 text-[10px] font-medium">
-      <button onclick="switchTab('expenses')" id="nav-expenses" class="flex flex-col items-center gap-1 text-[#C45B79]">
+    <nav class="fixed bottom-0 left-0 right-0 app-header backdrop-blur-md border-t flex justify-around py-2.5 max-w-md mx-auto z-20 text-[10px] font-medium">
+      <button onclick="switchTab('expenses')" id="nav-expenses" class="flex flex-col items-center gap-1 theme-text-primary">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>รายการ</span>
       </button>
-      <button onclick="switchTab('digest')" id="nav-digest" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
+      <button onclick="switchTab('digest')" id="nav-digest" class="flex flex-col items-center gap-1 theme-text-muted">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
         <span id="nav-digest-label">สรุปรายวัน</span>
       </button>
-      <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
+      <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 theme-text-muted">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
         <span>สรุป & กราฟ</span>
       </button>
-      <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 text-[#C9A3AF]">
+      <button onclick="switchTab('members')" id="nav-members" class="flex flex-col items-center gap-1 theme-text-muted">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
         <span>จัดการ</span>
       </button>
@@ -519,25 +647,25 @@
   </div>
 
   <!-- ================= MODAL: ADD EXPENSE ================= -->
-  <div id="expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#F5D5DF]">
+  <div id="expense-modal" class="hidden fixed inset-0 bg-[#3A2229]/45 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#6B424E]">บันทึกรายจ่าย (<span id="modal-curr-badge">CNY</span>)</h3>
-        <button onclick="closeModal('expense-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
+        <h3 class="font-semibold text-base theme-text-main">บันทึกรายจ่าย (<span id="modal-curr-badge">CNY</span>)</h3>
+        <button onclick="closeModal('expense-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] theme-text-sub flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
-      <div class="bg-[#FFF5F8] border border-dashed border-[#E893AC] rounded-2xl p-3.5 space-y-2">
+      <div class="bg-[#FFF5F8] border border-dashed theme-border-mid rounded-2xl p-3.5 space-y-2">
         <div class="flex justify-between items-center gap-2">
           <div class="min-w-0 flex-1">
-            <p class="text-xs font-semibold text-[#C45B79]">สแกนสลิป / ใบเสร็จ (เลือกได้หลายใบพร้อมกัน)</p>
-            <p id="scanner-rule-hint" class="text-[10px] text-[#A37B87]">เลือกหรือสลับ โอน / บัตรเครดิต / เงินสด ได้ตลอด</p>
+            <p class="text-xs font-semibold theme-text-primary">สแกนสลิป / แคปโนติบัตรหลายรายการพร้อมกัน</p>
+            <p id="scanner-rule-hint" class="text-[10px] theme-text-muted">1 รูปที่มีโนติเด้งหลายอัน ระบบแตกเป็นรายการย่อยให้ทันที</p>
           </div>
           <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shadow-xs shrink-0">
             เลือกรูปเพิ่ม
             <input id="exp-file" type="file" accept="image/*" multiple onchange="handleMultiReceiptScan(this)" class="hidden" />
           </label>
         </div>
-        <p id="ocr-status" class="hidden text-[11px] text-[#C45B79] font-medium"></p>
+        <p id="ocr-status" class="hidden text-[11px] theme-text-primary font-medium"></p>
       </div>
 
       <div id="duplicate-alert-box" class="hidden bg-amber-50 border border-amber-400 rounded-2xl p-3.5 space-y-1">
@@ -546,10 +674,10 @@
       </div>
 
       <!-- Batch Queue Preview -->
-      <div id="batch-queue-section" class="hidden space-y-2.5 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
+      <div id="batch-queue-section" class="hidden space-y-2.5 bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border">
         <div class="flex justify-between items-center">
-          <p class="text-xs font-semibold text-[#6B424E]">รายการพร้อมบันทึก (<span id="batch-count">0</span>)</p>
-          <button onclick="clearBatchQueue()" class="text-[11px] text-[#B38895] underline">ล้างทั้งหมด</button>
+          <p class="text-xs font-semibold theme-text-main">รายการพร้อมบันทึก (<span id="batch-count">0</span>)</p>
+          <button onclick="clearBatchQueue()" class="text-[11px] theme-text-muted underline">ล้างทั้งหมด</button>
         </div>
         <div id="batch-items-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
       </div>
@@ -558,54 +686,54 @@
       <div id="single-expense-fields" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div id="single-day-field">
-            <label class="text-[11px] text-[#8C5867]">วันที่ทริป <span id="exp-day-badge" class="text-[9px] text-[#D6718E]"></span></label>
-            <select id="exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+            <label class="text-[11px] theme-text-sub">วันที่ทริป <span id="exp-day-badge" class="text-[9px] theme-text-primary"></span></label>
+            <select id="exp-day" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1"></select>
           </div>
           <div id="single-month-field" class="hidden">
-            <label class="text-[11px] text-[#8C5867]">วันที่ (<span id="current-month-only-label">เดือนนี้</span>)</label>
-            <input id="exp-date-input" type="date" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
+            <label class="text-[11px] theme-text-sub">วันที่ (<span id="current-month-only-label">เดือนนี้</span>)</label>
+            <input id="exp-date-input" type="date" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
           </div>
           <div>
-            <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
-            <select id="exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+            <label class="text-[11px] theme-text-sub">หมวดหมู่</label>
+            <select id="exp-cat" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1"></select>
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-2.5">
           <div class="col-span-2">
-            <label class="text-[11px] text-[#8C5867]">รายละเอียดรายการ</label>
-            <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
+            <label class="text-[11px] theme-text-sub">รายละเอียดรายการ</label>
+            <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-sm mt-1" />
           </div>
           <div>
-            <label class="text-[11px] text-[#8C5867]">เวลา <span id="exp-time-badge" class="text-[9px] text-[#D6718E]">(บันทึก)</span></label>
-            <input id="exp-time" type="time" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
+            <label class="text-[11px] theme-text-sub">เวลา <span id="exp-time-badge" class="text-[9px] theme-text-primary">(บันทึก)</span></label>
+            <input id="exp-time" type="time" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
+        <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border">
           <div>
-            <label class="text-[11px] text-[#8C5867] flex items-center justify-between">
+            <label class="text-[11px] theme-text-sub flex items-center justify-between">
               <span>จำนวนเงิน (<span id="exp-amt-curr">CNY</span>)</span>
               <span id="exp-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อก</span>
             </label>
-            <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
+            <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1" />
           </div>
           <div id="exp-rate-box">
-            <label class="text-[11px] text-[#8C5867]">เรทกลาง (THB)</label>
-            <input id="exp-rate" type="number" step="0.001" readonly class="w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-sm text-[#8C5867] mt-1 cursor-not-allowed" />
+            <label class="text-[11px] theme-text-sub">เรทกลาง (THB)</label>
+            <input id="exp-rate" type="number" step="0.001" readonly class="w-full bg-[#FCEBF0]/60 border theme-border-mid rounded-xl p-2 text-sm theme-text-sub mt-1 cursor-not-allowed" />
           </div>
           <div class="col-span-2 flex justify-between items-center pt-1">
             <div class="flex items-center gap-3">
-              <label id="exp-fee-label" class="flex items-center gap-1.5 text-xs text-[#8C5867]">
-                <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
+              <label id="exp-fee-label" class="flex items-center gap-1.5 text-xs theme-text-sub">
+                <input id="exp-fee" type="checkbox" onchange="calcThbPreview()" class="rounded border-[#F2CFD9]" />
                 +3%
               </label>
               <label class="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
-                <input id="exp-refund" type="checkbox" class="rounded border-emerald-300 text-emerald-600 focus:ring-0" />
+                <input id="exp-refund" type="checkbox" class="rounded border-emerald-300 text-emerald-600" />
                 คืนเงิน (Refund)
               </label>
             </div>
-            <span id="exp-thb-preview" class="text-xs font-semibold text-[#C45B79]">THB 0</span>
+            <span id="exp-thb-preview" class="text-xs font-semibold theme-text-primary">THB 0</span>
           </div>
         </div>
       </div>
@@ -613,13 +741,13 @@
       <!-- Payer Control & 3-Option Payment Channel -->
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-[11px] text-[#8C5867]">ผู้สแกนจ่ายตัวจริง <span id="proxy-active-tag" class="hidden text-[9px] text-[#C45B79] font-semibold">(สิทธิ์อัปแทน)</span></label>
-          <div id="locked-payer-display" class="w-full bg-[#FFEBF0] border border-[#F2CFD9] rounded-xl p-2.5 text-xs font-semibold text-[#C45B79] mt-1 truncate"></div>
-          <select id="proxy-payer-select" class="hidden w-full bg-[#FFF5F8] border border-[#E893AC] rounded-xl p-2.5 text-xs font-semibold text-[#C45B79] mt-1"></select>
+          <label class="text-[11px] theme-text-sub">ผู้สแกนจ่ายตัวจริง <span id="proxy-active-tag" class="hidden text-[9px] theme-text-primary font-semibold">(สิทธิ์อัปแทน)</span></label>
+          <div id="locked-payer-display" class="w-full theme-bg-pill border theme-border-mid rounded-xl p-2.5 text-xs font-semibold mt-1 truncate"></div>
+          <select id="proxy-payer-select" class="hidden w-full bg-[#FFF5F8] border theme-border-mid rounded-xl p-2.5 text-xs font-semibold theme-text-primary mt-1"></select>
         </div>
         <div id="single-channel-box">
-          <label class="text-[11px] text-[#8C5867]">ช่องทางจ่ายเงิน <span id="exp-channel-badge" class="text-[9px] text-[#D6718E]"></span></label>
-          <select id="exp-channel" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1 font-medium text-[#6B424E]">
+          <label class="text-[11px] theme-text-sub">ช่องทางจ่ายเงิน <span id="exp-channel-badge" class="text-[9px] theme-text-primary"></span></label>
+          <select id="exp-channel" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1 font-medium">
             <option value="transfer">1. โอน (Transfer / Alipay)</option>
             <option value="credit_card">2. บัตรเครดิต (Credit Card)</option>
             <option value="cash">3. เงินสด (Cash)</option>
@@ -629,8 +757,8 @@
 
       <div id="split-members-section">
         <div class="flex justify-between items-center mb-1.5">
-          <label class="text-[11px] text-[#8C5867]">ผู้ร่วมหาร (เลือกคนเดียว = ส่วนตัวล้วนเห็นคนเดียว)</label>
-          <button type="button" onclick="selectAllSplitMembers()" class="text-[10px] text-[#D6718E] underline">เลือกทุกคน</button>
+          <label class="text-[11px] theme-text-sub">ผู้ร่วมหาร (เลือกคนเดียว = ส่วนตัวล้วนเห็นคนเดียว)</label>
+          <button type="button" onclick="selectAllSplitMembers()" class="text-[10px] theme-text-primary underline">เลือกทุกคน</button>
         </div>
         <div id="exp-split-checkboxes" class="flex flex-wrap gap-1.5"></div>
       </div>
@@ -640,68 +768,67 @@
   </div>
 
   <!-- ================= MODAL: EDIT EXISTING EXPENSE (WITH ADMIN MOVE LEDGER) ================= -->
-  <div id="edit-expense-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-[#F5D5DF]">
+  <div id="edit-expense-modal" class="hidden fixed inset-0 bg-[#3A2229]/45 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#6B424E]">แก้ไขรายการค่าใช้จ่าย</h3>
-        <button onclick="closeModal('edit-expense-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
+        <h3 class="font-semibold text-base theme-text-main">แก้ไขรายการค่าใช้จ่าย</h3>
+        <button onclick="closeModal('edit-expense-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] theme-text-sub flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
       <input type="hidden" id="edit-exp-id" />
 
-      <!-- Admin: Move Expense to Another Ledger -->
-      <div id="edit-move-ledger-box" class="hidden bg-[#FFF5F8] p-3 rounded-2xl border border-[#F2CFD9] space-y-1">
-        <label class="block text-[10px] font-semibold text-[#C45B79]">Admin: ย้ายรายการนี้ไปสมุดบัญชีอื่น (กรณีอัปผิดสมุด)</label>
-        <select id="edit-exp-target-trip" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-xs font-medium text-[#6B424E]"></select>
+      <div id="edit-move-ledger-box" class="hidden bg-[#FFF5F8] p-3 rounded-2xl border theme-border-mid space-y-1">
+        <label class="block text-[10px] font-semibold theme-text-primary">Admin: ย้ายรายการนี้ไปสมุดบัญชีอื่น (กรณีอัปผิดสมุด)</label>
+        <select id="edit-exp-target-trip" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-xs font-medium"></select>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div id="edit-day-field">
-          <label class="text-[11px] text-[#8C5867]">วันที่ (Day)</label>
-          <select id="edit-exp-day" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+          <label class="text-[11px] theme-text-sub">วันที่ (Day)</label>
+          <select id="edit-exp-day" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
         <div id="edit-month-field" class="hidden">
-          <label class="text-[11px] text-[#8C5867]">วันที่รายการ</label>
-          <input id="edit-exp-date" type="date" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
+          <label class="text-[11px] theme-text-sub">วันที่รายการ</label>
+          <input id="edit-exp-date" type="date" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
         </div>
         <div>
-          <label class="text-[11px] text-[#8C5867]">หมวดหมู่</label>
-          <select id="edit-exp-cat" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1"></select>
+          <label class="text-[11px] theme-text-sub">หมวดหมู่</label>
+          <select id="edit-exp-cat" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1"></select>
         </div>
       </div>
 
       <div class="grid grid-cols-3 gap-2.5">
         <div class="col-span-2">
-          <label class="text-[11px] text-[#8C5867]">รายละเอียดรายการ</label>
-          <input id="edit-exp-title" type="text" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
+          <label class="text-[11px] theme-text-sub">รายละเอียดรายการ</label>
+          <input id="edit-exp-title" type="text" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-sm mt-1" />
         </div>
         <div>
-          <label class="text-[11px] text-[#8C5867]">เวลา</label>
-          <input id="edit-exp-time" type="time" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2 text-xs mt-1" />
+          <label class="text-[11px] theme-text-sub">เวลา</label>
+          <input id="edit-exp-time" type="time" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
         </div>
       </div>
 
       <div>
-        <label class="text-[11px] text-[#8C5867]">ช่องทางจ่ายเงิน</label>
-        <select id="edit-exp-channel" class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-xs mt-1 font-medium text-[#6B424E]">
+        <label class="text-[11px] theme-text-sub">ช่องทางจ่ายเงิน</label>
+        <select id="edit-exp-channel" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1 font-medium">
           <option value="transfer">1. โอน (Transfer / Alipay)</option>
           <option value="credit_card">2. บัตรเครดิต (Credit Card)</option>
           <option value="cash">3. เงินสด (Cash)</option>
         </select>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border border-[#F5D5DF]">
+      <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border">
         <div>
-          <label class="text-[11px] text-[#8C5867] flex items-center justify-between">
+          <label class="text-[11px] theme-text-sub flex items-center justify-between">
             <span>จำนวนเงิน (<span id="edit-amt-curr">CNY</span>)</span>
             <span id="edit-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อก</span>
           </label>
-          <input id="edit-exp-cny" type="number" step="0.01" class="w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1" />
-          <button id="btn-admin-unlock-cny" type="button" onclick="adminUnlockEditCny()" class="hidden text-[10px] text-[#D6718E] underline mt-1">Admin: ปลดล็อกแก้ยอดสลิป</button>
+          <input id="edit-exp-cny" type="number" step="0.01" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1" />
+          <button id="btn-admin-unlock-cny" type="button" onclick="adminUnlockEditCny()" class="hidden text-[10px] theme-text-primary underline mt-1">Admin: ปลดล็อกแก้ยอดสลิป</button>
         </div>
         <div class="flex flex-col justify-center gap-1.5 pt-3">
-          <label id="edit-fee-label" class="flex items-center gap-1.5 text-xs text-[#8C5867]">
-            <input id="edit-exp-fee" type="checkbox" class="rounded border-[#F2CFD9] text-[#D6718E]" />
+          <label id="edit-fee-label" class="flex items-center gap-1.5 text-xs theme-text-sub">
+            <input id="edit-exp-fee" type="checkbox" class="rounded border-[#F2CFD9]" />
             ค่าธรรมเนียม +3%
           </label>
           <label class="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
@@ -712,39 +839,39 @@
       </div>
 
       <div id="edit-split-section">
-        <label class="text-[11px] text-[#8C5867] block mb-1.5">ผู้ร่วมหาร</label>
+        <label class="text-[11px] theme-text-sub block mb-1.5">ผู้ร่วมหาร</label>
         <div id="edit-exp-split-checkboxes" class="flex flex-wrap gap-1.5"></div>
       </div>
 
       <div class="flex gap-2.5 pt-1">
-        <button onclick="closeModal('edit-expense-modal')" class="w-1/3 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button onclick="closeModal('edit-expense-modal')" class="w-1/3 bg-[#FFF9FA] theme-text-muted border theme-border-mid py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
         <button id="btn-update-expense" onclick="updateExpense()" class="w-2/3 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">บันทึกการแก้ไข</button>
       </div>
     </div>
   </div>
 
   <!-- ================= MODAL: PERIOD RECEIPT VAULT ================= -->
-  <div id="day-receipts-modal" class="hidden fixed inset-0 bg-[#6B424E]/40 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
+  <div id="day-receipts-modal" class="hidden fixed inset-0 bg-[#3A2229]/45 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
         <div>
-          <h3 id="day-vault-title" class="font-semibold text-base text-[#6B424E]">รวมสลิป</h3>
-          <p id="day-vault-subtitle" class="text-[11px] text-[#A37B87]">เรียงตามเวลาสำหรับตรวจสอบ</p>
+          <h3 id="day-vault-title" class="font-semibold text-base theme-text-main">รวมสลิป</h3>
+          <p id="day-vault-subtitle" class="text-[11px] theme-text-muted">เรียงตามเวลาสำหรับตรวจสอบ</p>
         </div>
-        <button onclick="closeModal('day-receipts-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
+        <button onclick="closeModal('day-receipts-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] theme-text-sub flex items-center justify-center text-lg leading-none">✕</button>
       </div>
       <div id="day-vault-list" class="space-y-2.5"></div>
     </div>
   </div>
 
   <!-- ================= MODAL: IN-APP PDF REPORT WITH THUMBNAIL SLIPS ================= -->
-  <div id="pdf-report-modal" class="hidden fixed inset-0 bg-[#6B424E]/50 backdrop-blur-xs z-50 flex items-center justify-center p-2 sm:p-5">
-    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#F5D5DF] flex flex-col max-h-[92vh] overflow-hidden">
-      <div class="no-print px-5 py-3.5 bg-[#FFF5F8] border-b border-[#F2CFD9] flex justify-between items-center gap-2 shrink-0">
-        <p class="text-xs font-semibold text-[#C45B79]">รายงานสรุปพร้อมรูปสลิปย่อ</p>
+  <div id="pdf-report-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 backdrop-blur-xs z-50 flex items-center justify-center p-2 sm:p-5">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border theme-border flex flex-col max-h-[92vh] overflow-hidden">
+      <div class="no-print px-5 py-3.5 bg-[#FFF5F8] border-b theme-border-mid flex justify-between items-center gap-2 shrink-0">
+        <p class="text-xs font-semibold theme-text-primary">รายงานสรุปพร้อมรูปสลิปย่อ</p>
         <div class="flex items-center gap-2">
           <button onclick="window.print()" class="luxury-gradient text-white text-xs font-medium px-3.5 py-1.5 rounded-xl shadow-xs">สั่งพิมพ์ / บันทึก PDF</button>
-          <button onclick="closeModal('pdf-report-modal')" aria-label="ปิดหน้าต่าง" class="w-8 h-8 rounded-full bg-white border border-[#F2CFD9] text-[#6B424E] hover:bg-[#FFEBF0] flex items-center justify-center text-base font-bold">✕</button>
+          <button onclick="closeModal('pdf-report-modal')" aria-label="ปิดหน้าต่าง" class="w-8 h-8 rounded-full bg-white border theme-border-mid theme-text-main flex items-center justify-center text-base font-bold">✕</button>
         </div>
       </div>
       <div id="pdf-report-body" class="p-5 overflow-y-auto flex-1 text-[#4A2E36]"></div>
@@ -752,54 +879,54 @@
   </div>
 
   <!-- ================= MODAL: FINAL SETTLEMENT & ADMIN RATE ================= -->
-  <div id="settle-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#F5D5DF]">
+  <div id="settle-modal" class="hidden fixed inset-0 bg-[#3A2229]/45 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#6B424E]">สรุปเคลียร์ยอดไฟนอล</h3>
-        <button onclick="closeModal('settle-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
+        <h3 class="font-semibold text-base theme-text-main">สรุปเคลียร์ยอดไฟนอล</h3>
+        <button onclick="closeModal('settle-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] theme-text-sub flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
-      <div id="settle-rate-banner" class="bg-[#FFF5F8] p-3.5 rounded-2xl border border-[#F2CFD9] flex justify-between items-center">
+      <div id="settle-rate-banner" class="bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid flex justify-between items-center">
         <div>
-          <p class="text-xs font-semibold text-[#C45B79]">เรทแปลงเงินไฟนอลกลาง</p>
-          <p class="text-[10px] text-[#A37B87]">กำหนดโดย Administrator ใช้เรทเดียวกันทั้งสมุด</p>
+          <p class="text-xs font-semibold theme-text-primary">เรทแปลงเงินไฟนอลกลาง</p>
+          <p class="text-[10px] theme-text-muted">กำหนดโดย Administrator ใช้เรทเดียวกันทั้งสมุด</p>
         </div>
         <div class="text-right">
-          <p id="settle-global-rate-badge" class="text-sm font-bold text-[#C45B79]">1¥ = 4.85฿</p>
+          <p id="settle-global-rate-badge" class="text-sm font-bold theme-text-primary">1¥ = 4.85฿</p>
         </div>
       </div>
 
       <div class="space-y-2">
-        <p class="text-xs font-semibold text-[#6B424E]">สรุปใครต้องโอนให้ใครเป็นหลัก (จบในรอบเดียว)</p>
+        <p class="text-xs font-semibold theme-text-main">สรุปใครต้องโอนให้ใครเป็นหลัก (จบในรอบเดียว)</p>
         <div id="settle-transfers-list" class="space-y-2 text-xs"></div>
       </div>
 
-      <div class="pt-2 border-t border-[#F5D5DF] space-y-2">
-        <p class="text-xs font-semibold text-[#6B424E]">รายละเอียดสุทธิรายบุคคล</p>
+      <div class="pt-2 border-t theme-border space-y-2">
+        <p class="text-xs font-semibold theme-text-main">รายละเอียดสุทธิรายบุคคล</p>
         <div id="settle-details" class="space-y-2 text-xs"></div>
       </div>
     </div>
   </div>
 
   <!-- ================= MODAL: FLAG EXPENSE FOR OWNER REVIEW ================= -->
-  <div id="flag-modal" class="hidden fixed inset-0 bg-[#6B424E]/35 backdrop-blur-xs z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border border-[#F5D5DF]">
+  <div id="flag-modal" class="hidden fixed inset-0 bg-[#3A2229]/45 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border theme-border">
       <div class="flex justify-between items-center">
-        <h3 class="font-semibold text-base text-[#6B424E]">แจ้งตรวจสอบ / ขอลบรายการ</h3>
-        <button onclick="closeModal('flag-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] text-[#8C5867] hover:text-[#C45B79] flex items-center justify-center text-lg leading-none">✕</button>
+        <h3 class="font-semibold text-base theme-text-main">แจ้งตรวจสอบ / ขอลบรายการ</h3>
+        <button onclick="closeModal('flag-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] theme-text-sub flex items-center justify-center text-lg leading-none">✕</button>
       </div>
-      <p id="flag-target-title" class="text-xs font-medium text-[#C45B79] bg-[#FFF5F8] p-2.5 rounded-xl border border-[#F5D5DF]"></p>
+      <p id="flag-target-title" class="text-xs font-medium theme-text-primary bg-[#FFF5F8] p-2.5 rounded-xl border theme-border"></p>
       <div class="space-y-2">
-        <label class="text-xs text-[#8C5867]">เลือกสาเหตุหรือระบุเพิ่มเติม (ส่งแจ้งเตือนให้เจ้าของยืนยันการลบ)</label>
+        <label class="text-xs theme-text-sub">เลือกสาเหตุหรือระบุเพิ่มเติม (ส่งแจ้งเตือนให้เจ้าของยืนยันการลบ)</label>
         <div class="flex flex-wrap gap-1.5">
-          <button type="button" onclick="setFlagReason('ยอดเงินไม่ตรงกับสลิป')" class="text-[11px] bg-[#FFF9FA] border border-[#F2CFD9] px-2.5 py-1 rounded-xl text-[#8C5867] hover:bg-[#FFEBF0]">ยอดเงินผิด</button>
-          <button type="button" onclick="setFlagReason('อัปโหลดรายการซ้ำ')" class="text-[11px] bg-[#FFF9FA] border border-[#F2CFD9] px-2.5 py-1 rounded-xl text-[#8C5867] hover:bg-[#FFEBF0]">ลงซ้ำ</button>
-          <button type="button" onclick="setFlagReason('เลือกผู้ร่วมหารหรือวันผิด')" class="text-[11px] bg-[#FFF9FA] border border-[#F2CFD9] px-2.5 py-1 rounded-xl text-[#8C5867] hover:bg-[#FFEBF0]">หารผิดคน</button>
+          <button type="button" onclick="setFlagReason('ยอดเงินไม่ตรงกับสลิป')" class="text-[11px] bg-[#FFF9FA] border theme-border-mid px-2.5 py-1 rounded-xl theme-text-sub">ยอดเงินผิด</button>
+          <button type="button" onclick="setFlagReason('อัปโหลดรายการซ้ำ')" class="text-[11px] bg-[#FFF9FA] border theme-border-mid px-2.5 py-1 rounded-xl theme-text-sub">ลงซ้ำ</button>
+          <button type="button" onclick="setFlagReason('เลือกผู้ร่วมหารหรือวันผิด')" class="text-[11px] bg-[#FFF9FA] border theme-border-mid px-2.5 py-1 rounded-xl theme-text-sub">หารผิดคน</button>
         </div>
-        <input id="flag-reason-input" type="text" placeholder="ระบุเหตุผลที่ต้องการให้เจ้าของตรวจสอบ..." class="w-full bg-[#FFF9FA] border border-[#F2CFD9] rounded-xl p-2.5 text-sm mt-1" />
+        <input id="flag-reason-input" type="text" placeholder="ระบุเหตุผลที่ต้องการให้เจ้าของตรวจสอบ..." class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-sm mt-1" />
       </div>
       <div class="flex gap-2.5 pt-1">
-        <button onclick="closeModal('flag-modal')" class="w-1/2 bg-[#FFF9FA] text-[#A37B87] border border-[#F2CFD9] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button onclick="closeModal('flag-modal')" class="w-1/2 bg-[#FFF9FA] theme-text-muted border theme-border-mid py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
         <button onclick="submitFlagExpense()" class="w-1/2 luxury-gradient text-white py-2.5 rounded-xl text-xs font-medium">ส่งแจ้งเจ้าของ</button>
       </div>
     </div>
@@ -820,6 +947,16 @@
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
     const SUPER_ADMIN_NAME = 'yuranun';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Personal App Themes (Stored locally per user device)
+    const APP_THEMES = [
+      { id: 'blush', name: 'Soft Blush', swatch: '#D6718E', dark: false, vars: { '--bg-top': '#FDF2F5', '--bg-bottom': '#FCE7ED', '--text-main': '#6B424E', '--text-sub': '#8C5867', '--text-muted': '#A37B87', '--primary': '#D6718E', '--primary-dark': '#C45B79', '--primary-light': '#E893AC', '--soft-pill': '#FFEBF0', '--soft-surface': '#FFF9FA', '--soft-tint': '#FFF5F8', '--border-soft': '#F5D5DF', '--border-mid': '#F2CFD9', '--card-bg': 'rgba(255, 255, 255, 0.92)', '--header-bg': 'rgba(255, 255, 255, 0.88)' } },
+      { id: 'sky', name: 'Sky Mist', swatch: '#4B89DC', dark: false, vars: { '--bg-top': '#F0F6FC', '--bg-bottom': '#E1EEFA', '--text-main': '#2C435E', '--text-sub': '#4A6585', '--text-muted': '#6E88A6', '--primary': '#4B89DC', '--primary-dark': '#346CB8', '--primary-light': '#74A9EC', '--soft-pill': '#E3EFFD', '--soft-surface': '#F7FAFE', '--soft-tint': '#EDF4FC', '--border-soft': '#D0E2F5', '--border-mid': '#C2D9F2', '--card-bg': 'rgba(255, 255, 255, 0.93)', '--header-bg': 'rgba(255, 255, 255, 0.90)' } },
+      { id: 'sage', name: 'Sage Mint', swatch: '#4E9A7B', dark: false, vars: { '--bg-top': '#F1F8F5', '--bg-bottom': '#E2F2EB', '--text-main': '#2D4D40', '--text-sub': '#486E5F', '--text-muted': '#6B8F80', '--primary': '#4E9A7B', '--primary-dark': '#397B60', '--primary-light': '#73B99C', '--soft-pill': '#E1F3EB', '--soft-surface': '#F7FCFA', '--soft-tint': '#ECF7F2', '--border-soft': '#CDE6DC', '--border-mid': '#BEE0D3', '--card-bg': 'rgba(255, 255, 255, 0.93)', '--header-bg': 'rgba(255, 255, 255, 0.90)' } },
+      { id: 'lavender', name: 'Lavender', swatch: '#8B72BE', dark: false, vars: { '--bg-top': '#F5F2FA', '--bg-bottom': '#ECE5F7', '--text-main': '#44355E', '--text-sub': '#625082', '--text-muted': '#8373A1', '--primary': '#8B72BE', '--primary-dark': '#6F56A3', '--primary-light': '#A993D6', '--soft-pill': '#ECE4FA', '--soft-surface': '#FAF8FE', '--soft-tint': '#F2ECFC', '--border-soft': '#DDD2F2', '--border-mid': '#D2C4ED', '--card-bg': 'rgba(255, 255, 255, 0.93)', '--header-bg': 'rgba(255, 255, 255, 0.90)' } },
+      { id: 'sand', name: 'Warm Gold', swatch: '#B8863B', dark: false, vars: { '--bg-top': '#FAF6F0', '--bg-bottom': '#F3ECE0', '--text-main': '#54432C', '--text-sub': '#756044', '--text-muted': '#968265', '--primary': '#B8863B', '--primary-dark': '#996B26', '--primary-light': '#D1A35C', '--soft-pill': '#F5EAD6', '--soft-surface': '#FCF9F4', '--soft-tint': '#F7F1E6', '--border-soft': '#E8DCC6', '--border-mid': '#E0D1B6', '--card-bg': 'rgba(255, 255, 255, 0.93)', '--header-bg': 'rgba(255, 255, 255, 0.90)' } },
+      { id: 'midnight', name: 'Noir Rose', swatch: '#1F1B24', dark: true, vars: { '--bg-top': '#16131A', '--bg-bottom': '#1E1924', '--text-main': '#F4EDF2', '--text-sub': '#CBB9C4', '--text-muted': '#9A8794', '--primary': '#E07A98', '--primary-dark': '#F29BB5', '--primary-light': '#C45B79', '--soft-pill': '#382834', '--soft-surface': '#26212C', '--soft-tint': '#2B2433', '--border-soft': '#3A3145', '--border-mid': '#483D54', '--card-bg': 'rgba(34, 29, 41, 0.94)', '--header-bg': 'rgba(26, 22, 31, 0.92)' } }
+    ];
 
     const DEFAULT_CATEGORIES = [
       { key: 'Food', label: 'อาหาร / เครื่องดื่ม', short: 'อาหาร' },
@@ -862,6 +999,7 @@
     let currentScopeFilter = 'shared';
     let currentQuickFilter = 'all';
     let currentChannelStatScope = 'all';
+    let analyticsCategoryFilter = 'ALL';
     let collapsedGroups = new Set();
     let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
     let totalDays = 6;
@@ -876,6 +1014,156 @@
     let isSingleAmountLockedBySlip = false;
     let flaggingExpenseId = null;
 
+    // Quick Calculator Keypad State
+    let qcBuffer = '0';
+    let qcAccumulated = 0;
+    let qcHasPendingPlus = false;
+
+    // Generate Luxury Dreamy Pastel Rainbow Cloud + MV Gold Coin Apple Touch Icon
+    function generateDreamyCloudAppIcon() {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Dusty Rose Metallic Luxury Background
+        const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
+        bgGrad.addColorStop(0, '#A8576C');
+        bgGrad.addColorStop(0.5, '#8A4155');
+        bgGrad.addColorStop(1, '#6E3042');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 512, 512);
+
+        // 2. Royal Gold Double Frame
+        const goldGrad = ctx.createLinearGradient(0, 0, 512, 512);
+        goldGrad.addColorStop(0, '#F5D8A8');
+        goldGrad.addColorStop(0.5, '#D4A359');
+        goldGrad.addColorStop(1, '#F7E1BA');
+        ctx.strokeStyle = goldGrad;
+        ctx.lineWidth = 6;
+        ctx.strokeRect(26, 26, 460, 460);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(36, 36, 440, 440);
+
+        // 3. Ascending Rainbow Trend Arc Behind Cloud
+        const rainbowColors = ['#F7C59F', '#F4A2B8', '#B8D8F8', '#D3B8F2'];
+        rainbowColors.forEach((col, i) => {
+          const r = 148 - i * 11;
+          ctx.beginPath();
+          ctx.arc(256, 255, r, Math.PI * 1.05, Math.PI * 1.95);
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 9;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        });
+
+        // Ascending Trend Arrow Tip on Right
+        ctx.beginPath();
+        ctx.moveTo(368, 175);
+        ctx.lineTo(395, 152);
+        ctx.lineTo(422, 165);
+        ctx.lineTo(445, 130);
+        ctx.strokeStyle = '#F5D8A8';
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+
+        // 4. Fluffy Pastel Rainbow 3D Cloud
+        const cloudGrad = ctx.createLinearGradient(110, 180, 400, 340);
+        cloudGrad.addColorStop(0, '#FFD6E0');
+        cloudGrad.addColorStop(0.45, '#FFF5F8');
+        cloudGrad.addColorStop(0.75, '#E3D7FF');
+        cloudGrad.addColorStop(1, '#CFE6FF');
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(42, 16, 24, 0.35)';
+        ctx.shadowBlur = 24;
+        ctx.shadowOffsetY = 12;
+        ctx.fillStyle = cloudGrad;
+
+        ctx.beginPath();
+        ctx.arc(175, 290, 56, 0, Math.PI * 2);
+        ctx.arc(235, 252, 72, 0, Math.PI * 2);
+        ctx.arc(305, 265, 62, 0, Math.PI * 2);
+        ctx.arc(352, 298, 46, 0, Math.PI * 2);
+        ctx.roundRect(145, 282, 232, 64, 32);
+        ctx.fill();
+        ctx.restore();
+
+        // 5. Center Rose-Gold MV Wealth Coin
+        const coinGrad = ctx.createLinearGradient(195, 215, 315, 335);
+        coinGrad.addColorStop(0, '#FCE5C8');
+        coinGrad.addColorStop(0.5, '#E0A882');
+        coinGrad.addColorStop(1, '#B87856');
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(80, 32, 46, 0.35)';
+        ctx.shadowBlur = 14;
+        ctx.shadowOffsetY = 6;
+        ctx.beginPath();
+        ctx.arc(256, 276, 56, 0, Math.PI * 2);
+        ctx.fillStyle = coinGrad;
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#FFF3E0';
+        ctx.stroke();
+        ctx.restore();
+
+        // Monogram "MV" on Coin
+        ctx.fillStyle = '#5C2C38';
+        ctx.font = 'bold 40px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('MV', 256, 279);
+
+        // 6. Floating Gold Coins & Sparkles Below Cloud
+        const miniCoins = [{ x: 182, y: 382, r: 14 }, { x: 256, y: 396, r: 11 }, { x: 332, y: 378, r: 15 }];
+        miniCoins.forEach(c => {
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+          ctx.fillStyle = goldGrad;
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#FFF6E5';
+          ctx.stroke();
+        });
+
+        const dataUrl = canvas.toDataURL('image/png');
+        const appleLink = document.getElementById('apple-touch-icon-link');
+        const favLink = document.getElementById('favicon-link');
+        if (appleLink) appleLink.href = dataUrl;
+        if (favLink) favLink.href = dataUrl;
+      } catch (_) {}
+    }
+
+    // Personal App Theme Management (0 DB storage, saved per device)
+    function applyAppTheme(themeId) {
+      const theme = APP_THEMES.find(t => t.id === themeId) || APP_THEMES[0];
+      const root = document.documentElement;
+      Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+      document.body.classList.toggle('dark-theme', Boolean(theme.dark));
+      localStorage.setItem('mv_personal_theme', theme.id);
+      renderAppThemePicker();
+    }
+
+    function renderAppThemePicker() {
+      const container = document.getElementById('app-theme-picker-row');
+      if (!container) return;
+      const activeId = localStorage.getItem('mv_personal_theme') || 'blush';
+      container.innerHTML = APP_THEMES.map(t => {
+        const isSelected = t.id === activeId;
+        return `
+          <button type="button" onclick="applyAppTheme('${t.id}')"
+            class="flex items-center gap-2 px-2.5 py-2 rounded-xl border text-left text-xs transition ${isSelected ? 'ring-2 ring-offset-1 ring-[#6B424E] font-semibold bg-white' : 'bg-white/80 opacity-85 hover:opacity-100'}"
+            style="border-color:${t.swatch}">
+            <span class="w-4 h-4 rounded-full shrink-0 border border-black/10" style="background:${t.swatch}"></span>
+            <span class="truncate text-[#4A353C]">${t.name}</span>
+          </button>`;
+      }).join('');
+    }
+
     // Smart Money Formatter: Comma-separated thousands, hides ".00" if whole number
     function fmtNum(val) {
       const num = Number(val || 0);
@@ -888,7 +1176,7 @@
       });
     }
 
-    // Dynamic Category Helpers (Auto-sync across forms, feed badges, charts, PDF & Excel)
+    // Dynamic Category Helpers
     function getCategoryShortName(key) {
       if (!key) return 'ทั่วไป';
       const found = customCategories.find(c => c.key === key || c.label === key);
@@ -905,21 +1193,25 @@
       return def ? def.label : key;
     }
 
-    function buildCategoryOptionsHtml(selectedKey = 'Food', useShort = false) {
+    function buildCategoryOptionsHtml(selectedKey = null, useShort = false) {
       const list = [...customCategories];
-      if (selectedKey && !list.some(c => c.key === selectedKey)) {
-        list.push({ key: selectedKey, label: selectedKey, short: selectedKey });
+      const fallbackKey = selectedKey || (list[0]?.key || 'Food');
+      if (fallbackKey && !list.some(c => c.key === fallbackKey)) {
+        list.push({ key: fallbackKey, label: fallbackKey, short: fallbackKey });
       }
       return list.map(c =>
-        `<option value="${c.key}" ${c.key === selectedKey ? 'selected' : ''}>${useShort ? (c.short || c.label) : c.label}</option>`
+        `<option value="${c.key}" ${c.key === fallbackKey ? 'selected' : ''}>${useShort ? (c.short || c.label) : c.label}</option>`
       ).join('');
     }
 
     function syncCategorySelects() {
-      const htmlFull = buildCategoryOptionsHtml('Food', false);
+      const firstKey = customCategories[0]?.key || 'Food';
+      const htmlFull = buildCategoryOptionsHtml(firstKey, false);
+      const htmlShort = buildCategoryOptionsHtml(firstKey, true);
       if (document.getElementById('exp-cat')) document.getElementById('exp-cat').innerHTML = htmlFull;
       if (document.getElementById('edit-exp-cat')) document.getElementById('edit-exp-cat').innerHTML = htmlFull;
-      if (document.getElementById('rec-new-cat')) document.getElementById('rec-new-cat').innerHTML = buildCategoryOptionsHtml('Hotel', true);
+      if (document.getElementById('qc-cat')) document.getElementById('qc-cat').innerHTML = htmlShort;
+      if (document.getElementById('rec-new-cat')) document.getElementById('rec-new-cat').innerHTML = htmlShort;
     }
 
     async function loadLedgerMetadata() {
@@ -956,17 +1248,15 @@
       renderAdminRecurringTemplates();
     }
 
+    // Admin can delete ANY category (including default ones) down to at least 1 category
     function renderAdminCategories() {
       const container = document.getElementById('admin-categories-list');
       if (!container) return;
-      container.innerHTML = customCategories.map((c, idx) => {
-        const isDefault = DEFAULT_CATEGORIES.some(d => d.key === c.key);
-        return `
-          <span class="inline-flex items-center gap-1 bg-white border border-[#F2CFD9] text-[#6B424E] text-[11px] px-2.5 py-1 rounded-xl">
-            <span>${c.label}</span>
-            ${!isDefault ? `<button type="button" onclick="removeCustomCategory(${idx})" title="ลบหมวดหมู่นี้" class="text-rose-500 hover:text-rose-700 font-bold ml-1">✕</button>` : ''}
-          </span>`;
-      }).join('');
+      container.innerHTML = customCategories.map((c, idx) => `
+        <span class="inline-flex items-center gap-1 bg-white border theme-border-mid theme-text-main text-[11px] px-2.5 py-1 rounded-xl">
+          <span>${c.label}</span>
+          ${customCategories.length > 1 ? `<button type="button" onclick="removeCustomCategory(${idx})" title="ลบหมวดหมู่นี้" class="text-rose-500 hover:text-rose-700 font-bold ml-1">✕</button>` : ''}
+        </span>`).join('');
     }
 
     async function addCustomCategory() {
@@ -997,6 +1287,7 @@
 
     async function removeCustomCategory(idx) {
       if (!isSuperAdmin()) return;
+      if (customCategories.length <= 1) return alert('ต้องเหลือหมวดหมู่ไว้อย่างน้อย 1 หมวดหมู่');
       const target = customCategories[idx];
       if (!target) return;
       if (!confirm(`ยืนยันการลบหมวดหมู่ "${target.label}"? (บิลเก่าที่เคยใช้หมวดนี้จะยังคงแสดงชื่อหมวดเดิมครบถ้วน)`)) return;
@@ -1009,11 +1300,139 @@
       if (error) return alert('ลบหมวดหมู่ไม่สำเร็จ: ' + error.message);
 
       customCategories = nextList;
+      if (analyticsCategoryFilter === target.key) analyticsCategoryFilter = 'ALL';
       syncCategorySelects();
       renderAdminCategories();
       renderDashboard();
       renderAnalytics();
       await writeLog('REMOVE_CATEGORY', `ลบหมวดหมู่ "${target.label}"`);
+    }
+
+    // ================= QUICK CALCULATOR KEYPAD WIDGET =================
+    function toggleQuickCalcWidget() {
+      if (currentTrip?.is_closed) return alert('สมุดนี้ปิดยอดแล้ว');
+      const widget = document.getElementById('quick-calc-widget');
+      const opening = widget.classList.contains('hidden');
+      widget.classList.toggle('hidden', !opening);
+      if (opening) {
+        syncQuickCalcControls();
+        qcClear();
+      }
+    }
+
+    function syncQuickCalcControls() {
+      document.getElementById('qc-curr-label').textContent = getCurrCode();
+      document.getElementById('qc-cat').innerHTML = buildCategoryOptionsHtml(customCategories[0]?.key || 'Food', true);
+      const periodSel = document.getElementById('qc-period');
+      if (isMonthlyMode()) {
+        const today = getTodayYYYYMMDD();
+        periodSel.innerHTML = `<option value="${today}">วันนี้ (${today.slice(8, 10)}/${today.slice(5, 7)})</option>`;
+      } else {
+        let opts = '';
+        for (let d = 1; d <= totalDays; d++) {
+          opts += `<option value="${d}" ${d === totalDays ? 'selected' : ''}>Day ${d}</option>`;
+        }
+        periodSel.innerHTML = opts;
+      }
+    }
+
+    function setQuickCalcPreset(label) {
+      document.getElementById('qc-title').value = label;
+    }
+
+    function updateQuickCalcDisplay() {
+      const currentVal = parseFloat(qcBuffer || '0') || 0;
+      const grand = qcAccumulated + currentVal;
+      document.getElementById('qc-expr-display').textContent = qcHasPendingPlus ? `${fmtNum(qcAccumulated)} + ${qcBuffer}` : '';
+      document.getElementById('qc-total-display').textContent = `${getCurrSymbol()}${fmtNum(grand)}`;
+    }
+
+    function qcPress(ch) {
+      if (ch === '.') {
+        if (qcBuffer.includes('.')) return;
+        qcBuffer += '.';
+      } else {
+        if (qcBuffer === '0') qcBuffer = ch;
+        else if (qcBuffer.length < 10) qcBuffer += ch;
+      }
+      updateQuickCalcDisplay();
+    }
+
+    function qcPlus() {
+      const val = parseFloat(qcBuffer || '0') || 0;
+      qcAccumulated += val;
+      qcBuffer = '0';
+      qcHasPendingPlus = true;
+      updateQuickCalcDisplay();
+    }
+
+    function qcBackspace() {
+      if (qcBuffer.length > 1) qcBuffer = qcBuffer.slice(0, -1);
+      else qcBuffer = '0';
+      updateQuickCalcDisplay();
+    }
+
+    function qcClear() {
+      qcBuffer = '0';
+      qcAccumulated = 0;
+      qcHasPendingPlus = false;
+      updateQuickCalcDisplay();
+    }
+
+    async function qcSaveImmediately() {
+      if (currentTrip?.is_closed) return;
+      const totalAmt = Math.round((qcAccumulated + (parseFloat(qcBuffer || '0') || 0)) * 100) / 100;
+      if (totalAmt <= 0) return alert('กรุณากดจำนวนเงินก่อนบันทึก');
+
+      const category = document.getElementById('qc-cat').value || customCategories[0]?.key || 'Food';
+      const title = document.getElementById('qc-title').value.trim() || getCategoryShortName(category);
+      const channel = normalizeChannel(document.getElementById('qc-channel').value);
+      const monthly = isMonthlyMode();
+      const todayStr = getTodayYYYYMMDD();
+      const periodVal = document.getElementById('qc-period').value;
+
+      const participants = getActiveParticipants();
+      const payerEmail = currentMember.is_observer_only && participants[0] ? participants[0].email : currentMember.email;
+      let splitEmails = participants.length > 0 ? participants.map(m => m.email) : [payerEmail];
+      if (currentScopeFilter === 'personal') splitEmails = [payerEmail];
+      const isSolo = splitEmails.length === 1 && splitEmails[0].toLowerCase() === payerEmail.toLowerCase();
+
+      const btn = document.getElementById('btn-qc-save');
+      btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+
+      try {
+        await safeInsertExpenseRow({
+          trip_id: currentTrip.id,
+          trip_day: monthly ? 1 : parseInt(periodVal || '1'),
+          expense_date: todayStr,
+          expense_month: monthly ? todayStr.slice(0, 7) : null,
+          title,
+          category,
+          amount_cny: totalAmt,
+          exchange_rate: getGlobalFinalRate(),
+          has_alipay_fee: false,
+          is_refund: false,
+          paid_by_type: isSolo ? 'personal' : 'pool',
+          paid_by_email: payerEmail,
+          payment_channel: channel,
+          split_details: { emails: splitEmails },
+          receipt_image_url: null,
+          slip_time: getCurrentHHMM(),
+          time_source: 'upload',
+          slip_hash: null,
+          slip_ref: null,
+          created_by: currentMember.email
+        });
+
+        await writeLog('QUICK_CALC', `จดด่วน "${title}" (${getChannelLabel(channel)}) ยอด ${getCurrSymbol()}${fmtNum(totalAmt)}`);
+        document.getElementById('qc-title').value = '';
+        qcClear();
+        await refreshAllData();
+      } catch (err) {
+        alert('บันทึกไม่สำเร็จ: ' + err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = 'บันทึกทันที';
+      }
     }
 
     // ================= RECURRING FIXED EXPENSES (MONTHLY MODE) =================
@@ -1022,17 +1441,17 @@
       if (!container) return;
       const sym = getCurrSymbol();
       if (recurringTemplates.length === 0) {
-        container.innerHTML = '<p class="text-[11px] text-[#B38895] text-center py-2">ยังไม่มีรายการประจำเดือนที่ตั้งไว้</p>';
+        container.innerHTML = '<p class="text-[11px] theme-text-muted text-center py-2">ยังไม่มีรายการประจำเดือนที่ตั้งไว้</p>';
         return;
       }
       container.innerHTML = recurringTemplates.map((r, idx) => `
-        <div class="flex justify-between items-center bg-white px-3 py-2 rounded-xl border border-[#F2CFD9]">
+        <div class="flex justify-between items-center bg-white px-3 py-2 rounded-xl border theme-border-mid">
           <div class="min-w-0 pr-2">
-            <p class="font-medium text-[#6B424E] truncate">${r.title}</p>
-            <p class="text-[10px] text-[#A37B87]">${getCategoryShortName(r.category)} · ${getChannelLabel(r.payment_channel)}</p>
+            <p class="font-medium theme-text-main truncate">${r.title}</p>
+            <p class="text-[10px] theme-text-muted">${getCategoryShortName(r.category)} · ${getChannelLabel(r.payment_channel)}</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <span class="font-semibold text-[#C45B79]">${sym}${fmtNum(r.amount)}</span>
+            <span class="font-semibold theme-text-primary">${sym}${fmtNum(r.amount)}</span>
             <button type="button" onclick="removeRecurringTemplate(${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-bold">✕</button>
           </div>
         </div>`).join('');
@@ -1042,7 +1461,7 @@
       if (!isSuperAdmin()) return;
       const title = document.getElementById('rec-new-title').value.trim();
       const amount = parseFloat(document.getElementById('rec-new-amt').value);
-      const category = document.getElementById('rec-new-cat').value || 'Hotel';
+      const category = document.getElementById('rec-new-cat').value || customCategories[0]?.key || 'Hotel';
       const payment_channel = document.getElementById('rec-new-channel').value || 'transfer';
 
       if (!title || !amount || amount <= 0) return alert('กรุณากรอกชื่อบิลประจำและยอดเงินให้ครบ');
@@ -1139,7 +1558,6 @@
       const targetId = currentTrip.id;
       const targetName = currentTrip.name;
 
-      // Remove storage files first if any exist
       const imgPaths = expensesList.filter(e => e.receipt_image_url).map(e =>
         e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url
       );
@@ -1163,6 +1581,8 @@
     }
 
     window.onload = async () => {
+      generateDreamyCloudAppIcon();
+      applyAppTheme(localStorage.getItem('mv_personal_theme') || 'blush');
       const { data: { session } } = await db.auth.getSession();
       if (session) await initApp(session.user);
     };
@@ -1443,6 +1863,7 @@
       currentTrip = trips.find(t => t.id === savedTripId) || trips[0];
 
       renderTripSwitcherOptions();
+      renderAppThemePicker();
 
       if (isSuperAdmin()) {
         document.getElementById('super-admin-panel').classList.remove('hidden');
@@ -1459,6 +1880,7 @@
       currentTrip = userTrips.find(t => t.id === tripId);
       localStorage.setItem('selected_trip_id', tripId);
       collapsedGroups.clear();
+      analyticsCategoryFilter = 'ALL';
       await loadTripContext();
     }
 
@@ -1540,6 +1962,7 @@
       document.getElementById('trip-closed-pill').classList.toggle('hidden', !isClosed);
       document.getElementById('closed-trip-banner').classList.toggle('hidden', !isClosed);
       document.getElementById('fab-container').classList.toggle('hidden', isClosed);
+      document.getElementById('btn-toggle-calc-widget').classList.toggle('hidden', isClosed);
       document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed || monthly);
       document.getElementById('btn-pull-recurring-top').classList.toggle('hidden', isClosed || !monthly || !isSuperAdmin());
 
@@ -1654,7 +2077,7 @@
               date: x.expense_date,
               time: x.slip_time || '',
               title: x.title,
-              category: getCategoryShortName(x.category),
+              category: x.category,
               channel: getChannelLabel(x.payment_channel),
               amount: getSignedAmt(x),
               payer: getMemberName(x.paid_by_email)
@@ -1719,6 +2142,7 @@
       }
 
       renderDayOptions();
+      syncQuickCalcControls();
       renderDashboard();
       renderDailyDigest();
       renderAnalytics();
@@ -1748,6 +2172,7 @@
       totalDays += 1;
       localStorage.setItem(`days_${currentTrip.id}`, totalDays);
       renderDayOptions();
+      syncQuickCalcControls();
       alert(`เพิ่ม Day ${totalDays} เรียบร้อยแล้ว สามารถเลือกบันทึกบิลในวันใหม่ได้ทันที`);
     }
 
@@ -1902,10 +2327,10 @@
       const netEl = document.getElementById('my-net-status');
       if (participants.length <= 1) {
         netEl.textContent = 'สมุดส่วนตัว (ไม่ต้องหาร)';
-        netEl.className = 'text-xs font-semibold text-[#8C5867] mt-1';
+        netEl.className = 'text-xs font-semibold theme-text-sub mt-1';
       } else if (Math.abs(myNet) < 0.5) {
         netEl.textContent = 'สมดุลแล้ว';
-        netEl.className = 'text-sm font-semibold text-[#6B424E] mt-1';
+        netEl.className = 'text-sm font-semibold theme-text-main mt-1';
       } else if (myNet > 0) {
         netEl.textContent = isThbBase() ? `รับคืน +฿${fmtNum(myNet)}` : `รับคืน +${sym}${fmtNum(myNet)} (฿${fmtNum(myNetThb)})`;
         netEl.className = 'text-sm font-semibold text-emerald-700 mt-1';
@@ -1919,8 +2344,8 @@
 
     function setScopeFilter(scope) {
       currentScopeFilter = scope;
-      const activeClass = 'px-3.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs';
-      const inactiveClass = 'px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 text-[#8C5867] border border-[#F5D5DF]';
+      const activeClass = 'px-3 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs';
+      const inactiveClass = 'px-3 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border';
       document.getElementById('scope-shared').className = scope === 'shared' ? activeClass : inactiveClass;
       document.getElementById('scope-personal').className = scope === 'personal' ? activeClass : inactiveClass;
       document.getElementById('personal-cash-card').classList.toggle('hidden', scope !== 'personal');
@@ -1930,10 +2355,10 @@
     function setQuickFilter(qf) {
       currentQuickFilter = qf;
       document.querySelectorAll('.qf-btn').forEach(btn => {
-        btn.className = 'qf-btn bg-white text-[#8C5867] border border-[#F2CFD9] px-2.5 py-1 rounded-lg shrink-0';
+        btn.className = 'qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0';
       });
       const activeBtn = document.getElementById(`qf-${qf}`);
-      if (activeBtn) activeBtn.className = 'qf-btn bg-[#6B424E] text-white px-2.5 py-1 rounded-lg shrink-0';
+      if (activeBtn) activeBtn.className = 'qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0';
       renderExpenseList();
     }
 
@@ -2049,7 +2474,7 @@
                 ${canManage ? `
                   <div class="flex gap-2">
                     <button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="flex-1 luxury-gradient text-white text-[11px] py-1.5 rounded-lg font-medium">ยืนยันลบรายการนี้</button>
-                    <button onclick="dismissFlag('${e.id}')" class="flex-1 bg-white text-[#8C5867] border border-[#F2CFD9] text-[11px] py-1.5 rounded-lg">ข้อมูลถูกแล้ว</button>
+                    <button onclick="dismissFlag('${e.id}')" class="flex-1 bg-white theme-text-sub border theme-border-mid text-[11px] py-1.5 rounded-lg">ข้อมูลถูกแล้ว</button>
                   </div>` : ''}
               </div>`;
           }
@@ -2060,33 +2485,33 @@
               <div class="flex justify-between items-start gap-2.5">
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
-                    <span class="font-semibold px-2 py-0.5 rounded-md bg-white border border-[#F2CFD9]" style="color:${payerInfo.accent_color}">
+                    <span class="font-semibold px-2 py-0.5 rounded-md bg-white border theme-border-mid" style="color:${payerInfo.accent_color}">
                       ${payerInfo.display_name}${isProxy ? ` (${getMemberName(creatorEm)} อัปแทน)` : ''}
                     </span>
                     ${getChannelBadgeHtml(e.payment_channel)}
-                    <span class="bg-[#FFF9FA] text-[#8C5867] px-2 py-0.5 rounded-md border border-[#F5D5DF]">${getCategoryShortName(e.category)}</span>
+                    <span class="bg-[#FFF9FA] theme-text-sub px-2 py-0.5 rounded-md border theme-border">${getCategoryShortName(e.category)}</span>
                     ${!e.receipt_image_url ? '<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md">ไม่มีรูป</span>' : ''}
                     ${e.is_refund ? '<span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-200">คืนเงิน</span>' : ''}
-                    <span class="text-[#B38895]">${timeBadge}</span>
+                    <span class="theme-text-muted">${timeBadge}</span>
                   </div>
-                  <h4 class="font-medium text-sm text-[#6B424E] mt-1 truncate">${e.title}</h4>
+                  <h4 class="font-medium text-sm theme-text-main mt-1 truncate">${e.title}</h4>
                 </div>
                 <div class="text-right shrink-0">
-                  <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'text-[#C45B79]'} text-sm">${e.is_refund ? '-' : ''}${sym}${fmtNum(amt)}</p>
-                  ${!isThbBase() ? `<p class="text-[11px] text-[#B38895]">${e.is_refund ? '-' : ''}฿${fmtNum(Math.abs(thb))} ${e.has_alipay_fee ? '+3%' : ''}</p>` : ''}
+                  <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'theme-text-primary'} text-sm">${e.is_refund ? '-' : ''}${sym}${fmtNum(amt)}</p>
+                  ${!isThbBase() ? `<p class="text-[11px] theme-text-muted">${e.is_refund ? '-' : ''}฿${fmtNum(Math.abs(thb))} ${e.has_alipay_fee ? '+3%' : ''}</p>` : ''}
                 </div>
               </div>
-              <div class="flex justify-between items-center text-[11px] text-[#B38895] pt-1.5 border-t border-[#FCEBF0]">
+              <div class="flex justify-between items-center text-[11px] theme-text-muted pt-1.5 border-t theme-border">
                 <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'รายการส่วนตัว' : 'หาร: ' + (splitNames || '-')}</span>
                 <div class="flex items-center gap-2.5 shrink-0">
-                  <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white border-[#F2CFD9] text-[#A37B87]'}">
+                  <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white theme-border-mid theme-text-muted'}">
                     ${isVerified ? '✓ ตรวจแล้ว' : 'ติ๊กตรวจ'}
                   </button>
-                  ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[#D6718E] font-medium underline">สลิป</button>` : ''}
-                  ${canManage ? `<button onclick="openEditExpenseModal('${e.id}')" class="text-[#8C5867] hover:text-[#C45B79] underline">แก้ไข</button>` : ''}
+                  ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="theme-text-primary font-medium underline">สลิป</button>` : ''}
+                  ${canManage ? `<button onclick="openEditExpenseModal('${e.id}')" class="theme-text-sub underline">แก้ไข</button>` : ''}
                   ${!itemLocked ? (canManage
-                    ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#B38895] hover:text-rose-600">ลบ</button>`
-                    : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="text-[#C45B79] hover:underline">แจ้งผิด</button>` : '')) : ''}
+                    ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="theme-text-muted hover:text-rose-600">ลบ</button>`
+                    : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="theme-text-primary hover:underline">แจ้งผิด</button>` : '')) : ''}
                 </div>
               </div>
             </div>`;
@@ -2094,14 +2519,14 @@
 
         return `
           <div class="space-y-2">
-            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center ${isPastMonthLocked ? 'bg-[#F8ECEF]' : 'bg-white/85 hover:bg-white'} px-3.5 py-2.5 rounded-2xl border border-[#F2CFD9] text-xs transition">
+            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center ${isPastMonthLocked ? 'bg-[#F8ECEF]' : 'bg-white/85 hover:bg-white'} px-3.5 py-2.5 rounded-2xl border theme-border-mid text-xs transition">
               <div class="flex items-center gap-2">
-                <span class="font-semibold text-[#C45B79]">${groupHeaderTitle}</span>
-                <span class="text-[11px] text-[#A37B87]">(${items.length} รายการ)</span>
+                <span class="font-semibold theme-text-primary">${groupHeaderTitle}</span>
+                <span class="text-[11px] theme-text-muted">(${items.length} รายการ)</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="font-semibold text-[#6B424E]">${sym}${fmtNum(groupAmt)}${!isThbBase() ? ` · ฿${fmtNum(groupThb)}` : ''}</span>
-                <span class="text-[#B38895] text-[10px]">${isCollapsed ? '▼' : '▲'}</span>
+                <span class="font-semibold theme-text-main">${sym}${fmtNum(groupAmt)}${!isThbBase() ? ` · ฿${fmtNum(groupThb)}` : ''}</span>
+                <span class="theme-text-muted text-[10px]">${isCollapsed ? '▼' : '▲'}</span>
               </div>
             </button>
             ${cardsHtml}
@@ -2111,7 +2536,7 @@
       document.getElementById('filtered-day-total').textContent = isThbBase()
         ? `฿${fmtNum(totalSumAmt)}`
         : `${sym}${fmtNum(totalSumAmt)} · ฿${fmtNum(totalSumThb)}`;
-      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
+      document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs theme-text-muted py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
     }
 
     // ================= EDIT EXISTING EXPENSE (WITH ADMIN MOVE LEDGER) =================
@@ -2123,7 +2548,6 @@
       const monthly = isMonthlyMode();
       document.getElementById('edit-exp-id').value = e.id;
 
-      // Admin Move Ledger selector
       const moveBox = document.getElementById('edit-move-ledger-box');
       const moveSelect = document.getElementById('edit-exp-target-trip');
       if (isSuperAdmin() && userTrips.length > 1) {
@@ -2158,12 +2582,12 @@
 
       if (e.receipt_image_url) {
         cnyInput.readOnly = true;
-        cnyInput.className = 'w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#8C5867] mt-1 cursor-not-allowed';
+        cnyInput.className = 'w-full bg-[#FCEBF0]/60 border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-sub mt-1 cursor-not-allowed';
         lockBadge.classList.remove('hidden');
         adminUnlockBtn.classList.toggle('hidden', !isSuperAdmin());
       } else {
         cnyInput.readOnly = false;
-        cnyInput.className = 'w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1';
+        cnyInput.className = 'w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1';
         lockBadge.classList.add('hidden');
         adminUnlockBtn.classList.add('hidden');
       }
@@ -2172,8 +2596,8 @@
       document.getElementById('edit-split-section').classList.toggle('hidden', participants.length <= 1);
       const currentSplits = (e.split_details?.emails || []).map(x => x.toLowerCase());
       document.getElementById('edit-exp-split-checkboxes').innerHTML = participants.map(m => `
-        <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
-          <input type="checkbox" name="edit-split-member" value="${m.email}" ${currentSplits.includes(m.email.toLowerCase()) ? 'checked' : ''} class="rounded border-[#F2CFD9] text-[#D6718E]" />
+        <label class="flex items-center gap-1.5 bg-[#FFF9FA] border theme-border-mid px-3 py-1.5 rounded-xl text-xs theme-text-sub">
+          <input type="checkbox" name="edit-split-member" value="${m.email}" ${currentSplits.includes(m.email.toLowerCase()) ? 'checked' : ''} class="rounded border-[#F2CFD9]" />
           ${m.display_name}
         </label>`).join('');
 
@@ -2185,7 +2609,7 @@
       if (!confirm('ยืนยันการปลดล็อกยอดเงินจากสลิป?')) return;
       const cnyInput = document.getElementById('edit-exp-cny');
       cnyInput.readOnly = false;
-      cnyInput.className = 'w-full bg-white border border-[#C45B79] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1';
+      cnyInput.className = 'w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1';
       document.getElementById('edit-cny-lock-badge').classList.add('hidden');
       document.getElementById('btn-admin-unlock-cny').classList.add('hidden');
     }
@@ -2298,39 +2722,39 @@
           <div class="soft-card p-4 rounded-2xl space-y-2.5">
             <div class="flex justify-between items-center">
               <div>
-                <span class="bg-[#FFEBF0] text-[#C45B79] font-semibold text-xs px-2.5 py-0.5 rounded-lg">${badgeTitle}</span>
-                <span class="text-[11px] text-[#A37B87] ml-1.5">ทั้งหมด ${list.length} บิล${slipCount > 0 ? ` (สลิป ${slipCount} ใบ)` : ''}</span>
+                <span class="theme-bg-pill font-semibold text-xs px-2.5 py-0.5 rounded-lg">${badgeTitle}</span>
+                <span class="text-[11px] theme-text-muted ml-1.5">ทั้งหมด ${list.length} บิล${slipCount > 0 ? ` (สลิป ${slipCount} ใบ)` : ''}</span>
               </div>
-              <button onclick="openPeriodReceiptVault('${pKey}')" class="text-[11px] bg-[#FFF5F8] text-[#C45B79] border border-[#E893AC] px-3 py-1 rounded-xl font-medium">
+              <button onclick="openPeriodReceiptVault('${pKey}')" class="text-[11px] bg-[#FFF5F8] theme-text-primary border theme-border-mid px-3 py-1 rounded-xl font-medium">
                 ${slipCount > 0 ? `ดูรวมสลิป (${slipCount})` : 'ดูรายการ'}
               </button>
             </div>
             <div class="grid ${isSinglePersonLedger ? 'grid-cols-1' : 'grid-cols-2'} gap-2 pt-1 text-xs">
-              <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
-                <p class="text-[10px] text-[#A37B87]">ยอดรวม (${badgeTitle})</p>
-                <p class="font-semibold text-[#C45B79] mt-0.5">${sym}${fmtNum(mainAmt)} ${!isThbBase() ? `<span class="text-[10px] font-normal text-[#8C5867]">(฿${fmtNum(mainThb)})</span>` : ''}</p>
+              <div class="bg-[#FFF9FA] p-2.5 rounded-xl border theme-border">
+                <p class="text-[10px] theme-text-muted">ยอดรวม (${badgeTitle})</p>
+                <p class="font-semibold theme-text-primary mt-0.5">${sym}${fmtNum(mainAmt)} ${!isThbBase() ? `<span class="text-[10px] font-normal theme-text-sub">(฿${fmtNum(mainThb)})</span>` : ''}</p>
               </div>
               ${!isSinglePersonLedger ? `
-              <div class="bg-[#FFF9FA] p-2.5 rounded-xl border border-[#F5D5DF]">
-                <p class="text-[10px] text-[#A37B87]">ส่วนตัวของคุณ</p>
-                <p class="font-semibold text-[#6B424E] mt-0.5">${sym}${fmtNum(soloAmt)}</p>
+              <div class="bg-[#FFF9FA] p-2.5 rounded-xl border theme-border">
+                <p class="text-[10px] theme-text-muted">ส่วนตัวของคุณ</p>
+                <p class="font-semibold theme-text-main mt-0.5">${sym}${fmtNum(soloAmt)}</p>
               </div>` : ''}
             </div>
           </div>`;
       }).join('');
 
-      document.getElementById('daily-digest-list').innerHTML = html || '<p class="text-center text-xs text-[#B38895] py-10">ยังไม่มีข้อมูลสรุป</p>';
+      document.getElementById('daily-digest-list').innerHTML = html || '<p class="text-center text-xs theme-text-muted py-10">ยังไม่มีข้อมูลสรุป</p>';
 
       if (monthly) {
         document.getElementById('monthly-archive-list').innerHTML = monthlyArchivesList.map(a => `
           <div class="soft-card p-3.5 rounded-2xl flex justify-between items-center gap-2 bg-[#FFF9FA]">
             <div>
-              <p class="text-xs font-semibold text-[#6B424E]">🔒 สรุปปิดเดือน ${a.month_label}</p>
-              <p class="text-[11px] text-[#A37B87]">${a.item_count} รายการ · รวม ${a.currency_symbol}${fmtNum(a.total_amount)} (ไฟล์ตัวเลขล้วน)</p>
+              <p class="text-xs font-semibold theme-text-main">🔒 สรุปปิดเดือน ${a.month_label}</p>
+              <p class="text-[11px] theme-text-muted">${a.item_count} รายการ · รวม ${a.currency_symbol}${fmtNum(a.total_amount)} (ไฟล์ตัวเลขล้วน)</p>
             </div>
-            <button onclick="downloadMonthlyArchiveCsv('${a.id}')" class="text-[11px] bg-white text-[#C45B79] border border-[#F2CFD9] px-3 py-1.5 rounded-xl font-medium shrink-0">โหลดสรุป CSV</button>
+            <button onclick="downloadMonthlyArchiveCsv('${a.id}')" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-3 py-1.5 rounded-xl font-medium shrink-0">โหลดสรุป CSV</button>
           </div>
-        `).join('') || '<p class="text-[11px] text-[#B38895] text-center py-3">ยังไม่มีประวัติปิดยอดเดือนก่อนหน้า</p>';
+        `).join('') || '<p class="text-[11px] theme-text-muted text-center py-3">ยังไม่มีประวัติปิดยอดเดือนก่อนหน้า</p>';
       }
     }
 
@@ -2342,7 +2766,7 @@
       csv += `วันที่,เวลา,ช่องทางจ่าย,หมวดหมู่,รายการ,ยอดเงิน (${a.currency_code}),ผู้จ่าย\n`;
       (a.summary_rows || []).forEach(r => {
         const cleanTitle = `"${(r.title || '').replace(/"/g, '""')}"`;
-        csv += `${r.date},${r.time},${r.channel || 'โอน'},${r.category},${cleanTitle},${Number(r.amount)},${r.payer}\n`;
+        csv += `${r.date},${r.time},${r.channel || 'โอน'},${getCategoryShortName(r.category)},${cleanTitle},${Number(r.amount)},${r.payer}\n`;
       });
       csv += `\nยอดรวมสุทธิประจำเดือน,${Number(a.total_amount)} ${a.currency_code}\n`;
 
@@ -2388,19 +2812,19 @@
         const metaInfo = `${titleLabel} · เวลา ${displayTime} · ${getChannelLabel(e.payment_channel)} · ${payerInfo.display_name} จ่าย ${sym}${fmtNum(e.amount_cny)}`;
 
         return `
-          <div class="p-3 bg-[#FFF9FA] rounded-2xl border border-[#F2CFD9] flex justify-between items-center gap-2" style="border-left: 3px solid ${payerInfo.accent_color};">
+          <div class="p-3 bg-[#FFF9FA] rounded-2xl border theme-border-mid flex justify-between items-center gap-2" style="border-left: 3px solid ${payerInfo.accent_color};">
             <div class="min-w-0">
-              <p class="text-[10px] text-[#A37B87]">${monthly && e.expense_date ? e.expense_date + ' · ' : ''}${displayTime} · <span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span> · ${getChannelLabel(e.payment_channel)}</p>
-              <p class="text-xs font-medium text-[#6B424E] truncate">${e.title}</p>
+              <p class="text-[10px] theme-text-muted">${monthly && e.expense_date ? e.expense_date + ' · ' : ''}${displayTime} · <span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span> · ${getChannelLabel(e.payment_channel)}</p>
+              <p class="text-xs font-medium theme-text-main truncate">${e.title}</p>
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
-              <span class="text-xs font-semibold text-[#C45B79]">${sym}${fmtNum(e.amount_cny)}</span>
+              <span class="text-xs font-semibold theme-text-primary">${sym}${fmtNum(e.amount_cny)}</span>
               ${e.receipt_image_url
                 ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[11px] luxury-gradient text-white px-2.5 py-1 rounded-lg">ดูสลิป</button>`
-                : `<span class="text-[10px] text-[#C9A3AF]">ไม่มีรูป</span>`}
+                : `<span class="text-[10px] theme-text-muted">ไม่มีรูป</span>`}
             </div>
           </div>`;
-      }).join('') || '<p class="text-center text-xs text-[#B38895] py-6">ไม่มีรายการในช่วงเวลานี้</p>';
+      }).join('') || '<p class="text-center text-xs theme-text-muted py-6">ไม่มีรายการในช่วงเวลานี้</p>';
 
       openModal('day-receipts-modal');
     }
@@ -2435,7 +2859,7 @@
       if (items.length === 0) return alert(monthly ? `ยังไม่มีรายการในเดือน ${formatMonthLabel(currentYm)}` : 'ยังไม่มีรายการสำหรับสร้างรายงาน PDF');
 
       const bodyEl = document.getElementById('pdf-report-body');
-      bodyEl.innerHTML = '<div class="py-12 text-center text-xs text-[#8C5867]">กำลังเตรียมรายงานและโหลดรูปสลิปขนาดเล็ก กรุณารอสักครู่...</div>';
+      bodyEl.innerHTML = '<div class="py-12 text-center text-xs theme-text-sub">กำลังเตรียมรายงานและโหลดรูปสลิปขนาดเล็ก กรุณารอสักครู่...</div>';
       openModal('pdf-report-modal');
 
       const thumbMap = {};
@@ -2589,9 +3013,9 @@
           ? `<span class="text-emerald-700 font-semibold">+${sym}${fmtNum(valAmt)} ${!isThbBase() ? `(+฿${fmtNum(valThb)})` : ''}</span>`
           : valAmt < -0.5
           ? `<span class="text-rose-600 font-semibold">-${sym}${fmtNum(Math.abs(valAmt))} ${!isThbBase() ? `(-฿${fmtNum(Math.abs(valThb))})` : ''}</span>`
-          : `<span class="text-[#B38895]">สมดุล 0</span>`;
-        return `<div class="flex justify-between items-center p-2.5 bg-[#FFF9FA] rounded-xl border border-[#F5D5DF]">
-          <span class="font-medium text-[#6B424E] flex items-center gap-2">
+          : `<span class="theme-text-muted">สมดุล 0</span>`;
+        return `<div class="flex justify-between items-center p-2.5 bg-[#FFF9FA] rounded-xl border theme-border">
+          <span class="font-medium theme-text-main flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full" style="background:${m.accent_color}"></span>${m.display_name}
           </span>
           ${status}
@@ -2604,18 +3028,18 @@
 
       document.getElementById('settle-transfers-list').innerHTML = transfers.length
         ? transfers.map(t => `
-          <div class="p-3 bg-[#FFF9FA] rounded-2xl border border-[#E893AC] flex justify-between items-center">
+          <div class="p-3 bg-[#FFF9FA] rounded-2xl border theme-border-mid flex justify-between items-center">
             <div class="flex items-center gap-1.5">
               <span class="font-semibold" style="color:${t.fromColor || '#6B424E'}">${t.from}</span>
-              <span class="text-[#A37B87]">โอนให้</span>
+              <span class="theme-text-muted">โอนให้</span>
               <span class="font-semibold" style="color:${t.toColor || '#6B424E'}">${t.to}</span>
             </div>
             <div class="text-right">
-              <p class="font-semibold text-[#C45B79]">฿${fmtNum(t.thb)}</p>
-              ${!isThbBase() ? `<p class="text-[10px] text-[#B38895]">(${sym}${fmtNum(t.cny)})</p>` : ''}
+              <p class="font-semibold theme-text-primary">฿${fmtNum(t.thb)}</p>
+              ${!isThbBase() ? `<p class="text-[10px] theme-text-muted">(${sym}${fmtNum(t.cny)})</p>` : ''}
             </div>
           </div>`).join('')
-        : '<p class="text-center text-[#B38895] py-3 bg-[#FFF9FA] rounded-xl">ยอดสมดุลกันแล้ว ไม่ต้องโอนคืน</p>';
+        : '<p class="text-center theme-text-muted py-3 bg-[#FFF9FA] rounded-xl">ยอดสมดุลกันแล้ว ไม่ต้องโอนคืน</p>';
     }
 
     async function saveTripStartDate() {
@@ -2730,11 +3154,16 @@
       }
     }
 
-    // ================= ANALYTICS, DYNAMIC CATEGORY CHARTS & CHANNEL SUMMARY =================
+    // ================= ANALYTICS, INTERACTIVE TREND COMPARISON & CATEGORY FILTER =================
+    function setAnalyticsCategoryFilter(catKey) {
+      analyticsCategoryFilter = catKey;
+      renderAnalytics();
+    }
+
     function setChannelStatScope(scope) {
       currentChannelStatScope = scope;
       const activeBtn = 'px-2.5 py-1 rounded-lg luxury-gradient text-white font-medium';
-      const inactiveBtn = 'px-2.5 py-1 rounded-lg text-[#8C5867]';
+      const inactiveBtn = 'px-2.5 py-1 rounded-lg theme-text-sub';
       document.getElementById('ch-scope-all').className = scope === 'all' ? activeBtn : inactiveBtn;
       document.getElementById('ch-scope-mine').className = scope === 'mine' ? activeBtn : inactiveBtn;
       renderAnalytics();
@@ -2748,6 +3177,19 @@
       const participants = getActiveParticipants();
       const isSinglePersonLedger = participants.length <= 1;
 
+      // Render Interactive Category Filter Pills
+      const filterBar = document.getElementById('analytics-cat-filter-bar');
+      if (filterBar) {
+        const pills = [{ key: 'ALL', label: 'ทุกหมวดหมู่' }, ...customCategories.map(c => ({ key: c.key, label: c.short || c.label }))];
+        filterBar.innerHTML = pills.map(p => {
+          const isAct = analyticsCategoryFilter === p.key;
+          return `<button type="button" onclick="setAnalyticsCategoryFilter('${p.key.replace(/'/g, "\\'")}')"
+            class="px-2.5 py-1 rounded-lg shrink-0 transition ${isAct ? 'luxury-gradient text-white font-medium shadow-2xs' : 'bg-white theme-text-sub border theme-border-mid'}">
+            ${p.label}
+          </button>`;
+        }).join('');
+      }
+
       let grandThb = 0, grandOrig = 0;
       const periodTotals = {};
       const catTotals = {};
@@ -2755,12 +3197,32 @@
 
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
 
+      // 1. If Monthly Mode: seed archived months first so trend chart compares across months
+      if (monthly && monthlyArchivesList.length > 0) {
+        [...monthlyArchivesList].reverse().forEach(arch => {
+          const mKey = arch.month_key;
+          if (!mKey) return;
+          let sumForArch = 0;
+          if (analyticsCategoryFilter === 'ALL') {
+            sumForArch = Number(arch.total_amount || 0);
+          } else {
+            (arch.summary_rows || []).forEach(r => {
+              if (r.category === analyticsCategoryFilter || getCategoryShortName(r.category) === getCategoryShortName(analyticsCategoryFilter)) {
+                sumForArch += Number(r.amount || 0);
+              }
+            });
+          }
+          periodTotals[mKey] = (periodTotals[mKey] || 0) + (isThbBase() ? sumForArch : sumForArch * finalRate);
+        });
+      }
+
       expensesList.forEach(e => {
         const signedAmt = getSignedAmt(e);
         const thb = calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
         const normCh = normalizeChannel(e.payment_channel);
         const valInDisplayCurr = isThbBase() ? signedAmt : thb;
+        const catKey = e.category || 'Food';
 
         if (currentChannelStatScope === 'mine') {
           if (payerEm === myEmail) {
@@ -2775,12 +3237,15 @@
         if (isSinglePersonLedger || !isSoloPersonalExpense(e)) {
           grandOrig += signedAmt;
           grandThb += thb;
-          const pKey = monthly
-            ? formatMonthLabel(e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
-            : `Day ${e.trip_day}`;
-          periodTotals[pKey] = (periodTotals[pKey] || 0) + valInDisplayCurr;
-          const catKey = e.category || 'Food';
           catTotals[catKey] = (catTotals[catKey] || 0) + valInDisplayCurr;
+
+          // Trend chart honors selected category filter
+          if (analyticsCategoryFilter === 'ALL' || catKey === analyticsCategoryFilter) {
+            const pKey = monthly
+              ? (e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
+              : String(e.trip_day || 1);
+            periodTotals[pKey] = (periodTotals[pKey] || 0) + valInDisplayCurr;
+          }
         }
       });
 
@@ -2799,7 +3264,8 @@
       document.getElementById('ch-bar-credit').style.width = `${pctCr}%`;
       document.getElementById('ch-bar-cash').style.width = `${pctCa}%`;
 
-      const activeCount = Object.keys(periodTotals).length || 1;
+      const rawKeys = Object.keys(periodTotals).sort((a, b) => monthly ? a.localeCompare(b) : Number(a) - Number(b));
+      const activeCount = rawKeys.length || 1;
       const memberCount = participants.length || 1;
       const displayGrand = isThbBase() ? grandOrig : grandThb;
 
@@ -2808,28 +3274,72 @@
       document.getElementById('stat-avg-label').textContent = monthly ? 'เฉลี่ยต่อเดือน' : 'เฉลี่ยต่อวัน';
       document.getElementById('stat-avg-day').textContent = `฿${fmtNum(displayGrand / activeCount)}`;
       document.getElementById('stat-avg-person').textContent = memberCount > 1 ? `เฉลี่ยคนละ ฿${fmtNum(displayGrand / memberCount)}` : 'สมุดรายบุคคล';
-      document.getElementById('bar-chart-title').textContent = monthly ? 'กราฟค่าใช้จ่ายรายเดือน (บาท)' : 'กราฟค่าใช้จ่ายรายวัน (บาท)';
 
-      const sortedKeys = Object.keys(periodTotals);
+      const focusLabel = analyticsCategoryFilter === 'ALL' ? 'ทุกหมวดหมู่' : `หมวด "${getCategoryShortName(analyticsCategoryFilter)}"`;
+      document.getElementById('bar-chart-title').textContent = monthly
+        ? `เทรนด์เปรียบเทียบระหว่างเดือน (${focusLabel})`
+        : `เปรียบเทียบรายวัน & เส้นค่าเฉลี่ย (${focusLabel})`;
+
+      const valuesArr = rawKeys.map(k => periodTotals[k]);
+      const avgVal = valuesArr.length > 0 ? valuesArr.reduce((s, v) => s + v, 0) / valuesArr.length : 0;
+      const trendBadge = document.getElementById('trend-comparison-badge');
+
+      if (monthly && valuesArr.length >= 2) {
+        const latestV = valuesArr[valuesArr.length - 1];
+        const prevV = valuesArr[valuesArr.length - 2];
+        const diff = latestV - prevV;
+        const pctDiff = prevV > 0 ? Math.round((diff / prevV) * 100) : 0;
+        trendBadge.textContent = diff <= 0
+          ? `เดือนล่าสุดลดลง ฿${fmtNum(Math.abs(diff))} (${Math.abs(pctDiff)}%) เทียบกับเดือนก่อน`
+          : `เดือนล่าสุดเพิ่มขึ้น +฿${fmtNum(diff)} (+${pctDiff}%) เทียบกับเดือนก่อน`;
+      } else if (!monthly && valuesArr.length > 0) {
+        trendBadge.textContent = `ค่าเฉลี่ยต่อวันในหมวดนี้: ฿${fmtNum(avgVal)}`;
+      } else {
+        trendBadge.textContent = `ยอดรวม${focusLabel}: ฿${fmtNum(valuesArr[0] || 0)}`;
+      }
+
+      const chartLabels = rawKeys.length
+        ? rawKeys.map(k => monthly ? formatMonthLabel(k) : `Day ${k}`)
+        : [monthly ? formatMonthLabel(getCurrentYYYYMM()) : 'Day 1'];
+      const chartData = valuesArr.length ? valuesArr : [0];
+      const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#D6718E';
+
       if (dailyChartInstance) dailyChartInstance.destroy();
       dailyChartInstance = new Chart(document.getElementById('dailyChart'), {
-        type: 'bar',
         data: {
-          labels: sortedKeys.length ? sortedKeys : [monthly ? 'เดือนนี้' : 'Day 1'],
-          datasets: [{
-            label: 'ยอดใช้จ่าย (บาท)',
-            data: sortedKeys.length ? sortedKeys.map(k => periodTotals[k]) : [0],
-            backgroundColor: '#E389A3',
-            borderRadius: 8
-          }]
+          labels: chartLabels,
+          datasets: [
+            {
+              type: 'bar',
+              label: 'ยอดใช้จ่าย (บาท)',
+              data: chartData,
+              backgroundColor: primaryColor,
+              borderRadius: 8,
+              order: 2
+            },
+            {
+              type: 'line',
+              label: monthly ? 'เส้นเทรนด์' : 'ค่าเฉลี่ยต่อวัน',
+              data: monthly ? chartData : chartData.map(() => Math.round(avgVal)),
+              borderColor: '#6B424E',
+              backgroundColor: '#6B424E',
+              borderWidth: 2,
+              borderDash: monthly ? [] : [5, 5],
+              pointRadius: monthly ? 4 : 0,
+              tension: 0.3,
+              order: 1
+            }
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+          },
           scales: {
-            y: { beginAtZero: true, grid: { color: '#FCEBF0' }, ticks: { font: { size: 10 }, color: '#A37B87' } },
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#8C5867' } }
+            y: { beginAtZero: true, grid: { color: '#FCEBF0' }, ticks: { font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
           }
         }
       });
@@ -2851,20 +3361,20 @@
           responsive: true,
           maintainAspectRatio: false,
           cutout: '65%',
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, color: '#8C5867' } } }
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
         }
       });
 
       document.getElementById('category-breakdown-list').innerHTML = catKeys.map((k, i) => {
         const pct = displayGrand > 0 ? Math.round((catTotals[k] / displayGrand) * 100) : 0;
         return `<div class="flex justify-between items-center">
-          <span class="flex items-center gap-2 text-[#8C5867]"><span class="w-2.5 h-2.5 rounded-full" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>${getCategoryFullLabel(k)}</span>
-          <span class="font-semibold text-[#6B424E]">฿${fmtNum(catTotals[k])} <span class="text-[#B38895] font-normal">(${pct}%)</span></span>
+          <span class="flex items-center gap-2 theme-text-sub"><span class="w-2.5 h-2.5 rounded-full" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>${getCategoryFullLabel(k)}</span>
+          <span class="font-semibold theme-text-main">฿${fmtNum(catTotals[k])} <span class="theme-text-muted font-normal">(${pct}%)</span></span>
         </div>`;
-      }).join('') || '<p class="text-center text-[#B38895]">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
+      }).join('') || '<p class="text-center theme-text-muted">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= MULTI-FILE & LIVE CAMERA AI RECEIPT SCANNER =================
+    // ================= MULTI-FILE, LIVE CAMERA & MULTI-NOTIFICATION SPLITTER =================
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
       const models = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
       let lastError = 'ไม่สามารถเชื่อมต่อ AI ได้';
@@ -2898,41 +3408,19 @@
       throw new Error(lastError);
     }
 
-    async function scanSingleReceiptFile(file, apiKey, options = {}) {
+    // Returns an ARRAY of extracted items per image (supports 1 screenshot containing 10 credit card notifications!)
+    async function scanReceiptOrNotificationImage(file, apiKey, options = {}) {
       const isDirectCamera = Boolean(options.isDirectCamera);
       const fallbackTime = getCurrentHHMM();
       const photoCapturedDate = getFileCaptureDate(file);
       const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
+      const defaultCatKey = customCategories[0]?.key || 'Food';
       const fileHash = await computeFileHash(file);
       const currCode = getCurrCode();
 
-      if (!isDirectCamera) {
-        const hashDup = findDuplicateExpense({ hash: fileHash });
-        if (hashDup) {
-          return {
-            is_valid_receipt: true,
-            file,
-            fileHash,
-            slipRef: null,
-            trip_day: hashDup.item.trip_day,
-            slip_date: hashDup.item.expense_date || photoCapturedDate,
-            date_source_label: 'จากข้อมูลเดิม',
-            title: hashDup.item.title,
-            amount_cny: hashDup.item.amount_cny,
-            amount_locked: true,
-            category: hashDup.item.category,
-            payment_channel: normalizeChannel(hashDup.item.payment_channel),
-            channel_detected: false,
-            slip_time: hashDup.item.slip_time || fallbackTime,
-            time_source: hashDup.item.time_source || 'upload',
-            duplicateMatch: hashDup
-          };
-        }
-      }
-
       if (!apiKey) {
         const mappedFromPhoto = mapSlipDateToTripDay(photoCapturedDate);
-        return {
+        return [{
           is_valid_receipt: true,
           file,
           fileHash,
@@ -2943,38 +3431,40 @@
           title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
           amount_cny: '',
           amount_locked: false,
-          category: 'Food',
+          category: defaultCatKey,
           payment_channel: isDirectCamera ? 'cash' : 'transfer',
           channel_detected: false,
           slip_time: fallbackTime,
           time_source: 'upload',
           duplicateMatch: null
-        };
+        }];
       }
 
       const base64Data = await fileToBase64(file, isDirectCamera);
       const availableCategoryKeys = customCategories.map(c => c.key).join(', ');
       const step1Rule = isDirectCamera
-        ? `This image was captured directly with the user's camera to record a bill or receipt. Even if table background, hands, or food items appear around the paper receipt, ALWAYS set "is_receipt": true and carefully read the printed or handwritten total amount on the receipt.`
-        : `Step 1: Determine if this image is a genuine financial receipt, payment slip, bank transfer confirmation, credit card charge slip, invoice, or handwritten bill ("is_receipt": true). Only set "is_receipt": false if there is NO receipt, bill, price list, or payment slip anywhere in the image.`;
+        ? `This image was captured directly with the user's camera to record a bill or receipt. Even if table background, hands, or food items appear around the paper receipt, ALWAYS set "is_receipt": true and extract the transaction.`
+        : `Step 1: Determine if this image contains ANY financial receipt, payment slip, bank transfer confirmation, credit card charge slip, mobile banking notification list, or statement ("is_receipt": true). Only set "is_receipt": false if there are zero financial transactions in the image.`;
 
       const prompt = `Analyze this image carefully.
 ${step1Rule}
-Extract the following for target currency ${currCode}:
-- "amount_cny": final net total / grand total paid amount in ${currCode} (number only, look for Total, Grand Total, ยอดรวม, สุทธิ, Amount).
+CRITICAL MULTI-ITEM RULE:
+- If the image is a mobile notification screen, lock screen, or bank statement showing MULTIPLE transactions (for example, 2 to 15 credit card spending alerts or bank notifications stacked in one screenshot), extract EVERY SINGLE outgoing expense/charge into the "items" array!
+- Ignore incoming money/deposits unless it is clearly a refund, and ignore promotional/ad notifications.
+- If it is a single receipt or single transfer slip, return an "items" array with 1 object.
+
+For each transaction in "items" (target currency ${currCode}):
+- "amount_cny": paid amount in ${currCode} (number only).
 - "title": concise Thai description with original merchant/store name in parentheses.
 - "category": choose the best matching key from: [${availableCategoryKeys}].
-- "payment_channel": detect payment method if clearly shown on receipt: use "credit_card" if VISA, Mastercard, JCB, UnionPay, AMEX, CREDIT, or Approval Code appears; use "cash" if CASH / เงินสด / เงินทอน appears; otherwise default to "${isDirectCamera ? 'cash' : 'transfer'}".
-- "channel_explicit": true if payment method was explicitly printed on the receipt, false otherwise.
-- "slip_date": transaction date in YYYY-MM-DD format.
-  CRITICAL THAI DATE RULES:
-  1. Thai receipts use Day/Month/Year (DD/MM/YYYY) and Buddhist Era (พ.ศ. / B.E.).
-  2. Convert B.E. year to A.D. year by subtracting 543: 2569 (or 69) = 2026; 2568 (or 68) = 2025; 2570 (or 70) = 2027.
-  3. Example: "18 พ.ย. 2569" or "18/11/69" MUST be "2026-11-18".
-  4. Return null if no date is visible.
-- "slip_time": printed transaction time (HH:MM 24-hour) or null if none.
-- "slip_ref": transaction reference number / receipt no / tax inv no if printed, or null.
-Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny": 0, "category": "Food", "payment_channel": "${isDirectCamera ? 'cash' : 'transfer'}", "channel_explicit": false, "slip_date": "2026-11-21", "slip_time": "18:06", "slip_ref": "..."}`;
+- "payment_channel": use "credit_card" if credit card / VISA / Mastercard / JCB / UnionPay / AMEX / บัตรเครดิต is mentioned; use "cash" if CASH / เงินสด appears; otherwise default to "${isDirectCamera ? 'cash' : 'transfer'}".
+- "channel_explicit": true if payment method was explicitly shown, false otherwise.
+- "slip_date": transaction date in YYYY-MM-DD format (Thai B.E. year minus 543: 2569 or 69 = 2026; 2568 or 68 = 2025) or null if none.
+- "slip_time": printed or notification timestamp (HH:MM 24-hour) or null if none.
+- "slip_ref": transaction reference number if printed, or null.
+
+Respond ONLY with valid JSON:
+{"is_receipt": true, "items": [{"title": "...", "amount_cny": 0, "category": "${defaultCatKey}", "payment_channel": "${isDirectCamera ? 'cash' : 'transfer'}", "channel_explicit": false, "slip_date": "2026-11-23", "slip_time": "18:06", "slip_ref": null}]}`;
 
       try {
         const rawText = await callGeminiWithFallback(apiKey, prompt, base64Data);
@@ -2982,62 +3472,77 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
           if (!isDirectCamera && parsed.is_receipt === false) {
-            return { is_valid_receipt: false, file };
+            return [{ is_valid_receipt: false, file }];
           }
 
-          const validTime = parsed.slip_time && /^\d{1,2}:\d{2}$/.test(parsed.slip_time.trim())
-            ? parsed.slip_time.trim().padStart(5, '0')
-            : null;
-          const slipTimeFinal = validTime || fallbackTime;
-          const timeSourceFinal = validTime ? 'slip' : 'upload';
-          const slipRefFinal = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' && String(parsed.slip_ref).trim() !== ''
-            ? String(parsed.slip_ref).trim()
-            : null;
+          const rawItems = Array.isArray(parsed.items) && parsed.items.length > 0
+            ? parsed.items
+            : (parsed.title || parsed.amount_cny ? [parsed] : []);
 
-          const validSlipDate = normalizeSlipDate(parsed.slip_date, photoCapturedDate);
-          const resolvedDate = validSlipDate || photoCapturedDate;
-          const dateSourceLabel = validSlipDate ? 'จากใบเสร็จ' : 'จากวันที่ถ่ายภาพ';
+          if (rawItems.length === 0) {
+            return [{ is_valid_receipt: false, file }];
+          }
 
-          const mappedDay = mapSlipDateToTripDay(resolvedDate);
-          const finalDay = mappedDay || defaultDay;
-          const parsedAmt = Number(parsed.amount_cny) > 0 ? Number(parsed.amount_cny) : '';
-          const detectedChannel = normalizeChannel(parsed.payment_channel || (isDirectCamera ? 'cash' : 'transfer'));
-          const matchedCat = customCategories.some(c => c.key === parsed.category) ? parsed.category : 'Food';
+          const isMultiFromOneImage = rawItems.length > 1;
+          return rawItems.map((it, subIdx) => {
+            const validTime = it.slip_time && /^\d{1,2}:\d{2}$/.test(String(it.slip_time).trim())
+              ? String(it.slip_time).trim().padStart(5, '0')
+              : null;
+            const slipTimeFinal = validTime || fallbackTime;
+            const timeSourceFinal = validTime ? 'slip' : 'upload';
+            const slipRefFinal = it.slip_ref && String(it.slip_ref).trim() !== 'null' && String(it.slip_ref).trim() !== ''
+              ? String(it.slip_ref).trim()
+              : null;
 
-          const semanticDup = findDuplicateExpense({
-            hash: fileHash,
-            ref: slipRefFinal,
-            title: parsed.title,
-            amount_cny: parsedAmt,
-            slip_time: slipTimeFinal,
-            time_source: timeSourceFinal
+            const validSlipDate = normalizeSlipDate(it.slip_date, photoCapturedDate);
+            const resolvedDate = validSlipDate || photoCapturedDate;
+            const dateSourceLabel = isMultiFromOneImage
+              ? `จากโนติ #${subIdx + 1}`
+              : (validSlipDate ? 'จากใบเสร็จ' : 'จากวันที่ถ่ายภาพ');
+
+            const mappedDay = mapSlipDateToTripDay(resolvedDate);
+            const finalDay = mappedDay || defaultDay;
+            const parsedAmt = Number(it.amount_cny) > 0 ? Number(it.amount_cny) : '';
+            const detectedChannel = normalizeChannel(it.payment_channel || (isDirectCamera ? 'cash' : 'transfer'));
+            const matchedCat = customCategories.some(c => c.key === it.category) ? it.category : defaultCatKey;
+
+            // For multi-notification screenshot, match duplicates by individual item signature rather than image hash
+            const itemHashToCheck = isMultiFromOneImage ? null : fileHash;
+            const semanticDup = findDuplicateExpense({
+              hash: itemHashToCheck,
+              ref: slipRefFinal,
+              title: it.title,
+              amount_cny: parsedAmt,
+              slip_time: slipTimeFinal,
+              time_source: timeSourceFinal
+            });
+
+            return {
+              is_valid_receipt: true,
+              file,
+              fileHash: isMultiFromOneImage ? `${fileHash}_${subIdx}` : fileHash,
+              slipRef: slipRefFinal,
+              trip_day: finalDay,
+              slip_date: resolvedDate,
+              date_source_label: dateSourceLabel,
+              title: it.title || (isDirectCamera ? 'ใบเสร็จจากกล้อง' : `รายการที่ ${subIdx + 1}`),
+              amount_cny: parsedAmt,
+              amount_locked: Boolean(parsedAmt),
+              category: matchedCat,
+              payment_channel: detectedChannel,
+              channel_detected: Boolean(it.channel_explicit),
+              slip_time: slipTimeFinal,
+              time_source: timeSourceFinal,
+              duplicateMatch: semanticDup
+            };
           });
-
-          return {
-            is_valid_receipt: true,
-            file,
-            fileHash,
-            slipRef: slipRefFinal,
-            trip_day: finalDay,
-            slip_date: resolvedDate,
-            date_source_label: dateSourceLabel,
-            title: parsed.title || (isDirectCamera ? 'ใบเสร็จจากกล้อง' : 'รายการจากสลิป'),
-            amount_cny: parsedAmt,
-            amount_locked: Boolean(parsedAmt),
-            category: matchedCat,
-            payment_channel: detectedChannel,
-            channel_detected: Boolean(parsed.channel_explicit),
-            slip_time: slipTimeFinal,
-            time_source: timeSourceFinal,
-            duplicateMatch: semanticDup
-          };
         }
       } catch (e) {
         console.warn('Scan fallback:', e.message);
       }
 
       const mappedFromPhoto = mapSlipDateToTripDay(photoCapturedDate);
-      return {
+      return [{
         is_valid_receipt: true,
         file,
         fileHash,
@@ -3048,13 +3553,13 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (file.name.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
         amount_cny: '',
         amount_locked: false,
-        category: 'Food',
+        category: defaultCatKey,
         payment_channel: isDirectCamera ? 'cash' : 'transfer',
         channel_detected: false,
         slip_time: fallbackTime,
         time_source: 'upload',
         duplicateMatch: null
-      };
+      }];
     }
 
     function setSingleCnyLockState(locked) {
@@ -3063,10 +3568,10 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const lockBadge = document.getElementById('exp-cny-lock-badge');
       cnyInput.readOnly = locked;
       if (locked) {
-        cnyInput.className = 'w-full bg-[#FCEBF0]/60 border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#8C5867] mt-1 cursor-not-allowed';
+        cnyInput.className = 'w-full bg-[#FCEBF0]/60 border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-sub mt-1 cursor-not-allowed';
         lockBadge.classList.remove('hidden');
       } else {
-        cnyInput.className = 'w-full bg-white border border-[#F2CFD9] rounded-xl p-2 text-base font-semibold text-[#C45B79] mt-1';
+        cnyInput.className = 'w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1';
         lockBadge.classList.add('hidden');
       }
     }
@@ -3093,38 +3598,41 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       showDuplicateAlert(null);
       statusEl.textContent = isDirectCamera
         ? 'กำลังอ่านตัวเลขและรายละเอียดจากใบเสร็จที่ถ่าย...'
-        : `กำลังคัดกรองสลิปและวิเคราะห์ข้อมูล ${files.length} รูป...`;
+        : `กำลังสแกนและแยกรายการจาก ${files.length} รูป...`;
 
-      const rawResults = [];
+      const flattenedResults = [];
+      let rejectedImages = 0;
+
       for (let i = 0; i < files.length; i += 3) {
         const chunk = files.slice(i, i + 3);
-        const chunkRes = await Promise.all(chunk.map(f => scanSingleReceiptFile(f, apiKey, { isDirectCamera })));
-        rawResults.push(...chunkRes);
+        const chunkArrays = await Promise.all(chunk.map(f => scanReceiptOrNotificationImage(f, apiKey, { isDirectCamera })));
+        chunkArrays.forEach(arr => {
+          const validInImg = arr.filter(x => x.is_valid_receipt !== false);
+          if (validInImg.length === 0) rejectedImages += 1;
+          else flattenedResults.push(...validInImg);
+        });
       }
 
-      const rejectedNonReceipts = rawResults.filter(r => r.is_valid_receipt === false).length;
-      const validReceipts = rawResults.filter(r => r.is_valid_receipt !== false);
-
-      if (validReceipts.length === 0) {
+      if (flattenedResults.length === 0) {
         clearBatchQueue();
         statusEl.classList.remove('hidden');
-        statusEl.textContent = `ไม่พบสลิปค่าใช้จ่ายในรูปที่เลือก (คัดรูปคน/รูปทั่วไปออก ${rejectedNonReceipts} รูป)`;
+        statusEl.textContent = `ไม่พบรายการค่าใช้จ่ายในรูปที่เลือก (คัดรูปทั่วไปออก ${rejectedImages} รูป)`;
         return;
       }
 
       if (monthly) {
-        validReceipts.forEach(item => {
+        flattenedResults.forEach(item => {
           if (!item.duplicateMatch && item.slip_date && item.slip_date.slice(0, 7) !== currentYm) {
             item.duplicateMatch = {
-              reason: `วันที่ใบเสร็จ (${item.slip_date}) อยู่นอกเดือน ${formatMonthLabel(currentYm)} (แก้ไขวันที่ได้หาก AI อ่านผิด)`,
+              reason: `วันที่รายการ (${item.slip_date}) อยู่นอกเดือน ${formatMonthLabel(currentYm)} (แก้ไขวันที่ได้หาก AI อ่านผิด)`,
               item
             };
           }
         });
       }
 
-      if (validReceipts.length === 1) {
-        const res = validReceipts[0];
+      if (flattenedResults.length === 1) {
+        const res = flattenedResults[0];
         batchQueue = [];
         activeSingleFile = res.file;
         document.getElementById('batch-queue-section').classList.add('hidden');
@@ -3160,9 +3668,9 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
         document.getElementById('exp-time').value = res.slip_time;
         currentTimeSource = res.time_source;
-        document.getElementById('exp-time-badge').textContent = res.time_source === 'slip' ? '(จากใบเสร็จ)' : '(เวลาถ่ายภาพ)';
+        document.getElementById('exp-time-badge').textContent = res.time_source === 'slip' ? '(จากสลิป)' : '(เวลาถ่ายภาพ)';
 
-        const rejectNote = rejectedNonReceipts > 0 ? ` · คัดรูปไม่ใช่สลิปออก ${rejectedNonReceipts} รูป` : '';
+        const rejectNote = rejectedImages > 0 ? ` · คัดรูปไม่ใช่สลิปออก ${rejectedImages} รูป` : '';
         if (res.duplicateMatch) {
           showDuplicateAlert(res.duplicateMatch);
           statusEl.textContent = `พบข้อสังเกต (ยังบันทึกได้ตามปกติ)${rejectNote}`;
@@ -3179,14 +3687,14 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
         const seenHashes = new Set();
         const seenRefs = new Set();
-        validReceipts.forEach(item => {
+        flattenedResults.forEach(item => {
           if (item.trip_day > totalDays) {
             totalDays = item.trip_day;
             localStorage.setItem(`days_${currentTrip.id}`, totalDays);
           }
           if (!item.duplicateMatch) {
             if (seenHashes.has(item.fileHash) || (item.slipRef && seenRefs.has(item.slipRef))) {
-              item.duplicateMatch = { reason: 'สลิปซ้ำกับรูปอื่นในชุดนี้', item };
+              item.duplicateMatch = { reason: 'รายการซ้ำในชุดนี้', item };
             }
           }
           seenHashes.add(item.fileHash);
@@ -3194,10 +3702,10 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         });
 
         renderDayOptions();
-        batchQueue = validReceipts.sort((a, b) => a.slip_time.localeCompare(b.slip_time));
+        batchQueue = flattenedResults.sort((a, b) => a.slip_time.localeCompare(b.slip_time));
         renderBatchQueue();
-        const rejectNote = rejectedNonReceipts > 0 ? ` (คัดรูปไม่ใช่สลิปออก ${rejectedNonReceipts} รูป)` : '';
-        statusEl.textContent = `พร้อมบันทึกทั้งหมด ${batchQueue.length} รายการ (เลือกช่องทางจ่ายแยกแต่ละใบได้)${rejectNote}`;
+        const rejectNote = rejectedImages > 0 ? ` (คัดรูปทั่วไปออก ${rejectedImages} รูป)` : '';
+        statusEl.textContent = `แตกออกมาได้ทั้งหมด ${batchQueue.length} รายการ (ตรวจสอบและกดบันทึกทีเดียวได้เลย)${rejectNote}`;
       }
     }
 
@@ -3209,39 +3717,39 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         const hasWarning = Boolean(item.duplicateMatch);
         let periodControlHtml = '';
         if (monthly) {
-          periodControlHtml = `<input type="date" value="${item.slip_date}" onchange="batchQueue[${idx}].slip_date = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1 text-[10px]" />`;
+          periodControlHtml = `<input type="date" value="${item.slip_date}" onchange="batchQueue[${idx}].slip_date = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1 text-[10px]" />`;
         } else {
           let dayOpts = '';
           for (let d = 1; d <= totalDays; d++) {
             dayOpts += `<option value="${d}" ${Number(item.trip_day) === d ? 'selected' : ''}>Day ${d}</option>`;
           }
-          periodControlHtml = `<select onchange="batchQueue[${idx}].trip_day = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">${dayOpts}</select>`;
+          periodControlHtml = `<select onchange="batchQueue[${idx}].trip_day = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px]">${dayOpts}</select>`;
         }
 
         const cnyFieldHtml = item.amount_locked
-          ? `<input type="text" value="${fmtNum(item.amount_cny)}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#8C5867] cursor-not-allowed" />`
-          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs font-semibold text-[#C45B79]" />`;
+          ? `<input type="text" value="${fmtNum(item.amount_cny)}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-sub cursor-not-allowed" />`
+          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-primary" />`;
 
         return `
-        <div class="p-3 rounded-xl border space-y-2 ${hasWarning ? 'bg-amber-50/70 border-amber-400' : 'bg-white border-[#F2CFD9]'}">
+        <div class="p-3 rounded-xl border space-y-2 ${hasWarning ? 'bg-amber-50/70 border-amber-400' : 'bg-white theme-border-mid'}">
           <div class="flex justify-between items-center text-[10px] gap-1">
-            <span class="font-semibold truncate ${hasWarning ? 'text-amber-700' : 'text-[#C45B79]'}">
+            <span class="font-semibold truncate ${hasWarning ? 'text-amber-700' : 'theme-text-primary'}">
               ${hasWarning ? `⚠️ ${item.duplicateMatch.reason}` : `บิลที่ ${idx + 1} · ${item.date_source_label} · ${item.slip_time}`}
             </span>
-            <button type="button" onclick="removeBatchItem(${idx})" class="text-[#B38895] hover:text-rose-600 shrink-0 ml-1">เอาออก</button>
+            <button type="button" onclick="removeBatchItem(${idx})" class="theme-text-muted hover:text-rose-600 shrink-0 ml-1">เอาออก</button>
           </div>
           <div class="grid grid-cols-3 gap-1.5">
             ${periodControlHtml}
-            <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-xs" />
+            <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs" />
           </div>
           <div class="grid grid-cols-3 gap-1.5">
             ${cnyFieldHtml}
-            <select onchange="batchQueue[${idx}].payment_channel = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px] font-medium text-[#6B424E]">
+            <select onchange="batchQueue[${idx}].payment_channel = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px] font-medium">
               <option value="transfer" ${item.payment_channel === 'transfer' ? 'selected' : ''}>1. โอน</option>
               <option value="credit_card" ${item.payment_channel === 'credit_card' ? 'selected' : ''}>2. บัตรเครดิต</option>
               <option value="cash" ${item.payment_channel === 'cash' ? 'selected' : ''}>3. เงินสด</option>
             </select>
-            <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border border-[#F2CFD9] rounded-lg p-1.5 text-[11px]">
+            <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px]">
               ${buildCategoryOptionsHtml(item.category, true)}
             </select>
           </div>
@@ -3270,7 +3778,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
     }
 
     async function fileToBase64(file, enhanceReceiptContrast = false) {
-      const targetMaxDim = enhanceReceiptContrast ? 1400 : 1024;
+      const targetMaxDim = enhanceReceiptContrast ? 1400 : 1200;
       try {
         if (typeof createImageBitmap === 'function') {
           const bitmap = await createImageBitmap(file);
@@ -3312,7 +3820,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       });
     }
 
-    // ================= STORAGE & MEDIA (WITH AUTO-RETRY) =================
+    // ================= STORAGE & MEDIA (WITH SHARED-FILE CACHE & AUTO-RETRY) =================
     async function viewStorageImage(pathOrUrl, metaText = '') {
       let cleanPath = pathOrUrl.includes('/trip-media/') ? pathOrUrl.split('/trip-media/')[1].split('?')[0] : pathOrUrl;
       const { data, error } = await db.storage.from('trip-media').download(cleanPath);
@@ -3406,7 +3914,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       document.getElementById('exp-rate-box').classList.toggle('hidden', isThbBase());
       document.getElementById('exp-fee-label').classList.toggle('hidden', isThbBase());
 
-      document.getElementById('exp-cat').innerHTML = buildCategoryOptionsHtml('Food', false);
+      document.getElementById('exp-cat').innerHTML = buildCategoryOptionsHtml(customCategories[0]?.key || 'Food', false);
       document.getElementById('exp-title').value = '';
       document.getElementById('exp-cny').value = '';
       document.getElementById('exp-time').value = getCurrentHHMM();
@@ -3441,8 +3949,8 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
 
       document.getElementById('split-members-section').classList.toggle('hidden', participants.length <= 1);
       document.getElementById('exp-split-checkboxes').innerHTML = participants.map(m => `
-        <label class="flex items-center gap-1.5 bg-[#FFF9FA] border border-[#F2CFD9] px-3 py-1.5 rounded-xl text-xs text-[#8C5867]">
-          <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-[#F2CFD9] text-[#D6718E] focus:ring-0" />
+        <label class="flex items-center gap-1.5 bg-[#FFF9FA] border theme-border-mid px-3 py-1.5 rounded-xl text-xs theme-text-sub">
+          <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-[#F2CFD9]" />
           ${m.display_name}
         </label>`).join('');
       openModal('expense-modal');
@@ -3494,12 +4002,19 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         btn.disabled = true;
         let savedCount = 0;
         const failedItems = [];
+        // Deduplicate Storage upload when multiple items come from the SAME notification screenshot!
+        const uploadedFileCache = new Map();
 
         for (let i = 0; i < batchQueue.length; i++) {
           const item = batchQueue[i];
           btn.textContent = `กำลังบันทึก ${i + 1}/${batchQueue.length}...`;
           try {
-            const receiptPath = await uploadFileToStorage(item.file, 'receipts');
+            let receiptPath = uploadedFileCache.get(item.file);
+            if (!receiptPath) {
+              receiptPath = await uploadFileToStorage(item.file, 'receipts');
+              uploadedFileCache.set(item.file, receiptPath);
+            }
+
             const amt = parseFloat(item.amount_cny);
             const titleClean = (item.title || '').trim() || `รายการสลิป ${i + 1}`;
             const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
@@ -3511,7 +4026,7 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
               expense_date: itemDate,
               expense_month: monthly ? itemDate.slice(0, 7) : null,
               title: titleClean,
-              category: item.category || 'Food',
+              category: item.category || customCategories[0]?.key || 'Food',
               amount_cny: amt,
               exchange_rate: rate,
               has_alipay_fee: !isThbBase() && amt > 200,
@@ -3726,22 +4241,22 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         return `
         <div class="py-2.5 flex justify-between items-center gap-2">
           <div class="min-w-0">
-            <p class="font-medium text-[#6B424E] text-xs flex items-center gap-1.5">
+            <p class="font-medium theme-text-main text-xs flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full inline-block shrink-0" style="background:${m.accent_color}"></span>
               <span>${m.display_name}</span>
-              <span class="text-[10px] text-[#D6718E] font-normal">${m.is_observer_only ? 'ผู้ดูแล (ไม่หาร)' : (m.role === 'host' ? 'Host' : '')}</span>
-              ${m.can_proxy_pay && !isAdminEmail ? '<span class="text-[9px] bg-[#FFEBF0] text-[#C45B79] px-1.5 py-0.5 rounded-md">อัปแทนได้</span>' : ''}
+              <span class="text-[10px] theme-text-primary font-normal">${m.is_observer_only ? 'ผู้ดูแล (ไม่หาร)' : (m.role === 'host' ? 'Host' : '')}</span>
+              ${m.can_proxy_pay && !isAdminEmail ? '<span class="text-[9px] theme-bg-pill px-1.5 py-0.5 rounded-md">อัปแทนได้</span>' : ''}
             </p>
-            <p class="text-[11px] text-[#B38895] pl-4 truncate">${isAdminEmail ? 'Administrator' : m.email}</p>
+            <p class="text-[11px] theme-text-muted pl-4 truncate">${isAdminEmail ? 'Administrator' : m.email}</p>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             ${isSuperAdmin() && !isAdminEmail && !currentTrip.is_closed
-              ? `<button onclick="toggleMemberProxyRight('${m.id}', '${m.display_name}', ${m.can_proxy_pay})" class="text-[10px] px-2 py-1 rounded-lg border ${m.can_proxy_pay ? 'bg-[#C45B79] text-white border-[#C45B79]' : 'bg-white text-[#8C5867] border-[#F2CFD9]'}">
+              ? `<button onclick="toggleMemberProxyRight('${m.id}', '${m.display_name}', ${m.can_proxy_pay})" class="text-[10px] px-2 py-1 rounded-lg border ${m.can_proxy_pay ? 'luxury-gradient text-white' : 'bg-white theme-text-sub theme-border-mid'}">
                   ${m.can_proxy_pay ? 'ปิดอัปแทน' : 'ให้อัปแทน'}
                 </button>`
               : ''}
             ${(currentMember.role === 'host' || isSuperAdmin()) && m.role !== 'host' && !currentTrip.is_closed
-              ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[10px] text-[#A37B87] hover:text-rose-600 px-2 py-1 rounded-lg border border-[#F5D5DF]">ลบ</button>`
+              ? `<button onclick="removeMember('${m.id}', '${m.email}')" class="text-[10px] theme-text-muted hover:text-rose-600 px-2 py-1 rounded-lg border theme-border">ลบ</button>`
               : ''}
           </div>
         </div>`;
@@ -3794,8 +4309,8 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
         const dt = new Date(l.created_at);
         const dateStr = dt.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' });
         const timeStr = dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-        return `<div class="border-b border-[#FCEBF0] pb-2"><span class="text-[#C9A3AF] mr-1.5">${dateStr} ${timeStr}</span><span class="font-medium text-[#6B424E]">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
-      }).join('') || '<p class="text-[#B38895] text-center py-4">ยังไม่มีประวัติการบันทึก</p>';
+        return `<div class="border-b theme-border pb-2"><span class="theme-text-muted mr-1.5">${dateStr} ${timeStr}</span><span class="font-medium theme-text-main">${getMemberName(l.actor_email)}</span> ${l.description}</div>`;
+      }).join('') || '<p class="theme-text-muted text-center py-4">ยังไม่มีประวัติการบันทึก</p>';
     }
 
     async function backupAndClearLogs() {
@@ -3835,16 +4350,16 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       const { data } = await db.from('log_backups').select('*').order('created_at', { ascending: false });
       backupFilesList = data || [];
       document.getElementById('log-backup-list').innerHTML = backupFilesList.map(b => `
-        <div class="flex justify-between items-center p-3 bg-[#FFF9FA] rounded-2xl border border-[#F5D5DF]">
+        <div class="flex justify-between items-center p-3 bg-[#FFF9FA] rounded-2xl border theme-border">
           <div class="min-w-0 pr-2">
-            <p class="font-medium text-[#6B424E] truncate">${b.trip_name} · ${b.backup_label}</p>
-            <p class="text-[10px] text-[#B38895]">จำนวน ${b.log_count} รายการ (เรียงตามวันที่)</p>
+            <p class="font-medium theme-text-main truncate">${b.trip_name} · ${b.backup_label}</p>
+            <p class="text-[10px] theme-text-muted">จำนวน ${b.log_count} รายการ (เรียงตามวันที่)</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <button onclick="downloadBackupCsv('${b.id}')" class="text-[11px] text-[#C45B79] underline font-medium">โหลด CSV</button>
-            <button onclick="deleteBackupFile('${b.id}', '${b.backup_label}')" class="text-[11px] text-[#B38895] hover:text-rose-600">ลบ</button>
+            <button onclick="downloadBackupCsv('${b.id}')" class="text-[11px] theme-text-primary underline font-medium">โหลด CSV</button>
+            <button onclick="deleteBackupFile('${b.id}', '${b.backup_label}')" class="text-[11px] theme-text-muted hover:text-rose-600">ลบ</button>
           </div>
-        </div>`).join('') || '<p class="text-[#B38895] text-center py-3">ยังไม่มีไฟล์ Backup</p>';
+        </div>`).join('') || '<p class="theme-text-muted text-center py-3">ยังไม่มีไฟล์ Backup</p>';
     }
 
     function downloadBackupCsv(backupId) {
@@ -3922,8 +4437,8 @@ Respond ONLY with valid JSON: {"is_receipt": true, "title": "...", "amount_cny":
       ['expenses', 'digest', 'analytics', 'members'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
         document.getElementById(`nav-${t}`).className = t === tab
-          ? 'flex flex-col items-center gap-1 text-[#C45B79]'
-          : 'flex flex-col items-center gap-1 text-[#C9A3AF]';
+          ? 'flex flex-col items-center gap-1 theme-text-primary'
+          : 'flex flex-col items-center gap-1 theme-text-muted';
       });
       if (tab === 'digest') renderDailyDigest();
       if (tab === 'analytics') renderAnalytics();
