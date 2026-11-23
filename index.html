@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=14";
+      img.src = "icon.png?v=15";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -564,7 +564,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v2.9</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.0</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -1128,7 +1128,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v2.9';
+    const APP_VERSION = 'v3.0';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1213,6 +1213,7 @@
     let isSingleDuplicateBlocked = false;
     let isAdminOverrideSingleDup = false;
     let isBatchRescanning = false;
+    let isBatchDupSectionCollapsed = false;
     let flaggingExpenseId = null;
 
     let qcBuffer = '0';
@@ -2052,7 +2053,8 @@
       if (!btn) return;
 
       if (batchQueue.length > 0) {
-        const dupCount = batchQueue.filter(item => Boolean(item.duplicateMatch)).length;
+        const dupCount = batchQueue.filter(item => Boolean(item.duplicateMatch) && !item.forceInclude).length;
+        const validCount = batchQueue.length - dupCount;
         const failedCount = batchQueue.filter(item => Boolean(item.scan_failed)).length;
         const toolbar = document.getElementById('batch-action-toolbar');
         const rescanBtn = document.getElementById('btn-batch-rescan-failed');
@@ -2068,10 +2070,14 @@
           document.getElementById('batch-dup-count').textContent = dupCount;
         }
 
-        if (dupCount > 0) {
+        if (validCount === 0) {
           btn.disabled = true;
           btn.className = 'w-full bg-slate-200 text-slate-500 font-medium py-3 rounded-xl text-sm cursor-not-allowed transition';
-          btn.textContent = `ล็อกการบันทึก (พบรายการซ้ำ ${dupCount} รายการในคิว)`;
+          btn.textContent = `ล็อกการบันทึก (ซ้ำทั้งหมด ${dupCount} รายการ)`;
+        } else if (dupCount > 0) {
+          btn.disabled = false;
+          btn.className = 'w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition';
+          btn.textContent = `บันทึกเฉพาะรายการที่ผ่าน (${validCount} รายการ · ข้ามซ้ำ ${dupCount})`;
         } else {
           btn.disabled = false;
           btn.className = 'w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition';
@@ -2179,9 +2185,20 @@
       });
     }
 
+    function toggleBatchDupSection() {
+      isBatchDupSectionCollapsed = !isBatchDupSectionCollapsed;
+      renderBatchQueue();
+    }
+
+    function adminForceIncludeBatchItem(idx) {
+      if (!isSuperAdmin() || !batchQueue[idx]) return;
+      batchQueue[idx].forceInclude = true;
+      renderBatchQueue();
+    }
+
     function removeAllBatchDuplicates() {
       const before = batchQueue.length;
-      batchQueue = batchQueue.filter(item => !item.duplicateMatch);
+      batchQueue = batchQueue.filter(item => !item.duplicateMatch || item.forceInclude);
       const removed = before - batchQueue.length;
       if (batchQueue.length === 0) {
         clearBatchQueue();
@@ -4815,65 +4832,97 @@ Respond ONLY with valid JSON:
       }
     }
 
-    function renderBatchQueue() {
-      document.getElementById('batch-count').textContent = `${batchQueue.length}`;
+    function renderSingleBatchCard(item, idx, displayOrder, isDupBlocked) {
       const monthly = isMonthlyMode();
-
-      document.getElementById('batch-items-list').innerHTML = batchQueue.map((item, idx) => {
-        const isDup = Boolean(item.duplicateMatch);
-        const isFailed = Boolean(item.scan_failed);
-        let periodControlHtml = '';
-        if (monthly) {
-          periodControlHtml = `<input type="date" value="${item.slip_date}" onchange="batchQueue[${idx}].slip_date = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1 text-[10px]" />`;
-        } else {
-          let dayOpts = '';
-          for (let d = 1; d <= totalDays; d++) {
-            dayOpts += `<option value="${d}" ${Number(item.trip_day) === d ? 'selected' : ''}>Day ${d}</option>`;
-          }
-          periodControlHtml = `<select onchange="batchQueue[${idx}].trip_day = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px]">${dayOpts}</select>`;
+      const isFailed = Boolean(item.scan_failed);
+      let periodControlHtml = '';
+      if (monthly) {
+        periodControlHtml = `<input type="date" value="${item.slip_date}" onchange="batchQueue[${idx}].slip_date = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1 text-[10px]" />`;
+      } else {
+        let dayOpts = '';
+        for (let d = 1; d <= totalDays; d++) {
+          dayOpts += `<option value="${d}" ${Number(item.trip_day) === d ? 'selected' : ''}>Day ${d}</option>`;
         }
+        periodControlHtml = `<select onchange="batchQueue[${idx}].trip_day = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px]">${dayOpts}</select>`;
+      }
 
-        const cnyFieldHtml = item.amount_locked
-          ? `<input type="text" value="${fmtNum(item.amount_cny)}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-sub cursor-not-allowed" />`
-          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value; batchQueue[${idx}].scan_failed = !parseFloat(this.value); revalidateBatchDuplicates(); updateSaveButtonLockState();" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-primary" />`;
+      const cnyFieldHtml = item.amount_locked
+        ? `<input type="text" value="${fmtNum(item.amount_cny)}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-sub cursor-not-allowed" />`
+        : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value; batchQueue[${idx}].scan_failed = !parseFloat(this.value); revalidateBatchDuplicates(); updateSaveButtonLockState();" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-primary" />`;
 
-        const cardStyle = isDup
-          ? 'bg-[#FFF0F3] border-[#E599AD]'
-          : (isFailed ? 'bg-amber-50/70 border-amber-300' : 'bg-white theme-border-mid');
+      const cardStyle = isDupBlocked
+        ? 'bg-[#FFF0F3] border-[#E599AD]'
+        : (isFailed ? 'bg-amber-50/70 border-amber-300' : 'bg-white theme-border-mid');
 
-        const headerLabel = isDup
-          ? `ซ้ำ: ${item.duplicateMatch.reason}`
-          : (isFailed ? `ยังไม่อ่านตัวเลข · ${item.date_source_label}` : `บิลที่ ${idx + 1} · ${item.date_source_label} · ${item.slip_time}`);
+      const headerLabel = isDupBlocked
+        ? `ซ้ำ (ข้ามอัตโนมัติ): ${item.duplicateMatch.reason}`
+        : (item.forceInclude
+            ? `รวมเข้าคิวโดย Admin · บิลที่ ${displayOrder} · ${item.slip_time}`
+            : (isFailed ? `ยังไม่อ่านตัวเลข · ${item.date_source_label}` : `บิลที่ ${displayOrder} · ${item.date_source_label} · ${item.slip_time}`));
 
-        return `
-        <div class="p-3 rounded-xl border space-y-2 ${cardStyle}">
-          <div class="flex justify-between items-center text-[10px] gap-1">
-            <span class="font-semibold truncate ${isDup ? 'text-[#B83B5E]' : (isFailed ? 'text-amber-800' : 'theme-text-primary')}">
-              ${headerLabel}
-            </span>
-            <div class="flex items-center gap-2 shrink-0 ml-1">
-              ${isFailed && item.asset ? `<button type="button" onclick="rescanBatchItem(${idx})" class="bg-white border border-amber-400 text-amber-800 px-1.5 py-0.5 rounded-md font-semibold">สแกนซ้ำ</button>` : ''}
-              <button type="button" onclick="removeBatchItem(${idx})" class="${isDup ? 'text-[#B83B5E] font-semibold' : 'theme-text-muted hover:text-rose-600'}">เอาออก</button>
-            </div>
+      return `
+      <div class="p-3 rounded-xl border space-y-2 ${cardStyle}">
+        <div class="flex justify-between items-center text-[10px] gap-1">
+          <span class="font-semibold truncate ${isDupBlocked ? 'text-[#B83B5E]' : (isFailed ? 'text-amber-800' : 'theme-text-primary')}">
+            ${headerLabel}
+          </span>
+          <div class="flex items-center gap-1.5 shrink-0 ml-1">
+            ${isDupBlocked && isSuperAdmin() ? `<button type="button" onclick="adminForceIncludeBatchItem(${idx})" class="bg-white border border-[#E599AD] text-[#B83B5E] px-1.5 py-0.5 rounded-md font-semibold">รวมใบนี้</button>` : ''}
+            ${isFailed && item.asset ? `<button type="button" onclick="rescanBatchItem(${idx})" class="bg-white border border-amber-400 text-amber-800 px-1.5 py-0.5 rounded-md font-semibold">สแกนซ้ำ</button>` : ''}
+            <button type="button" onclick="removeBatchItem(${idx})" class="${isDupBlocked ? 'text-[#B83B5E] font-semibold' : 'theme-text-muted hover:text-rose-600'}">เอาออก</button>
           </div>
-          <div class="grid grid-cols-3 gap-1.5">
-            ${periodControlHtml}
-            <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs" />
-          </div>
-          <div class="grid grid-cols-3 gap-1.5">
-            ${cnyFieldHtml}
-            <select onchange="batchQueue[${idx}].payment_channel = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px] font-medium">
-              <option value="transfer" ${item.payment_channel === 'transfer' ? 'selected' : ''}>1. โอน</option>
-              <option value="credit_card" ${item.payment_channel === 'credit_card' ? 'selected' : ''}>2. บัตรเครดิต</option>
-              <option value="cash" ${item.payment_channel === 'cash' ? 'selected' : ''}>3. เงินสด</option>
-            </select>
-            <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px]">
-              ${buildCategoryOptionsHtml(item.category, true)}
-            </select>
-          </div>
-        </div>`;
-      }).join('');
+        </div>
+        <div class="grid grid-cols-3 gap-1.5">
+          ${periodControlHtml}
+          <input type="text" value="${item.title}" placeholder="ชื่อรายการ" oninput="batchQueue[${idx}].title = this.value" class="col-span-2 bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs" />
+        </div>
+        <div class="grid grid-cols-3 gap-1.5">
+          ${cnyFieldHtml}
+          <select onchange="batchQueue[${idx}].payment_channel = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px] font-medium">
+            <option value="transfer" ${item.payment_channel === 'transfer' ? 'selected' : ''}>1. โอน</option>
+            <option value="credit_card" ${item.payment_channel === 'credit_card' ? 'selected' : ''}>2. บัตรเครดิต</option>
+            <option value="cash" ${item.payment_channel === 'cash' ? 'selected' : ''}>3. เงินสด</option>
+          </select>
+          <select onchange="batchQueue[${idx}].category = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-[11px]">
+            ${buildCategoryOptionsHtml(item.category, true)}
+          </select>
+        </div>
+      </div>`;
+    }
 
+    function renderBatchQueue() {
+      const validEntries = [];
+      const dupEntries = [];
+      batchQueue.forEach((item, idx) => {
+        if (item.duplicateMatch && !item.forceInclude) dupEntries.push({ item, idx });
+        else validEntries.push({ item, idx });
+      });
+
+      document.getElementById('batch-count').textContent = dupEntries.length > 0
+        ? `${validEntries.length} พร้อมบันทึก / ซ้ำ ${dupEntries.length}`
+        : `${validEntries.length}`;
+
+      const validHtml = validEntries.map((entry, vIdx) =>
+        renderSingleBatchCard(entry.item, entry.idx, vIdx + 1, false)
+      ).join('');
+
+      let dupGroupHtml = '';
+      if (dupEntries.length > 0) {
+        const dupCardsHtml = isBatchDupSectionCollapsed
+          ? ''
+          : `<div class="space-y-2 pt-1.5">${dupEntries.map((entry, dIdx) => renderSingleBatchCard(entry.item, entry.idx, dIdx + 1, true)).join('')}</div>`;
+
+        dupGroupHtml = `
+          <div class="pt-2 mt-2 border-t border-[#F2CFD9] space-y-1.5">
+            <button type="button" onclick="toggleBatchDupSection()" class="w-full flex justify-between items-center bg-[#FFF0F3] px-3 py-2 rounded-xl border border-[#E599AD] text-[11px] text-[#B83B5E] font-semibold">
+              <span>รายการซ้ำกับบิลเดิม (${dupEntries.length} รายการ · ระบบจะข้ามอัตโนมัติ)</span>
+              <span>${isBatchDupSectionCollapsed ? '▼ แสดง' : '▲ พับเก็บ'}</span>
+            </button>
+            ${dupCardsHtml}
+          </div>`;
+      }
+
+      document.getElementById('batch-items-list').innerHTML = validHtml + dupGroupHtml;
       updateSaveButtonLockState();
     }
 
@@ -5049,22 +5098,24 @@ Respond ONLY with valid JSON:
 
       if (batchQueue.length > 0) {
         revalidateBatchDuplicates();
-        const dupItems = batchQueue.filter(item => Boolean(item.duplicateMatch));
-        if (dupItems.length > 0) {
+        const itemsToSave = batchQueue.filter(item => !item.duplicateMatch || item.forceInclude);
+        const skippedDupCount = batchQueue.length - itemsToSave.length;
+
+        if (itemsToSave.length === 0) {
           renderBatchQueue();
-          return alert(`ระบบป้องกันการบันทึกซ้ำ: พบรายการซ้ำ ${dupItems.length} รายการในคิว กรุณากดปุ่ม "ลบรายการซ้ำทั้งหมดออก" ก่อนบันทึก`);
+          return alert('ไม่มีรายการใหม่ให้บันทึก (ทุกรายการซ้ำกับข้อมูลเดิมในสมุด)');
         }
 
-        const missingAmt = batchQueue.find(item => !parseFloat(item.amount_cny));
+        const missingAmt = itemsToSave.find(item => !parseFloat(item.amount_cny));
         if (missingAmt) return alert(`กรุณาระบุยอดเงินสำหรับรายการ "${missingAmt.title || 'บิลที่ยังไม่มีตัวเลข'}"`);
 
         btn.disabled = true;
 
         try {
-          // 1. Deduplicate unique blobs & upload in fast parallel chunks of 3
+          // 1. Deduplicate unique blobs ONLY for valid items & upload in fast parallel chunks of 3
           const uniqueAssets = [];
           const seenAssets = new Set();
-          batchQueue.forEach(item => {
+          itemsToSave.forEach(item => {
             if (item.asset && !seenAssets.has(item.asset)) {
               seenAssets.add(item.asset);
               uniqueAssets.push(item.asset);
@@ -5082,11 +5133,11 @@ Respond ONLY with valid JSON:
             }));
           }
 
-          // 2. Single Bulk Database Insert for all items at once (< 1 second)
-          btn.textContent = `กำลังบันทึกรายการทั้งหมด (${batchQueue.length} บิล)...`;
+          // 2. Single Bulk Database Insert for valid items at once
+          btn.textContent = `กำลังบันทึกรายการที่ผ่าน (${itemsToSave.length} บิล)...`;
           const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
 
-          const bulkPayloads = batchQueue.map((item, idx) => {
+          const bulkPayloads = itemsToSave.map((item, idx) => {
             const amt = parseFloat(item.amount_cny);
             const titleClean = (item.title || '').trim() || `รายการสลิป ${idx + 1}`;
             const itemDate = item.slip_date || getTodayYYYYMMDD();
@@ -5108,19 +5159,23 @@ Respond ONLY with valid JSON:
               receipt_image_url: item.asset ? (uploadedPathMap.get(item.asset) || null) : null,
               slip_time: item.slip_time || getCurrentHHMM(),
               time_source: item.time_source || 'upload',
-              slip_hash: item.fileHash,
-              slip_ref: item.slipRef,
+              slip_hash: item.forceInclude ? null : item.fileHash,
+              slip_ref: item.forceInclude ? null : item.slipRef,
               created_by: currentMember.email
             };
           });
 
           await safeInsertExpenseRows(bulkPayloads);
           const totalSaved = bulkPayloads.length;
+          const skipLogText = skippedDupCount > 0 ? ` (ข้ามรายการซ้ำอัตโนมัติ ${skippedDupCount} รายการ)` : '';
 
-          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${totalSaved} รายการ (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
+          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${totalSaved} รายการ${skipLogText} (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
           closeModal('expense-modal');
           clearBatchQueue();
           await refreshAllData();
+          if (skippedDupCount > 0) {
+            alert(`บันทึกสำเร็จ ${totalSaved} รายการ (ระบบข้ามรายการซ้ำให้อัตโนมัติ ${skippedDupCount} รายการ)`);
+          }
         } catch (err) {
           alert('บันทึกไม่สำเร็จ (ข้อมูลและรูปยังอยู่ครบ กดบันทึกใหม่ได้เลย): ' + err.message);
         } finally {
