@@ -320,6 +320,7 @@
           <button onclick="setQuickFilter('unverified')" id="qf-unverified" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">ยังไม่ติ๊กตรวจ</button>
           <button onclick="setQuickFilter('flagged')" id="qf-flagged" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">แจ้งผิด</button>
         </div>
+        <div id="main-cat-filter-bar" class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px]"></div>
       </div>
 
       <!-- Summary Strip -->
@@ -1096,7 +1097,8 @@
     let globalGeminiKey = '';
     let activeGlobalThemeId = 'blush';
     let currentScopeFilter = 'shared';
-    let currentQuickFilter = 'all';
+    let mainQuickFilters = new Set(); // ว่าง = ทั้งหมด (เลือกผสม โอน + บัตรเครดิต + เงินสด + ฉันจ่าย ได้)
+    let mainCategoryFilters = new Set(); // ว่าง = ทุกหมวดหมู่ (เลือกผสมหลายหมวดได้)
     let digestChannelFilters = new Set(); // empty = All
     let currentChannelStatScope = 'all';
     let analyticsChannelFilters = new Set(); // empty = All
@@ -2471,67 +2473,112 @@
     }
 
     function setQuickFilter(qf) {
-      currentQuickFilter = qf;
-      document.querySelectorAll('.qf-btn').forEach(btn => {
-        btn.className = 'qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0';
-      });
-      const activeBtn = document.getElementById(`qf-${qf}`);
-      if (activeBtn) activeBtn.className = 'qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0';
-      renderExpenseList();
-    }
-
-    function toggleGroupCollapse(groupKey) {
-      if (collapsedGroups.has(groupKey)) collapsedGroups.delete(groupKey);
-      else collapsedGroups.add(groupKey);
-      renderExpenseList();
-    }
-
-    function toggleVerifyExpense(id) {
-      if (verifiedIds.has(id)) verifiedIds.delete(id);
-      else verifiedIds.add(id);
-      localStorage.setItem('verified_expense_ids', JSON.stringify(Array.from(verifiedIds)));
-      renderExpenseList();
-    }
-
-    function renderExpenseList() {
-      const myEmail = currentMember.email.toLowerCase();
-      const isClosed = Boolean(currentTrip.is_closed);
-      const finalRate = getGlobalFinalRate();
-      const sym = getCurrSymbol();
-      const monthly = isMonthlyMode();
-      const participants = getActiveParticipants();
-      const isSinglePersonLedger = participants.length <= 1;
-      const searchQuery = (document.getElementById('search-expense-input')?.value || '').trim().toLowerCase();
-
-      const filtered = expensesList.filter(e => {
-        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
-        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
-        const isSolo = isSoloPersonalExpense(e);
-        const normCh = normalizeChannel(e.payment_channel);
-
-        if (currentScopeFilter === 'personal') {
-          if (!(isSolo && payerEm === myEmail)) return false;
-        } else {
-          if (isSolo && !isSinglePersonLedger) return false;
-          if (!isSuperAdmin() && payerEm !== myEmail && !splitEmails.includes(myEmail)) return false;
+          if (qf === 'all') {
+            mainQuickFilters.clear();
+          } else {
+            if (mainQuickFilters.has(qf)) mainQuickFilters.delete(qf);
+            else mainQuickFilters.add(qf);
+          }
+    
+          const isAll = mainQuickFilters.size === 0;
+          document.querySelectorAll('.qf-btn').forEach(btn => {
+            btn.className = 'qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0';
+          });
+          if (isAll) {
+            const allBtn = document.getElementById('qf-all');
+            if (allBtn) allBtn.className = 'qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0';
+          } else {
+            mainQuickFilters.forEach(k => {
+              const activeBtn = document.getElementById(`qf-${k}`);
+              if (activeBtn) activeBtn.className = 'qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0 font-medium';
+            });
+          }
+          renderExpenseList();
         }
-
-        if (currentQuickFilter === 'transfer' && normCh !== 'transfer') return false;
-        if (currentQuickFilter === 'credit_card' && normCh !== 'credit_card') return false;
-        if (currentQuickFilter === 'cash' && normCh !== 'cash') return false;
-        if (currentQuickFilter === 'mine' && payerEm !== myEmail) return false;
-        if (currentQuickFilter === 'unverified' && verifiedIds.has(e.id)) return false;
-        if (currentQuickFilter === 'flagged' && !e.delete_flag) return false;
-
-        if (searchQuery) {
-          const payerName = getMemberName(payerEm).toLowerCase();
-          const titleMatch = (e.title || '').toLowerCase().includes(searchQuery);
-          const payerMatch = payerName.includes(searchQuery);
-          const amtMatch = String(e.amount_cny).includes(searchQuery);
-          const chMatch = getChannelLabel(normCh).includes(searchQuery);
-          const catMatch = getCategoryFullLabel(e.category).toLowerCase().includes(searchQuery);
-          if (!titleMatch && !payerMatch && !amtMatch && !chMatch && !catMatch) return false;
+    
+        function setMainCategoryFilter(catKey) {
+          if (catKey === 'ALL') {
+            mainCategoryFilters.clear();
+          } else {
+            if (mainCategoryFilters.has(catKey)) mainCategoryFilters.delete(catKey);
+            else mainCategoryFilters.add(catKey);
+          }
+          renderExpenseList();
         }
+    
+        function renderMainCategoryFilterBar() {
+          const bar = document.getElementById('main-cat-filter-bar');
+          if (!bar) return;
+          const isAll = mainCategoryFilters.size === 0;
+          const allBtn = `<button type="button" onclick="setMainCategoryFilter('ALL')"
+            class="px-2.5 py-1 rounded-lg shrink-0 transition ${isAll ? 'luxury-gradient text-white font-medium' : 'bg-white theme-text-sub border theme-border-mid'}">
+            ทุกหมวด
+          </button>`;
+          const catBtns = customCategories.map(c => {
+            const active = mainCategoryFilters.has(c.key);
+            return `<button type="button" onclick="setMainCategoryFilter('${c.key.replace(/'/g, "\\'")}')"
+              class="px-2.5 py-1 rounded-lg shrink-0 transition ${active ? 'luxury-gradient text-white font-medium' : 'bg-white theme-text-sub border theme-border-mid'}">
+              ${active ? '✓ ' : ''}${c.short || c.label}
+            </button>`;
+          }).join('');
+          bar.innerHTML = allBtn + catBtns;
+        }
+    
+        function toggleGroupCollapse(groupKey) {
+          if (collapsedGroups.has(groupKey)) collapsedGroups.delete(groupKey);
+          else collapsedGroups.add(groupKey);
+          renderExpenseList();
+        }
+    
+        function toggleVerifyExpense(id) {
+          if (verifiedIds.has(id)) verifiedIds.delete(id);
+          else verifiedIds.add(id);
+          localStorage.setItem('verified_expense_ids', JSON.stringify(Array.from(verifiedIds)));
+          renderExpenseList();
+        }
+    
+        function renderExpenseList() {
+          renderMainCategoryFilterBar();
+          const myEmail = currentMember.email.toLowerCase();
+          const isClosed = Boolean(currentTrip.is_closed);
+          const finalRate = getGlobalFinalRate();
+          const sym = getCurrSymbol();
+          const monthly = isMonthlyMode();
+          const participants = getActiveParticipants();
+          const isSinglePersonLedger = participants.length <= 1;
+          const searchQuery = (document.getElementById('search-expense-input')?.value || '').trim().toLowerCase();
+    
+          const selectedChannels = ['transfer', 'credit_card', 'cash'].filter(ch => mainQuickFilters.has(ch));
+    
+          const filtered = expensesList.filter(e => {
+            const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
+            const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+            const isSolo = isSoloPersonalExpense(e);
+            const normCh = normalizeChannel(e.payment_channel);
+            const catKey = e.category || 'Food';
+    
+            if (currentScopeFilter === 'personal') {
+              if (!(isSolo && payerEm === myEmail)) return false;
+            } else {
+              if (isSolo && !isSinglePersonLedger) return false;
+              if (!isSuperAdmin() && payerEm !== myEmail && !splitEmails.includes(myEmail)) return false;
+            }
+    
+            if (selectedChannels.length > 0 && !selectedChannels.includes(normCh)) return false;
+            if (mainQuickFilters.has('mine') && payerEm !== myEmail) return false;
+            if (mainQuickFilters.has('unverified') && verifiedIds.has(e.id)) return false;
+            if (mainQuickFilters.has('flagged') && !e.delete_flag) return false;
+            if (mainCategoryFilters.size > 0 && !mainCategoryFilters.has(catKey)) return false;
+    
+            if (searchQuery) {
+              const payerName = getMemberName(payerEm).toLowerCase();
+              const titleMatch = (e.title || '').toLowerCase().includes(searchQuery);
+              const payerMatch = payerName.includes(searchQuery);
+              const amtMatch = String(e.amount_cny).includes(searchQuery);
+              const chMatch = getChannelLabel(normCh).includes(searchQuery);
+              const catMatch = getCategoryFullLabel(e.category).toLowerCase().includes(searchQuery);
+              if (!titleMatch && !payerMatch && !amtMatch && !chMatch && !catMatch) return false;
+            }
 
         return true;
       });
