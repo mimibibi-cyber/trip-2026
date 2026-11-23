@@ -7,8 +7,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Maison Voyage">
-  <link rel="apple-touch-icon" sizes="512x512" href="icon.png" />
+    <link id="apple-icon" rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
+  <script>
+    (function () {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = function () {
+        const c = document.createElement("canvas");
+        c.width = 180;
+        c.height = 180;
+        c.getContext("2d").drawImage(img, 0, 0, 180, 180);
+        document.getElementById("apple-icon").href = c.toDataURL("image/png");
+      };
+      img.src = "icon.png?v=6";
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
