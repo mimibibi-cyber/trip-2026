@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=10";
+      img.src = "icon.png?v=11";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -332,19 +332,19 @@
       <div id="expense-list" class="space-y-3"></div>
     </main>
 
-    <!-- TAB 2: DAILY / MONTHLY DIGEST WITH PAYMENT CHANNEL FILTER -->
+    <!-- TAB 2: DAILY / MONTHLY DIGEST WITH MULTI-SELECT PAYMENT METHOD FILTER -->
     <main id="tab-digest" class="hidden p-5 pb-28 space-y-4">
       <div class="flex justify-between items-start gap-2">
         <div>
           <h2 id="digest-heading" class="font-semibold text-base theme-text-main">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
-          <p id="digest-subheading" class="text-xs theme-text-muted">เลือกกรองตามวิธีชำระเงินเพื่อดูยอดสรุปและสลิปรายวัน</p>
+          <p id="digest-subheading" class="text-xs theme-text-muted">แตะเลือกวิธีชำระเงินได้หลายรายการพร้อมกัน</p>
         </div>
         <button onclick="exportPrintablePdfReport()" class="text-[11px] luxury-gradient text-white px-3 py-1.5 rounded-xl font-medium shrink-0">PDF พร้อมสลิปย่อ</button>
       </div>
 
-      <!-- Payment Method Filter Bar in Daily Summary -->
+      <!-- Multi-Select Payment Method Filter Bar in Daily Summary -->
       <div class="soft-card p-2.5 rounded-2xl space-y-1.5">
-        <p class="text-[10px] font-semibold theme-text-muted px-1">กรองตามวิธีชำระเงิน</p>
+        <p class="text-[10px] font-semibold theme-text-muted px-1">วิธีชำระเงิน (เลือกผสมได้หลายช่องทาง)</p>
         <div class="grid grid-cols-4 gap-1 bg-[#FFF5F8] p-1 rounded-xl border theme-border-mid text-[11px]">
           <button type="button" onclick="setDigestChannelFilter('all')" id="dg-ch-all" class="dg-ch-btn py-1.5 rounded-lg luxury-gradient text-white font-semibold">ทั้งหมด</button>
           <button type="button" onclick="setDigestChannelFilter('transfer')" id="dg-ch-transfer" class="dg-ch-btn py-1.5 rounded-lg theme-text-sub">1. โอน</button>
@@ -364,18 +364,16 @@
       </div>
     </main>
 
-    <!-- TAB 3: ANALYTICS, PAYMENT METHOD FILTER, INTERACTIVE TIMEFRAME VIEWS & DAILY AVERAGE -->
-    <main id="tab-analytics" class="hidden p-5 pb-28 space-y-5">
+    <!-- TAB 3: ANALYTICS, MULTI-SELECT FILTERS, INTERACTIVE TIMEFRAME & COMPACT PASTEL CHANNEL CARD -->
+    <main id="tab-analytics" class="hidden p-5 pb-28 space-y-4">
       <div>
         <h2 class="font-semibold text-base theme-text-main">สรุปภาพรวม & เทรนด์เปรียบเทียบ</h2>
-        <p id="analytics-subtitle" class="text-xs theme-text-muted">ฟิลเตอร์วิธีชำระเงินและหมวดหมู่เพื่อดูยอดรายวันและค่าเฉลี่ย</p>
+        <p id="analytics-subtitle" class="text-xs theme-text-muted">แตะเลือกวิธีชำระเงินและหมวดหมู่ผสมกันได้หลายรายการ</p>
       </div>
 
-      <!-- Payment Method Filter Strip for Daily Spend & Charts -->
-      <div class="soft-card p-3 rounded-2xl space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-[11px] font-semibold theme-text-main">กรองตามวิธีชำระเงิน (มีผลกับกราฟรายวัน & ค่าเฉลี่ย)</span>
-        </div>
+      <!-- Multi-Select Payment Method Filter Strip -->
+      <div class="soft-card p-2.5 rounded-2xl space-y-1.5">
+        <span class="text-[10px] font-semibold theme-text-muted px-1 block">วิธีชำระเงิน (เลือกผสมได้หลายช่องทาง)</span>
         <div class="grid grid-cols-4 gap-1 bg-[#FFF5F8] p-1 rounded-xl border theme-border-mid text-[11px]">
           <button type="button" onclick="setAnalyticsChannelFilter('ALL')" id="an-ch-ALL" class="an-ch-btn py-1.5 rounded-lg luxury-gradient text-white font-semibold">ทั้งหมด</button>
           <button type="button" onclick="setAnalyticsChannelFilter('transfer')" id="an-ch-transfer" class="an-ch-btn py-1.5 rounded-lg theme-text-sub">1. โอน</button>
@@ -386,14 +384,14 @@
 
       <!-- Key Metrics Row: Total Spend & Daily Average -->
       <div class="grid grid-cols-2 gap-3">
-        <div class="soft-card p-4 rounded-2xl">
+        <div class="soft-card p-3.5 rounded-2xl">
           <p id="stat-grand-label" class="text-[11px] theme-text-muted">ยอดใช้จ่ายรวม</p>
-          <p id="stat-grand-thb" class="text-lg font-semibold theme-text-primary mt-1">0</p>
+          <p id="stat-grand-thb" class="text-lg font-semibold theme-text-primary mt-0.5">0</p>
           <p id="stat-grand-cny" class="text-[11px] theme-text-muted">0</p>
         </div>
-        <div class="soft-card p-4 rounded-2xl">
+        <div class="soft-card p-3.5 rounded-2xl">
           <p id="stat-avg-label" class="text-[11px] theme-text-muted">เฉลี่ยต่อวันจริง</p>
-          <p id="stat-avg-day" class="text-lg font-semibold theme-text-main mt-1">0</p>
+          <p id="stat-avg-day" class="text-lg font-semibold theme-text-main mt-0.5">0</p>
           <p id="stat-avg-person" class="text-[11px] theme-text-muted">เฉลี่ยคนละ 0</p>
         </div>
       </div>
@@ -433,52 +431,69 @@
           <button type="button" onclick="setAnalyticsTimeframe('dow')" id="tf-dow" class="tf-btn py-1.5 rounded-lg theme-text-sub">จ.-อา.</button>
         </div>
 
-        <!-- Category Filter Pills -->
+        <!-- Multi-Select Category Filter Pills -->
         <div id="analytics-cat-filter-bar" class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px] pb-0.5"></div>
 
-        <div class="h-56">
+        <div class="h-52">
           <canvas id="dailyChart"></canvas>
         </div>
       </div>
 
-      <!-- Payment Channel Summary Card -->
-      <div class="soft-card p-4 rounded-3xl space-y-3">
+      <!-- COMPACT PASTEL PAYMENT CHANNEL SUMMARY CARD (INLINE % BESIDE AMOUNT) -->
+      <div class="soft-card px-3.5 py-3 rounded-2xl space-y-2">
         <div class="flex justify-between items-center gap-2">
-          <h3 class="text-xs font-semibold theme-text-main">สัดส่วนแยกตามช่องทางจ่ายเงิน (แตะการ์ดเพื่อกรอง)</h3>
-          <div class="flex bg-[#FFF5F8] p-0.5 rounded-xl border theme-border-mid text-[10px]">
-            <button type="button" onclick="setChannelStatScope('all')" id="ch-scope-all" class="px-2.5 py-1 rounded-lg luxury-gradient text-white font-medium">ทั้งสมุด</button>
-            <button type="button" onclick="setChannelStatScope('mine')" id="ch-scope-mine" class="px-2.5 py-1 rounded-lg theme-text-sub">เฉพาะฉันจ่าย</button>
+          <h3 class="text-[11px] font-semibold theme-text-main">สัดส่วนแยกตามช่องทางการจ่ายเงิน</h3>
+          <div class="flex bg-[#FFF5F8] p-0.5 rounded-lg border theme-border-mid text-[9px]">
+            <button type="button" onclick="setChannelStatScope('all')" id="ch-scope-all" class="px-2 py-0.5 rounded-md luxury-gradient text-white font-medium">ทั้งสมุด</button>
+            <button type="button" onclick="setChannelStatScope('mine')" id="ch-scope-mine" class="px-2 py-0.5 rounded-md theme-text-sub">เฉพาะฉัน</button>
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div onclick="setAnalyticsChannelFilter('transfer')" class="cursor-pointer bg-sky-50/70 p-2.5 rounded-2xl border border-sky-200/80 hover:opacity-90">
-            <p class="text-[10px] font-medium text-sky-700">1. โอน</p>
-            <p id="ch-sum-transfer" class="text-xs font-bold theme-text-main mt-1">0</p>
-            <p id="ch-pct-transfer" class="text-[10px] text-sky-700/80 mt-0.5">0%</p>
+        <div class="grid grid-cols-3 gap-1.5">
+          <!-- 1. โอน (Pastel Rose Blush) -->
+          <div onclick="setAnalyticsChannelFilter('transfer')" id="ch-card-transfer" class="cursor-pointer bg-[#FFF0F4] px-2.5 py-1.5 rounded-xl border border-[#F2C6D4] transition">
+            <div class="flex items-center gap-1 text-[10px] font-medium text-[#A84A67]">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#E385A1] shrink-0"></span>
+              <span class="truncate">โอน</span>
+            </div>
+            <p class="text-[11px] font-bold text-[#6B424E] mt-0.5 truncate">
+              <span id="ch-sum-transfer">฿0</span> <span id="ch-pct-transfer" class="text-[10px] font-normal text-[#A84A67]">(0%)</span>
+            </p>
           </div>
-          <div onclick="setAnalyticsChannelFilter('credit_card')" class="cursor-pointer bg-purple-50/70 p-2.5 rounded-2xl border border-purple-200/80 hover:opacity-90">
-            <p class="text-[10px] font-medium text-purple-700">2. บัตรเครดิต</p>
-            <p id="ch-sum-credit" class="text-xs font-bold theme-text-main mt-1">0</p>
-            <p id="ch-pct-credit" class="text-[10px] text-purple-700/80 mt-0.5">0%</p>
+
+          <!-- 2. บัตรเครดิต (Pastel Lavender) -->
+          <div onclick="setAnalyticsChannelFilter('credit_card')" id="ch-card-credit_card" class="cursor-pointer bg-[#F5F0FA] px-2.5 py-1.5 rounded-xl border border-[#DDD0EE] transition">
+            <div class="flex items-center gap-1 text-[10px] font-medium text-[#6B5494]">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#B19CD9] shrink-0"></span>
+              <span class="truncate">บัตรเครดิต</span>
+            </div>
+            <p class="text-[11px] font-bold text-[#4D3B6E] mt-0.5 truncate">
+              <span id="ch-sum-credit">฿0</span> <span id="ch-pct-credit" class="text-[10px] font-normal text-[#6B5494]">(0%)</span>
+            </p>
           </div>
-          <div onclick="setAnalyticsChannelFilter('cash')" class="cursor-pointer bg-amber-50/70 p-2.5 rounded-2xl border border-amber-200/80 hover:opacity-90">
-            <p class="text-[10px] font-medium text-amber-700">3. เงินสด</p>
-            <p id="ch-sum-cash" class="text-xs font-bold theme-text-main mt-1">0</p>
-            <p id="ch-pct-cash" class="text-[10px] text-amber-700/80 mt-0.5">0%</p>
+
+          <!-- 3. เงินสด (Pastel Warm Peach) -->
+          <div onclick="setAnalyticsChannelFilter('cash')" id="ch-card-cash" class="cursor-pointer bg-[#FDF4EE] px-2.5 py-1.5 rounded-xl border border-[#F2D5C2] transition">
+            <div class="flex items-center gap-1 text-[10px] font-medium text-[#9E5B3B]">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EAA882] shrink-0"></span>
+              <span class="truncate">เงินสด</span>
+            </div>
+            <p class="text-[11px] font-bold text-[#6B4634] mt-0.5 truncate">
+              <span id="ch-sum-cash">฿0</span> <span id="ch-pct-cash" class="text-[10px] font-normal text-[#9E5B3B]">(0%)</span>
+            </p>
           </div>
         </div>
 
-        <div class="w-full h-2.5 rounded-full bg-[#FCEBF0] overflow-hidden flex">
-          <div id="ch-bar-transfer" class="bg-sky-400 h-full transition-all" style="width:0%"></div>
-          <div id="ch-bar-credit" class="bg-purple-400 h-full transition-all" style="width:0%"></div>
-          <div id="ch-bar-cash" class="bg-amber-400 h-full transition-all" style="width:0%"></div>
+        <div class="w-full h-1.5 rounded-full bg-[#FCEBF0] overflow-hidden flex">
+          <div id="ch-bar-transfer" class="bg-[#E385A1] h-full transition-all" style="width:0%"></div>
+          <div id="ch-bar-credit" class="bg-[#B19CD9] h-full transition-all" style="width:0%"></div>
+          <div id="ch-bar-cash" class="bg-[#EAA882] h-full transition-all" style="width:0%"></div>
         </div>
       </div>
 
       <div class="soft-card p-4 rounded-3xl space-y-3">
         <h3 class="text-xs font-semibold theme-text-main">สัดส่วนแยกตามหมวดหมู่</h3>
-        <div class="h-52 flex items-center justify-center">
+        <div class="h-48 flex items-center justify-center">
           <canvas id="categoryChart"></canvas>
         </div>
         <div id="category-breakdown-list" class="space-y-2 pt-2 border-t theme-border text-xs"></div>
@@ -502,7 +517,7 @@
           <h2 class="font-semibold text-sm theme-text-main">จัดการโฟกัสสมุดบัญชี · ธีมสี · หมวดหมู่ · รายการประจำ</h2>
         </div>
 
-        <!-- Admin Personal Ledger Visibility & Focus Manager (Only affects Admin's own view) -->
+        <!-- Admin Personal Ledger Visibility & Focus Manager -->
         <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-2.5">
           <div>
             <label class="block text-[11px] font-semibold theme-text-primary">ซ่อนสมุดจากหน้าจอของแอดมินคนเดียว (Focus Mode)</label>
@@ -1082,10 +1097,10 @@
     let activeGlobalThemeId = 'blush';
     let currentScopeFilter = 'shared';
     let currentQuickFilter = 'all';
-    let digestChannelFilter = 'all';
+    let digestChannelFilters = new Set(); // empty = All
     let currentChannelStatScope = 'all';
-    let analyticsChannelFilter = 'ALL';
-    let analyticsCategoryFilter = 'ALL';
+    let analyticsChannelFilters = new Set(); // empty = All
+    let analyticsCategoryFilters = new Set(); // empty = All
     let analyticsTimeframe = 'daily';
     let collapsedGroups = new Set();
     let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
@@ -1369,7 +1384,7 @@
       if (error) return alert('ลบหมวดหมู่ไม่สำเร็จ: ' + error.message);
 
       customCategories = nextList;
-      if (analyticsCategoryFilter === target.key) analyticsCategoryFilter = 'ALL';
+      analyticsCategoryFilters.delete(target.key);
       syncCategorySelects();
       renderAdminCategories();
       renderDashboard();
@@ -1710,12 +1725,12 @@
     function getChannelBadgeHtml(ch) {
       const norm = normalizeChannel(ch);
       if (norm === 'credit_card') {
-        return '<span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded-md border border-purple-200">บัตรเครดิต</span>';
+        return '<span class="bg-[#F5F0FA] text-[#6B5494] px-1.5 py-0.5 rounded-md border border-[#DDD0EE]">บัตรเครดิต</span>';
       }
       if (norm === 'cash') {
-        return '<span class="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-md border border-amber-200">เงินสด</span>';
+        return '<span class="bg-[#FDF4EE] text-[#9E5B3B] px-1.5 py-0.5 rounded-md border border-[#F2D5C2]">เงินสด</span>';
       }
-      return '<span class="bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded-md border border-sky-200">โอน</span>';
+      return '<span class="bg-[#FFF0F4] text-[#A84A67] px-1.5 py-0.5 rounded-md border border-[#F2C6D4]">โอน</span>';
     }
 
     function isMonthlyMode() {
@@ -1978,9 +1993,9 @@
       currentTrip = userTrips.find(t => t.id === tripId);
       localStorage.setItem('selected_trip_id', tripId);
       collapsedGroups.clear();
-      analyticsCategoryFilter = 'ALL';
-      analyticsChannelFilter = 'ALL';
-      digestChannelFilter = 'all';
+      analyticsCategoryFilters.clear();
+      analyticsChannelFilters.clear();
+      digestChannelFilters.clear();
       renderTripSwitcherOptions();
       if (isSuperAdmin()) renderAdminHiddenLedgersManager();
       await loadTripContext();
@@ -2782,14 +2797,24 @@
       }
     }
 
-    // ================= DAILY / MONTHLY DIGEST WITH PAYMENT CHANNEL FILTER =================
+    // ================= DAILY / MONTHLY DIGEST WITH MULTI-SELECT PAYMENT FILTER =================
     function setDigestChannelFilter(ch) {
-      digestChannelFilter = ch;
-      document.querySelectorAll('.dg-ch-btn').forEach(btn => {
-        btn.className = 'dg-ch-btn py-1.5 rounded-lg theme-text-sub';
+      if (ch === 'all') {
+        digestChannelFilters.clear();
+      } else {
+        if (digestChannelFilters.has(ch)) digestChannelFilters.delete(ch);
+        else digestChannelFilters.add(ch);
+      }
+
+      const isAll = digestChannelFilters.size === 0;
+      document.getElementById('dg-ch-all').className = `dg-ch-btn py-1.5 rounded-lg ${isAll ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
+      ['transfer', 'credit_card', 'cash'].forEach(k => {
+        const el = document.getElementById(`dg-ch-${k}`);
+        if (el) {
+          const active = digestChannelFilters.has(k);
+          el.className = `dg-ch-btn py-1.5 rounded-lg ${active ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
+        }
       });
-      const activeBtn = document.getElementById(`dg-ch-${ch}`);
-      if (activeBtn) activeBtn.className = 'dg-ch-btn py-1.5 rounded-lg luxury-gradient text-white font-semibold';
       renderDailyDigest();
     }
 
@@ -2801,7 +2826,7 @@
       const isSinglePersonLedger = getActiveParticipants().length <= 1;
 
       const relevant = expensesList.filter(e => {
-        if (digestChannelFilter !== 'all' && normalizeChannel(e.payment_channel) !== digestChannelFilter) return false;
+        if (digestChannelFilters.size > 0 && !digestChannelFilters.has(normalizeChannel(e.payment_channel))) return false;
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
         const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
         const isSolo = isSoloPersonalExpense(e);
@@ -2820,7 +2845,9 @@
       });
 
       const keys = Object.keys(byPeriod).sort((a, b) => monthly ? b.localeCompare(a) : Number(a) - Number(b));
-      const chSuffix = digestChannelFilter === 'all' ? '' : ` · เฉพาะ${getChannelLabel(digestChannelFilter)}`;
+      const chSuffix = digestChannelFilters.size === 0
+        ? ''
+        : ` · ${Array.from(digestChannelFilters).map(getChannelLabel).join(' + ')}`;
 
       const html = keys.map(pKey => {
         const list = byPeriod[pKey];
@@ -2900,7 +2927,7 @@
       const isSinglePersonLedger = getActiveParticipants().length <= 1;
 
       const items = expensesList.filter(e => {
-        if (digestChannelFilter !== 'all' && normalizeChannel(e.payment_channel) !== digestChannelFilter) return false;
+        if (digestChannelFilters.size > 0 && !digestChannelFilters.has(normalizeChannel(e.payment_channel))) return false;
         const itemKey = monthly
           ? (e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM())
           : String(e.trip_day || 1);
@@ -2919,7 +2946,9 @@
       });
 
       const titleLabel = monthly ? formatMonthLabel(pKey) : `Day ${pKey}`;
-      const chBadge = digestChannelFilter === 'all' ? '' : ` · เฉพาะ${getChannelLabel(digestChannelFilter)}`;
+      const chBadge = digestChannelFilters.size === 0
+        ? ''
+        : ` · ${Array.from(digestChannelFilters).map(getChannelLabel).join(' + ')}`;
       document.getElementById('day-vault-title').textContent = `สรุปรายการ & สลิป ${titleLabel}${chBadge}`;
       document.getElementById('day-vault-subtitle').textContent = `เรียงตามลำดับเวลา (${items.length} รายการ)`;
 
@@ -3272,14 +3301,25 @@
       }
     }
 
-    // ================= ANALYTICS, CHANNEL FILTER, INTERACTIVE TIMEFRAME VIEWS & DAILY AVERAGE =================
+    // ================= ANALYTICS, MULTI-SELECT FILTERS, INTERACTIVE TIMEFRAME & COMPACT PASTEL CARD =================
     function setAnalyticsChannelFilter(ch) {
-      analyticsChannelFilter = ch;
-      document.querySelectorAll('.an-ch-btn').forEach(btn => {
-        btn.className = 'an-ch-btn py-1.5 rounded-lg theme-text-sub';
+      if (ch === 'ALL') {
+        analyticsChannelFilters.clear();
+      } else {
+        if (analyticsChannelFilters.has(ch)) analyticsChannelFilters.delete(ch);
+        else analyticsChannelFilters.add(ch);
+      }
+
+      const isAll = analyticsChannelFilters.size === 0;
+      document.getElementById('an-ch-ALL').className = `an-ch-btn py-1.5 rounded-lg ${isAll ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
+      ['transfer', 'credit_card', 'cash'].forEach(k => {
+        const el = document.getElementById(`an-ch-${k}`);
+        const cardEl = document.getElementById(`ch-card-${k}`);
+        const active = analyticsChannelFilters.has(k);
+        if (el) el.className = `an-ch-btn py-1.5 rounded-lg ${active ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
+        if (cardEl) cardEl.classList.toggle('ring-2', active);
+        if (cardEl) cardEl.classList.toggle('ring-[#6B424E]', active);
       });
-      const activeBtn = document.getElementById(`an-ch-${ch}`);
-      if (activeBtn) activeBtn.className = 'an-ch-btn py-1.5 rounded-lg luxury-gradient text-white font-semibold';
       renderAnalytics();
     }
 
@@ -3294,14 +3334,19 @@
     }
 
     function setAnalyticsCategoryFilter(catKey) {
-      analyticsCategoryFilter = catKey;
+      if (catKey === 'ALL') {
+        analyticsCategoryFilters.clear();
+      } else {
+        if (analyticsCategoryFilters.has(catKey)) analyticsCategoryFilters.delete(catKey);
+        else analyticsCategoryFilters.add(catKey);
+      }
       renderAnalytics();
     }
 
     function setChannelStatScope(scope) {
       currentChannelStatScope = scope;
-      const activeBtn = 'px-2.5 py-1 rounded-lg luxury-gradient text-white font-medium';
-      const inactiveBtn = 'px-2.5 py-1 rounded-lg theme-text-sub';
+      const activeBtn = 'px-2 py-0.5 rounded-md luxury-gradient text-white font-medium';
+      const inactiveBtn = 'px-2 py-0.5 rounded-md theme-text-sub';
       document.getElementById('ch-scope-all').className = scope === 'all' ? activeBtn : inactiveBtn;
       document.getElementById('ch-scope-mine').className = scope === 'mine' ? activeBtn : inactiveBtn;
       renderAnalytics();
@@ -3317,14 +3362,19 @@
 
       const filterBar = document.getElementById('analytics-cat-filter-bar');
       if (filterBar) {
-        const pills = [{ key: 'ALL', label: 'ทุกหมวดหมู่' }, ...customCategories.map(c => ({ key: c.key, label: c.short || c.label }))];
-        filterBar.innerHTML = pills.map(p => {
-          const isAct = analyticsCategoryFilter === p.key;
-          return `<button type="button" onclick="setAnalyticsCategoryFilter('${p.key.replace(/'/g, "\\'")}')"
+        const isAllCat = analyticsCategoryFilters.size === 0;
+        const allBtnHtml = `<button type="button" onclick="setAnalyticsCategoryFilter('ALL')"
+          class="px-2.5 py-1 rounded-lg shrink-0 transition ${isAllCat ? 'luxury-gradient text-white font-medium shadow-2xs' : 'bg-white theme-text-sub border theme-border-mid'}">
+          ทุกหมวดหมู่
+        </button>`;
+        const catBtnsHtml = customCategories.map(c => {
+          const isAct = analyticsCategoryFilters.has(c.key);
+          return `<button type="button" onclick="setAnalyticsCategoryFilter('${c.key.replace(/'/g, "\\'")}')"
             class="px-2.5 py-1 rounded-lg shrink-0 transition ${isAct ? 'luxury-gradient text-white font-medium shadow-2xs' : 'bg-white theme-text-sub border theme-border-mid'}">
-            ${p.label}
+            ${isAct ? '✓ ' : ''}${c.short || c.label}
           </button>`;
         }).join('');
+        filterBar.innerHTML = allBtnHtml + catBtnsHtml;
       }
 
       let grandThb = 0, grandOrig = 0;
@@ -3340,12 +3390,12 @@
           const mKey = arch.month_key;
           if (!mKey) return;
           let sumForArch = 0;
-          if (analyticsCategoryFilter === 'ALL' && analyticsChannelFilter === 'ALL') {
+          if (analyticsCategoryFilters.size === 0 && analyticsChannelFilters.size === 0) {
             sumForArch = Number(arch.total_amount || 0);
           } else {
             (arch.summary_rows || []).forEach(r => {
-              const catOk = analyticsCategoryFilter === 'ALL' || r.category === analyticsCategoryFilter || getCategoryShortName(r.category) === getCategoryShortName(analyticsCategoryFilter);
-              const chOk = analyticsChannelFilter === 'ALL' || (r.channel || '').includes(getChannelLabel(analyticsChannelFilter));
+              const catOk = analyticsCategoryFilters.size === 0 || analyticsCategoryFilters.has(r.category) || Array.from(analyticsCategoryFilters).some(k => getCategoryShortName(k) === getCategoryShortName(r.category));
+              const chOk = analyticsChannelFilters.size === 0 || Array.from(analyticsChannelFilters).some(ch => (r.channel || '').includes(getChannelLabel(ch)));
               if (catOk && chOk) {
                 sumForArch += Number(r.amount || 0);
               }
@@ -3369,14 +3419,15 @@
           if (isSinglePersonLedger || !isSoloPersonalExpense(e)) chTotals[normCh] += valInDisplayCurr;
         }
 
-        const matchesChannelFilter = analyticsChannelFilter === 'ALL' || normCh === analyticsChannelFilter;
+        const matchesChannelFilter = analyticsChannelFilters.size === 0 || analyticsChannelFilters.has(normCh);
+        const matchesCategoryFilter = analyticsCategoryFilters.size === 0 || analyticsCategoryFilters.has(catKey);
 
         if ((isSinglePersonLedger || !isSoloPersonalExpense(e)) && matchesChannelFilter) {
           grandOrig += signedAmt;
           grandThb += thb;
           catTotals[catKey] = (catTotals[catKey] || 0) + valInDisplayCurr;
 
-          if (analyticsCategoryFilter === 'ALL' || catKey === analyticsCategoryFilter) {
+          if (matchesCategoryFilter) {
             const dKey = monthly ? (e.expense_date || getTodayYYYYMMDD()) : String(e.trip_day || 1).padStart(2, '0');
             dailyTotalsMap[dKey] = (dailyTotalsMap[dKey] || 0) + valInDisplayCurr;
 
@@ -3401,9 +3452,9 @@
       document.getElementById('ch-sum-transfer').textContent = `฿${fmtNum(chTotals.transfer)}`;
       document.getElementById('ch-sum-credit').textContent = `฿${fmtNum(chTotals.credit_card)}`;
       document.getElementById('ch-sum-cash').textContent = `฿${fmtNum(chTotals.cash)}`;
-      document.getElementById('ch-pct-transfer').textContent = `${pctTr}%`;
-      document.getElementById('ch-pct-credit').textContent = `${pctCr}%`;
-      document.getElementById('ch-pct-cash').textContent = `${pctCa}%`;
+      document.getElementById('ch-pct-transfer').textContent = `(${pctTr}%)`;
+      document.getElementById('ch-pct-credit').textContent = `(${pctCr}%)`;
+      document.getElementById('ch-pct-cash').textContent = `(${pctCa}%)`;
       document.getElementById('ch-bar-transfer').style.width = `${pctTr}%`;
       document.getElementById('ch-bar-credit').style.width = `${pctCr}%`;
       document.getElementById('ch-bar-cash').style.width = `${pctCa}%`;
@@ -3444,7 +3495,9 @@
         }
       });
 
-      const chTagText = analyticsChannelFilter === 'ALL' ? '' : ` (${getChannelLabel(analyticsChannelFilter)})`;
+      const chTagText = analyticsChannelFilters.size === 0
+        ? ''
+        : ` (${Array.from(analyticsChannelFilters).map(getChannelLabel).join(' + ')})`;
       document.getElementById('stat-grand-label').textContent = `ยอดใช้จ่ายรวม${chTagText}`;
       document.getElementById('stat-grand-thb').textContent = `฿${fmtNum(displayGrand)}`;
       document.getElementById('stat-grand-cny').textContent = isThbBase() ? `เฉพาะมุมมองที่เลือก` : `${sym}${fmtNum(grandOrig)}`;
@@ -3455,8 +3508,12 @@
       document.getElementById('stat-peak-day-val').textContent = `฿${fmtNum(peakVal)}`;
       document.getElementById('stat-nospend-days').textContent = `${zeroSpendCount} วัน`;
 
-      const catFocusLabel = analyticsCategoryFilter === 'ALL' ? 'ทุกหมวด' : getCategoryShortName(analyticsCategoryFilter);
-      const chFocusLabel = analyticsChannelFilter === 'ALL' ? 'ทุกช่องทาง' : getChannelLabel(analyticsChannelFilter);
+      const catFocusLabel = analyticsCategoryFilters.size === 0
+        ? 'ทุกหมวด'
+        : Array.from(analyticsCategoryFilters).map(getCategoryShortName).join(' + ');
+      const chFocusLabel = analyticsChannelFilters.size === 0
+        ? 'ทุกช่องทาง'
+        : Array.from(analyticsChannelFilters).map(getChannelLabel).join(' + ');
       const combinedFocus = `${chFocusLabel} · ${catFocusLabel}`;
 
       let chartLabels = [];
@@ -3860,7 +3917,6 @@ Respond ONLY with valid JSON:
       statusEl.classList.remove('hidden');
       showDuplicateAlert(null);
 
-      // Random Jitter Delay (250-750ms) so 4 members tapping simultaneously don't collide on exact millisecond
       if (!isDirectCamera) {
         await sleepMs(250 + Math.floor(Math.random() * 500));
       }
@@ -3903,10 +3959,8 @@ Respond ONLY with valid JSON:
         });
       }
 
-      // If appending onto an existing queue, combine them seamlessly
       if (batchQueue.length > 0 || flattenedResults.length > 1) {
         if (batchQueue.length === 0 && activeSingleFile) {
-          // Promote existing single item into batchQueue
           const prevTitle = document.getElementById('exp-title').value.trim();
           const prevAmt = parseFloat(document.getElementById('exp-cny').value) || '';
           if (prevTitle || prevAmt) {
