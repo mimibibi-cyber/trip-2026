@@ -305,12 +305,25 @@
         </div>
       </div>
 
-      <!-- Search & Quick Filters -->
+      <!-- Multi-Keyword Comma Search & Quick Filters -->
       <div class="space-y-2">
         <div class="relative">
-          <input id="search-expense-input" type="text" oninput="renderExpenseList()" placeholder="ค้นหาชื่อร้าน, หมวดหมู่, หรือชื่อคนจ่าย..." class="w-full bg-white/95 border theme-border-mid rounded-xl pl-9 pr-3 py-2 text-xs" />
+          <input id="search-expense-input" type="text" oninput="handleSearchInputChange()" placeholder="ค้นหาหลายคำคั่นด้วย , เช่น โอน, อาหาร, Grab" class="w-full bg-white/95 border theme-border-mid rounded-xl pl-9 pr-8 py-2 text-xs" />
           <svg class="w-4 h-4 theme-text-muted absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+          <button id="btn-clear-search" type="button" onclick="clearSearchInput()" class="hidden absolute right-2.5 top-2 text-xs theme-text-muted hover:theme-text-main px-1">✕</button>
         </div>
+
+        <!-- Quick Comma Keyword Suggestion Chips -->
+        <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[10px]">
+          <span class="theme-text-muted shrink-0">คำค้นด่วน (+คั่น ,):</span>
+          <button type="button" onclick="toggleSearchKeywordChip('โอน')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ โอน</button>
+          <button type="button" onclick="toggleSearchKeywordChip('บัตรเครดิต')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ บัตรเครดิต</button>
+          <button type="button" onclick="toggleSearchKeywordChip('เงินสด')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ เงินสด</button>
+          <button type="button" onclick="toggleSearchKeywordChip('อาหาร')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ อาหาร</button>
+          <button type="button" onclick="toggleSearchKeywordChip('เดินทาง')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ เดินทาง</button>
+          <button type="button" onclick="toggleSearchKeywordChip('ช้อปปิ้ง')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ ช้อปปิ้ง</button>
+        </div>
+
         <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px]">
           <button onclick="setQuickFilter('all')" id="qf-all" class="qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0">ทั้งหมด</button>
           <button onclick="setQuickFilter('transfer')" id="qf-transfer" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">โอน</button>
@@ -502,6 +515,21 @@
 
     <!-- TAB 4: MEMBERS, ADMIN-CONTROLLED SCREEN THEMES, LEDGER VISIBILITY & SETTINGS -->
     <main id="tab-members" class="hidden p-5 pb-28 space-y-5">
+      <!-- 1. PWA Version Control & Safari Cache Cleaner (All Users on iPhone Home Screen) -->
+      <div class="soft-card p-5 rounded-3xl space-y-3">
+        <div class="flex justify-between items-center gap-2">
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
+            <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
+          </div>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v2.6</span>
+        </div>
+        <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
+        <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
+          อัปเดตเวอร์ชันล่าสุด (ล้างแคช Safari)
+        </button>
+      </div>
+
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div>
           <h2 class="font-semibold text-sm theme-text-main">สีป้ายชื่อคนจ่ายของคุณ (ห้ามซ้ำกันในสมุด)</h2>
@@ -742,7 +770,7 @@
     </nav>
   </div>
 
-  <!-- ================= MODAL: ADD EXPENSE (SMART 15-SLIP BATCH CAP) ================= -->
+  <!-- ================= MODAL: ADD EXPENSE (SMART 15-SLIP BATCH CAP & HARD DUPLICATE BLOCKER) ================= -->
   <div id="expense-modal" class="hidden fixed inset-0 bg-[#3A2229]/45 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
@@ -764,17 +792,36 @@
         <p id="ocr-status" class="hidden text-[11px] theme-text-primary font-medium"></p>
       </div>
 
-      <div id="duplicate-alert-box" class="hidden bg-amber-50 border border-amber-400 rounded-2xl p-3.5 space-y-1">
-        <p class="text-xs font-semibold text-amber-800">⚠️ แจ้งเตือนตรวจสอบ (ยังสามารถกดบันทึกได้ตามปกติ)</p>
+      <!-- Minimal Hard Duplicate Blocker Alert (Single Item) -->
+      <div id="duplicate-alert-box" class="hidden bg-[#FFF0F3] border border-[#E599AD] rounded-2xl p-3.5 space-y-2">
+        <div class="flex justify-between items-center gap-2">
+          <p class="text-xs font-semibold text-[#B83B5E]">ระบบป้องกันการบันทึกซ้ำ</p>
+          <span class="text-[10px] bg-white text-[#B83B5E] border border-[#E599AD] px-2 py-0.5 rounded-md font-medium">ล็อกการบันทึก</span>
+        </div>
         <p id="duplicate-alert-detail" class="text-[11px] text-[#6B424E] leading-relaxed"></p>
+        <p class="text-[10px] text-[#8C5867]">หากเป็นรายการคืนเงิน กรุณาติ๊กช่อง "คืนเงิน (Refund)" ด้านล่างเพื่อปลดล็อก</p>
+        <button id="btn-admin-override-dup" type="button" onclick="adminOverrideSingleDuplicate()" class="hidden w-full bg-white hover:bg-[#FFF5F8] text-[#B83B5E] border border-[#E599AD] py-1.5 rounded-xl text-[11px] font-semibold transition">
+          Admin: ปลดล็อกบันทึกฉุกเฉิน (กรณีสแกนผิดพลาด)
+        </button>
       </div>
 
-      <!-- Batch Queue Preview -->
+      <!-- Batch Queue Preview with Batch Re-Scan Failed & Purge All Duplicates -->
       <div id="batch-queue-section" class="hidden space-y-2.5 bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border">
         <div class="flex justify-between items-center">
           <p class="text-xs font-semibold theme-text-main">รายการพร้อมบันทึก (<span id="batch-count">0</span>)</p>
           <button onclick="clearBatchQueue()" class="text-[11px] theme-text-muted underline">ล้างทั้งหมด</button>
         </div>
+
+        <!-- Batch Action Bar: Re-Scan Failed & Remove Duplicates -->
+        <div id="batch-action-toolbar" class="hidden space-y-1.5">
+          <button id="btn-batch-rescan-failed" type="button" onclick="batchRescanFailedItems()" class="hidden w-full bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 py-2 px-3 rounded-xl text-xs font-semibold transition">
+            สแกนซ้ำเฉพาะใบที่ยังไม่อ่าน (<span id="batch-failed-count">0</span> ใบ)
+          </button>
+          <button id="btn-batch-remove-duplicates" type="button" onclick="removeAllBatchDuplicates()" class="hidden w-full bg-[#FFF0F3] hover:bg-[#FFE3EA] text-[#B83B5E] border border-[#E599AD] py-2 px-3 rounded-xl text-xs font-semibold transition">
+            ลบรายการซ้ำทั้งหมดออก (<span id="batch-dup-count">0</span> รายการ)
+          </button>
+        </div>
+
         <div id="batch-items-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
       </div>
 
@@ -787,7 +834,7 @@
           </div>
           <div id="single-month-field" class="hidden">
             <label class="text-[11px] theme-text-sub">วันที่ (<span id="current-month-only-label">เดือนนี้</span>)</label>
-            <input id="exp-date-input" type="date" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
+            <input id="exp-date-input" type="date" onchange="evaluateSingleDuplicateLock()" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
           </div>
           <div>
             <label class="text-[11px] theme-text-sub">หมวดหมู่</label>
@@ -798,11 +845,11 @@
         <div class="grid grid-cols-3 gap-2.5">
           <div class="col-span-2">
             <label class="text-[11px] theme-text-sub">รายละเอียดรายการ</label>
-            <input id="exp-title" type="text" placeholder="ระบุชื่อรายการ" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-sm mt-1" />
+            <input id="exp-title" type="text" oninput="evaluateSingleDuplicateLock()" placeholder="ระบุชื่อรายการ" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-sm mt-1" />
           </div>
           <div>
             <label class="text-[11px] theme-text-sub">เวลา <span id="exp-time-badge" class="text-[9px] theme-text-primary">(บันทึก)</span></label>
-            <input id="exp-time" type="time" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
+            <input id="exp-time" type="time" onchange="evaluateSingleDuplicateLock()" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1" />
           </div>
         </div>
 
@@ -810,9 +857,9 @@
           <div>
             <label class="text-[11px] theme-text-sub flex items-center justify-between">
               <span>จำนวนเงิน (<span id="exp-amt-curr">CNY</span>)</span>
-              <span id="exp-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อก</span>
+              <span id="exp-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">ล็อกยอดสลิป</span>
             </label>
-            <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview()" placeholder="0" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1" />
+            <input id="exp-cny" type="number" step="0.01" oninput="calcThbPreview(); evaluateSingleDuplicateLock();" placeholder="0" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1" />
           </div>
           <div id="exp-rate-box">
             <label class="text-[11px] theme-text-sub">เรทกลาง (THB)</label>
@@ -825,7 +872,7 @@
                 +3%
               </label>
               <label class="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
-                <input id="exp-refund" type="checkbox" class="rounded border-emerald-300 text-emerald-600" />
+                <input id="exp-refund" type="checkbox" onchange="evaluateSingleDuplicateLock()" class="rounded border-emerald-300 text-emerald-600" />
                 คืนเงิน (Refund)
               </label>
             </div>
@@ -917,7 +964,7 @@
         <div>
           <label class="text-[11px] theme-text-sub flex items-center justify-between">
             <span>จำนวนเงิน (<span id="edit-amt-curr">CNY</span>)</span>
-            <span id="edit-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">🔒 ล็อก</span>
+            <span id="edit-cny-lock-badge" class="hidden text-[9px] bg-[#6B424E] text-white px-1.5 py-0.5 rounded-md">ล็อกยอดสลิป</span>
           </label>
           <input id="edit-exp-cny" type="number" step="0.01" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-base font-semibold theme-text-primary mt-1" />
           <button id="btn-admin-unlock-cny" type="button" onclick="adminUnlockEditCny()" class="hidden text-[10px] theme-text-primary underline mt-1">Admin: ปลดล็อกแก้ยอดสลิป</button>
@@ -1038,6 +1085,7 @@
   </div>
 
   <script>
+    const APP_VERSION = 'v2.6';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1097,10 +1145,10 @@
     let activeGlobalThemeId = 'blush';
     let currentScopeFilter = 'shared';
     let currentQuickFilter = 'all';
-    let digestChannelFilters = new Set(); // empty = All
+    let digestChannelFilters = new Set();
     let currentChannelStatScope = 'all';
-    let analyticsChannelFilters = new Set(); // empty = All
-    let analyticsCategoryFilters = new Set(); // empty = All
+    let analyticsChannelFilters = new Set();
+    let analyticsCategoryFilters = new Set();
     let analyticsTimeframe = 'daily';
     let collapsedGroups = new Set();
     let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
@@ -1114,11 +1162,37 @@
     let currentSingleSlipHash = null;
     let currentSingleSlipRef = null;
     let isSingleAmountLockedBySlip = false;
+    let isSingleDuplicateBlocked = false;
+    let isAdminOverrideSingleDup = false;
+    let isBatchRescanning = false;
     let flaggingExpenseId = null;
 
     let qcBuffer = '0';
     let qcAccumulated = 0;
     let qcHasPendingPlus = false;
+
+    // ================= 1. PWA VERSION CONTROL & SAFARI CACHE CLEANER =================
+    async function forceRefreshAppCache() {
+      const btn = document.getElementById('btn-force-refresh-pwa');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'กำลังล้างแคชและอัปเดตเวอร์ชัน...';
+      }
+      try {
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map(name => caches.delete(name)));
+        }
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map(reg => reg.unregister()));
+        }
+      } catch (err) {
+        console.warn('Cache purge notice:', err);
+      }
+      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      window.location.replace(`${baseUrl}?v=${Date.now()}`);
+    }
 
     // Admin Personal Ledger Focus / Hide Management
     function loadAdminHiddenLedgersLocal() {
@@ -1632,7 +1706,7 @@
 
     async function deleteCurrentLedgerPermanently() {
       if (!isSuperAdmin()) return;
-      const typedName = prompt(`⚠️ คำเตือน: การลบสมุดบัญชีจะลบรายการบิล สมาชิก และประวัติทั้งหมดในสมุดนี้ถาวร\n\nพิมพ์ชื่อสมุด "${currentTrip.name}" เพื่อยืนยันการลบ:`);
+      const typedName = prompt(`คำเตือน: การลบสมุดบัญชีจะลบรายการบิล สมาชิก และประวัติทั้งหมดในสมุดนี้ถาวร\n\nพิมพ์ชื่อสมุด "${currentTrip.name}" เพื่อยืนยันการลบ:`);
       if (typedName === null) return;
       if (typedName.trim() !== currentTrip.name.trim()) {
         return alert('ชื่อสมุดไม่ตรงกัน ยกเลิกการลบครับ');
@@ -1666,6 +1740,8 @@
     }
 
     window.onload = async () => {
+      const verEl = document.getElementById('app-version-badge');
+      if (verEl) verEl.textContent = APP_VERSION;
       applyAppTheme(localStorage.getItem('mv_global_theme_cache') || 'blush');
       loadAdminHiddenLedgersLocal();
       const { data: { session } } = await db.auth.getSession();
@@ -1832,43 +1908,184 @@
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    // ================= 3. HARD DUPLICATE BLOCKER & AUTO-FILTER =================
     function findDuplicateExpense({ hash, ref, title, amount_cny, slip_time, time_source }) {
       const activeList = expensesList.filter(e => !e.delete_flag);
       if (hash) {
         const byHash = activeList.find(e => e.slip_hash && e.slip_hash === hash);
-        if (byHash) return { reason: 'รูปภาพนี้ตรงกับรายการที่มีอยู่ในสมุดตอนนี้', item: byHash };
+        if (byHash) return { reason: 'รูปภาพสลิปนี้ซ้ำกับรายการที่มีอยู่ในสมุดแล้ว', item: byHash };
       }
       if (ref) {
         const byRef = activeList.find(e => e.slip_ref && e.slip_ref.toLowerCase() === ref.toLowerCase());
-        if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ตรงกับรายการที่มีอยู่แล้ว`, item: byRef };
-        return null;
+        if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ซ้ำกับรายการที่มีอยู่แล้ว`, item: byRef };
       }
       const numAmt = Number(amount_cny);
-      if (numAmt > 0 && time_source === 'slip' && slip_time) {
+      if (numAmt > 0 && slip_time) {
         const normTitle = (title || '').trim().toLowerCase();
         const bySlipSignature = activeList.find(e =>
-          !e.slip_ref &&
           Math.abs(Number(e.amount_cny) - numAmt) < 0.01 &&
           e.slip_time === slip_time &&
-          (e.title || '').trim().toLowerCase() === normTitle
+          (time_source === 'slip' || e.time_source === 'slip' || (e.title || '').trim().toLowerCase() === normTitle)
         );
         if (bySlipSignature) {
-          return { reason: `ยอด ${getCurrSymbol()}${fmtNum(numAmt)} เวลา ${slip_time} ตรงกับรายการเดิม`, item: bySlipSignature };
+          return { reason: `ยอดเงิน ${getCurrSymbol()}${fmtNum(numAmt)} เวลา ${slip_time} ซ้ำกับบิลเดิมในสมุด`, item: bySlipSignature };
         }
       }
       return null;
     }
 
+    function updateSaveButtonLockState() {
+      const btn = document.getElementById('btn-save-expense');
+      if (!btn) return;
+
+      if (batchQueue.length > 0) {
+        const dupCount = batchQueue.filter(item => Boolean(item.duplicateMatch)).length;
+        const failedCount = batchQueue.filter(item => Boolean(item.scan_failed)).length;
+        const toolbar = document.getElementById('batch-action-toolbar');
+        const rescanBtn = document.getElementById('btn-batch-rescan-failed');
+        const removeDupBtn = document.getElementById('btn-batch-remove-duplicates');
+
+        if (toolbar) toolbar.classList.toggle('hidden', dupCount === 0 && failedCount === 0);
+        if (rescanBtn) {
+          rescanBtn.classList.toggle('hidden', failedCount === 0);
+          document.getElementById('batch-failed-count').textContent = failedCount;
+        }
+        if (removeDupBtn) {
+          removeDupBtn.classList.toggle('hidden', dupCount === 0);
+          document.getElementById('batch-dup-count').textContent = dupCount;
+        }
+
+        if (dupCount > 0) {
+          btn.disabled = true;
+          btn.className = 'w-full bg-slate-200 text-slate-500 font-medium py-3 rounded-xl text-sm cursor-not-allowed transition';
+          btn.textContent = `ล็อกการบันทึก (พบรายการซ้ำ ${dupCount} รายการในคิว)`;
+        } else {
+          btn.disabled = false;
+          btn.className = 'w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition';
+          btn.textContent = `บันทึกรายการทั้งหมด (${batchQueue.length} รายการ)`;
+        }
+        return;
+      }
+
+      const isRefundChecked = Boolean(document.getElementById('exp-refund')?.checked);
+      if (isSingleDuplicateBlocked && !isRefundChecked && !isAdminOverrideSingleDup) {
+        btn.disabled = true;
+        btn.className = 'w-full bg-slate-200 text-slate-500 font-medium py-3 rounded-xl text-sm cursor-not-allowed transition';
+        btn.textContent = 'ล็อกการบันทึก (ตรวจพบสลิปหรือยอดซ้ำ)';
+      } else {
+        btn.disabled = false;
+        btn.className = 'w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition';
+        btn.textContent = 'บันทึกรายการ';
+      }
+    }
+
     function showDuplicateAlert(dupMatch) {
       const box = document.getElementById('duplicate-alert-box');
       const detail = document.getElementById('duplicate-alert-detail');
+      const adminBtn = document.getElementById('btn-admin-override-dup');
+
       if (!dupMatch) {
+        isSingleDuplicateBlocked = false;
+        isAdminOverrideSingleDup = false;
         box.classList.add('hidden');
+        if (adminBtn) adminBtn.classList.add('hidden');
+        updateSaveButtonLockState();
         return;
       }
+
+      isSingleDuplicateBlocked = true;
       const e = dupMatch.item;
       detail.textContent = `${dupMatch.reason}: "${e.title}" ยอด ${getCurrSymbol()}${fmtNum(e.amount_cny)} (โดย ${getMemberName(e.created_by)})`;
       box.classList.remove('hidden');
+      if (adminBtn) {
+        adminBtn.classList.toggle('hidden', !isSuperAdmin() || isAdminOverrideSingleDup);
+      }
+      updateSaveButtonLockState();
+    }
+
+    function evaluateSingleDuplicateLock() {
+      if (batchQueue.length > 0) return;
+      const title = document.getElementById('exp-title')?.value.trim() || '';
+      const amount_cny = parseFloat(document.getElementById('exp-cny')?.value || '0') || 0;
+      const slip_time = document.getElementById('exp-time')?.value || '';
+
+      const dupMatch = findDuplicateExpense({
+        hash: currentSingleSlipHash,
+        ref: currentSingleSlipRef,
+        title,
+        amount_cny,
+        slip_time,
+        time_source: currentTimeSource
+      });
+      showDuplicateAlert(dupMatch);
+    }
+
+    function adminOverrideSingleDuplicate() {
+      if (!isSuperAdmin()) return;
+      if (!confirm('ยืนยันการปลดล็อกบันทึกฉุกเฉินสำหรับรายการนี้?')) return;
+      isAdminOverrideSingleDup = true;
+      const adminBtn = document.getElementById('btn-admin-override-dup');
+      if (adminBtn) adminBtn.classList.add('hidden');
+      document.getElementById('duplicate-alert-detail').textContent += ' — ปลดล็อกฉุกเฉินโดย Admin แล้ว';
+      updateSaveButtonLockState();
+    }
+
+    function revalidateBatchDuplicates() {
+      const seenHashes = new Set();
+      const seenRefs = new Set();
+      const seenSignatures = new Set();
+
+      batchQueue.forEach(item => {
+        if (item.is_date_warning) {
+          item.duplicateMatch = null;
+          item.is_date_warning = false;
+        }
+        const dbDup = findDuplicateExpense({
+          hash: item.fileHash,
+          ref: item.slipRef,
+          title: item.title,
+          amount_cny: item.amount_cny,
+          slip_time: item.slip_time,
+          time_source: item.time_source
+        });
+
+        const numAmt = Number(item.amount_cny || 0);
+        const sigKey = (numAmt > 0 && item.slip_time) ? `${numAmt.toFixed(2)}_${item.slip_time}` : null;
+
+        if (dbDup) {
+          item.duplicateMatch = dbDup;
+        } else if (item.fileHash && seenHashes.has(item.fileHash)) {
+          item.duplicateMatch = { reason: 'รูปภาพซ้ำกับใบอื่นในคิวนี้', item };
+        } else if (item.slipRef && seenRefs.has(item.slipRef.toLowerCase())) {
+          item.duplicateMatch = { reason: `เลขที่อ้างอิง (${item.slipRef}) ซ้ำในคิวนี้`, item };
+        } else if (sigKey && seenSignatures.has(sigKey)) {
+          item.duplicateMatch = { reason: `ยอดเงินและเวลา (${item.slip_time}) ซ้ำในคิวนี้`, item };
+        } else {
+          item.duplicateMatch = null;
+        }
+
+        if (item.fileHash) seenHashes.add(item.fileHash);
+        if (item.slipRef) seenRefs.add(item.slipRef.toLowerCase());
+        if (sigKey) seenSignatures.add(sigKey);
+      });
+    }
+
+    function removeAllBatchDuplicates() {
+      const before = batchQueue.length;
+      batchQueue = batchQueue.filter(item => !item.duplicateMatch);
+      const removed = before - batchQueue.length;
+      if (batchQueue.length === 0) {
+        clearBatchQueue();
+        const statusEl = document.getElementById('ocr-status');
+        statusEl.classList.remove('hidden');
+        statusEl.textContent = `นำรายการซ้ำออกทั้งหมด ${removed} รายการแล้ว`;
+      } else {
+        revalidateBatchDuplicates();
+        renderBatchQueue();
+        const statusEl = document.getElementById('ocr-status');
+        statusEl.classList.remove('hidden');
+        statusEl.textContent = `ลบรายการซ้ำออกแล้ว ${removed} รายการ (เหลือพร้อมบันทึก ${batchQueue.length} รายการ)`;
+      }
     }
 
     async function handleLogin() {
@@ -2493,6 +2710,47 @@
       renderExpenseList();
     }
 
+    // ================= 4. MULTI-KEYWORD COMMA SEARCH (OR MATCHING) =================
+    function parseSearchKeywords(rawText) {
+      return (rawText || '')
+        .split(/[,，]/)
+        .map(s => s.trim().toLowerCase())
+        .filter(Boolean);
+    }
+
+    function handleSearchInputChange() {
+      const inputEl = document.getElementById('search-expense-input');
+      const clearBtn = document.getElementById('btn-clear-search');
+      if (clearBtn) clearBtn.classList.toggle('hidden', !(inputEl?.value || '').trim());
+      renderExpenseList();
+    }
+
+    function clearSearchInput() {
+      const inputEl = document.getElementById('search-expense-input');
+      if (inputEl) inputEl.value = '';
+      handleSearchInputChange();
+    }
+
+    function toggleSearchKeywordChip(keyword) {
+      const inputEl = document.getElementById('search-expense-input');
+      if (!inputEl) return;
+      const existingTokens = (inputEl.value || '')
+        .split(/[,，]/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const lowerTarget = keyword.toLowerCase();
+      const idx = existingTokens.findIndex(t => t.toLowerCase() === lowerTarget);
+      if (idx !== -1) {
+        existingTokens.splice(idx, 1);
+      } else {
+        existingTokens.push(keyword);
+      }
+
+      inputEl.value = existingTokens.join(', ');
+      handleSearchInputChange();
+    }
+
     function renderExpenseList() {
       const myEmail = currentMember.email.toLowerCase();
       const isClosed = Boolean(currentTrip.is_closed);
@@ -2501,7 +2759,8 @@
       const monthly = isMonthlyMode();
       const participants = getActiveParticipants();
       const isSinglePersonLedger = participants.length <= 1;
-      const searchQuery = (document.getElementById('search-expense-input')?.value || '').trim().toLowerCase();
+      const rawSearch = document.getElementById('search-expense-input')?.value || '';
+      const searchKeywords = parseSearchKeywords(rawSearch);
 
       const filtered = expensesList.filter(e => {
         const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
@@ -2523,18 +2782,36 @@
         if (currentQuickFilter === 'unverified' && verifiedIds.has(e.id)) return false;
         if (currentQuickFilter === 'flagged' && !e.delete_flag) return false;
 
-        if (searchQuery) {
+        if (searchKeywords.length > 0) {
           const payerName = getMemberName(payerEm).toLowerCase();
-          const titleMatch = (e.title || '').toLowerCase().includes(searchQuery);
-          const payerMatch = payerName.includes(searchQuery);
-          const amtMatch = String(e.amount_cny).includes(searchQuery);
-          const chMatch = getChannelLabel(normCh).includes(searchQuery);
-          const catMatch = getCategoryFullLabel(e.category).toLowerCase().includes(searchQuery);
-          if (!titleMatch && !payerMatch && !amtMatch && !chMatch && !catMatch) return false;
+          const titleText = (e.title || '').toLowerCase();
+          const amtText = String(e.amount_cny).toLowerCase();
+          const fmtAmtText = fmtNum(e.amount_cny).toLowerCase();
+          const chText = getChannelLabel(normCh).toLowerCase();
+          const catFullText = getCategoryFullLabel(e.category).toLowerCase();
+          const catShortText = getCategoryShortName(e.category).toLowerCase();
+
+          const matchesAnyKeyword = searchKeywords.some(kw =>
+            titleText.includes(kw) ||
+            payerName.includes(kw) ||
+            amtText.includes(kw) ||
+            fmtAmtText.includes(kw) ||
+            chText.includes(kw) ||
+            catFullText.includes(kw) ||
+            catShortText.includes(kw)
+          );
+          if (!matchesAnyKeyword) return false;
         }
 
         return true;
       });
+
+      const labelEl = document.getElementById('filtered-day-label');
+      if (labelEl) {
+        labelEl.textContent = searchKeywords.length > 1
+          ? `ยอดรวมที่แสดง (กรอง ${searchKeywords.length} คำค้น · ${filtered.length} รายการ)`
+          : `ยอดรวมที่แสดง (${filtered.length} รายการ)`;
+      }
 
       let totalSumAmt = 0, totalSumThb = 0;
       const groups = {};
@@ -2564,7 +2841,7 @@
         const groupThb = items.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
         const isPastMonthLocked = monthly && gKey < getCurrentYYYYMM();
         const isCollapsed = collapsedGroups.has(gKey) || isPastMonthLocked;
-        const groupHeaderTitle = monthly ? `${formatMonthLabel(gKey)}${isPastMonthLocked ? ' 🔒 (ปิดยอดแล้ว)' : ''}` : `Day ${gKey}`;
+        const groupHeaderTitle = monthly ? `${formatMonthLabel(gKey)}${isPastMonthLocked ? ' (ปิดยอดแล้ว)' : ''}` : `Day ${gKey}`;
 
         const cardsHtml = isCollapsed ? '' : items.map(e => {
           const amt = Number(e.amount_cny);
@@ -2859,7 +3136,7 @@
         const soloAmt = soloList.reduce((s, x) => s + getSignedAmt(x), 0);
         const slipCount = list.filter(x => x.receipt_image_url).length;
         const isPastMonthLocked = monthly && pKey < getCurrentYYYYMM();
-        const badgeTitle = monthly ? `${formatMonthLabel(pKey)}${isPastMonthLocked ? ' 🔒' : ''}` : `Day ${pKey}`;
+        const badgeTitle = monthly ? `${formatMonthLabel(pKey)}${isPastMonthLocked ? ' (ปิดยอด)' : ''}` : `Day ${pKey}`;
 
         return `
           <div class="soft-card p-4 rounded-2xl space-y-2.5">
@@ -2892,7 +3169,7 @@
         document.getElementById('monthly-archive-list').innerHTML = monthlyArchivesList.map(a => `
           <div class="soft-card p-3.5 rounded-2xl flex justify-between items-center gap-2 bg-[#FFF9FA]">
             <div>
-              <p class="text-xs font-semibold theme-text-main">🔒 สรุปปิดเดือน ${a.month_label}</p>
+              <p class="text-xs font-semibold theme-text-main">สรุปปิดเดือน ${a.month_label}</p>
               <p class="text-[11px] theme-text-muted">${a.item_count} รายการ · รวม ${a.currency_symbol}${fmtNum(a.total_amount)} (ไฟล์ตัวเลขล้วน)</p>
             </div>
             <button onclick="downloadMonthlyArchiveCsv('${a.id}')" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-3 py-1.5 rounded-xl font-medium shrink-0">โหลดสรุป CSV</button>
@@ -3648,7 +3925,7 @@
       }).join('') || '<p class="text-center theme-text-muted">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= SMART 15-SLIP BATCH CAP + AUTO-RETRY QUEUE (gemini-3.5-flash-lite / gemini-3.8-flash) =================
+    // ================= SMART 15-SLIP BATCH CAP + AUTO-RETRY QUEUE =================
     const sleepMs = (ms) => new Promise(res => setTimeout(res, ms));
 
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
@@ -3863,12 +4140,82 @@ Respond ONLY with valid JSON:
       const valid = freshArr.filter(x => x.is_valid_receipt !== false);
       if (valid.length > 0) {
         batchQueue.splice(idx, 1, ...valid);
+        revalidateBatchDuplicates();
         renderBatchQueue();
         statusEl.textContent = valid[0].scan_failed
           ? `ลองสแกนซ้ำแล้วยังไม่พบตัวเลข สามารถกรอกยอดเงินเองได้ทันที`
           : `สแกนซ้ำสำเร็จ: "${valid[0].title}" ยอด ${getCurrSymbol()}${fmtNum(valid[0].amount_cny)}`;
       } else {
         statusEl.textContent = 'ไม่พบตัวเลขใบเสร็จในรูปนี้';
+      }
+    }
+
+    // ================= 2. BATCH RE-SCAN FAILED ITEMS (2 AT A TIME WITH AUTO-RETRY) =================
+    async function batchRescanFailedItems() {
+      if (isBatchRescanning) return;
+      const failedIndices = batchQueue
+        .map((item, idx) => (item.scan_failed && item.file ? idx : -1))
+        .filter(idx => idx !== -1);
+
+      if (failedIndices.length === 0) return;
+
+      isBatchRescanning = true;
+      const btn = document.getElementById('btn-batch-rescan-failed');
+      const statusEl = document.getElementById('ocr-status');
+      const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = `กำลังสแกนซ้ำใบที่ยังไม่อ่าน 0/${failedIndices.length} ใบ...`;
+      }
+      statusEl.classList.remove('hidden');
+
+      try {
+        const targetSnapshots = failedIndices.map(idx => ({ idx, item: batchQueue[idx] }));
+        const replacementMap = new Map();
+
+        for (let i = 0; i < targetSnapshots.length; i += 2) {
+          const chunk = targetSnapshots.slice(i, i + 2);
+          const doneCount = Math.min(targetSnapshots.length, i + 2);
+          statusEl.textContent = `กำลังสแกนซ้ำเฉพาะใบที่ยังไม่อ่าน (${doneCount}/${targetSnapshots.length} ใบ)...`;
+          if (btn) btn.textContent = `กำลังสแกนซ้ำ ${doneCount}/${targetSnapshots.length} ใบ...`;
+
+          const chunkResults = await Promise.all(
+            chunk.map(async ({ idx, item }) => {
+              const freshArr = await scanReceiptOrNotificationImage(item.file, apiKey, { isDirectCamera: false });
+              const valid = freshArr.filter(x => x.is_valid_receipt !== false);
+              return { idx, valid: valid.length > 0 ? valid : [item] };
+            })
+          );
+
+          chunkResults.forEach(({ idx, valid }) => {
+            replacementMap.set(idx, valid);
+          });
+
+          if (i + 2 < targetSnapshots.length) await sleepMs(800);
+        }
+
+        const rebuiltQueue = [];
+        batchQueue.forEach((origItem, idx) => {
+          if (replacementMap.has(idx)) {
+            rebuiltQueue.push(...replacementMap.get(idx));
+          } else {
+            rebuiltQueue.push(origItem);
+          }
+        });
+
+        batchQueue = rebuiltQueue.sort((a, b) => a.slip_time.localeCompare(b.slip_time));
+        revalidateBatchDuplicates();
+        renderBatchQueue();
+
+        const remainingFailed = batchQueue.filter(x => x.scan_failed).length;
+        statusEl.textContent = remainingFailed === 0
+          ? `สแกนซ้ำครบทุกใบสำเร็จแล้ว (${batchQueue.length} รายการ)`
+          : `สแกนซ้ำเสร็จสิ้น (ยังเหลือ ${remainingFailed} ใบที่อ่านตัวเลขไม่ชัด สามารถกรอกเองได้)`;
+      } finally {
+        isBatchRescanning = false;
+        if (btn) btn.disabled = false;
+        updateSaveButtonLockState();
       }
     }
 
@@ -3898,7 +4245,7 @@ Respond ONLY with valid JSON:
       let capNotice = '';
 
       if (!isDirectCamera && rawFiles.length > MAX_SLIPS_PER_BATCH) {
-        alert(`⚠️ จำกัดไม่เกิน ${MAX_SLIPS_PER_BATCH} รูปต่อการอัปโหลด 1 ครั้ง (เพื่อความแม่นยำและป้องกันระบบค้างเมื่อใช้งานพร้อมกันหลายคน)\n\nคุณเลือกมา ${rawFiles.length} รูป ระบบจะดึง ${MAX_SLIPS_PER_BATCH} รูปแรกมาสแกนให้ก่อน ส่วนรูปที่เหลือสามารถกด "เลือกรูปเพิ่ม" ต่อคิวได้ทันทีครับ`);
+        alert(`จำกัดไม่เกิน ${MAX_SLIPS_PER_BATCH} รูปต่อการอัปโหลด 1 ครั้ง (เพื่อความแม่นยำและป้องกันระบบค้างเมื่อใช้งานพร้อมกันหลายคน)\n\nคุณเลือกมา ${rawFiles.length} รูป ระบบจะดึง ${MAX_SLIPS_PER_BATCH} รูปแรกมาสแกนให้ก่อน ส่วนรูปที่เหลือสามารถกด "เลือกรูปเพิ่ม" ต่อคิวได้ทันทีครับ`);
         files = rawFiles.slice(0, MAX_SLIPS_PER_BATCH);
         capNotice = ` (ดึง ${MAX_SLIPS_PER_BATCH} รูปแรกจาก ${rawFiles.length} รูป)`;
       }
@@ -3948,17 +4295,6 @@ Respond ONLY with valid JSON:
         return;
       }
 
-      if (monthly) {
-        flattenedResults.forEach(item => {
-          if (!item.duplicateMatch && item.slip_date && item.slip_date.slice(0, 7) !== currentYm) {
-            item.duplicateMatch = {
-              reason: `วันที่รายการ (${item.slip_date}) อยู่นอกเดือน ${formatMonthLabel(currentYm)} (แก้ไขวันที่ได้หาก AI อ่านผิด)`,
-              item
-            };
-          }
-        });
-      }
-
       if (batchQueue.length > 0 || flattenedResults.length > 1) {
         if (batchQueue.length === 0 && activeSingleFile) {
           const prevTitle = document.getElementById('exp-title').value.trim();
@@ -3991,27 +4327,19 @@ Respond ONLY with valid JSON:
         document.getElementById('batch-queue-section').classList.remove('hidden');
 
         const combined = [...batchQueue, ...flattenedResults];
-        const seenHashes = new Set();
-        const seenRefs = new Set();
         combined.forEach(item => {
           if (item.trip_day > totalDays) {
             totalDays = item.trip_day;
             localStorage.setItem(`days_${currentTrip.id}`, totalDays);
           }
-          if (!item.duplicateMatch) {
-            if ((item.fileHash && seenHashes.has(item.fileHash)) || (item.slipRef && seenRefs.has(item.slipRef))) {
-              item.duplicateMatch = { reason: 'รายการซ้ำในชุดนี้', item };
-            }
-          }
-          if (item.fileHash) seenHashes.add(item.fileHash);
-          if (item.slipRef) seenRefs.add(item.slipRef);
         });
 
         renderDayOptions();
         batchQueue = combined.sort((a, b) => a.slip_time.localeCompare(b.slip_time));
+        revalidateBatchDuplicates();
         renderBatchQueue();
         const rejectNote = rejectedImages > 0 ? ` · คัดรูปทั่วไปออก ${rejectedImages} รูป` : '';
-        statusEl.textContent = `พร้อมบันทึกทั้งหมด ${batchQueue.length} รายการ${capNotice}${rejectNote}`;
+        statusEl.textContent = `พร้อมตรวจสอบทั้งหมด ${batchQueue.length} รายการ${capNotice}${rejectNote}`;
       } else {
         const res = flattenedResults[0];
         batchQueue = [];
@@ -4053,10 +4381,14 @@ Respond ONLY with valid JSON:
         const rejectNote = rejectedImages > 0 ? ` · คัดรูปไม่ใช่สลิปออก ${rejectedImages} รูป` : '';
         if (res.duplicateMatch) {
           showDuplicateAlert(res.duplicateMatch);
-          statusEl.textContent = `พบข้อสังเกต (ยังบันทึกได้ตามปกติ)${rejectNote}`;
+          statusEl.textContent = `ตรวจพบรายการซ้ำ — ล็อกการบันทึกอัตโนมัติ${rejectNote}`;
         } else {
+          showDuplicateAlert(null);
+          const outOfMonthNote = (monthly && res.slip_date && res.slip_date.slice(0, 7) !== currentYm)
+            ? ` (วันที่ ${res.slip_date} อยู่นอกเดือน ${formatMonthLabel(currentYm)})`
+            : '';
           statusEl.textContent = res.amount_cny
-            ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel)})${rejectNote}`
+            ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel)})${outOfMonthNote}${rejectNote}`
             : `${res.date_source_label} — สามารถกรอกยอดเงินด้านล่างได้ทันที${rejectNote}`;
         }
       }
@@ -4067,7 +4399,7 @@ Respond ONLY with valid JSON:
       const monthly = isMonthlyMode();
 
       document.getElementById('batch-items-list').innerHTML = batchQueue.map((item, idx) => {
-        const hasWarning = Boolean(item.duplicateMatch);
+        const isDup = Boolean(item.duplicateMatch);
         const isFailed = Boolean(item.scan_failed);
         let periodControlHtml = '';
         if (monthly) {
@@ -4082,17 +4414,25 @@ Respond ONLY with valid JSON:
 
         const cnyFieldHtml = item.amount_locked
           ? `<input type="text" value="${fmtNum(item.amount_cny)}" readonly title="ล็อกยอดตามสลิป" class="bg-[#FCEBF0]/70 border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-sub cursor-not-allowed" />`
-          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-primary" />`;
+          : `<input type="number" step="0.01" value="${item.amount_cny}" placeholder="ยอดเงิน" oninput="batchQueue[${idx}].amount_cny = this.value; batchQueue[${idx}].scan_failed = !parseFloat(this.value); revalidateBatchDuplicates(); updateSaveButtonLockState();" class="bg-[#FFF9FA] border theme-border-mid rounded-lg p-1.5 text-xs font-semibold theme-text-primary" />`;
+
+        const cardStyle = isDup
+          ? 'bg-[#FFF0F3] border-[#E599AD]'
+          : (isFailed ? 'bg-amber-50/70 border-amber-300' : 'bg-white theme-border-mid');
+
+        const headerLabel = isDup
+          ? `ซ้ำ: ${item.duplicateMatch.reason}`
+          : (isFailed ? `ยังไม่อ่านตัวเลข · ${item.date_source_label}` : `บิลที่ ${idx + 1} · ${item.date_source_label} · ${item.slip_time}`);
 
         return `
-        <div class="p-3 rounded-xl border space-y-2 ${hasWarning || isFailed ? 'bg-amber-50/70 border-amber-400' : 'bg-white theme-border-mid'}">
+        <div class="p-3 rounded-xl border space-y-2 ${cardStyle}">
           <div class="flex justify-between items-center text-[10px] gap-1">
-            <span class="font-semibold truncate ${hasWarning || isFailed ? 'text-amber-800' : 'theme-text-primary'}">
-              ${hasWarning ? `⚠️ ${item.duplicateMatch.reason}` : `บิลที่ ${idx + 1} · ${item.date_source_label} · ${item.slip_time}`}
+            <span class="font-semibold truncate ${isDup ? 'text-[#B83B5E]' : (isFailed ? 'text-amber-800' : 'theme-text-primary')}">
+              ${headerLabel}
             </span>
             <div class="flex items-center gap-2 shrink-0 ml-1">
-              ${isFailed && item.file ? `<button type="button" onclick="rescanBatchItem(${idx})" class="bg-white border border-amber-400 text-amber-800 px-1.5 py-0.5 rounded-md font-semibold">🔄 สแกนซ้ำ</button>` : ''}
-              <button type="button" onclick="removeBatchItem(${idx})" class="theme-text-muted hover:text-rose-600">เอาออก</button>
+              ${isFailed && item.file ? `<button type="button" onclick="rescanBatchItem(${idx})" class="bg-white border border-amber-400 text-amber-800 px-1.5 py-0.5 rounded-md font-semibold">สแกนซ้ำ</button>` : ''}
+              <button type="button" onclick="removeBatchItem(${idx})" class="${isDup ? 'text-[#B83B5E] font-semibold' : 'theme-text-muted hover:text-rose-600'}">เอาออก</button>
             </div>
           </div>
           <div class="grid grid-cols-3 gap-1.5">
@@ -4112,12 +4452,18 @@ Respond ONLY with valid JSON:
           </div>
         </div>`;
       }).join('');
+
+      updateSaveButtonLockState();
     }
 
     function removeBatchItem(idx) {
       batchQueue.splice(idx, 1);
-      if (batchQueue.length === 0) clearBatchQueue();
-      else renderBatchQueue();
+      if (batchQueue.length === 0) {
+        clearBatchQueue();
+      } else {
+        revalidateBatchDuplicates();
+        renderBatchQueue();
+      }
     }
 
     function clearBatchQueue() {
@@ -4125,6 +4471,8 @@ Respond ONLY with valid JSON:
       activeSingleFile = null;
       currentSingleSlipHash = null;
       currentSingleSlipRef = null;
+      isSingleDuplicateBlocked = false;
+      isAdminOverrideSingleDup = false;
       setSingleCnyLockState(false);
       document.getElementById('exp-file').value = '';
       document.getElementById('batch-queue-section').classList.add('hidden');
@@ -4132,6 +4480,7 @@ Respond ONLY with valid JSON:
       document.getElementById('single-channel-box').classList.remove('hidden');
       document.getElementById('ocr-status').classList.add('hidden');
       showDuplicateAlert(null);
+      updateSaveButtonLockState();
     }
 
     // Standard iOS-safe Image Resizer (avoids createImageBitmap blank canvas on iPhone)
@@ -4279,6 +4628,7 @@ Respond ONLY with valid JSON:
           <input type="checkbox" name="split-member" value="${m.email}" checked class="rounded border-[#F2CFD9]" />
           ${m.display_name}
         </label>`).join('');
+      updateSaveButtonLockState();
       openModal('expense-modal');
     }
 
@@ -4322,6 +4672,13 @@ Respond ONLY with valid JSON:
       const monthly = isMonthlyMode();
 
       if (batchQueue.length > 0) {
+        revalidateBatchDuplicates();
+        const dupItems = batchQueue.filter(item => Boolean(item.duplicateMatch));
+        if (dupItems.length > 0) {
+          renderBatchQueue();
+          return alert(`ระบบป้องกันการบันทึกซ้ำ: พบรายการซ้ำ ${dupItems.length} รายการในคิว กรุณากดปุ่ม "ลบรายการซ้ำทั้งหมดออก" ก่อนบันทึก`);
+        }
+
         const missingAmt = batchQueue.find(item => !parseFloat(item.amount_cny));
         if (missingAmt) return alert(`กรุณาระบุยอดเงินสำหรับรายการ "${missingAmt.title || 'บิลที่ยังไม่มีตัวเลข'}"`);
 
@@ -4402,6 +4759,7 @@ Respond ONLY with valid JSON:
       const slipTimeVal = document.getElementById('exp-time').value || getCurrentHHMM();
       const payment_channel = normalizeChannel(document.getElementById('exp-channel').value);
       const expDateVal = monthly ? (document.getElementById('exp-date-input').value || getTodayYYYYMMDD()) : getTodayYYYYMMDD();
+      const isRefundChecked = document.getElementById('exp-refund').checked;
 
       if (!title || !amount_cny) return alert('กรุณากรอกรายละเอียดและจำนวนเงิน');
 
@@ -4414,11 +4772,9 @@ Respond ONLY with valid JSON:
         time_source: currentTimeSource
       });
 
-      if (dupCheck) {
+      if (dupCheck && !isRefundChecked && !isAdminOverrideSingleDup) {
         showDuplicateAlert(dupCheck);
-        if (!confirm(`⚠️ แจ้งเตือน: ${dupCheck.reason}\nคุณยืนยันต้องการบันทึกรายการนี้ใช่หรือไม่?`)) {
-          return;
-        }
+        return;
       }
 
       btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
@@ -4441,7 +4797,7 @@ Respond ONLY with valid JSON:
           amount_cny,
           exchange_rate: rate,
           has_alipay_fee: document.getElementById('exp-fee').checked,
-          is_refund: document.getElementById('exp-refund').checked,
+          is_refund: isRefundChecked,
           paid_by_type: isSolo ? 'personal' : 'pool',
           paid_by_email: actualPayerEmail,
           payment_channel,
@@ -4463,7 +4819,8 @@ Respond ONLY with valid JSON:
       } catch (err) {
         alert('บันทึกไม่สำเร็จ (ข้อมูลและรูปสลิปยังอยู่ครบ กดบันทึกใหม่เมื่อเน็ตเสถียร): ' + err.message);
       } finally {
-        btn.disabled = false; btn.textContent = 'บันทึกรายการ';
+        btn.disabled = false;
+        updateSaveButtonLockState();
       }
     }
 
