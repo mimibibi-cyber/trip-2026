@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=12";
+      img.src = "icon.png?v=13";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -212,7 +212,7 @@
       <div class="flex items-center justify-between gap-1.5">
         <div class="flex items-center gap-1.5">
           <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">รายการหลัก</button>
-          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-white theme-text-sub border theme-border">ส่วนตัว & เงินสด</button>
+          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border">ส่วนตัว & เงินสด</button>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
           <button id="btn-toggle-calc-widget" onclick="toggleQuickCalcWidget()" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-2.5 py-1.5 rounded-xl font-medium shadow-2xs">จดด่วน</button>
@@ -308,7 +308,7 @@
       <!-- Multi-Keyword Comma Search & Quick Filters -->
       <div class="space-y-2">
         <div class="relative">
-          <input id="search-expense-input" type="text" oninput="handleSearchInputChange()" placeholder="ค้นหาหลายคำคั่นด้วย , เช่น โอน, อาหาร, Grab" class="w-full bg-white border theme-border-mid rounded-xl pl-9 pr-8 py-2 text-xs" />
+          <input id="search-expense-input" type="text" oninput="handleSearchInputChange()" placeholder="ค้นหาหลายคำคั่นด้วย , เช่น โอน, อาหาร, Grab" class="w-full bg-white/95 border theme-border-mid rounded-xl pl-9 pr-8 py-2 text-xs" />
           <svg class="w-4 h-4 theme-text-muted absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
           <button id="btn-clear-search" type="button" onclick="clearSearchInput()" class="hidden absolute right-2.5 top-2 text-xs theme-text-muted hover:theme-text-main px-1">✕</button>
         </div>
@@ -345,34 +345,68 @@
       <div id="expense-list" class="space-y-3"></div>
     </main>
 
-    <!-- TAB 2: DAILY / MONTHLY DIGEST + INTERACTIVE MULTI-MONTH COMPARISON MATRIX -->
+    <!-- TAB 2: DAILY / MONTHLY DIGEST + CUSTOM MULTI-MONTH COMPARISON MATRIX -->
     <main id="tab-digest" class="hidden p-5 pb-28 space-y-4">
       <div class="flex justify-between items-start gap-2">
         <div>
           <h2 id="digest-heading" class="font-semibold text-base theme-text-main">สรุปรายวัน & คลังสลิปตรวจสอบ</h2>
-          <p id="digest-subheading" class="text-xs theme-text-muted">แตะเลือกวิธีชำระเงินหรือกดเปรียบเทียบข้ามเดือนได้</p>
+          <p id="digest-subheading" class="text-xs theme-text-muted">แตะเลือกวิธีชำระเงินหรือเปรียบเทียบข้ามเดือนได้ทันที</p>
         </div>
         <button onclick="exportPrintablePdfReport()" class="text-[11px] luxury-gradient text-white px-3 py-1.5 rounded-xl font-medium shrink-0">PDF พร้อมสลิปย่อ</button>
       </div>
 
-      <!-- Digest View Switcher: Normal Summary vs Compare Months -->
-      <div id="digest-view-switcher" class="grid grid-cols-2 gap-1.5 bg-white p-1.5 rounded-2xl border theme-border-mid text-xs">
-        <button type="button" onclick="setDigestSubView('list')" id="dg-view-list" class="py-2 rounded-xl luxury-gradient text-white font-semibold transition">สรุปตามรอบเวลา</button>
-        <button type="button" onclick="setDigestSubView('compare')" id="dg-view-compare" class="py-2 rounded-xl theme-text-sub font-medium transition">เปรียบเทียบข้ามเดือน</button>
+      <!-- Mode Toggle for Monthly Mode: Overview vs Custom Month Compare -->
+      <div id="digest-mode-switcher" class="hidden grid grid-cols-2 gap-1.5 bg-[#FFF5F8] p-1 rounded-2xl border theme-border-mid text-xs">
+        <button type="button" onclick="setDigestSubMode('list')" id="dg-sub-list" class="py-2 rounded-xl luxury-gradient text-white font-semibold transition">สรุปรายเดือน</button>
+        <button type="button" onclick="setDigestSubMode('compare')" id="dg-sub-compare" class="py-2 rounded-xl theme-text-sub font-medium transition">เปรียบเทียบข้ามเดือน</button>
       </div>
 
-      <!-- SUB-VIEW A: STANDARD DAILY / MONTHLY LIST -->
-      <div id="digest-standard-section" class="space-y-4">
-        <div class="soft-card p-2.5 rounded-2xl space-y-1.5">
-          <p class="text-[10px] font-semibold theme-text-muted px-1">วิธีชำระเงิน (เลือกผสมได้หลายช่องทาง)</p>
-          <div class="grid grid-cols-4 gap-1 bg-[#FFF5F8] p-1 rounded-xl border theme-border-mid text-[11px]">
-            <button type="button" onclick="setDigestChannelFilter('all')" id="dg-ch-all" class="dg-ch-btn py-1.5 rounded-lg luxury-gradient text-white font-semibold">ทั้งหมด</button>
-            <button type="button" onclick="setDigestChannelFilter('transfer')" id="dg-ch-transfer" class="dg-ch-btn py-1.5 rounded-lg theme-text-sub">1. โอน</button>
-            <button type="button" onclick="setDigestChannelFilter('credit_card')" id="dg-ch-credit_card" class="dg-ch-btn py-1.5 rounded-lg theme-text-sub">2. บัตรเครดิต</button>
-            <button type="button" onclick="setDigestChannelFilter('cash')" id="dg-ch-cash" class="dg-ch-btn py-1.5 rounded-lg theme-text-sub">3. เงินสด</button>
+      <!-- Multi-Select Payment Method Filter Bar in Daily/Monthly Summary -->
+      <div class="soft-card p-2.5 rounded-2xl space-y-1.5">
+        <p class="text-[10px] font-semibold theme-text-muted px-1">วิธีชำระเงิน (เลือกผสมได้หลายช่องทาง)</p>
+        <div class="grid grid-cols-4 gap-1 bg-[#FFF5F8] p-1 rounded-xl border theme-border-mid text-[11px]">
+          <button type="button" onclick="setDigestChannelFilter('all')" id="dg-ch-all" class="dg-ch-btn py-1.5 rounded-lg luxury-gradient text-white font-semibold">ทั้งหมด</button>
+          <button type="button" onclick="setDigestChannelFilter('transfer')" id="dg-ch-transfer" class="dg-ch-btn py-1.5 rounded-lg theme-text-sub">1. โอน</button>
+          <button type="button" onclick="setDigestChannelFilter('credit_card')" id="dg-ch-credit_card" class="dg-ch-btn py-1.5 rounded-lg theme-text-sub">2. บัตรเครดิต</button>
+          <button type="button" onclick="setDigestChannelFilter('cash')" id="dg-ch-cash" class="dg-ch-btn py-1.5 rounded-lg theme-text-sub">3. เงินสด</button>
+        </div>
+      </div>
+
+      <!-- CUSTOM MULTI-MONTH COMPARISON PANEL -->
+      <div id="month-compare-panel" class="hidden space-y-3">
+        <div class="soft-card p-4 rounded-3xl space-y-3">
+          <div>
+            <p class="text-xs font-semibold theme-text-main">1. แตะเลือกเดือนที่ต้องการเปรียบเทียบ (เลือกได้ 2 เดือนขึ้นไป)</p>
+            <p class="text-[10px] theme-text-muted">เช่น เลือกเดือน 7 เทียบกับเดือน 8 หรือเลือกหลายเดือนพร้อมกัน</p>
+          </div>
+          <div id="compare-month-pills" class="flex flex-wrap gap-1.5"></div>
+
+          <div class="pt-2 border-t theme-border space-y-1.5">
+            <p class="text-xs font-semibold theme-text-main">2. กรองเฉพาะหมวดหมู่ที่สนใจ (เลือกผสมได้หลายหมวด)</p>
+            <div id="compare-category-pills" class="flex flex-wrap gap-1.5 text-[11px]"></div>
           </div>
         </div>
 
+        <!-- Comparison Side-by-Side Bar Chart -->
+        <div class="soft-card p-4 rounded-3xl space-y-2.5">
+          <div class="flex justify-between items-center gap-2">
+            <h3 class="text-xs font-semibold theme-text-main">กราฟเปรียบเทียบยอดจ่ายระหว่างเดือน</h3>
+            <span id="compare-focus-summary" class="text-[10px] theme-text-primary font-medium truncate">ทุกช่องทาง · ทุกหมวด</span>
+          </div>
+          <div class="h-48">
+            <canvas id="monthCompareChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Comparison Variance Matrix Table -->
+        <div class="soft-card p-4 rounded-3xl space-y-3">
+          <h3 class="text-xs font-semibold theme-text-main">ตารางเปรียบเทียบผลต่าง (บาท / %)</h3>
+          <div id="month-compare-table-container" class="overflow-x-auto text-xs"></div>
+        </div>
+      </div>
+
+      <!-- Standard Daily/Monthly List -->
+      <div id="daily-digest-standard-view" class="space-y-3">
         <div id="daily-digest-list" class="space-y-3"></div>
 
         <div id="monthly-archive-section" class="hidden pt-3 border-t theme-border space-y-2.5">
@@ -382,53 +416,6 @@
           </div>
           <div id="monthly-archive-list" class="space-y-2"></div>
         </div>
-      </div>
-
-      <!-- SUB-VIEW B: CUSTOM MULTI-MONTH COMPARISON MATRIX -->
-      <div id="digest-compare-section" class="hidden space-y-4">
-        <div class="soft-card p-4 rounded-3xl space-y-3">
-          <div class="flex justify-between items-center gap-2">
-            <div>
-              <h3 class="text-xs font-semibold theme-text-main">เลือกเดือนที่ต้องการเปรียบเทียบ (เลือกได้ 2 เดือนขึ้นไป)</h3>
-              <p class="text-[10px] theme-text-muted">แตะเลือกเดือน หมวดหมู่ และช่องทางจ่ายเงินเพื่อเทียบผลต่างทันที</p>
-            </div>
-            <button type="button" onclick="resetMonthCompareFilters()" class="text-[10px] theme-text-primary underline shrink-0">รีเซ็ตตัวกรอง</button>
-          </div>
-
-          <!-- Month Selector Pills -->
-          <div id="cmp-month-pills" class="flex flex-wrap gap-1.5"></div>
-
-          <!-- Channel Filter Pills -->
-          <div class="pt-2 border-t theme-border space-y-1.5">
-            <p class="text-[10px] font-semibold theme-text-muted">กรองช่องทางจ่ายเงิน (เลือกผสมได้):</p>
-            <div class="grid grid-cols-4 gap-1 bg-[#FFF5F8] p-1 rounded-xl border theme-border-mid text-[11px]">
-              <button type="button" onclick="toggleCompareChannel('ALL')" id="cmp-ch-ALL" class="py-1.5 rounded-lg luxury-gradient text-white font-semibold">ทั้งหมด</button>
-              <button type="button" onclick="toggleCompareChannel('transfer')" id="cmp-ch-transfer" class="py-1.5 rounded-lg theme-text-sub">1. โอน</button>
-              <button type="button" onclick="toggleCompareChannel('credit_card')" id="cmp-ch-credit_card" class="py-1.5 rounded-lg theme-text-sub">2. บัตรเครดิต</button>
-              <button type="button" onclick="toggleCompareChannel('cash')" id="cmp-ch-cash" class="py-1.5 rounded-lg theme-text-sub">3. เงินสด</button>
-            </div>
-          </div>
-
-          <!-- Category Filter Pills -->
-          <div class="pt-2 border-t theme-border space-y-1.5">
-            <p class="text-[10px] font-semibold theme-text-muted">กรองหมวดหมู่ (เลือกผสมได้):</p>
-            <div id="cmp-cat-pills" class="flex flex-wrap gap-1.5 text-[11px]"></div>
-          </div>
-        </div>
-
-        <!-- Comparison Side-by-Side Bar Chart -->
-        <div class="soft-card p-4 rounded-3xl space-y-2.5">
-          <div class="flex justify-between items-center gap-2">
-            <h3 class="text-xs font-semibold theme-text-main">กราฟเปรียบเทียบยอดรวมแต่ละเดือน</h3>
-            <span id="cmp-variance-badge" class="text-[11px] font-semibold theme-text-primary"></span>
-          </div>
-          <div class="h-48">
-            <canvas id="compareMonthsChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Comparison Detailed Matrix Table -->
-        <div id="cmp-matrix-container" class="soft-card p-4 rounded-3xl space-y-3 overflow-x-auto"></div>
       </div>
     </main>
 
@@ -507,7 +494,7 @@
         </div>
       </div>
 
-      <!-- COMPACT PASTEL PAYMENT CHANNEL SUMMARY CARD -->
+      <!-- COMPACT PASTEL PAYMENT CHANNEL SUMMARY CARD (INLINE % BESIDE AMOUNT) -->
       <div class="soft-card px-3.5 py-3 rounded-2xl space-y-2">
         <div class="flex justify-between items-center gap-2">
           <h3 class="text-[11px] font-semibold theme-text-main">สัดส่วนแยกตามช่องทางการจ่ายเงิน</h3>
@@ -518,6 +505,7 @@
         </div>
 
         <div class="grid grid-cols-3 gap-1.5">
+          <!-- 1. โอน (Pastel Rose Blush) -->
           <div onclick="setAnalyticsChannelFilter('transfer')" id="ch-card-transfer" class="cursor-pointer bg-[#FFF0F4] px-2.5 py-1.5 rounded-xl border border-[#F2C6D4] transition">
             <div class="flex items-center gap-1 text-[10px] font-medium text-[#A84A67]">
               <span class="w-1.5 h-1.5 rounded-full bg-[#E385A1] shrink-0"></span>
@@ -528,6 +516,7 @@
             </p>
           </div>
 
+          <!-- 2. บัตรเครดิต (Pastel Lavender) -->
           <div onclick="setAnalyticsChannelFilter('credit_card')" id="ch-card-credit_card" class="cursor-pointer bg-[#F5F0FA] px-2.5 py-1.5 rounded-xl border border-[#DDD0EE] transition">
             <div class="flex items-center gap-1 text-[10px] font-medium text-[#6B5494]">
               <span class="w-1.5 h-1.5 rounded-full bg-[#B19CD9] shrink-0"></span>
@@ -538,6 +527,7 @@
             </p>
           </div>
 
+          <!-- 3. เงินสด (Pastel Warm Peach) -->
           <div onclick="setAnalyticsChannelFilter('cash')" id="ch-card-cash" class="cursor-pointer bg-[#FDF4EE] px-2.5 py-1.5 rounded-xl border border-[#F2D5C2] transition">
             <div class="flex items-center gap-1 text-[10px] font-medium text-[#9E5B3B]">
               <span class="w-1.5 h-1.5 rounded-full bg-[#EAA882] shrink-0"></span>
@@ -567,14 +557,14 @@
 
     <!-- TAB 4: MEMBERS, ADMIN-CONTROLLED SCREEN THEMES, LEDGER VISIBILITY & SETTINGS -->
     <main id="tab-members" class="hidden p-5 pb-28 space-y-5">
-      <!-- 1. PWA Version Control & Safari Cache Cleaner (All Users on iPhone Home Screen) -->
+      <!-- PWA Version Control & Safari Cache Cleaner -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div class="flex justify-between items-center gap-2">
           <div>
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v2.7</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v2.8</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -787,7 +777,7 @@
 
     <!-- Dual Floating Action Buttons -->
     <div id="fab-container" class="fixed bottom-20 right-4 flex flex-col items-center gap-2.5 z-30">
-      <label for="quick-camera-input" title="ถ่ายรูปใบเสร็จสดทันที" aria-label="Quick Camera Scan" class="bg-white theme-text-primary border-2 theme-border-mid p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
+      <label for="quick-camera-input" title="ถ่ายรูปใบเสร็จสดทันที" aria-label="Quick Camera Scan" class="bg-white/95 theme-text-primary border-2 theme-border-mid p-2.5 rounded-full shadow-md flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/>
@@ -795,7 +785,7 @@
         <input id="quick-camera-input" type="file" accept="image/*" capture="environment" onchange="handleQuickCameraCapture(this)" class="hidden" />
       </label>
 
-      <label for="one-tap-album-input" id="fab-add-expense" title="แตะเพื่อเลือกรูปสลิป (แนะนำไม่เกิน 15 รูปต่อครั้ง)" aria-label="1-Tap Add Expense" class="luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition active:scale-95">
+      <label for="one-tap-album-input" id="fab-add-expense" title="แตะเพื่อเลือกรูปสลิป (แนะนำไม่เกิน 15 รูปต่อรอบ)" aria-label="1-Tap Add Expense" class="luxury-gradient hover:opacity-95 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition active:scale-95">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         <input id="one-tap-album-input" type="file" accept="image/*" multiple onclick="handleOneTapAlbumClick()" onchange="handleOneTapAlbumSelected(this)" class="hidden" />
       </label>
@@ -822,8 +812,8 @@
     </nav>
   </div>
 
-  <!-- ================= MODAL: ADD EXPENSE (ZERO-LAG PRE-COMPRESS + UNLIMITED QUEUE + HARD DUPLICATE BLOCKER) ================= -->
-  <div id="expense-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-end sm:items-center justify-center">
+  <!-- ================= MODAL: ADD EXPENSE (ZERO-LAG PRE-COMPRESSED QUEUE & HARD DUPLICATE BLOCKER) ================= -->
+  <div id="expense-modal" class="hidden fixed inset-0 bg-[#3A2229]/50 z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base theme-text-main">บันทึกรายจ่าย (<span id="modal-curr-badge">CNY</span>)</h3>
@@ -834,7 +824,7 @@
         <div class="flex justify-between items-center gap-2">
           <div class="min-w-0 flex-1">
             <p class="text-xs font-semibold theme-text-primary">สแกนสลิป / แคปโนติบัตรหลายรายการพร้อมกัน</p>
-            <p id="scanner-rule-hint" class="text-[10px] theme-text-muted">แนะนำไม่เกิน 15 รูปต่อครั้งเพื่อความรวดเร็ว (รองรับเกินจำนวน & กดสแกนซ้ำใบที่พลาดได้)</p>
+            <p id="scanner-rule-hint" class="text-[10px] theme-text-muted">แนะนำไม่เกิน 15 รูปต่อรอบเพื่อความรวดเร็ว (รองรับอัปเกินและกดสแกนซ้ำใบที่พลาดได้)</p>
           </div>
           <label class="luxury-gradient text-white text-[11px] font-medium px-3.5 py-2 rounded-xl cursor-pointer shadow-xs shrink-0">
             เลือกรูปเพิ่ม
@@ -963,7 +953,7 @@
   </div>
 
   <!-- ================= MODAL: EDIT EXISTING EXPENSE (WITH ADMIN MOVE LEDGER) ================= -->
-  <div id="edit-expense-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-end sm:items-center justify-center">
+  <div id="edit-expense-modal" class="hidden fixed inset-0 bg-[#3A2229]/50 z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base theme-text-main">แก้ไขรายการค่าใช้จ่าย</h3>
@@ -1046,7 +1036,7 @@
   </div>
 
   <!-- ================= MODAL: PERIOD RECEIPT VAULT ================= -->
-  <div id="day-receipts-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-end sm:items-center justify-center">
+  <div id="day-receipts-modal" class="hidden fixed inset-0 bg-[#3A2229]/50 z-50 flex items-end sm:items-center justify-center">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
         <div>
@@ -1059,14 +1049,14 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: IN-APP PDF REPORT (iOS PWA NATIVE SHARE & SAVE + PRINT) ================= -->
+  <!-- ================= MODAL: IN-APP PDF REPORT (iOS NATIVE PDF DOWNLOAD/SHARE + PRINT) ================= -->
   <div id="pdf-report-modal" class="hidden fixed inset-0 bg-[#3A2229]/60 z-50 flex items-center justify-center p-2 sm:p-5">
     <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border theme-border flex flex-col max-h-[92vh] overflow-hidden">
-      <div class="no-print px-4 py-3 bg-[#FFF5F8] border-b theme-border-mid flex flex-wrap justify-between items-center gap-2 shrink-0">
-        <p class="text-xs font-semibold theme-text-primary">รายงาน PDF พร้อมรูปสลิปย่อ</p>
-        <div class="flex items-center gap-1.5">
-          <button type="button" id="btn-download-share-pdf" onclick="downloadOrSharePdfFile()" class="luxury-gradient text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl shadow-xs">บันทึก PDF / แชร์ (iPhone)</button>
-          <button type="button" onclick="window.print()" class="bg-white hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid text-[11px] font-medium px-2.5 py-1.5 rounded-xl">สั่งพิมพ์</button>
+      <div class="no-print px-4 py-3 bg-[#FFF5F8] border-b theme-border-mid flex justify-between items-center gap-2 shrink-0">
+        <p class="text-xs font-semibold theme-text-primary truncate">รายงานสรุปพร้อมสลิป</p>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="btn-download-pdf-file" type="button" onclick="downloadOrSharePdfFile()" class="luxury-gradient text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl shadow-xs">บันทึก PDF / แชร์</button>
+          <button type="button" onclick="window.print()" class="bg-white theme-text-sub border theme-border-mid text-[11px] font-medium px-2.5 py-1.5 rounded-xl">พิมพ์</button>
           <button onclick="closeModal('pdf-report-modal')" aria-label="ปิดหน้าต่าง" class="w-8 h-8 rounded-full bg-white border theme-border-mid theme-text-main flex items-center justify-center text-base font-bold">✕</button>
         </div>
       </div>
@@ -1075,7 +1065,7 @@
   </div>
 
   <!-- ================= MODAL: FINAL SETTLEMENT & ADMIN RATE ================= -->
-  <div id="settle-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-center justify-center p-5">
+  <div id="settle-modal" class="hidden fixed inset-0 bg-[#3A2229]/50 z-50 flex items-center justify-center p-5">
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border theme-border">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base theme-text-main">สรุปเคลียร์ยอดไฟนอล</h3>
@@ -1105,7 +1095,7 @@
   </div>
 
   <!-- ================= MODAL: FLAG EXPENSE FOR OWNER REVIEW ================= -->
-  <div id="flag-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-center justify-center p-5">
+  <div id="flag-modal" class="hidden fixed inset-0 bg-[#3A2229]/50 z-50 flex items-center justify-center p-5">
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 border theme-border">
       <div class="flex justify-between items-center">
         <h3 class="font-semibold text-base theme-text-main">แจ้งตรวจสอบ / ขอลบรายการ</h3>
@@ -1138,7 +1128,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v2.7';
+    const APP_VERSION = 'v2.8';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1152,7 +1142,7 @@
       { id: 'sage', name: 'Sage Mint', swatch: '#4E9A7B', dark: false, vars: { '--bg-top': '#F1F8F5', '--bg-bottom': '#E2F2EB', '--text-main': '#2D4D40', '--text-sub': '#486E5F', '--text-muted': '#6B8F80', '--primary': '#4E9A7B', '--primary-dark': '#397B60', '--primary-light': '#73B99C', '--soft-pill': '#E1F3EB', '--soft-surface': '#F7FCFA', '--soft-tint': '#ECF7F2', '--border-soft': '#CDE6DC', '--border-mid': '#BEE0D3', '--card-bg': 'rgba(255, 255, 255, 0.96)', '--header-bg': 'rgba(255, 255, 255, 0.94)' } },
       { id: 'lavender', name: 'Lavender', swatch: '#8B72BE', dark: false, vars: { '--bg-top': '#F5F2FA', '--bg-bottom': '#ECE5F7', '--text-main': '#44355E', '--text-sub': '#625082', '--text-muted': '#8373A1', '--primary': '#8B72BE', '--primary-dark': '#6F56A3', '--primary-light': '#A993D6', '--soft-pill': '#ECE4FA', '--soft-surface': '#FAF8FE', '--soft-tint': '#F2ECFC', '--border-soft': '#DDD2F2', '--border-mid': '#D2C4ED', '--card-bg': 'rgba(255, 255, 255, 0.96)', '--header-bg': 'rgba(255, 255, 255, 0.94)' } },
       { id: 'sand', name: 'Warm Gold', swatch: '#B8863B', dark: false, vars: { '--bg-top': '#FAF6F0', '--bg-bottom': '#F3ECE0', '--text-main': '#54432C', '--text-sub': '#756044', '--text-muted': '#968265', '--primary': '#B8863B', '--primary-dark': '#996B26', '--primary-light': '#D1A35C', '--soft-pill': '#F5EAD6', '--soft-surface': '#FCF9F4', '--soft-tint': '#F7F1E6', '--border-soft': '#E8DCC6', '--border-mid': '#E0D1B6', '--card-bg': 'rgba(255, 255, 255, 0.96)', '--header-bg': 'rgba(255, 255, 255, 0.94)' } },
-      { id: 'midnight', name: 'Noir Rose', swatch: '#1F1B24', dark: true, vars: { '--bg-top': '#16131A', '--bg-bottom': '#1E1924', '--text-main': '#F4EDF2', '--text-sub': '#CBB9C4', '--text-muted': '#9A8794', '--primary': '#E07A98', '--primary-dark': '#F29BB5', '--primary-light': '#C45B79', '--soft-pill': '#382834', '--soft-surface': '#26212C', '--soft-tint': '#2B2433', '--border-soft': '#3A3145', '--border-mid': '#483D54', '--card-bg': 'rgba(34, 29, 41, 0.96)', '--header-bg': 'rgba(26, 22, 31, 0.94)' } }
+      { id: 'midnight', name: 'Noir Rose', swatch: '#1F1B24', dark: true, vars: { '--bg-top': '#16131A', '--bg-bottom': '#1E1924', '--text-main': '#F4EDF2', '--text-sub': '#CBB9C4', '--text-muted': '#9A8794', '--primary': '#E07A98', '--primary-dark': '#F29BB5', '--primary-light': '#C45B79', '--soft-pill': '#382834', '--soft-surface': '#26212C', '--soft-tint': '#2B2433', '--border-soft': '#3A3145', '--border-mid': '#483D54', '--card-bg': 'rgba(34, 29, 41, 0.96)', '--header-bg': 'rgba(26, 22, 31, 0.95)' } }
     ];
 
     const DEFAULT_CATEGORIES = [
@@ -1198,13 +1188,10 @@
     let activeGlobalThemeId = 'blush';
     let currentScopeFilter = 'shared';
     let currentQuickFilter = 'all';
+    let digestSubMode = 'list';
     let digestChannelFilters = new Set();
-    let digestSubView = 'list';
     let compareSelectedMonths = new Set();
-    let compareChannelFilters = new Set();
-    let compareCategoryFilters = new Set();
-    let compareMonthsChartInstance = null;
-
+    let compareSelectedCategories = new Set();
     let currentChannelStatScope = 'all';
     let analyticsChannelFilters = new Set();
     let analyticsCategoryFilters = new Set();
@@ -1214,9 +1201,11 @@
     let totalDays = 6;
     let dailyChartInstance = null;
     let categoryChartInstance = null;
+    let monthCompareChartInstance = null;
 
+    // Zero-lag pre-compressed queue state (stores lightweight Blob + Base64 instead of heavy RAW File objects)
     let batchQueue = [];
-    let activeSinglePrepared = null;
+    let activeSingleAsset = null;
     let currentTimeSource = 'upload';
     let currentSingleSlipHash = null;
     let currentSingleSlipRef = null;
@@ -1518,7 +1507,7 @@
 
       customCategories = nextList;
       analyticsCategoryFilters.delete(target.key);
-      compareCategoryFilters.delete(target.key);
+      compareSelectedCategories.delete(target.key);
       syncCategorySelects();
       renderAdminCategories();
       renderDashboard();
@@ -1619,7 +1608,7 @@
       btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
 
       try {
-        await safeInsertExpensesBulk([{
+        await safeInsertExpenseRows([{
           trip_id: currentTrip.id,
           trip_day: monthly ? 1 : parseInt(periodVal || '1'),
           expense_date: todayStr,
@@ -1766,9 +1755,7 @@
 
     async function deleteCurrentLedgerPermanently() {
       if (!isSuperAdmin()) return;
-      const typedName = prompt(`คำเตือน: การลบสมุดบัญชีจะลบรายการบิล สมาชิก และประวัติทั้งหมดในสมุดนี้ถาวร
-
-พิมพ์ชื่อสมุด "${currentTrip.name}" เพื่อยืนยันการลบ:`);
+      const typedName = prompt(`คำเตือน: การลบสมุดบัญชีจะลบรายการบิล สมาชิก และประวัติทั้งหมดในสมุดนี้ถาวร\n\nพิมพ์ชื่อสมุด "${currentTrip.name}" เพื่อยืนยันการลบ:`);
       if (typedName === null) return;
       if (typedName.trim() !== currentTrip.name.trim()) {
         return alert('ชื่อสมุดไม่ตรงกัน ยกเลิกการลบครับ');
@@ -1832,19 +1819,19 @@
       oneTapPickerPending = false;
       if (!input.files || input.files.length === 0) return;
       const files = Array.from(input.files);
+      input.value = '';
       openExpenseModal();
       await processSelectedFiles(files, { isDirectCamera: false });
-      input.value = '';
     }
 
     async function handleQuickCameraCapture(input) {
       if (!input.files || input.files.length === 0) return;
       if (currentTrip?.is_closed) return alert('สมุดนี้ปิดยอดแล้ว ไม่สามารถเพิ่มรายการได้');
       const capturedFile = input.files[0];
+      input.value = '';
       openExpenseModal();
       await new Promise(r => setTimeout(r, 200));
       await processSelectedFiles([capturedFile], { isDirectCamera: true });
-      input.value = '';
     }
 
     function normalizeChannel(ch) {
@@ -1969,49 +1956,72 @@
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // ================= ZERO-LAG PRE-COMPRESS & MEMORY RELEASE PIPELINE =================
-    // Compresses image once into a tiny Blob (~120KB) + Base64, then releases raw camera File & Canvas immediately
-    function prepareLightweightSlipAsset(file, enhanceReceiptContrast = false) {
-      const targetMaxDim = enhanceReceiptContrast ? 1280 : 1080;
+    // ================= iOS-SAFE ZERO-LAG PRE-COMPRESSOR (FileReader + Canvas Memory Release) =================
+    function prepareLightweightAsset(file, enhanceReceiptContrast = false) {
       return new Promise((resolve) => {
-        const objectUrl = URL.createObjectURL(file);
-        const img = new Image();
-        img.onload = () => {
-          try {
+        const maxDim = enhanceReceiptContrast ? 1320 : 1120;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
             const canvas = document.createElement('canvas');
-            const scale = Math.min(1, targetMaxDim / Math.max(img.width || 1024, img.height || 1024));
-            canvas.width = Math.round((img.width || 1024) * scale);
-            canvas.height = Math.round((img.height || 1024) * scale);
+            const origW = img.naturalWidth || img.width || 1024;
+            const origH = img.naturalHeight || img.height || 1024;
+            const scale = Math.min(1, maxDim / Math.max(origW, origH));
+            canvas.width = Math.round(origW * scale);
+            canvas.height = Math.round(origH * scale);
             const ctx = canvas.getContext('2d');
             if (enhanceReceiptContrast) {
-              ctx.filter = 'contrast(1.16) brightness(1.02)';
+              ctx.filter = 'contrast(1.16) brightness(1.03)';
             }
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.80);
-            const base64 = dataUrl.split(',')[1];
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.84);
+            const base64 = dataUrl.split(',')[1] || '';
 
-            canvas.toBlob((blob) => {
-              // Explicitly free canvas & objectUrl RAM on iOS Safari
+            canvas.toBlob(async (blob) => {
               canvas.width = 0;
               canvas.height = 0;
-              URL.revokeObjectURL(objectUrl);
-              resolve({ blob, base64 });
-            }, 'image/jpeg', 0.78);
-          } catch (err) {
-            URL.revokeObjectURL(objectUrl);
-            resolve({ blob: file, base64: '' });
-          }
+              const finalBlob = blob || file;
+              const buf = await finalBlob.arrayBuffer();
+              const hash = await computeBufferHash(buf);
+              resolve({
+                blob: finalBlob,
+                base64,
+                hash,
+                fileName: file.name || 'receipt.jpg',
+                captureDate: getFileCaptureDate(file)
+              });
+            }, 'image/jpeg', 0.82);
+          };
+          img.onerror = async () => {
+            const fallbackBase64 = (e.target?.result || '').split(',')[1] || '';
+            const buf = await file.arrayBuffer();
+            const hash = await computeBufferHash(buf);
+            resolve({
+              blob: file,
+              base64: fallbackBase64,
+              hash,
+              fileName: file.name || 'receipt.jpg',
+              captureDate: getFileCaptureDate(file)
+            });
+          };
+          img.src = e.target.result;
         };
-        img.onerror = () => {
-          URL.revokeObjectURL(objectUrl);
-          resolve({ blob: file, base64: '' });
+        reader.onerror = () => {
+          resolve({
+            blob: file,
+            base64: '',
+            hash: `${file.name}_${file.size}_${file.lastModified}`,
+            fileName: file.name || 'receipt.jpg',
+            captureDate: getFileCaptureDate(file)
+          });
         };
-        img.src = objectUrl;
+        reader.readAsDataURL(file);
       });
     }
 
-    // ================= 3. HARD DUPLICATE BLOCKER & AUTO-FILTER =================
+    // ================= HARD DUPLICATE BLOCKER & AUTO-FILTER =================
     function findDuplicateExpense({ hash, ref, title, amount_cny, slip_time, time_source }) {
       const activeList = expensesList.filter(e => !e.delete_flag);
       if (hash) {
@@ -2313,8 +2323,7 @@
       analyticsChannelFilters.clear();
       digestChannelFilters.clear();
       compareSelectedMonths.clear();
-      compareChannelFilters.clear();
-      compareCategoryFilters.clear();
+      compareSelectedCategories.clear();
       renderTripSwitcherOptions();
       if (isSuperAdmin()) renderAdminHiddenLedgersManager();
       await loadTripContext();
@@ -2402,6 +2411,12 @@
       document.getElementById('btn-toggle-calc-widget').classList.toggle('hidden', isClosed);
       document.getElementById('btn-add-day-top').classList.toggle('hidden', isClosed || monthly);
       document.getElementById('btn-pull-recurring-top').classList.toggle('hidden', isClosed || !monthly || !isSuperAdmin());
+      document.getElementById('digest-mode-switcher').classList.toggle('hidden', !monthly);
+      if (!monthly) {
+        digestSubMode = 'list';
+        document.getElementById('month-compare-panel').classList.add('hidden');
+        document.getElementById('daily-digest-standard-view').classList.remove('hidden');
+      }
 
       if (isClosed && currentTrip.closed_at) {
         const closedDate = new Date(currentTrip.closed_at);
@@ -2420,9 +2435,6 @@
       document.getElementById('digest-heading').textContent = monthly
         ? 'สรุปรายเดือน & เปรียบเทียบข้ามเดือน'
         : 'สรุปรายวัน & คลังสลิปตรวจสอบ';
-      document.getElementById('digest-view-switcher').classList.toggle('hidden', !monthly);
-      if (!monthly) setDigestSubView('list');
-
       document.getElementById('scope-shared').textContent = monthly ? 'รายการเดือนนี้' : 'บิลกลุ่ม & หารร่วม';
       document.getElementById('monthly-archive-section').classList.toggle('hidden', !monthly);
 
@@ -2584,13 +2596,8 @@
       renderDayOptions();
       syncQuickCalcControls();
       renderDashboard();
-      if (!document.getElementById('tab-digest').classList.contains('hidden')) {
-        renderDailyDigest();
-        if (digestSubView === 'compare') renderMonthComparisonMatrix();
-      }
-      if (!document.getElementById('tab-analytics').classList.contains('hidden')) {
-        renderAnalytics();
-      }
+      renderDailyDigest();
+      renderAnalytics();
       renderMembers();
       loadLogs();
       if (isSuperAdmin()) loadLogBackups();
@@ -2790,7 +2797,7 @@
     function setScopeFilter(scope) {
       currentScopeFilter = scope;
       const activeClass = 'px-3 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs';
-      const inactiveClass = 'px-3 py-1.5 rounded-xl text-xs font-medium bg-white theme-text-sub border theme-border';
+      const inactiveClass = 'px-3 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border';
       document.getElementById('scope-shared').className = scope === 'shared' ? activeClass : inactiveClass;
       document.getElementById('scope-personal').className = scope === 'personal' ? activeClass : inactiveClass;
       document.getElementById('personal-cash-card').classList.toggle('hidden', scope !== 'personal');
@@ -2820,7 +2827,7 @@
       renderExpenseList();
     }
 
-    // ================= 4. MULTI-KEYWORD COMMA SEARCH (OR MATCHING) =================
+    // ================= MULTI-KEYWORD COMMA SEARCH (OR MATCHING) =================
     function parseSearchKeywords(rawText) {
       return (rawText || '')
         .split(/[,，]/)
@@ -2828,13 +2835,11 @@
         .filter(Boolean);
     }
 
-    let searchDebounceTimer = null;
     function handleSearchInputChange() {
       const inputEl = document.getElementById('search-expense-input');
       const clearBtn = document.getElementById('btn-clear-search');
       if (clearBtn) clearBtn.classList.toggle('hidden', !(inputEl?.value || '').trim());
-      clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(() => renderExpenseList(), 120);
+      renderExpenseList();
     }
 
     function clearSearchInput() {
@@ -2980,7 +2985,7 @@
                 <p class="text-[11px] text-[#C45B79] font-medium">รอเจ้าของยืนยันลบ: แจ้งโดย ${e.delete_flag.flagged_by_name} — "${e.delete_flag.reason}"</p>
                 ${canManage ? `
                   <div class="flex gap-2">
-                    <button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\'")}')" class="flex-1 luxury-gradient text-white text-[11px] py-1.5 rounded-lg font-medium">ยืนยันลบรายการนี้</button>
+                    <button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="flex-1 luxury-gradient text-white text-[11px] py-1.5 rounded-lg font-medium">ยืนยันลบรายการนี้</button>
                     <button onclick="dismissFlag('${e.id}')" class="flex-1 bg-white theme-text-sub border theme-border-mid text-[11px] py-1.5 rounded-lg">ข้อมูลถูกแล้ว</button>
                   </div>` : ''}
               </div>`;
@@ -3014,11 +3019,11 @@
                   <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white theme-border-mid theme-text-muted'}">
                     ${isVerified ? '✓ ตรวจแล้ว' : 'ติ๊กตรวจ'}
                   </button>
-                  ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\'")}')" class="theme-text-primary font-medium underline">สลิป</button>` : ''}
+                  ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="theme-text-primary font-medium underline">สลิป</button>` : ''}
                   ${canManage ? `<button onclick="openEditExpenseModal('${e.id}')" class="theme-text-sub underline">แก้ไข</button>` : ''}
                   ${!itemLocked ? (canManage
-                    ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\'")}')" class="theme-text-muted hover:text-rose-600">ลบ</button>`
-                    : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\'")}')" class="theme-text-primary hover:underline">แจ้งผิด</button>` : '')) : ''}
+                    ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="theme-text-muted hover:text-rose-600">ลบ</button>`
+                    : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="theme-text-primary hover:underline">แจ้งผิด</button>` : '')) : ''}
                 </div>
               </div>
             </div>`;
@@ -3026,7 +3031,7 @@
 
         return `
           <div class="space-y-2">
-            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center ${isPastMonthLocked ? 'bg-[#F8ECEF]' : 'bg-white hover:bg-[#FFF9FA]'} px-3.5 py-2.5 rounded-2xl border theme-border-mid text-xs transition">
+            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center ${isPastMonthLocked ? 'bg-[#F8ECEF]' : 'bg-white/85 hover:bg-white'} px-3.5 py-2.5 rounded-2xl border theme-border-mid text-xs transition">
               <div class="flex items-center gap-2">
                 <span class="font-semibold theme-text-primary">${groupHeaderTitle}</span>
                 <span class="text-[11px] theme-text-muted">(${items.length} รายการ)</span>
@@ -3187,339 +3192,14 @@
     }
 
     // ================= DAILY / MONTHLY DIGEST + CUSTOM MULTI-MONTH COMPARISON MATRIX =================
-    function setDigestSubView(viewMode) {
-      digestSubView = viewMode;
-      const isCompare = viewMode === 'compare';
-      document.getElementById('dg-view-list').className = `py-2 rounded-xl transition ${!isCompare ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub font-medium'}`;
-      document.getElementById('dg-view-compare').className = `py-2 rounded-xl transition ${isCompare ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub font-medium'}`;
-      document.getElementById('digest-standard-section').classList.toggle('hidden', isCompare);
-      document.getElementById('digest-compare-section').classList.toggle('hidden', !isCompare);
-      if (isCompare) {
-        renderMonthComparisonMatrix();
-      } else {
-        renderDailyDigest();
-      }
-    }
-
-    function getAllAvailableMonthKeys() {
-      const mSet = new Set();
-      mSet.add(getCurrentYYYYMM());
-      expensesList.forEach(e => {
-        const mk = e.expense_month || (e.expense_date || '').slice(0, 7);
-        if (mk && mk.includes('-')) mSet.add(mk);
-      });
-      monthlyArchivesList.forEach(a => {
-        if (a.month_key && a.month_key.includes('-')) mSet.add(a.month_key);
-      });
-      return Array.from(mSet).sort();
-    }
-
-    function toggleCompareMonth(mKey) {
-      if (compareSelectedMonths.has(mKey)) {
-        if (compareSelectedMonths.size <= 1) return;
-        compareSelectedMonths.delete(mKey);
-      } else {
-        compareSelectedMonths.add(mKey);
-      }
-      renderMonthComparisonMatrix();
-    }
-
-    function toggleCompareChannel(ch) {
-      if (ch === 'ALL') {
-        compareChannelFilters.clear();
-      } else {
-        if (compareChannelFilters.has(ch)) compareChannelFilters.delete(ch);
-        else compareChannelFilters.add(ch);
-      }
-      renderMonthComparisonMatrix();
-    }
-
-    function toggleCompareCategory(catKey) {
-      if (catKey === 'ALL') {
-        compareCategoryFilters.clear();
-      } else {
-        if (compareCategoryFilters.has(catKey)) compareCategoryFilters.delete(catKey);
-        else compareCategoryFilters.add(catKey);
-      }
-      renderMonthComparisonMatrix();
-    }
-
-    function resetMonthCompareFilters() {
-      compareChannelFilters.clear();
-      compareCategoryFilters.clear();
-      const allM = getAllAvailableMonthKeys();
-      compareSelectedMonths = new Set(allM.slice(-2));
-      renderMonthComparisonMatrix();
-    }
-
-    function renderMonthComparisonMatrix() {
-      const allMonths = getAllAvailableMonthKeys();
-      if (compareSelectedMonths.size === 0) {
-        const defaultPick = allMonths.length >= 2 ? allMonths.slice(-2) : allMonths;
-        compareSelectedMonths = new Set(defaultPick);
-      } else {
-        Array.from(compareSelectedMonths).forEach(m => {
-          if (!allMonths.includes(m)) compareSelectedMonths.delete(m);
-        });
-        if (compareSelectedMonths.size === 0 && allMonths.length > 0) {
-          compareSelectedMonths.add(allMonths[allMonths.length - 1]);
-        }
-      }
-
-      // Render Month Selector Pills
-      const monthPillsEl = document.getElementById('cmp-month-pills');
-      if (monthPillsEl) {
-        monthPillsEl.innerHTML = allMonths.map(mKey => {
-          const active = compareSelectedMonths.has(mKey);
-          return `<button type="button" onclick="toggleCompareMonth('${mKey}')"
-            class="px-3 py-1.5 rounded-xl text-xs transition ${active ? 'luxury-gradient text-white font-semibold shadow-2xs' : 'bg-[#FFF9FA] theme-text-sub border theme-border-mid'}">
-            ${active ? '✓ ' : ''}${formatMonthLabel(mKey)}
-          </button>`;
-        }).join('');
-      }
-
-      // Update Channel Buttons
-      const isAllCh = compareChannelFilters.size === 0;
-      document.getElementById('cmp-ch-ALL').className = `py-1.5 rounded-lg ${isAllCh ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
-      ['transfer', 'credit_card', 'cash'].forEach(k => {
-        const el = document.getElementById(`cmp-ch-${k}`);
-        if (el) {
-          const act = compareChannelFilters.has(k);
-          el.className = `py-1.5 rounded-lg ${act ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
-        }
-      });
-
-      // Render Category Pills
-      const catPillsEl = document.getElementById('cmp-cat-pills');
-      if (catPillsEl) {
-        const isAllCat = compareCategoryFilters.size === 0;
-        const allHtml = `<button type="button" onclick="toggleCompareCategory('ALL')"
-          class="px-2.5 py-1 rounded-lg transition ${isAllCat ? 'luxury-gradient text-white font-semibold' : 'bg-[#FFF9FA] theme-text-sub border theme-border-mid'}">
-          ทุกหมวดหมู่
-        </button>`;
-        const itemsHtml = customCategories.map(c => {
-          const act = compareCategoryFilters.has(c.key);
-          return `<button type="button" onclick="toggleCompareCategory('${c.key.replace(/'/g, "\'")}')"
-            class="px-2.5 py-1 rounded-lg transition ${act ? 'luxury-gradient text-white font-semibold' : 'bg-[#FFF9FA] theme-text-sub border theme-border-mid'}">
-            ${act ? '✓ ' : ''}${c.short || c.label}
-          </button>`;
-        }).join('');
-        catPillsEl.innerHTML = allHtml + itemsHtml;
-      }
-
-      const selectedSortedMonths = Array.from(compareSelectedMonths).sort();
-      const myEmail = currentMember.email.toLowerCase();
-      const finalRate = getGlobalFinalRate();
-      const sym = getCurrSymbol();
-      const isSinglePersonLedger = getActiveParticipants().length <= 1;
-
-      // Aggregate data per selected month -> byCategory & byChannel
-      const monthStats = {};
-      selectedSortedMonths.forEach(mKey => {
-        monthStats[mKey] = {
-          total: 0,
-          byCat: {},
-          byCh: { transfer: 0, credit_card: 0, cash: 0 }
-        };
-        customCategories.forEach(c => { monthStats[mKey].byCat[c.key] = 0; });
-      });
-
-      const coveredMonthsFromExpenses = new Set();
-
-      expensesList.forEach(e => {
-        const mKey = e.expense_month || (e.expense_date || '').slice(0, 7);
-        if (!mKey || !monthStats[mKey]) return;
-        coveredMonthsFromExpenses.add(mKey);
-
-        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
-        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
-        const isSolo = isSoloPersonalExpense(e);
-        if (isSolo && !isSinglePersonLedger && payerEm !== myEmail) return;
-        if (!isSuperAdmin() && payerEm !== myEmail && !splitEmails.includes(myEmail)) return;
-
-        const normCh = normalizeChannel(e.payment_channel);
-        const catKey = e.category || customCategories[0]?.key || 'Food';
-        const valDisplay = isThbBase() ? getSignedAmt(e) : calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
-
-        const chMatch = compareChannelFilters.size === 0 || compareChannelFilters.has(normCh);
-        const catMatch = compareCategoryFilters.size === 0 || compareCategoryFilters.has(catKey);
-
-        if (chMatch && catMatch) {
-          monthStats[mKey].total += valDisplay;
-          monthStats[mKey].byCat[catKey] = (monthStats[mKey].byCat[catKey] || 0) + valDisplay;
-          monthStats[mKey].byCh[normCh] = (monthStats[mKey].byCh[normCh] || 0) + valDisplay;
-        }
-      });
-
-      // Fallback to monthlyArchivesList if expenses rows were archived/cleared
-      monthlyArchivesList.forEach(arch => {
-        const mKey = arch.month_key;
-        if (!mKey || !monthStats[mKey] || coveredMonthsFromExpenses.has(mKey)) return;
-        (arch.summary_rows || []).forEach(r => {
-          const matchedCatObj = customCategories.find(c => c.key === r.category || c.short === r.category || c.label === r.category);
-          const catKey = matchedCatObj ? matchedCatObj.key : (r.category || 'Food');
-          let normCh = 'transfer';
-          if ((r.channel || '').includes('บัตร')) normCh = 'credit_card';
-          else if ((r.channel || '').includes('เงินสด')) normCh = 'cash';
-
-          const chMatch = compareChannelFilters.size === 0 || compareChannelFilters.has(normCh);
-          const catMatch = compareCategoryFilters.size === 0 || compareCategoryFilters.has(catKey);
-          if (chMatch && catMatch) {
-            const rawAmt = Number(r.amount || 0);
-            const valDisplay = isThbBase() ? rawAmt : rawAmt * finalRate;
-            monthStats[mKey].total += valDisplay;
-            monthStats[mKey].byCat[catKey] = (monthStats[mKey].byCat[catKey] || 0) + valDisplay;
-            monthStats[mKey].byCh[normCh] = (monthStats[mKey].byCh[normCh] || 0) + valDisplay;
-          }
-        });
-      });
-
-      // Render Side-by-Side Comparison Chart
-      const chartLabels = selectedSortedMonths.map(m => formatMonthLabel(m));
-      const chartTotals = selectedSortedMonths.map(m => Math.round(monthStats[m].total * 100) / 100);
-      const badgeEl = document.getElementById('cmp-variance-badge');
-
-      if (selectedSortedMonths.length >= 2) {
-        const firstVal = chartTotals[0];
-        const lastVal = chartTotals[chartTotals.length - 1];
-        const diff = lastVal - firstVal;
-        const pct = firstVal > 0 ? Math.round((diff / firstVal) * 100) : (lastVal > 0 ? 100 : 0);
-        badgeEl.textContent = diff <= 0
-          ? `ลดลง ฿${fmtNum(Math.abs(diff))} (${Math.abs(pct)}%)`
-          : `เพิ่มขึ้น +฿${fmtNum(diff)} (+${pct}%)`;
-        badgeEl.className = `text-[11px] font-semibold ${diff <= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
-      } else {
-        badgeEl.textContent = `฿${fmtNum(chartTotals[0] || 0)}`;
-        badgeEl.className = 'text-[11px] font-semibold theme-text-primary';
-      }
-
-      if (compareMonthsChartInstance) compareMonthsChartInstance.destroy();
-      const ctxCompare = document.getElementById('compareMonthsChart');
-      if (ctxCompare) {
-        compareMonthsChartInstance = new Chart(ctxCompare, {
-          type: 'bar',
-          data: {
-            labels: chartLabels,
-            datasets: [{
-              label: 'ยอดรวมที่กรอง (บาท)',
-              data: chartTotals,
-              backgroundColor: selectedSortedMonths.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]),
-              borderRadius: 8,
-              maxBarThickness: 48
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true, grid: { color: '#FCEBF0' }, ticks: { font: { size: 10 } } },
-              x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } }
-            }
-          }
-        });
-      }
-
-      // Build Variance Matrix Table (Category Breakdown + Payment Channel Breakdown)
-      const hasTwoOrMore = selectedSortedMonths.length >= 2;
-      const firstM = selectedSortedMonths[0];
-      const lastM = selectedSortedMonths[selectedSortedMonths.length - 1];
-
-      const formatDiffCell = (v1, v2) => {
-        const diff = v2 - v1;
-        if (Math.abs(diff) < 0.5) return '<span class="theme-text-muted">0</span>';
-        const pct = v1 > 0 ? Math.round((diff / v1) * 100) : 100;
-        if (diff > 0) {
-          return `<span class="text-rose-600 font-semibold">+฿${fmtNum(diff)}<br><span class="text-[9px] font-normal">(+${pct}%)</span></span>`;
-        }
-        return `<span class="text-emerald-700 font-semibold">-฿${fmtNum(Math.abs(diff))}<br><span class="text-[9px] font-normal">(-${Math.abs(pct)}%)</span></span>`;
-      };
-
-      const monthHeadersHtml = selectedSortedMonths.map(m =>
-        `<th class="py-2 px-2 text-right font-semibold theme-text-main whitespace-nowrap">${formatMonthLabel(m)}</th>`
-      ).join('');
-      const diffHeaderHtml = hasTwoOrMore
-        ? `<th class="py-2 px-2 text-right font-semibold theme-text-primary whitespace-nowrap">ผลต่าง<br><span class="text-[9px] font-normal">(${formatMonthLabel(lastM)} vs ${formatMonthLabel(firstM)})</span></th>`
-        : '';
-
-      const activeCatsToShow = compareCategoryFilters.size === 0
-        ? customCategories
-        : customCategories.filter(c => compareCategoryFilters.has(c.key));
-
-      const catRowsHtml = activeCatsToShow.map(c => {
-        const vals = selectedSortedMonths.map(m => monthStats[m].byCat[c.key] || 0);
-        const cellsHtml = vals.map(v => `<td class="py-2 px-2 text-right text-xs theme-text-main whitespace-nowrap">฿${fmtNum(v)}</td>`).join('');
-        const diffCell = hasTwoOrMore ? `<td class="py-2 px-2 text-right text-[11px] whitespace-nowrap">${formatDiffCell(vals[0], vals[vals.length - 1])}</td>` : '';
-        return `
-          <tr class="border-b theme-border">
-            <td class="py-2 px-2 text-xs font-medium theme-text-sub">${c.short || c.label}</td>
-            ${cellsHtml}
-            ${diffCell}
-          </tr>`;
-      }).join('');
-
-      const channelDefs = [
-        { key: 'transfer', label: '1. โอน' },
-        { key: 'credit_card', label: '2. บัตรเครดิต' },
-        { key: 'cash', label: '3. เงินสด' }
-      ].filter(ch => compareChannelFilters.size === 0 || compareChannelFilters.has(ch.key));
-
-      const chRowsHtml = channelDefs.map(ch => {
-        const vals = selectedSortedMonths.map(m => monthStats[m].byCh[ch.key] || 0);
-        const cellsHtml = vals.map(v => `<td class="py-2 px-2 text-right text-xs theme-text-main whitespace-nowrap">฿${fmtNum(v)}</td>`).join('');
-        const diffCell = hasTwoOrMore ? `<td class="py-2 px-2 text-right text-[11px] whitespace-nowrap">${formatDiffCell(vals[0], vals[vals.length - 1])}</td>` : '';
-        return `
-          <tr class="border-b theme-border">
-            <td class="py-2 px-2 text-xs font-medium theme-text-sub">${ch.label}</td>
-            ${cellsHtml}
-            ${diffCell}
-          </tr>`;
-      }).join('');
-
-      const totalVals = selectedSortedMonths.map(m => monthStats[m].total);
-      const totalCellsHtml = totalVals.map(v => `<td class="py-2.5 px-2 text-right text-xs font-bold theme-text-primary whitespace-nowrap">฿${fmtNum(v)}</td>`).join('');
-      const totalDiffCell = hasTwoOrMore ? `<td class="py-2.5 px-2 text-right text-[11px] whitespace-nowrap">${formatDiffCell(totalVals[0], totalVals[totalVals.length - 1])}</td>` : '';
-
-      document.getElementById('cmp-matrix-container').innerHTML = `
-        <div class="space-y-3">
-          <div>
-            <h3 class="text-xs font-semibold theme-text-main">ตารางเปรียบเทียบรายหมวดหมู่</h3>
-            <table class="w-full border-collapse text-left mt-1.5">
-              <thead>
-                <tr class="bg-[#FFF5F8] text-[11px] border-b theme-border-mid">
-                  <th class="py-2 px-2 font-semibold theme-text-sub">หมวดหมู่</th>
-                  ${monthHeadersHtml}
-                  ${diffHeaderHtml}
-                </tr>
-              </thead>
-              <tbody>
-                ${catRowsHtml}
-                <tr class="bg-[#FFF9FA]">
-                  <td class="py-2.5 px-2 text-xs font-bold theme-text-main">รวมสุทธิ</td>
-                  ${totalCellsHtml}
-                  ${totalDiffCell}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="pt-2 border-t theme-border">
-            <h3 class="text-xs font-semibold theme-text-main">ตารางเปรียบเทียบตามช่องทางการจ่ายเงิน</h3>
-            <table class="w-full border-collapse text-left mt-1.5">
-              <thead>
-                <tr class="bg-[#FFF5F8] text-[11px] border-b theme-border-mid">
-                  <th class="py-2 px-2 font-semibold theme-text-sub">ช่องทางจ่าย</th>
-                  ${monthHeadersHtml}
-                  ${diffHeaderHtml}
-                </tr>
-              </thead>
-              <tbody>
-                ${chRowsHtml}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
+    function setDigestSubMode(mode) {
+      digestSubMode = mode;
+      const isCompare = mode === 'compare';
+      document.getElementById('dg-sub-list').className = `py-2 rounded-xl transition ${!isCompare ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub font-medium'}`;
+      document.getElementById('dg-sub-compare').className = `py-2 rounded-xl transition ${isCompare ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub font-medium'}`;
+      document.getElementById('month-compare-panel').classList.toggle('hidden', !isCompare);
+      document.getElementById('daily-digest-standard-view').classList.toggle('hidden', isCompare);
+      if (isCompare) renderMonthComparisonMatrix();
     }
 
     function setDigestChannelFilter(ch) {
@@ -3540,6 +3220,247 @@
         }
       });
       renderDailyDigest();
+      if (digestSubMode === 'compare') renderMonthComparisonMatrix();
+    }
+
+    function toggleCompareMonth(ym) {
+      if (compareSelectedMonths.has(ym)) {
+        if (compareSelectedMonths.size <= 1) return;
+        compareSelectedMonths.delete(ym);
+      } else {
+        compareSelectedMonths.add(ym);
+      }
+      renderMonthComparisonMatrix();
+    }
+
+    function toggleCompareCategory(catKey) {
+      if (catKey === 'ALL') {
+        compareSelectedCategories.clear();
+      } else {
+        if (compareSelectedCategories.has(catKey)) compareSelectedCategories.delete(catKey);
+        else compareSelectedCategories.add(catKey);
+      }
+      renderMonthComparisonMatrix();
+    }
+
+    function getUnifiedMonthlyRecords() {
+      const myEmail = currentMember.email.toLowerCase();
+      const finalRate = getGlobalFinalRate();
+      const isSinglePersonLedger = getActiveParticipants().length <= 1;
+      const records = [];
+      const liveMonthKeys = new Set();
+
+      expensesList.forEach(e => {
+        const splitEmails = (e.split_details?.emails || []).map(x => x.toLowerCase());
+        const payerEm = (e.paid_by_email || e.created_by || '').toLowerCase();
+        const isSolo = isSoloPersonalExpense(e);
+        if (isSolo && !isSinglePersonLedger && payerEm !== myEmail) return;
+        if (!isSuperAdmin() && payerEm !== myEmail && !splitEmails.includes(myEmail)) return;
+
+        const mKey = e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM();
+        liveMonthKeys.add(mKey);
+        const signedAmt = getSignedAmt(e);
+        const displayVal = isThbBase() ? signedAmt : calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
+
+        records.push({
+          monthKey: mKey,
+          category: e.category || 'Food',
+          channel: normalizeChannel(e.payment_channel),
+          amount: displayVal
+        });
+      });
+
+      monthlyArchivesList.forEach(arch => {
+        if (!arch.month_key || liveMonthKeys.has(arch.month_key)) return;
+        (arch.summary_rows || []).forEach(r => {
+          const chRaw = (r.channel || '').toLowerCase();
+          let normCh = 'transfer';
+          if (chRaw.includes('บัตร')) normCh = 'credit_card';
+          else if (chRaw.includes('สด')) normCh = 'cash';
+
+          const rawAmt = Number(r.amount || 0);
+          const displayVal = isThbBase() ? rawAmt : rawAmt * finalRate;
+          records.push({
+            monthKey: arch.month_key,
+            category: r.category || 'Food',
+            channel: normCh,
+            amount: displayVal
+          });
+        });
+      });
+
+      return records;
+    }
+
+    function renderMonthComparisonMatrix() {
+      if (!isMonthlyMode()) return;
+      const allRecords = getUnifiedMonthlyRecords();
+      const monthSet = new Set([getCurrentYYYYMM()]);
+      allRecords.forEach(r => monthSet.add(r.monthKey));
+      const sortedMonths = Array.from(monthSet).sort();
+
+      if (compareSelectedMonths.size === 0) {
+        sortedMonths.slice(-2).forEach(m => compareSelectedMonths.add(m));
+      } else {
+        Array.from(compareSelectedMonths).forEach(m => {
+          if (!monthSet.has(m)) compareSelectedMonths.delete(m);
+        });
+        if (compareSelectedMonths.size === 0 && sortedMonths.length > 0) {
+          compareSelectedMonths.add(sortedMonths[sortedMonths.length - 1]);
+        }
+      }
+
+      const monthPillsEl = document.getElementById('compare-month-pills');
+      if (monthPillsEl) {
+        monthPillsEl.innerHTML = sortedMonths.map(m => {
+          const active = compareSelectedMonths.has(m);
+          return `<button type="button" onclick="toggleCompareMonth('${m}')"
+            class="px-3 py-1.5 rounded-xl text-xs transition ${active ? 'luxury-gradient text-white font-semibold shadow-2xs' : 'bg-[#FFF9FA] theme-text-sub border theme-border-mid'}">
+            ${active ? '✓ ' : ''}${formatMonthLabel(m)}
+          </button>`;
+        }).join('');
+      }
+
+      const catPillsEl = document.getElementById('compare-category-pills');
+      if (catPillsEl) {
+        const isAllCats = compareSelectedCategories.size === 0;
+        const allBtn = `<button type="button" onclick="toggleCompareCategory('ALL')"
+          class="px-2.5 py-1 rounded-lg transition ${isAllCats ? 'luxury-gradient text-white font-semibold' : 'bg-[#FFF9FA] theme-text-sub border theme-border-mid'}">
+          ทุกหมวดหมู่
+        </button>`;
+        const catBtns = customCategories.map(c => {
+          const active = compareSelectedCategories.has(c.key);
+          return `<button type="button" onclick="toggleCompareCategory('${c.key.replace(/'/g, "\\'")}')"
+            class="px-2.5 py-1 rounded-lg transition ${active ? 'luxury-gradient text-white font-semibold' : 'bg-[#FFF9FA] theme-text-sub border theme-border-mid'}">
+            ${active ? '✓ ' : ''}${c.short || c.label}
+          </button>`;
+        }).join('');
+        catPillsEl.innerHTML = allBtn + catBtns;
+      }
+
+      const selectedMonthsArr = Array.from(compareSelectedMonths).sort();
+      const chSummaryText = digestChannelFilters.size === 0
+        ? 'ทุกช่องทาง'
+        : Array.from(digestChannelFilters).map(getChannelLabel).join(' + ');
+      const catSummaryText = compareSelectedCategories.size === 0
+        ? 'ทุกหมวด'
+        : Array.from(compareSelectedCategories).map(getCategoryShortName).join(' + ');
+      const focusEl = document.getElementById('compare-focus-summary');
+      if (focusEl) focusEl.textContent = `${chSummaryText} · ${catSummaryText}`;
+
+      const filteredRecords = allRecords.filter(r => {
+        if (!compareSelectedMonths.has(r.monthKey)) return false;
+        if (digestChannelFilters.size > 0 && !digestChannelFilters.has(r.channel)) return false;
+        if (compareSelectedCategories.size > 0) {
+          const matchesCat = compareSelectedCategories.has(r.category) ||
+            Array.from(compareSelectedCategories).some(k => getCategoryShortName(k) === getCategoryShortName(r.category));
+          if (!matchesCat) return false;
+        }
+        return true;
+      });
+
+      const monthTotals = {};
+      selectedMonthsArr.forEach(m => { monthTotals[m] = 0; });
+      filteredRecords.forEach(r => {
+        monthTotals[r.monthKey] = (monthTotals[r.monthKey] || 0) + r.amount;
+      });
+
+      const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#D6718E';
+      const canvasEl = document.getElementById('monthCompareChart');
+      if (canvasEl) {
+        if (monthCompareChartInstance) monthCompareChartInstance.destroy();
+        monthCompareChartInstance = new Chart(canvasEl, {
+          type: 'bar',
+          data: {
+            labels: selectedMonthsArr.map(m => formatMonthLabel(m)),
+            datasets: [{
+              label: 'ยอดใช้จ่าย (บาท)',
+              data: selectedMonthsArr.map(m => Math.round(monthTotals[m] * 100) / 100),
+              backgroundColor: selectedMonthsArr.map((_, idx) => idx === selectedMonthsArr.length - 1 ? primaryColor : '#E5B8C4'),
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: { beginAtZero: true, grid: { color: '#FCEBF0' }, ticks: { font: { size: 10 } } },
+              x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      const tableEl = document.getElementById('month-compare-table-container');
+      if (!tableEl) return;
+
+      const catsToShow = compareSelectedCategories.size === 0
+        ? customCategories
+        : customCategories.filter(c => compareSelectedCategories.has(c.key));
+
+      const hasTwoOrMore = selectedMonthsArr.length >= 2;
+      const prevM = hasTwoOrMore ? selectedMonthsArr[selectedMonthsArr.length - 2] : null;
+      const currM = hasTwoOrMore ? selectedMonthsArr[selectedMonthsArr.length - 1] : null;
+
+      let headerHtml = `<th class="py-2 px-2 text-left font-semibold theme-text-sub">หมวดหมู่</th>`;
+      selectedMonthsArr.forEach(m => {
+        headerHtml += `<th class="py-2 px-2 text-right font-semibold theme-text-main whitespace-nowrap">${formatMonthLabel(m)}</th>`;
+      });
+      if (hasTwoOrMore) {
+        headerHtml += `<th class="py-2 px-2 text-right font-semibold theme-text-primary whitespace-nowrap">ส่วนต่างล่าสุด</th>`;
+      }
+
+      const bodyRowsHtml = catsToShow.map(c => {
+        const rowTotals = {};
+        selectedMonthsArr.forEach(m => { rowTotals[m] = 0; });
+
+        filteredRecords.forEach(r => {
+          if (r.category === c.key || getCategoryShortName(r.category) === getCategoryShortName(c.key)) {
+            rowTotals[r.monthKey] = (rowTotals[r.monthKey] || 0) + r.amount;
+          }
+        });
+
+        let cellsHtml = `<td class="py-2 px-2 font-medium theme-text-main whitespace-nowrap">${c.short || c.label}</td>`;
+        selectedMonthsArr.forEach(m => {
+          cellsHtml += `<td class="py-2 px-2 text-right theme-text-sub whitespace-nowrap">฿${fmtNum(rowTotals[m])}</td>`;
+        });
+
+        if (hasTwoOrMore) {
+          const diff = rowTotals[currM] - rowTotals[prevM];
+          const pct = rowTotals[prevM] > 0 ? Math.round((diff / rowTotals[prevM]) * 100) : (rowTotals[currM] > 0 ? 100 : 0);
+          const diffClass = diff > 0.5 ? 'text-rose-600 font-semibold' : (diff < -0.5 ? 'text-emerald-700 font-semibold' : 'theme-text-muted');
+          const sign = diff > 0.5 ? '+' : '';
+          cellsHtml += `<td class="py-2 px-2 text-right ${diffClass} whitespace-nowrap">${sign}฿${fmtNum(diff)} (${sign}${pct}%)</td>`;
+        }
+
+        return `<tr class="border-b theme-border">${cellsHtml}</tr>`;
+      }).join('');
+
+      let totalRowHtml = `<td class="py-2.5 px-2 font-bold theme-text-main">รวมทั้งหมด</td>`;
+      selectedMonthsArr.forEach(m => {
+        totalRowHtml += `<td class="py-2.5 px-2 text-right font-bold theme-text-primary whitespace-nowrap">฿${fmtNum(monthTotals[m])}</td>`;
+      });
+      if (hasTwoOrMore) {
+        const grandDiff = monthTotals[currM] - monthTotals[prevM];
+        const grandPct = monthTotals[prevM] > 0 ? Math.round((grandDiff / monthTotals[prevM]) * 100) : (monthTotals[currM] > 0 ? 100 : 0);
+        const gClass = grandDiff > 0.5 ? 'text-rose-600 font-bold' : (grandDiff < -0.5 ? 'text-emerald-700 font-bold' : 'theme-text-muted font-bold');
+        const gSign = grandDiff > 0.5 ? '+' : '';
+        totalRowHtml += `<td class="py-2.5 px-2 text-right ${gClass} whitespace-nowrap">${gSign}฿${fmtNum(grandDiff)} (${gSign}${grandPct}%)</td>`;
+      }
+
+      tableEl.innerHTML = `
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-[#FFF5F8] border-b theme-border-mid text-[11px]">${headerHtml}</tr>
+          </thead>
+          <tbody>
+            ${bodyRowsHtml}
+            <tr class="bg-[#FFF9FA] text-xs">${totalRowHtml}</tr>
+          </tbody>
+        </table>`;
     }
 
     function renderDailyDigest() {
@@ -3628,19 +3549,14 @@
     function downloadMonthlyArchiveCsv(archiveId) {
       const a = monthlyArchivesList.find(x => x.id === archiveId);
       if (!a) return;
-      let csv = '﻿';
-      csv += `รายงานสรุปปิดเดือน (ล็อกถาวร - ไม่มีรูปภาพ) - ${currentTrip.name} (${a.month_label})
-`;
-      csv += `วันที่,เวลา,ช่องทางจ่าย,หมวดหมู่,รายการ,ยอดเงิน (${a.currency_code}),ผู้จ่าย
-`;
+      let csv = '\uFEFF';
+      csv += `รายงานสรุปปิดเดือน (ล็อกถาวร - ไม่มีรูปภาพ) - ${currentTrip.name} (${a.month_label})\n`;
+      csv += `วันที่,เวลา,ช่องทางจ่าย,หมวดหมู่,รายการ,ยอดเงิน (${a.currency_code}),ผู้จ่าย\n`;
       (a.summary_rows || []).forEach(r => {
         const cleanTitle = `"${(r.title || '').replace(/"/g, '""')}"`;
-        csv += `${r.date},${r.time},${r.channel || 'โอน'},${getCategoryShortName(r.category)},${cleanTitle},${Number(r.amount)},${r.payer}
-`;
+        csv += `${r.date},${r.time},${r.channel || 'โอน'},${getCategoryShortName(r.category)},${cleanTitle},${Number(r.amount)},${r.payer}\n`;
       });
-      csv += `
-ยอดรวมสุทธิประจำเดือน,${Number(a.total_amount)} ${a.currency_code}
-`;
+      csv += `\nยอดรวมสุทธิประจำเดือน,${Number(a.total_amount)} ${a.currency_code}\n`;
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -3696,7 +3612,7 @@
             <div class="flex items-center gap-2.5 shrink-0">
               <span class="text-xs font-semibold theme-text-primary">${sym}${fmtNum(e.amount_cny)}</span>
               ${e.receipt_image_url
-                ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\'")}')" class="text-[11px] luxury-gradient text-white px-2.5 py-1 rounded-lg">ดูสลิป</button>`
+                ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="text-[11px] luxury-gradient text-white px-2.5 py-1 rounded-lg">ดูสลิป</button>`
                 : `<span class="text-[10px] theme-text-muted">ไม่มีรูป</span>`}
             </div>
           </div>`;
@@ -3705,7 +3621,7 @@
       openModal('day-receipts-modal');
     }
 
-    // ================= IN-APP PDF REPORT WITH iOS PWA NATIVE SHARE & SAVE =================
+    // ================= IN-APP PDF REPORT WITH iOS NATIVE PDF DOWNLOAD / SHARE =================
     async function exportPrintablePdfReport() {
       const myEmail = currentMember.email.toLowerCase();
       const finalRate = getGlobalFinalRate();
@@ -3740,8 +3656,8 @@
 
       const thumbMap = {};
       const itemsWithImg = items.filter(e => e.receipt_image_url);
-      for (let i = 0; i < itemsWithImg.length; i += 3) {
-        const chunk = itemsWithImg.slice(i, i + 3);
+      for (let i = 0; i < itemsWithImg.length; i += 4) {
+        const chunk = itemsWithImg.slice(i, i + 4);
         await Promise.all(chunk.map(async (e) => {
           try {
             let cleanPath = e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url;
@@ -3753,9 +3669,7 @@
                 reader.readAsDataURL(blob);
               });
             }
-          } catch (err) {
-            console.warn('Thumb skip:', err);
-          }
+          } catch (_) {}
         }));
       }
 
@@ -3791,7 +3705,7 @@
 
       const subtitle = monthly ? `รอบเดือน ${formatMonthLabel(currentYm)}` : `ทริปท่องเที่ยว`;
       bodyEl.innerHTML = `
-        <div id="pdf-printable-content" class="space-y-4 bg-white p-2">
+        <div class="space-y-4">
           <div class="border-b-2 border-[#E893AC] pb-3 flex justify-between items-end gap-2">
             <div>
               <h1 class="text-lg font-bold text-[#C45B79]">${currentTrip.name} (${subtitle})</h1>
@@ -3836,11 +3750,11 @@
     }
 
     async function downloadOrSharePdfFile() {
-      const targetEl = document.getElementById('pdf-printable-content') || document.getElementById('pdf-report-body');
-      const btn = document.getElementById('btn-download-share-pdf');
-      if (!targetEl) return;
+      const btn = document.getElementById('btn-download-pdf-file');
+      const element = document.getElementById('pdf-report-body');
+      if (!element) return;
 
-      const fileName = `${(currentTrip?.name || 'Ledger').replace(/\s+/g, '_')}_Report_${getTodayYYYYMMDD()}.pdf`;
+      const fileName = `${currentTrip.name.replace(/\s+/g, '_')}_Report_${getTodayYYYYMMDD()}.pdf`;
       if (btn) {
         btn.disabled = true;
         btn.textContent = 'กำลังสร้างไฟล์ PDF...';
@@ -3849,44 +3763,43 @@
       try {
         if (typeof html2pdf !== 'undefined') {
           const opt = {
-            margin: [8, 8, 8, 8],
+            margin: 8,
             filename: fileName,
             image: { type: 'jpeg', quality: 0.85 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
+            html2canvas: { scale: 1.5, useCORS: true, logging: false },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
           };
 
-          const pdfBlob = await html2pdf().set(opt).from(targetEl).outputPdf('blob');
+          const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
           const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-          // Use iOS Native Share Sheet if supported (allows Save to Files / LINE / AirDrop directly from iPhone PWA)
           if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
             await navigator.share({
               files: [pdfFile],
-              title: fileName
+              title: `${currentTrip.name} PDF Report`
             });
           } else {
-            const blobUrl = URL.createObjectURL(pdfBlob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 3000);
           }
         } else {
           window.print();
         }
       } catch (err) {
         if (err && err.name !== 'AbortError') {
-          console.warn('PDF export fallback to print:', err);
+          console.warn('PDF export fallback:', err);
           window.print();
         }
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.textContent = 'บันทึก PDF / แชร์ (iPhone)';
+          btn.textContent = 'บันทึก PDF / แชร์';
         }
       }
     }
@@ -4007,8 +3920,7 @@
       if (!isSuperAdmin()) return;
       const closing = !currentTrip.is_closed;
       if (closing) {
-        if (!confirm(`ยืนยันการ "ปิดยอด ${currentTrip.name}"?
-ระบบจะล็อกข้อมูลทั้งหมดไม่ให้แก้ไข (เก็บรูปสลิปไว้ตรวจสอบได้ 30 วันหลังปิดทริป)`)) return;
+        if (!confirm(`ยืนยันการ "ปิดยอด ${currentTrip.name}"?\nระบบจะล็อกข้อมูลทั้งหมดไม่ให้แก้ไข (เก็บรูปสลิปไว้ตรวจสอบได้ 30 วันหลังปิดทริป)`)) return;
         const rate = getGlobalFinalRate();
         const nowIso = new Date().toISOString();
         const summarySnapshot = {
@@ -4037,8 +3949,7 @@
       if (!isSuperAdmin()) return;
       const itemsWithImages = expensesList.filter(e => e.receipt_image_url);
       if (itemsWithImages.length === 0) return alert('ไม่มีไฟล์รูปสลิปค้างอยู่ในสมุดนี้');
-      if (!confirm(`ยืนยันการลบไฟล์รูปสลิปทั้ง ${itemsWithImages.length} ใบออกจาก Storage เพื่อคืนพื้นที่?
-(ข้อมูลตัวเลขและกราฟทั้งหมดจะยังอยู่ครบ 100%)`)) return;
+      if (!confirm(`ยืนยันการลบไฟล์รูปสลิปทั้ง ${itemsWithImages.length} ใบออกจาก Storage เพื่อคืนพื้นที่?\n(ข้อมูลตัวเลขและกราฟทั้งหมดจะยังอยู่ครบ 100%)`)) return;
 
       const paths = itemsWithImages.map(e =>
         e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url
@@ -4159,7 +4070,7 @@
         </button>`;
         const catBtnsHtml = customCategories.map(c => {
           const isAct = analyticsCategoryFilters.has(c.key);
-          return `<button type="button" onclick="setAnalyticsCategoryFilter('${c.key.replace(/'/g, "\'")}')"
+          return `<button type="button" onclick="setAnalyticsCategoryFilter('${c.key.replace(/'/g, "\\'")}')"
             class="px-2.5 py-1 rounded-lg shrink-0 transition ${isAct ? 'luxury-gradient text-white font-medium shadow-2xs' : 'bg-white theme-text-sub border theme-border-mid'}">
             ${isAct ? '✓ ' : ''}${c.short || c.label}
           </button>`;
@@ -4438,7 +4349,7 @@
       }).join('') || '<p class="text-center theme-text-muted">ยังไม่มีข้อมูลสำหรับสรุปกราฟ</p>';
     }
 
-    // ================= ZERO-LAG AI SCANNER (PRE-COMPRESSED BLOB + UNLIMITED QUEUE) =================
+    // ================= ZERO-LAG PRE-COMPRESSED SCANNER + AUTO-RETRY QUEUE =================
     const sleepMs = (ms) => new Promise(res => setTimeout(res, ms));
 
     async function callGeminiWithFallback(apiKey, prompt, base64Data) {
@@ -4458,7 +4369,10 @@
                     { text: prompt },
                     { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
                   ]
-                }]
+                }],
+                generationConfig: {
+                  responseMimeType: 'application/json'
+                }
               })
             });
 
@@ -4483,26 +4397,27 @@
       throw new Error(lastError);
     }
 
-    async function scanPreparedSlipAsset(preparedAsset, apiKey, options = {}) {
+    async function scanPreparedAsset(asset, apiKey, options = {}) {
       const isDirectCamera = Boolean(options.isDirectCamera);
-      const { blob, base64, fileHash, fileName, photoCapturedDate } = preparedAsset;
       const fallbackTime = getCurrentHHMM();
+      const photoCapturedDate = asset.captureDate || getTodayYYYYMMDD();
       const defaultDay = parseInt(document.getElementById('exp-day').value || '1');
       const defaultCatKey = customCategories[0]?.key || 'Food';
+      const fileHash = asset.hash;
       const currCode = getCurrCode();
 
-      if (!apiKey || !base64) {
+      if (!apiKey || !asset.base64) {
         const mappedFromPhoto = mapSlipDateToTripDay(photoCapturedDate);
         return [{
           is_valid_receipt: true,
           scan_failed: true,
-          preparedAsset,
+          asset,
           fileHash,
           slipRef: null,
           trip_day: mappedFromPhoto || defaultDay,
           slip_date: photoCapturedDate,
           date_source_label: !apiKey ? 'ยังไม่ได้ใส่ API Key' : 'อ่านรูปไม่สำเร็จ',
-          title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (fileName.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
+          title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (asset.fileName.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
           amount_cny: '',
           amount_locked: false,
           category: defaultCatKey,
@@ -4541,13 +4456,13 @@ Respond ONLY with valid JSON:
 
       let failReason = 'AI อ่านรูปไม่สำเร็จ';
       try {
-        const rawText = await callGeminiWithFallback(apiKey, prompt, base64);
+        const rawText = await callGeminiWithFallback(apiKey, prompt, asset.base64);
         const cleanJsonStr = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
         const jsonMatch = cleanJsonStr.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
           if (!isDirectCamera && parsed.is_receipt === false) {
-            return [{ is_valid_receipt: false, preparedAsset }];
+            return [{ is_valid_receipt: false, asset }];
           }
 
           const rawItems = Array.isArray(parsed.items) && parsed.items.length > 0
@@ -4555,7 +4470,7 @@ Respond ONLY with valid JSON:
             : (parsed.title || parsed.amount_cny ? [parsed] : []);
 
           if (rawItems.length === 0) {
-            return [{ is_valid_receipt: false, preparedAsset }];
+            return [{ is_valid_receipt: false, asset }];
           }
 
           const isMultiFromOneImage = rawItems.length > 1;
@@ -4594,7 +4509,7 @@ Respond ONLY with valid JSON:
             return {
               is_valid_receipt: true,
               scan_failed: !parsedAmt,
-              preparedAsset,
+              asset,
               fileHash: isMultiFromOneImage ? `${fileHash}_${subIdx}` : fileHash,
               slipRef: slipRefFinal,
               trip_day: finalDay,
@@ -4621,13 +4536,13 @@ Respond ONLY with valid JSON:
       return [{
         is_valid_receipt: true,
         scan_failed: true,
-        preparedAsset,
+        asset,
         fileHash,
         slipRef: null,
         trip_day: mappedFromPhoto || defaultDay,
         slip_date: photoCapturedDate,
         date_source_label: `สแกนไม่ติด (${failReason.slice(0, 24)})`,
-        title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (fileName.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
+        title: isDirectCamera ? 'ใบเสร็จจากกล้อง' : (asset.fileName.replace(/\.[^/.]+$/, '') || 'รายการสลิป'),
         amount_cny: '',
         amount_locked: false,
         category: defaultCatKey,
@@ -4641,13 +4556,13 @@ Respond ONLY with valid JSON:
 
     async function rescanBatchItem(idx) {
       const item = batchQueue[idx];
-      if (!item || !item.preparedAsset) return;
+      if (!item || !item.asset) return;
       const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
       const statusEl = document.getElementById('ocr-status');
       statusEl.classList.remove('hidden');
       statusEl.textContent = `กำลังสแกนซ้ำบิลที่ ${idx + 1}...`;
 
-      const freshArr = await scanPreparedSlipAsset(item.preparedAsset, apiKey, { isDirectCamera: false });
+      const freshArr = await scanPreparedAsset(item.asset, apiKey, { isDirectCamera: false });
       const valid = freshArr.filter(x => x.is_valid_receipt !== false);
       if (valid.length > 0) {
         batchQueue.splice(idx, 1, ...valid);
@@ -4661,11 +4576,10 @@ Respond ONLY with valid JSON:
       }
     }
 
-    // ================= 2. BATCH RE-SCAN FAILED ITEMS (2 AT A TIME WITH AUTO-RETRY) =================
     async function batchRescanFailedItems() {
       if (isBatchRescanning) return;
       const failedIndices = batchQueue
-        .map((item, idx) => (item.scan_failed && item.preparedAsset ? idx : -1))
+        .map((item, idx) => (item.scan_failed && item.asset ? idx : -1))
         .filter(idx => idx !== -1);
 
       if (failedIndices.length === 0) return;
@@ -4693,7 +4607,7 @@ Respond ONLY with valid JSON:
 
           const chunkResults = await Promise.all(
             chunk.map(async ({ idx, item }) => {
-              const freshArr = await scanPreparedSlipAsset(item.preparedAsset, apiKey, { isDirectCamera: false });
+              const freshArr = await scanPreparedAsset(item.asset, apiKey, { isDirectCamera: false });
               const valid = freshArr.filter(x => x.is_valid_receipt !== false);
               return { idx, valid: valid.length > 0 ? valid : [item] };
             })
@@ -4746,21 +4660,17 @@ Respond ONLY with valid JSON:
 
     async function handleMultiReceiptScan(input) {
       if (!input.files || input.files.length === 0) return;
-      await processSelectedFiles(Array.from(input.files), { isDirectCamera: false });
+      const files = Array.from(input.files);
       input.value = '';
+      await processSelectedFiles(files, { isDirectCamera: false });
     }
 
     async function processSelectedFiles(rawFiles, options = {}) {
       const isDirectCamera = Boolean(options.isDirectCamera);
-      const files = rawFiles;
-      const softCapNotice = (!isDirectCamera && files.length > RECOMMENDED_SLIPS_PER_BATCH)
-        ? ` (อัปโหลด ${files.length} รูป · แนะนำไม่เกิน ${RECOMMENDED_SLIPS_PER_BATCH} รูปต่อครั้งเพื่อความเร็ว)`
+      const totalSelected = rawFiles.length;
+      const softOverNotice = (!isDirectCamera && totalSelected > RECOMMENDED_SLIPS_PER_BATCH)
+        ? ` (เลือก ${totalSelected} รูป — เกินคำแนะนำ 15 รูป ระบบกำลังทยอยบีบอัดและสแกนให้ทั้งหมด)`
         : '';
-
-      try {
-        const { data: latestExps } = await db.from('expenses').select('*').eq('trip_id', currentTrip.id).order('created_at', { ascending: false });
-        if (latestExps) expensesList = latestExps;
-      } catch (_) {}
 
       const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
       const statusEl = document.getElementById('ocr-status');
@@ -4771,47 +4681,32 @@ Respond ONLY with valid JSON:
       statusEl.classList.remove('hidden');
       showDuplicateAlert(null);
 
-      // Step 1: Pre-compress & hash each file sequentially to keep iOS RAM footprint minimal, then release raw File reference
-      const preparedAssets = [];
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        statusEl.textContent = `กำลังย่อขนาดรูปเพื่อความรวดเร็ว ${i + 1}/${files.length}${softCapNotice}...`;
-        const buf = await f.arrayBuffer();
-        const fileHash = await computeBufferHash(buf);
-        const { blob, base64 } = await prepareLightweightSlipAsset(f, isDirectCamera);
-        preparedAssets.push({
-          blob,
-          base64,
-          fileHash,
-          fileName: f.name || `slip_${i + 1}.jpg`,
-          photoCapturedDate: getFileCaptureDate(f)
-        });
-        // Yield to UI thread so iPhone screen stays 100% responsive
-        await sleepMs(15);
-      }
-
-      // Step 2: Scan prepared lightweight assets 2 at a time
       const flattenedResults = [];
       let rejectedImages = 0;
 
-      for (let i = 0; i < preparedAssets.length; i += 2) {
-        const doneCount = Math.min(preparedAssets.length, i + 2);
+      // Process in lightweight chunks of 3: compress to ~130KB immediately, release raw File from RAM, then scan
+      for (let i = 0; i < rawFiles.length; i += 3) {
+        const doneCount = Math.min(rawFiles.length, i + 3);
         statusEl.textContent = isDirectCamera
-          ? 'กำลังอ่านตัวเลขและรายละเอียดจากใบเสร็จที่ถ่าย...'
-          : `กำลังสแกนสลิป ${doneCount}/${preparedAssets.length} รูป${softCapNotice}...`;
+          ? 'กำลังปรับความคมชัดและอ่านใบเสร็จ...'
+          : `กำลังย่อรูปและสแกน ${doneCount}/${totalSelected} รูป${softOverNotice}...`;
 
-        const chunk = preparedAssets.slice(i, i + 2);
-        const chunkArrays = await Promise.all(chunk.map(asset => scanPreparedSlipAsset(asset, apiKey, { isDirectCamera })));
+        const fileChunk = rawFiles.slice(i, i + 3);
+        const preparedAssets = await Promise.all(
+          fileChunk.map(f => prepareLightweightAsset(f, isDirectCamera))
+        );
+
+        const chunkArrays = await Promise.all(
+          preparedAssets.map(asset => scanPreparedAsset(asset, apiKey, { isDirectCamera }))
+        );
+
         chunkArrays.forEach(arr => {
           const validInImg = arr.filter(x => x.is_valid_receipt !== false);
           if (validInImg.length === 0) rejectedImages += 1;
           else flattenedResults.push(...validInImg);
         });
 
-        // Release heavy base64 strings after AI scan completes to free RAM immediately
-        chunk.forEach(asset => { asset.base64 = ''; });
-
-        if (i + 2 < preparedAssets.length) await sleepMs(450);
+        if (i + 3 < rawFiles.length) await sleepMs(350);
       }
 
       if (flattenedResults.length === 0) {
@@ -4822,14 +4717,14 @@ Respond ONLY with valid JSON:
       }
 
       if (batchQueue.length > 0 || flattenedResults.length > 1) {
-        if (batchQueue.length === 0 && activeSinglePrepared) {
+        if (batchQueue.length === 0 && activeSingleAsset) {
           const prevTitle = document.getElementById('exp-title').value.trim();
           const prevAmt = parseFloat(document.getElementById('exp-cny').value) || '';
           if (prevTitle || prevAmt) {
             batchQueue.push({
               is_valid_receipt: true,
               scan_failed: !prevAmt,
-              preparedAsset: activeSinglePrepared,
+              asset: activeSingleAsset,
               fileHash: currentSingleSlipHash,
               slipRef: currentSingleSlipRef,
               trip_day: parseInt(document.getElementById('exp-day').value || '1'),
@@ -4847,7 +4742,7 @@ Respond ONLY with valid JSON:
           }
         }
 
-        activeSinglePrepared = null;
+        activeSingleAsset = null;
         document.getElementById('single-expense-fields').classList.add('hidden');
         document.getElementById('single-channel-box').classList.add('hidden');
         document.getElementById('batch-queue-section').classList.remove('hidden');
@@ -4869,7 +4764,7 @@ Respond ONLY with valid JSON:
       } else {
         const res = flattenedResults[0];
         batchQueue = [];
-        activeSinglePrepared = res.preparedAsset;
+        activeSingleAsset = res.asset;
         document.getElementById('batch-queue-section').classList.add('hidden');
         document.getElementById('single-expense-fields').classList.remove('hidden');
         document.getElementById('single-channel-box').classList.remove('hidden');
@@ -4915,7 +4810,7 @@ Respond ONLY with valid JSON:
             : '';
           statusEl.textContent = res.amount_cny
             ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel)})${outOfMonthNote}${rejectNote}`
-            : `${res.date_source_label} — สามารถกรอกยอดเงินด้านล่างได้ทันที${rejectNote}`;
+            : `${res.date_source_label} — สามารถกรอกยอดเงินหรือกดสแกนซ้ำได้${rejectNote}`;
         }
       }
     }
@@ -4957,7 +4852,7 @@ Respond ONLY with valid JSON:
               ${headerLabel}
             </span>
             <div class="flex items-center gap-2 shrink-0 ml-1">
-              ${isFailed && item.preparedAsset ? `<button type="button" onclick="rescanBatchItem(${idx})" class="bg-white border border-amber-400 text-amber-800 px-1.5 py-0.5 rounded-md font-semibold">สแกนซ้ำ</button>` : ''}
+              ${isFailed && item.asset ? `<button type="button" onclick="rescanBatchItem(${idx})" class="bg-white border border-amber-400 text-amber-800 px-1.5 py-0.5 rounded-md font-semibold">สแกนซ้ำ</button>` : ''}
               <button type="button" onclick="removeBatchItem(${idx})" class="${isDup ? 'text-[#B83B5E] font-semibold' : 'theme-text-muted hover:text-rose-600'}">เอาออก</button>
             </div>
           </div>
@@ -4994,7 +4889,7 @@ Respond ONLY with valid JSON:
 
     function clearBatchQueue() {
       batchQueue = [];
-      activeSinglePrepared = null;
+      activeSingleAsset = null;
       currentSingleSlipHash = null;
       currentSingleSlipRef = null;
       isSingleDuplicateBlocked = false;
@@ -5009,7 +4904,7 @@ Respond ONLY with valid JSON:
       updateSaveButtonLockState();
     }
 
-    // ================= STORAGE & FAST BULK INSERT =================
+    // ================= STORAGE & FAST BULK SAVE ENGINE =================
     async function viewStorageImage(pathOrUrl, metaText = '') {
       let cleanPath = pathOrUrl.includes('/trip-media/') ? pathOrUrl.split('/trip-media/')[1].split('?')[0] : pathOrUrl;
       const { data, error } = await db.storage.from('trip-media').download(cleanPath);
@@ -5019,7 +4914,7 @@ Respond ONLY with valid JSON:
       openModal('image-viewer-modal');
     }
 
-    async function uploadBlobToStorage(blob, folder) {
+    async function uploadPreparedBlobToStorage(blob, folder) {
       let lastErr = null;
       for (let attempt = 0; attempt < 2; attempt++) {
         const filePath = `${currentTrip.id}/${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
@@ -5030,19 +4925,19 @@ Respond ONLY with valid JSON:
       throw lastErr;
     }
 
-    async function safeInsertExpensesBulk(payloads) {
-      const cleanedList = payloads.map(p => ({
+    async function safeInsertExpenseRows(payloads) {
+      const cleanedRows = payloads.map(p => ({
         ...p,
         slip_ref: p.slip_ref && String(p.slip_ref).trim() !== '' ? String(p.slip_ref).trim() : null,
         slip_hash: p.slip_hash && String(p.slip_hash).trim() !== '' ? String(p.slip_hash).trim() : null
       }));
 
-      const { error } = await db.from('expenses').insert(cleanedList);
+      const { error } = await db.from('expenses').insert(cleanedRows);
       if (!error) return;
 
       if (error.code === '23505' || (error.message && error.message.toLowerCase().includes('unique'))) {
-        const retryList = cleanedList.map(p => ({ ...p, slip_hash: null, slip_ref: null }));
-        const { error: retryErr } = await db.from('expenses').insert(retryList);
+        const retryRows = cleanedRows.map(p => ({ ...p, slip_hash: null, slip_ref: null }));
+        const { error: retryErr } = await db.from('expenses').insert(retryRows);
         if (!retryErr) return;
         throw retryErr;
       }
@@ -5164,31 +5059,33 @@ Respond ONLY with valid JSON:
         if (missingAmt) return alert(`กรุณาระบุยอดเงินสำหรับรายการ "${missingAmt.title || 'บิลที่ยังไม่มีตัวเลข'}"`);
 
         btn.disabled = true;
+
         try {
-          // 1. Upload unique pre-compressed blobs in parallel chunks of 3 (instant & zero canvas freeze)
+          // 1. Deduplicate unique blobs & upload in fast parallel chunks of 3
           const uniqueAssets = [];
           const seenAssets = new Set();
           batchQueue.forEach(item => {
-            if (item.preparedAsset && !seenAssets.has(item.preparedAsset)) {
-              seenAssets.add(item.preparedAsset);
-              uniqueAssets.push(item.preparedAsset);
+            if (item.asset && !seenAssets.has(item.asset)) {
+              seenAssets.add(item.asset);
+              uniqueAssets.push(item.asset);
             }
           });
 
           const uploadedPathMap = new Map();
           for (let i = 0; i < uniqueAssets.length; i += 3) {
+            const doneUp = Math.min(uniqueAssets.length, i + 3);
+            btn.textContent = `กำลังอัปโหลดรูปสลิป ${doneUp}/${uniqueAssets.length}...`;
             const chunk = uniqueAssets.slice(i, i + 3);
-            const doneCount = Math.min(uniqueAssets.length, i + 3);
-            btn.textContent = `กำลังอัปโหลดสลิป ${doneCount}/${uniqueAssets.length}...`;
             await Promise.all(chunk.map(async (asset) => {
-              const path = await uploadBlobToStorage(asset.blob, 'receipts');
+              const path = await uploadPreparedBlobToStorage(asset.blob, 'receipts');
               uploadedPathMap.set(asset, path);
             }));
           }
 
-          // 2. Single Bulk Insert into Supabase (completes in < 1 second)
-          btn.textContent = `กำลังบันทึกข้อมูล ${batchQueue.length} รายการ...`;
+          // 2. Single Bulk Database Insert for all items at once (< 1 second)
+          btn.textContent = `กำลังบันทึกรายการทั้งหมด (${batchQueue.length} บิล)...`;
           const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
+
           const bulkPayloads = batchQueue.map((item, idx) => {
             const amt = parseFloat(item.amount_cny);
             const titleClean = (item.title || '').trim() || `รายการสลิป ${idx + 1}`;
@@ -5208,7 +5105,7 @@ Respond ONLY with valid JSON:
               paid_by_email: actualPayerEmail,
               payment_channel: normalizeChannel(item.payment_channel),
               split_details: { emails: checkedEmails },
-              receipt_image_url: uploadedPathMap.get(item.preparedAsset) || null,
+              receipt_image_url: item.asset ? (uploadedPathMap.get(item.asset) || null) : null,
               slip_time: item.slip_time || getCurrentHHMM(),
               time_source: item.time_source || 'upload',
               slip_hash: item.fileHash,
@@ -5217,15 +5114,15 @@ Respond ONLY with valid JSON:
             };
           });
 
-          await safeInsertExpensesBulk(bulkPayloads);
-          const savedTotal = bulkPayloads.length;
-          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${savedTotal} รายการ (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
+          await safeInsertExpenseRows(bulkPayloads);
+          const totalSaved = bulkPayloads.length;
 
+          await writeLog('BATCH_EXPENSE', `อัปโหลดบิลพร้อมกัน ${totalSaved} รายการ (ผู้จ่าย: ${getMemberName(actualPayerEmail)})`);
           closeModal('expense-modal');
           clearBatchQueue();
           await refreshAllData();
-        } catch (batchErr) {
-          alert('บันทึกไม่สำเร็จ (ข้อมูลและรูปสลิปยังอยู่ครบ กดบันทึกใหม่เมื่อเน็ตเสถียร): ' + batchErr.message);
+        } catch (err) {
+          alert('บันทึกไม่สำเร็จ (ข้อมูลและรูปยังอยู่ครบ กดบันทึกใหม่ได้เลย): ' + err.message);
         } finally {
           btn.disabled = false;
           updateSaveButtonLockState();
@@ -5259,12 +5156,12 @@ Respond ONLY with valid JSON:
       btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
       try {
         let receiptPath = null;
-        if (activeSinglePrepared && activeSinglePrepared.blob) {
-          receiptPath = await uploadBlobToStorage(activeSinglePrepared.blob, 'receipts');
+        if (activeSingleAsset && activeSingleAsset.blob) {
+          receiptPath = await uploadPreparedBlobToStorage(activeSingleAsset.blob, 'receipts');
         }
 
         const isSolo = checkedEmails.length === 1 && checkedEmails[0].toLowerCase() === actualPayerEmail.toLowerCase();
-        await safeInsertExpensesBulk([{
+        await safeInsertExpenseRows([{
           trip_id: currentTrip.id,
           trip_day: monthly ? 1 : defaultDay,
           expense_date: expDateVal,
@@ -5600,8 +5497,8 @@ Respond ONLY with valid JSON:
           : 'flex flex-col items-center gap-1 theme-text-muted';
       });
       if (tab === 'digest') {
-        if (digestSubView === 'compare' && isMonthlyMode()) renderMonthComparisonMatrix();
-        else renderDailyDigest();
+        renderDailyDigest();
+        if (digestSubMode === 'compare') renderMonthComparisonMatrix();
       }
       if (tab === 'analytics') renderAnalytics();
     }
