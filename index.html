@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Maison Voyage">
-  <link id="apple-touch-icon-link" rel="apple-touch-icon" href="" />
-  <link id="favicon-link" rel="icon" type="image/png" href="" />
+  <link rel="apple-touch-icon" sizes="512x512" href="icon.png" />
+  <link rel="icon" type="image/png" href="icon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -422,7 +422,6 @@
 
     <!-- TAB 4: MEMBERS, ADMIN-CONTROLLED SCREEN THEMES, CUSTOM CATEGORIES & RECURRING -->
     <main id="tab-members" class="hidden p-5 pb-28 space-y-5">
-      <!-- Member Badge Color (Read-only display for members if locked, or personal badge color) -->
       <div class="soft-card p-5 rounded-3xl space-y-3">
         <div>
           <h2 class="font-semibold text-sm theme-text-main">สีป้ายชื่อคนจ่ายของคุณ (ห้ามซ้ำกันในสมุด)</h2>
@@ -431,14 +430,14 @@
         <div id="color-picker-row" class="flex items-center justify-between gap-2 pt-1"></div>
       </div>
 
-      <!-- Super Admin Panel (Only Admin can configure App Screen Theme, Categories, Recurring, Ledgers) -->
+      <!-- Super Admin Panel -->
       <div id="super-admin-panel" class="hidden soft-card p-5 rounded-3xl space-y-4 theme-border-mid">
         <div>
           <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">Administration</p>
           <h2 class="font-semibold text-sm theme-text-main">ตั้งค่าธีมสีทั้งแอป · หมวดหมู่ · รายการประจำ · สมุดบัญชี</h2>
         </div>
 
-        <!-- Admin-Only Global Screen Theme Control (Applies to everyone in the app; allows repeat/any selection by Admin) -->
+        <!-- Admin-Only Global Screen Theme Control -->
         <div class="bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-2.5">
           <div>
             <label class="block text-[11px] font-semibold theme-text-primary">ธีมสีหน้าจอทั้งแอป (กำหนดโดยแอดมิน · แสดงผลเหมือนกันทุกคน)</label>
@@ -447,7 +446,7 @@
           <div id="admin-global-theme-row" class="grid grid-cols-3 gap-2 pt-0.5"></div>
         </div>
 
-        <!-- 1. Dynamic Categories Management (Admin can add & delete ANY category) -->
+        <!-- Dynamic Categories Management -->
         <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border-mid space-y-2.5">
           <div>
             <label class="block text-[11px] font-semibold theme-text-main">จัดการหมวดหมู่ของสมุดนี้ (แอดมินเพิ่ม/ลบได้ทุกหมวด)</label>
@@ -460,7 +459,7 @@
           </div>
         </div>
 
-        <!-- 2. Recurring Fixed Expenses (Monthly Mode) -->
+        <!-- Recurring Fixed Expenses (Monthly Mode) -->
         <div id="admin-recurring-panel" class="hidden bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-2.5">
           <div class="flex justify-between items-center gap-2">
             <div>
@@ -1020,186 +1019,6 @@
     let qcAccumulated = 0;
     let qcHasPendingPlus = false;
 
-    // Generate No. 20 Celestial Star Globe + Pastel Clouds + MV Monogram (Full-Bleed Edge-to-Edge, NO square borders)
-    function generateCelestialStarGlobeIcon() {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 512;
-        const ctx = canvas.getContext('2d');
-
-        // 1. Full-Bleed Edge-to-Edge Soft Blush & Warm Champagne Sky Gradient (No inner borders so iOS squircle mask clips cleanly)
-        const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
-        bgGrad.addColorStop(0, '#F5DCE0');
-        bgGrad.addColorStop(0.5, '#EBD3D8');
-        bgGrad.addColorStop(1, '#DEC2C8');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, 512, 512);
-
-        // Soft ambient radial glow behind globe
-        const radialGlow = ctx.createRadialGradient(256, 235, 20, 256, 235, 220);
-        radialGlow.addColorStop(0, 'rgba(255, 248, 242, 0.85)');
-        radialGlow.addColorStop(1, 'rgba(255, 248, 242, 0)');
-        ctx.fillStyle = radialGlow;
-        ctx.fillRect(0, 0, 512, 512);
-
-        // 2. Rose-Gold / Champagne Metallic Gradients
-        const goldRingGrad = ctx.createLinearGradient(120, 100, 392, 370);
-        goldRingGrad.addColorStop(0, '#F6DFC2');
-        goldRingGrad.addColorStop(0.5, '#C99A74');
-        goldRingGrad.addColorStop(1, '#9E6E4E');
-
-        const lightGoldGrad = ctx.createLinearGradient(140, 120, 370, 350);
-        lightGoldGrad.addColorStop(0, '#FFF1DF');
-        lightGoldGrad.addColorStop(1, '#D6A882');
-
-        // 3. Back Half of Celestial Armillary Rings
-        ctx.save();
-        ctx.translate(256, 235);
-
-        // Outer Meridian Ring
-        ctx.beginPath();
-        ctx.arc(0, 0, 134, 0, Math.PI * 2);
-        ctx.strokeStyle = goldRingGrad;
-        ctx.lineWidth = 10;
-        ctx.stroke();
-
-        // Tilted Back Orbital Ring 1
-        ctx.save();
-        ctx.rotate(-0.48);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 152, 46, 0, Math.PI, Math.PI * 2);
-        ctx.strokeStyle = goldRingGrad;
-        ctx.lineWidth = 9;
-        ctx.stroke();
-        ctx.restore();
-
-        // Tilted Back Orbital Ring 2
-        ctx.save();
-        ctx.rotate(0.52);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 148, 42, 0, Math.PI, Math.PI * 2);
-        ctx.strokeStyle = lightGoldGrad;
-        ctx.lineWidth = 7;
-        ctx.stroke();
-        ctx.restore();
-
-        // 4. Center Pearl-White & Soft Blush Celestial Globe Sphere
-        const sphereGrad = ctx.createRadialGradient(-28, -32, 12, 0, 0, 96);
-        sphereGrad.addColorStop(0, '#FFFFFF');
-        sphereGrad.addColorStop(0.55, '#FAF0F2');
-        sphereGrad.addColorStop(1, '#DFC4CA');
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(92, 54, 64, 0.25)';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetY = 8;
-        ctx.beginPath();
-        ctx.arc(0, 0, 94, 0, Math.PI * 2);
-        ctx.fillStyle = sphereGrad;
-        ctx.fill();
-        ctx.restore();
-
-        // Subtle Latitude & Longitude Engraved Lines on Globe
-        ctx.strokeStyle = 'rgba(184, 134, 96, 0.35)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 92, 28, 0, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 34, 92, 0, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Center Rose-Gold Emblem "MV"
-        ctx.fillStyle = '#8C5848';
-        ctx.font = 'bold 46px Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('MV', 0, 4);
-
-        // 5. Front Half of Celestial Armillary Rings (Wrapping around globe)
-        ctx.save();
-        ctx.rotate(-0.48);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 152, 46, 0, 0, Math.PI);
-        ctx.strokeStyle = lightGoldGrad;
-        ctx.lineWidth = 9;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.save();
-        ctx.rotate(0.52);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 148, 42, 0, 0, Math.PI);
-        ctx.strokeStyle = goldRingGrad;
-        ctx.lineWidth = 7;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-        ctx.restore();
-
-        // Top Finial Crown & Pedestal Base of Armillary Sphere
-        ctx.beginPath();
-        ctx.arc(0, -146, 8, 0, Math.PI * 2);
-        ctx.fillStyle = lightGoldGrad;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.roundRect(-42, 134, 84, 12, 6);
-        ctx.fillStyle = goldRingGrad;
-        ctx.fill();
-
-        ctx.restore();
-
-        // 6. Soft Fluffy Pastel Clouds Framing the Bottom (Full-bleed style)
-        const cloudGrad = ctx.createLinearGradient(60, 320, 452, 460);
-        cloudGrad.addColorStop(0, '#FFF6F8');
-        cloudGrad.addColorStop(0.5, '#F9E6EC');
-        cloudGrad.addColorStop(1, '#EADAE8');
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(92, 54, 64, 0.18)';
-        ctx.shadowBlur = 18;
-        ctx.shadowOffsetY = 6;
-        ctx.fillStyle = cloudGrad;
-
-        ctx.beginPath();
-        ctx.arc(115, 385, 58, 0, Math.PI * 2);
-        ctx.arc(185, 372, 68, 0, Math.PI * 2);
-        ctx.arc(265, 382, 62, 0, Math.PI * 2);
-        ctx.arc(340, 370, 70, 0, Math.PI * 2);
-        ctx.arc(410, 388, 56, 0, Math.PI * 2);
-        ctx.rect(55, 380, 405, 95);
-        ctx.fill();
-        ctx.restore();
-
-        // 7. Delicate Four-Pointed Gold Stars
-        const drawSparkle = (sx, sy, size) => {
-          ctx.save();
-          ctx.translate(sx, sy);
-          ctx.fillStyle = '#D9AE84';
-          ctx.beginPath();
-          ctx.moveTo(0, -size);
-          ctx.quadraticCurveTo(0, 0, size, 0);
-          ctx.quadraticCurveTo(0, 0, 0, size);
-          ctx.quadraticCurveTo(0, 0, -size, 0);
-          ctx.quadraticCurveTo(0, 0, 0, -size);
-          ctx.fill();
-          ctx.restore();
-        };
-        drawSparkle(98, 125, 14);
-        drawSparkle(418, 138, 16);
-        drawSparkle(428, 255, 11);
-        drawSparkle(86, 265, 10);
-
-        const dataUrl = canvas.toDataURL('image/png');
-        const appleLink = document.getElementById('apple-touch-icon-link');
-        const favLink = document.getElementById('favicon-link');
-        if (appleLink) appleLink.href = dataUrl;
-        if (favLink) favLink.href = dataUrl;
-      } catch (_) {}
-    }
-
     // Admin-Controlled Global App Screen Theme Management
     function applyAppTheme(themeId) {
       const theme = APP_THEMES.find(t => t.id === themeId) || APP_THEMES[0];
@@ -1657,7 +1476,6 @@
     }
 
     window.onload = async () => {
-      generateCelestialStarGlobeIcon();
       applyAppTheme(localStorage.getItem('mv_global_theme_cache') || 'blush');
       const { data: { session } } = await db.auth.getSession();
       if (session) await initApp(session.user);
