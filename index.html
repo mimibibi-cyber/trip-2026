@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=17";
+      img.src = "icon.png?v=18";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -487,10 +487,14 @@
       <!-- Interactive Trend & Timeframe Comparison Chart Card -->
       <div class="soft-card p-4 rounded-3xl space-y-3">
         <div class="flex justify-between items-start gap-2">
-          <div>
+          <div class="min-w-0 flex-1">
             <h3 id="bar-chart-title" class="text-xs font-semibold theme-text-main">กราฟการใช้จ่ายรายวัน & เส้นค่าเฉลี่ย</h3>
             <p id="trend-comparison-badge" class="text-[11px] theme-text-primary font-medium mt-0.5">กำลังคำนวณแนวโน้ม...</p>
           </div>
+          <button type="button" onclick="toggleChartDrilldownMode()" id="btn-toggle-chart-drilldown" class="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-semibold transition luxury-gradient text-white shadow-2xs">
+            <span id="chart-drilldown-dot" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+            <span id="chart-drilldown-label">ดูรายการเมื่อแตะ: เปิด</span>
+          </button>
         </div>
 
         <!-- Timeframe View Selector (Daily / 7-Day / Monthly / Day-of-Week) -->
@@ -506,6 +510,19 @@
 
         <div class="h-52">
           <canvas id="dailyChart"></canvas>
+        </div>
+
+        <!-- Hint & Scrollable Drill-Down Summary Drawer when Tapping Any Bar -->
+        <p id="chart-tap-hint" class="text-[10px] theme-text-muted text-center">แตะที่แท่งกราฟเพื่อดูสรุปรายการย่อยตามตัวกรองที่เลือกด้านบน</p>
+        <div id="chart-drilldown-drawer" class="hidden bg-[#FFF9FA] border theme-border-mid rounded-2xl p-3 space-y-2">
+          <div class="flex justify-between items-center gap-2 pb-1.5 border-b theme-border">
+            <div class="min-w-0">
+              <p id="drilldown-header-title" class="text-xs font-semibold theme-text-main truncate">รายการวันที่ -</p>
+              <p id="drilldown-header-sub" class="text-[10px] theme-text-primary font-medium">ทั้งหมด 0 รายการ · รวม ฿0</p>
+            </div>
+            <button type="button" onclick="closeChartDrilldownDrawer()" class="w-6 h-6 rounded-full bg-white border theme-border-mid theme-text-sub flex items-center justify-center text-xs font-bold shrink-0">✕</button>
+          </div>
+          <div id="drilldown-items-list" class="max-h-56 overflow-y-auto divide-y divide-[#FCEBF0] text-xs pr-0.5"></div>
         </div>
       </div>
 
@@ -579,7 +596,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.2</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.3</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -1180,7 +1197,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.2';
+    const APP_VERSION = 'v3.3';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1249,6 +1266,9 @@
     let analyticsProviderFilters = new Set();
     let analyticsCategoryFilters = new Set();
     let analyticsTimeframe = 'daily';
+    let isChartDrilldownEnabled = true;
+    let selectedChartBucketIndex = null;
+    let currentChartBucketsMeta = [];
     let collapsedGroups = new Set();
     let verifiedIds = new Set(JSON.parse(localStorage.getItem('verified_expense_ids') || '[]'));
     let totalDays = 6;
@@ -2436,6 +2456,7 @@
       analyticsCategoryFilters.clear();
       analyticsChannelFilters.clear();
       analyticsProviderFilters.clear();
+      selectedChartBucketIndex = null;
       digestChannelFilters.clear();
       compareSelectedMonths.clear();
       compareSelectedCategories.clear();
@@ -4162,6 +4183,97 @@
     }
 
     // ================= ANALYTICS, MULTI-SELECT FILTERS, INTERACTIVE TIMEFRAME & COMPACT PASTEL CARD =================
+    function toggleChartDrilldownMode() {
+      isChartDrilldownEnabled = !isChartDrilldownEnabled;
+      const btn = document.getElementById('btn-toggle-chart-drilldown');
+      const dot = document.getElementById('chart-drilldown-dot');
+      const lbl = document.getElementById('chart-drilldown-label');
+      const hint = document.getElementById('chart-tap-hint');
+
+      if (isChartDrilldownEnabled) {
+        btn.className = 'shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-semibold transition luxury-gradient text-white shadow-2xs';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-white';
+        lbl.textContent = 'ดูรายการเมื่อแตะ: เปิด';
+        if (hint) hint.classList.remove('hidden');
+      } else {
+        btn.className = 'shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border theme-border-mid bg-white theme-text-sub text-[10px] font-medium transition';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-[#A37B87]';
+        lbl.textContent = 'ดูรายการเมื่อแตะ: ปิด';
+        if (hint) hint.classList.add('hidden');
+      }
+      updateChartBarHighlights();
+      renderChartDrilldownDrawer();
+    }
+
+    function closeChartDrilldownDrawer() {
+      selectedChartBucketIndex = null;
+      updateChartBarHighlights();
+      renderChartDrilldownDrawer();
+    }
+
+    function updateChartBarHighlights() {
+      if (!dailyChartInstance || !dailyChartInstance.data?.datasets?.[0]) return;
+      const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#D6718E';
+      const activeHighlightColor = '#6B424E';
+      const ds = dailyChartInstance.data.datasets[0];
+      ds.backgroundColor = ds.data.map((_, idx) =>
+        (isChartDrilldownEnabled && selectedChartBucketIndex === idx) ? activeHighlightColor : primaryColor
+      );
+      dailyChartInstance.update('none');
+    }
+
+    function renderChartDrilldownDrawer() {
+      const drawer = document.getElementById('chart-drilldown-drawer');
+      const hint = document.getElementById('chart-tap-hint');
+      if (!drawer) return;
+
+      if (!isChartDrilldownEnabled || selectedChartBucketIndex === null || !currentChartBucketsMeta[selectedChartBucketIndex]) {
+        drawer.classList.add('hidden');
+        if (hint) hint.classList.toggle('hidden', !isChartDrilldownEnabled);
+        return;
+      }
+
+      if (hint) hint.classList.add('hidden');
+      const bucket = currentChartBucketsMeta[selectedChartBucketIndex];
+      const items = [...(bucket.items || [])].sort((a, b) => {
+        if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
+        return (b.time || '').localeCompare(a.time || '');
+      });
+
+      document.getElementById('drilldown-header-title').textContent = bucket.title;
+      document.getElementById('drilldown-header-sub').textContent = `ทั้งหมด ${items.length} รายการ (ตรงตามตัวกรอง) · รวม ฿${fmtNum(bucket.total)}`;
+
+      const listEl = document.getElementById('drilldown-items-list');
+      if (items.length === 0) {
+        listEl.innerHTML = '<p class="py-4 text-center text-[11px] theme-text-muted">ไม่มีรายการค่าใช้จ่ายในช่วงนี้ตามตัวกรองที่เลือก</p>';
+      } else {
+        const showDatePrefix = analyticsTimeframe !== 'daily';
+        listEl.innerHTML = items.map((it, idx) => {
+          const dateTag = showDatePrefix && it.date ? `${it.date.slice(8, 10)}/${it.date.slice(5, 7)} · ` : '';
+          const metaText = `${it.date || ''} ${it.time || ''} · ${it.channelText} · ${it.payerName}`;
+          return `
+            <div class="py-2 flex justify-between items-center gap-2">
+              <div class="min-w-0 flex-1">
+                <p class="font-medium theme-text-main truncate">
+                  <span class="text-[10px] theme-text-muted mr-1">${idx + 1}.</span>${it.title}
+                </p>
+                <p class="text-[10px] theme-text-muted truncate pl-3.5">
+                  ${dateTag}${it.time || ''} · ${it.category} · ${it.channelText}
+                </p>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                ${it.receiptUrl ? `<button type="button" onclick="viewStorageImage('${it.receiptUrl}', '${metaText.replace(/'/g, "\'")}')" class="text-[10px] theme-text-primary underline font-medium">สลิป</button>` : ''}
+                <span class="font-semibold ${it.isRefund ? 'text-emerald-700' : 'theme-text-primary'} whitespace-nowrap">
+                  ${it.isRefund ? '-' : ''}฿${fmtNum(Math.abs(it.amountDisplay))}
+                </span>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      drawer.classList.remove('hidden');
+    }
+
     function setAnalyticsChannelFilter(ch) {
       if (ch === 'ALL') {
         analyticsChannelFilters.clear();
@@ -4200,6 +4312,7 @@
 
     function setAnalyticsTimeframe(tf) {
       analyticsTimeframe = tf;
+      selectedChartBucketIndex = null;
       document.querySelectorAll('.tf-btn').forEach(btn => {
         btn.className = 'tf-btn py-1.5 rounded-lg theme-text-sub';
       });
@@ -4277,31 +4390,15 @@
 
       let grandThb = 0, grandOrig = 0;
       const dailyTotalsMap = {};
+      const dailyItemsMap = {};
       const monthlyTotalsMap = {};
+      const monthlyItemsMap = {};
       const dowTotalsArr = [0, 0, 0, 0, 0, 0, 0];
+      const dowItemsArr = [[], [], [], [], [], [], []];
       const catTotals = {};
       customCategories.forEach(c => { catTotals[c.key] = 0; });
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
-
-      if (monthly && monthlyArchivesList.length > 0) {
-        [...monthlyArchivesList].reverse().forEach(arch => {
-          const mKey = arch.month_key;
-          if (!mKey) return;
-          let sumForArch = 0;
-          if (analyticsCategoryFilters.size === 0 && analyticsChannelFilters.size === 0) {
-            sumForArch = Number(arch.total_amount || 0);
-          } else {
-            (arch.summary_rows || []).forEach(r => {
-              const catOk = analyticsCategoryFilters.size === 0 || analyticsCategoryFilters.has(r.category) || Array.from(analyticsCategoryFilters).some(k => getCategoryShortName(k) === getCategoryShortName(r.category));
-              const chOk = analyticsChannelFilters.size === 0 || Array.from(analyticsChannelFilters).some(ch => (r.channel || '').includes(getChannelLabel(ch)));
-              if (catOk && chOk) {
-                sumForArch += Number(r.amount || 0);
-              }
-            });
-          }
-          monthlyTotalsMap[mKey] = (monthlyTotalsMap[mKey] || 0) + (isThbBase() ? sumForArch : sumForArch * finalRate);
-        });
-      }
+      const liveMonthKeys = new Set();
 
       expensesList.forEach(e => {
         const signedAmt = getSignedAmt(e);
@@ -4310,6 +4407,8 @@
         const normCh = normalizeChannel(e.payment_channel);
         const valInDisplayCurr = isThbBase() ? signedAmt : thb;
         const catKey = e.category || 'Food';
+        const mKey = e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM();
+        liveMonthKeys.add(mKey);
 
         if (currentChannelStatScope === 'mine') {
           if (payerEm === myEmail) chTotals[normCh] += valInDisplayCurr;
@@ -4328,21 +4427,73 @@
           catTotals[catKey] = (catTotals[catKey] || 0) + valInDisplayCurr;
 
           if (matchesCategoryFilter) {
+            const summaryItem = {
+              id: e.id,
+              title: e.title || 'รายการ',
+              time: e.slip_time || new Date(e.created_at).toTimeString().slice(0, 5),
+              date: e.expense_date || '',
+              tripDay: e.trip_day || 1,
+              category: getCategoryShortName(catKey),
+              channelText: getChannelLabel(normCh, e.payment_provider),
+              amountDisplay: valInDisplayCurr,
+              isRefund: Boolean(e.is_refund),
+              receiptUrl: e.receipt_image_url || null,
+              payerName: getMemberName(payerEm)
+            };
+
             const dKey = monthly ? (e.expense_date || getTodayYYYYMMDD()) : String(e.trip_day || 1).padStart(2, '0');
             dailyTotalsMap[dKey] = (dailyTotalsMap[dKey] || 0) + valInDisplayCurr;
+            if (!dailyItemsMap[dKey]) dailyItemsMap[dKey] = [];
+            dailyItemsMap[dKey].push(summaryItem);
 
-            const mKey = e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM();
             monthlyTotalsMap[mKey] = (monthlyTotalsMap[mKey] || 0) + valInDisplayCurr;
+            if (!monthlyItemsMap[mKey]) monthlyItemsMap[mKey] = [];
+            monthlyItemsMap[mKey].push(summaryItem);
 
             if (e.expense_date) {
               const dtObj = new Date(e.expense_date + 'T00:00:00');
               if (!isNaN(dtObj.getTime())) {
-                dowTotalsArr[dtObj.getDay()] += valInDisplayCurr;
+                const dow = dtObj.getDay();
+                dowTotalsArr[dow] += valInDisplayCurr;
+                dowItemsArr[dow].push(summaryItem);
               }
             }
           }
         }
       });
+
+      if (monthly && monthlyArchivesList.length > 0) {
+        [...monthlyArchivesList].reverse().forEach(arch => {
+          const mKey = arch.month_key;
+          if (!mKey || liveMonthKeys.has(mKey)) return;
+          let sumForArch = 0;
+          if (!monthlyItemsMap[mKey]) monthlyItemsMap[mKey] = [];
+          (arch.summary_rows || []).forEach((r, rIdx) => {
+            const catOk = analyticsCategoryFilters.size === 0 || analyticsCategoryFilters.has(r.category) || Array.from(analyticsCategoryFilters).some(k => getCategoryShortName(k) === getCategoryShortName(r.category));
+            const chOk = analyticsChannelFilters.size === 0 || Array.from(analyticsChannelFilters).some(ch => (r.channel || '').includes(getChannelLabel(ch)));
+            const provOk = analyticsProviderFilters.size === 0 || Array.from(analyticsProviderFilters).some(p => (r.channel || '').includes(p));
+            if (catOk && chOk && provOk) {
+              const rawAmt = Number(r.amount || 0);
+              const valDisp = isThbBase() ? rawAmt : rawAmt * finalRate;
+              sumForArch += valDisp;
+              monthlyItemsMap[mKey].push({
+                id: `arch_${mKey}_${rIdx}`,
+                title: r.title || 'รายการ',
+                time: r.time || '',
+                date: r.date || '',
+                tripDay: 1,
+                category: getCategoryShortName(r.category),
+                channelText: r.channel || 'โอน',
+                amountDisplay: valDisp,
+                isRefund: rawAmt < 0,
+                receiptUrl: null,
+                payerName: r.payer || ''
+              });
+            }
+          });
+          monthlyTotalsMap[mKey] = (monthlyTotalsMap[mKey] || 0) + sumForArch;
+        });
+      }
 
       const chSumTotal = Math.max(0, chTotals.transfer) + Math.max(0, chTotals.credit_card) + Math.max(0, chTotals.cash);
       const pctTr = chSumTotal > 0 ? Math.round((Math.max(0, chTotals.transfer) / chSumTotal) * 100) : 0;
@@ -4363,23 +4514,31 @@
       const displayGrand = isThbBase() ? grandOrig : grandThb;
 
       let continuousDailyLabels = [];
+      let continuousDailyFullLabels = [];
       let continuousDailyVals = [];
+      let continuousDailyItems = [];
       const currentYm = getCurrentYYYYMM();
 
       if (monthly) {
         const now = new Date();
         const daysElapsedInMonth = now.getDate();
+        const [yrStr, moStr] = currentYm.split('-');
         for (let dayNum = 1; dayNum <= daysElapsedInMonth; dayNum++) {
-          const dStr = `${currentYm}-${String(dayNum).padStart(2, '0')}`;
-          continuousDailyLabels.push(`${dayNum}/${currentYm.slice(5, 7)}`);
+          const dd = String(dayNum).padStart(2, '0');
+          const dStr = `${currentYm}-${dd}`;
+          continuousDailyLabels.push(`${dayNum}/${moStr}`);
+          continuousDailyFullLabels.push(`วันที่ ${dd}/${moStr}/${yrStr}`);
           continuousDailyVals.push(dailyTotalsMap[dStr] || 0);
+          continuousDailyItems.push(dailyItemsMap[dStr] || []);
         }
       } else {
         const maxD = Math.max(totalDays, ...Object.keys(dailyTotalsMap).map(k => parseInt(k, 10) || 1));
         for (let d = 1; d <= maxD; d++) {
           const k = String(d).padStart(2, '0');
           continuousDailyLabels.push(`Day ${d}`);
+          continuousDailyFullLabels.push(`Day ${d}`);
           continuousDailyVals.push(dailyTotalsMap[k] || 0);
+          continuousDailyItems.push(dailyItemsMap[k] || []);
         }
       }
 
@@ -4425,11 +4584,17 @@
       let lineData = [];
       let lineLegend = 'ค่าเฉลี่ยต่อวัน';
       const trendBadge = document.getElementById('trend-comparison-badge');
+      currentChartBucketsMeta = [];
 
       if (analyticsTimeframe === 'daily') {
         document.getElementById('bar-chart-title').textContent = `การใช้จ่ายรายวัน (${combinedFocus})`;
         chartLabels = continuousDailyLabels;
         chartData = continuousDailyVals;
+        currentChartBucketsMeta = continuousDailyLabels.map((lbl, idx) => ({
+          title: continuousDailyFullLabels[idx],
+          total: continuousDailyVals[idx],
+          items: continuousDailyItems[idx]
+        }));
         lineData = chartData.map(() => Math.round(trueDailyAvg));
         lineLegend = `เฉลี่ยต่อวัน (฿${fmtNum(trueDailyAvg)})`;
         trendBadge.textContent = `เฉลี่ยวันละ ฿${fmtNum(trueDailyAvg)} · สูงสุด ${peakLabel} (฿${fmtNum(peakVal)})`;
@@ -4438,13 +4603,19 @@
         const weekBuckets = [];
         for (let i = 0; i < continuousDailyVals.length; i += 7) {
           const sliceVals = continuousDailyVals.slice(i, i + 7);
+          const sliceItems = continuousDailyItems.slice(i, i + 7).flat();
           const sumW = sliceVals.reduce((s, v) => s + v, 0);
           const startLbl = continuousDailyLabels[i];
           const endLbl = continuousDailyLabels[Math.min(i + 6, continuousDailyLabels.length - 1)];
-          weekBuckets.push({ label: `${startLbl}-${endLbl}`, sum: sumW });
+          weekBuckets.push({ label: `${startLbl}-${endLbl}`, sum: sumW, items: sliceItems });
         }
         chartLabels = weekBuckets.map(w => w.label);
         chartData = weekBuckets.map(w => w.sum);
+        currentChartBucketsMeta = weekBuckets.map(w => ({
+          title: `ช่วงวันที่ ${w.label}`,
+          total: w.sum,
+          items: w.items
+        }));
         const avgWeek = chartData.length > 0 ? chartData.reduce((s, v) => s + v, 0) / chartData.length : 0;
         lineData = chartData.map(() => Math.round(avgWeek));
         lineLegend = `เฉลี่ยต่อ 7 วัน (฿${fmtNum(avgWeek)})`;
@@ -4452,8 +4623,14 @@
       } else if (analyticsTimeframe === 'monthly') {
         document.getElementById('bar-chart-title').textContent = `เทรนด์รายเดือน (${combinedFocus})`;
         const mKeys = Object.keys(monthlyTotalsMap).sort();
-        chartLabels = mKeys.length ? mKeys.map(k => formatMonthLabel(k)) : [formatMonthLabel(currentYm)];
-        chartData = mKeys.length ? mKeys.map(k => monthlyTotalsMap[k]) : [0];
+        const effectiveKeys = mKeys.length ? mKeys : [currentYm];
+        chartLabels = effectiveKeys.map(k => formatMonthLabel(k));
+        chartData = effectiveKeys.map(k => monthlyTotalsMap[k] || 0);
+        currentChartBucketsMeta = effectiveKeys.map(k => ({
+          title: `รอบเดือน ${formatMonthLabel(k)}`,
+          total: monthlyTotalsMap[k] || 0,
+          items: monthlyItemsMap[k] || []
+        }));
         lineData = chartData;
         lineLegend = 'เส้นแนวโน้มรายเดือน';
         if (chartData.length >= 2) {
@@ -4472,6 +4649,11 @@
         const monToSunOrder = [1, 2, 3, 4, 5, 6, 0];
         chartLabels = monToSunOrder.map(idx => THAI_DOW_LABELS[idx]);
         chartData = monToSunOrder.map(idx => dowTotalsArr[idx]);
+        currentChartBucketsMeta = monToSunOrder.map(idx => ({
+          title: `รวมทุกวัน${THAI_DOW_LABELS[idx]}`,
+          total: dowTotalsArr[idx],
+          items: dowItemsArr[idx]
+        }));
         const avgDow = chartData.reduce((s, v) => s + v, 0) / 7;
         lineData = chartData.map(() => Math.round(avgDow));
         lineLegend = 'ค่าเฉลี่ยรายวันในสัปดาห์';
@@ -4481,6 +4663,10 @@
       }
 
       const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#D6718E';
+      const activeHighlightColor = '#6B424E';
+      const barBgColors = chartData.map((_, idx) =>
+        (isChartDrilldownEnabled && selectedChartBucketIndex === idx) ? activeHighlightColor : primaryColor
+      );
 
       if (dailyChartInstance) dailyChartInstance.destroy();
       dailyChartInstance = new Chart(document.getElementById('dailyChart'), {
@@ -4491,7 +4677,7 @@
               type: 'bar',
               label: 'ยอดใช้จ่าย (บาท)',
               data: chartData,
-              backgroundColor: primaryColor,
+              backgroundColor: barBgColors,
               borderRadius: 6,
               order: 2
             },
@@ -4512,6 +4698,15 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          onClick: (_, elements) => {
+            if (!elements || elements.length === 0) return;
+            const clickedIdx = elements[0].index;
+            selectedChartBucketIndex = clickedIdx;
+            updateChartBarHighlights();
+            if (isChartDrilldownEnabled) {
+              renderChartDrilldownDrawer();
+            }
+          },
           plugins: {
             legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
           },
@@ -4521,6 +4716,8 @@
           }
         }
       });
+
+      renderChartDrilldownDrawer();
 
       const catKeys = Object.keys(catTotals).filter(k => catTotals[k] > 0);
       if (categoryChartInstance) categoryChartInstance.destroy();
