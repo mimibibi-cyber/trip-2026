@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=16";
+      img.src = "icon.png?v=17";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -155,7 +155,7 @@
         </div>
         <div class="flex items-center gap-1 shrink-0">
           <button onclick="exportPrintablePdfReport()" title="ดูรายงาน PDF พร้อมรูปสลิปขนาดเล็ก" class="text-[11px] luxury-gradient text-white px-2.5 py-1.5 rounded-xl font-medium shadow-xs">PDF สลิป</button>
-          <button onclick="exportToExcel()" class="text-[11px] theme-text-primary hover:bg-[#FFEBF0] px-2 py-1.5 rounded-xl border theme-border bg-[#FFF8FA] font-medium">Excel</button>
+          <button onclick="openExcelPreviewModal()" class="text-[11px] theme-text-primary hover:bg-[#FFEBF0] px-2 py-1.5 rounded-xl border theme-border bg-[#FFF8FA] font-medium">Excel</button>
           <button onclick="handleLogout()" class="text-[11px] theme-text-muted px-1.5 py-1">ออก</button>
         </div>
       </div>
@@ -168,7 +168,7 @@
           <p class="text-xs font-semibold">ปิดทริปแล้ว (ล็อกแก้ไขข้อมูล)</p>
           <button onclick="openSettleModal()" class="text-[11px] bg-white text-[#4A4447] font-semibold px-3 py-1 rounded-xl shrink-0">สรุปโอนคืนถาวร</button>
         </div>
-        <p id="closed-retention-msg" class="text-[11px] text-white/85">เก็บรูปสลิปให้ตรวจสอบได้ 30 วันหลังปิดทริป หลังจากนั้นระบบจะล้างรูปเพื่อคืนพื้นที่อัตโนมัติ</p>
+        <p id="closed-retention-msg" class="text-[11px] text-white/85">เก็บรูปสลิปให้ตรวจสอบได้ 60 วันหลังปิดยอด หลังจากนั้นระบบจะล้างรูปเพื่อคืนพื้นที่อัตโนมัติ</p>
       </div>
 
       <div id="owner-flag-banner" class="hidden bg-[#FFF0F4] border border-[#E893AC] rounded-2xl p-3.5 space-y-1">
@@ -439,7 +439,7 @@
         <p id="analytics-subtitle" class="text-xs theme-text-muted">แตะเลือกวิธีชำระเงินและหมวดหมู่ผสมกันได้หลายรายการ</p>
       </div>
 
-      <!-- Multi-Select Payment Method Filter Strip -->
+      <!-- Multi-Select Payment Method + Dynamic Bank/Provider Filter Strip -->
       <div class="soft-card p-2.5 rounded-2xl space-y-1.5">
         <span class="text-[10px] font-semibold theme-text-muted px-1 block">วิธีชำระเงิน (เลือกผสมได้หลายช่องทาง)</span>
         <div class="grid grid-cols-4 gap-1 bg-[#FFF5F8] p-1 rounded-xl border theme-border-mid text-[11px]">
@@ -448,6 +448,8 @@
           <button type="button" onclick="setAnalyticsChannelFilter('credit_card')" id="an-ch-credit_card" class="an-ch-btn py-1.5 rounded-lg theme-text-sub">2. บัตรเครดิต</button>
           <button type="button" onclick="setAnalyticsChannelFilter('cash')" id="an-ch-cash" class="an-ch-btn py-1.5 rounded-lg theme-text-sub">3. เงินสด</button>
         </div>
+        <!-- Dynamic Bank / App Sub-Filter Pills (auto-appears when ไทยพาณิชย์, กสิกรไทย, Alipay etc. exist) -->
+        <div id="analytics-provider-filter-row" class="hidden pt-1 flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[10px]"></div>
       </div>
 
       <!-- Key Metrics Row: Total Spend & Daily Average -->
@@ -577,7 +579,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.1</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.2</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -698,7 +700,7 @@
           <div class="flex justify-between items-center gap-2">
             <div>
               <p class="text-xs font-semibold theme-text-main">สถานะ: <span id="admin-trip-status-text" class="theme-text-primary">เปิดใช้งาน</span></p>
-              <p class="text-[10px] theme-text-muted">ทริปที่ปิดแล้วจะเก็บรูปต่ออีก 30 วันเพื่อกันข้อโต้แย้ง</p>
+              <p class="text-[10px] theme-text-muted">เก็บรูปสลิปย้อนหลัง 60 วัน (ทั้งรายเดือนและทริป) หลังจากนั้นจะล้างรูปอัตโนมัติ</p>
             </div>
             <button id="btn-toggle-close-trip" onclick="toggleCloseTrip()" class="bg-[#4A4447] text-white px-3.5 py-2 rounded-xl text-xs font-medium shrink-0">ปิดทริปนี้</button>
           </div>
@@ -1079,13 +1081,13 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: IN-APP HIGH-RES PDF REPORT (SUMMARY + FULL-RES SLIP APPENDIX) ================= -->
+  <!-- ================= MODAL: IN-APP HIGH-RES PDF REPORT (INLINE RIGHT-HAND SLIPS) ================= -->
   <div id="pdf-report-modal" class="hidden fixed inset-0 bg-[#3A2229]/60 z-50 flex items-center justify-center p-2 sm:p-5">
     <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border theme-border flex flex-col max-h-[92vh] overflow-hidden">
       <div class="no-print px-4 py-3 bg-[#FFF5F8] border-b theme-border-mid flex justify-between items-center gap-2 shrink-0">
         <div class="min-w-0">
-          <p class="text-xs font-semibold theme-text-primary truncate">รายงาน PDF พร้อมสลิปความละเอียดสูง</p>
-          <p id="pdf-export-progress" class="text-[10px] theme-text-muted truncate">ตารางสรุป + ภาพสลิปขนาดใหญ่เต็มคมชัดท้ายรายงาน</p>
+          <p class="text-xs font-semibold theme-text-primary truncate">รายงาน PDF พร้อมรูปสลิปด้านขวา (ซูมชัด)</p>
+          <p id="pdf-export-progress" class="text-[10px] theme-text-muted truncate">ภาพสลิปความละเอียดสูงด้านขวามือ สามารถซูมอ่านยอดบนสลิปได้ชัดเจน</p>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
           <button id="btn-download-pdf-file" type="button" onclick="downloadOrSharePdfFile()" class="luxury-gradient text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl shadow-xs">บันทึก PDF / แชร์</button>
@@ -1094,6 +1096,23 @@
         </div>
       </div>
       <div id="pdf-report-body" class="p-5 overflow-y-auto flex-1 text-[#4A2E36] bg-white"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: IN-APP EXCEL PREVIEW & DOWNLOAD/SHARE ================= -->
+  <div id="excel-preview-modal" class="hidden fixed inset-0 bg-[#3A2229]/60 z-50 flex items-center justify-center p-2 sm:p-5">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border theme-border flex flex-col max-h-[92vh] overflow-hidden">
+      <div class="px-4 py-3 bg-[#FFF5F8] border-b theme-border-mid flex justify-between items-center gap-2 shrink-0">
+        <div class="min-w-0">
+          <p class="text-xs font-semibold theme-text-primary truncate">ตารางสรุป Excel / CSV</p>
+          <p class="text-[10px] theme-text-muted truncate">ตรวจสอบตารางก่อนดาวน์โหลดหรือแชร์ไฟล์เข้า Excel / Numbers</p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="btn-download-excel-file" type="button" onclick="downloadOrShareExcelFile()" class="luxury-gradient text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl shadow-xs">บันทึก Excel / แชร์</button>
+          <button onclick="closeModal('excel-preview-modal')" aria-label="ปิดหน้าต่าง" class="w-8 h-8 rounded-full bg-white border theme-border-mid theme-text-main flex items-center justify-center text-base font-bold">✕</button>
+        </div>
+      </div>
+      <div id="excel-preview-body" class="p-4 overflow-y-auto flex-1 text-[#4A2E36] bg-white"></div>
     </div>
   </div>
 
@@ -1161,7 +1180,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.1';
+    const APP_VERSION = 'v3.2';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1227,6 +1246,7 @@
     let compareSelectedCategories = new Set();
     let currentChannelStatScope = 'all';
     let analyticsChannelFilters = new Set();
+    let analyticsProviderFilters = new Set();
     let analyticsCategoryFilters = new Set();
     let analyticsTimeframe = 'daily';
     let collapsedGroups = new Set();
@@ -2415,6 +2435,7 @@
       collapsedGroups.clear();
       analyticsCategoryFilters.clear();
       analyticsChannelFilters.clear();
+      analyticsProviderFilters.clear();
       digestChannelFilters.clear();
       compareSelectedMonths.clear();
       compareSelectedCategories.clear();
@@ -2514,10 +2535,10 @@
 
       if (isClosed && currentTrip.closed_at) {
         const closedDate = new Date(currentTrip.closed_at);
-        const expiryDate = new Date(closedDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+        const expiryDate = new Date(closedDate.getTime() + 60 * 24 * 60 * 60 * 1000);
         const daysLeft = Math.max(0, Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24)));
         document.getElementById('closed-retention-msg').textContent = currentTrip.images_purged_at
-          ? 'ครบกำหนด 30 วันแล้ว — ระบบล้างรูปสลิปเพื่อคืนพื้นที่เรียบร้อย (ดูตารางสรุปตัวเลขถาวรได้ตลอด)'
+          ? 'ครบกำหนด 60 วันแล้ว — ระบบล้างรูปสลิปเพื่อคืนพื้นที่เรียบร้อย (ดูตารางสรุปตัวเลขถาวรได้ตลอด)'
           : `เก็บรูปสลิปไว้ตรวจสอบได้อีก ${daysLeft} วัน (ถึง ${expiryDate.toLocaleDateString('th-TH')}) หลังจากนั้นระบบจะล้างรูปอัตโนมัติ`;
       }
 
@@ -2634,8 +2655,10 @@
     }
 
     async function runLifecycleMaintenance() {
+      const sixtyDaysMs = 60 * 24 * 60 * 60 * 1000;
+      const nowMs = Date.now();
+
       if (isMonthlyMode()) {
-        // Keep all past-month images intact for viewing, editing, deleting, and high-res PDF export
         const currentYm = getCurrentYYYYMM();
         const pastExpenses = expensesList.filter(e => {
           const mKey = e.expense_month || (e.expense_date || '').slice(0, 7);
@@ -2647,11 +2670,29 @@
           for (const mKey of pastMonths) {
             await syncMonthlyArchiveSummary(mKey);
           }
+
+          // Purge only images older than 60 days in Monthly mode
+          const expiredImgItems = pastExpenses.filter(e => {
+            if (!e.receipt_image_url) return false;
+            const refDateStr = e.expense_date || (e.created_at ? e.created_at.slice(0, 10) : null);
+            if (!refDateStr) return false;
+            const itemTime = new Date(refDateStr + 'T00:00:00').getTime();
+            return !isNaN(itemTime) && (nowMs - itemTime >= sixtyDaysMs);
+          });
+
+          if (expiredImgItems.length > 0) {
+            const paths = expiredImgItems.map(e =>
+              e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url
+            );
+            await db.storage.from('trip-media').remove(paths);
+            const idsToClear = expiredImgItems.map(e => e.id);
+            await db.from('expenses').update({ receipt_image_url: null }).in('id', idsToClear);
+            expiredImgItems.forEach(e => { e.receipt_image_url = null; });
+          }
         }
       } else if (currentTrip.is_closed && currentTrip.closed_at && !currentTrip.images_purged_at) {
         const closedTime = new Date(currentTrip.closed_at).getTime();
-        const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-        if (Date.now() - closedTime >= thirtyDaysMs) {
+        if (nowMs - closedTime >= sixtyDaysMs) {
           const itemsWithImg = expensesList.filter(e => e.receipt_image_url);
           if (itemsWithImg.length > 0) {
             const paths = itemsWithImg.map(e =>
@@ -3724,7 +3765,7 @@
       openModal('day-receipts-modal');
     }
 
-    // ================= IN-APP HIGH-RES PDF REPORT (SUMMARY TABLE + FULL-RES SLIP APPENDIX) =================
+    // ================= IN-APP HIGH-RES PDF REPORT (INLINE RIGHT-HAND SLIPS, CRISP ZOOM) =================
     async function exportPrintablePdfReport() {
       const myEmail = currentMember.email.toLowerCase();
       const finalRate = getGlobalFinalRate();
@@ -3757,8 +3798,8 @@
       const progressEl = document.getElementById('pdf-export-progress');
       const itemsWithImg = items.filter(e => e.receipt_image_url);
 
-      bodyEl.innerHTML = `<div class="py-12 text-center text-xs theme-text-sub">กำลังดาวน์โหลดรูปสลิปความละเอียดสูง 0/${itemsWithImg.length} ใบ กรุณารอสักครู่...</div>`;
-      if (progressEl) progressEl.textContent = `กำลังดึงภาพคมชัด 0/${itemsWithImg.length} ใบ...`;
+      bodyEl.innerHTML = `<div class="py-12 text-center text-xs theme-text-sub">กำลังโหลดรูปสลิปความละเอียดสูง 0/${itemsWithImg.length} ใบ กรุณารอสักครู่...</div>`;
+      if (progressEl) progressEl.textContent = `กำลังโหลดภาพคมชัด 0/${itemsWithImg.length} ใบ...`;
       openModal('pdf-report-modal');
 
       const fullResMap = {};
@@ -3779,18 +3820,16 @@
           } catch (_) {}
           loadedCount += 1;
         }));
-        bodyEl.innerHTML = `<div class="py-12 text-center text-xs theme-text-sub">กำลังดาวน์โหลดรูปสลิปความละเอียดสูง ${loadedCount}/${itemsWithImg.length} ใบ...</div>`;
-        if (progressEl) progressEl.textContent = `กำลังดึงภาพคมชัด ${loadedCount}/${itemsWithImg.length} ใบ...`;
+        bodyEl.innerHTML = `<div class="py-12 text-center text-xs theme-text-sub">กำลังโหลดรูปสลิปความละเอียดสูง ${loadedCount}/${itemsWithImg.length} ใบ...</div>`;
+        if (progressEl) progressEl.textContent = `กำลังโหลดภาพคมชัด ${loadedCount}/${itemsWithImg.length} ใบ...`;
       }
 
-      if (progressEl) progressEl.textContent = `พร้อมบันทึก PDF (ตารางสรุป + สลิปขยายใหญ่ ${Object.keys(fullResMap).length} ใบ)`;
+      if (progressEl) progressEl.textContent = `พร้อมบันทึก PDF (รูปสลิปความละเอียดสูงด้านขวามือ ${Object.keys(fullResMap).length} ใบ)`;
 
       let grandAmt = 0, grandThb = 0;
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
-      const slipAppendixCards = [];
 
       const rowsHtml = items.map((e, idx) => {
-        const refNum = idx + 1;
         const signedAmt = getSignedAmt(e);
         const thb = calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
         const normCh = normalizeChannel(e.payment_channel);
@@ -3801,58 +3840,22 @@
         const fullImgSrc = fullResMap[e.id];
         const chFullText = getChannelLabel(normCh, e.payment_provider);
 
-        if (fullImgSrc) {
-          slipAppendixCards.push(`
-            <div class="border border-[#F2CFD9] rounded-2xl p-3 bg-[#FFFDFD] flex flex-col justify-between" style="page-break-inside: avoid;">
-              <div class="flex justify-between items-start gap-2 pb-2 mb-2 border-b border-[#F5D5DF]">
-                <div class="min-w-0">
-                  <span class="inline-block bg-[#FFEBF0] text-[#C45B79] font-bold text-[11px] px-2 py-0.5 rounded-md mr-1">#${refNum}</span>
-                  <strong class="text-xs text-[#6B424E]">${e.title}</strong>
-                  <p class="text-[10px] text-[#8C5867] mt-0.5">${periodCol} ${e.slip_time || ''} · ${chFullText} · ${getMemberName(e.paid_by_email)}</p>
-                </div>
-                <span class="text-xs font-bold text-[#C45B79] whitespace-nowrap shrink-0">${sym}${fmtNum(signedAmt)}</span>
-              </div>
-              <div class="flex items-center justify-center bg-white rounded-xl p-1">
-                <img src="${fullImgSrc}" class="w-full max-h-[360px] object-contain rounded-lg" />
-              </div>
-            </div>
-          `);
-        }
-
         return `
           <tr class="border-b border-[#F5D5DF]" style="page-break-inside: avoid;">
-            <td class="py-2 px-1.5 text-center text-[11px] font-semibold text-[#C45B79]">#${refNum}</td>
-            <td class="py-2 px-1.5 text-[11px]">${periodCol}<br><span class="text-[10px] text-[#B38895]">${e.slip_time || ''}</span></td>
-            <td class="py-2 px-1.5 text-xs">
+            <td class="py-2.5 px-1.5 text-center text-[11px] text-[#A37B87] align-top">${idx + 1}</td>
+            <td class="py-2.5 px-1.5 text-[11px] align-top">${periodCol}<br><span class="text-[10px] text-[#B38895]">${e.slip_time || ''}</span></td>
+            <td class="py-2.5 px-1.5 text-xs align-top">
               <strong class="text-[#6B424E]">${e.title}</strong><br>
               <span class="text-[10px] text-[#8C5867]">${chFullText} · ${getCategoryShortName(e.category)} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span>
             </td>
-            <td class="py-2 px-1.5 text-right text-xs font-semibold text-[#C45B79] whitespace-nowrap">
+            <td class="py-2.5 px-1.5 text-right text-xs font-semibold text-[#C45B79] whitespace-nowrap align-top">
               ${sym}${fmtNum(signedAmt)}${!isThbBase() ? `<br><span class="text-[10px] font-normal text-[#A37B87]">฿${fmtNum(thb)}</span>` : ''}
             </td>
-            <td class="py-2 px-1.5 text-center text-[10px] font-medium">
-              ${fullImgSrc ? `<span class="text-[#C45B79]">ดูสลิป #${refNum}</span>` : '<span class="text-[#C9A3AF]">-</span>'}
+            <td class="py-2 px-1.5 text-center align-middle">
+              ${fullImgSrc ? `<img src="${fullImgSrc}" class="w-20 h-28 object-contain rounded-lg border border-[#F2CFD9] bg-white mx-auto shadow-2xs" />` : '<span class="text-[10px] text-[#C9A3AF]">-</span>'}
             </td>
           </tr>`;
       }).join('');
-
-      let appendixHtml = '';
-      if (slipAppendixCards.length > 0) {
-        const pairedPages = [];
-        for (let i = 0; i < slipAppendixCards.length; i += 2) {
-          const pair = slipAppendixCards.slice(i, i + 2).join('');
-          pairedPages.push(`
-            <div style="page-break-before: always; padding-top: 8px;">
-              <div class="flex justify-between items-center pb-2 mb-3 border-b border-[#E893AC]">
-                <span class="text-xs font-bold text-[#C45B79]">ภาคผนวกหลักฐานสลิปความละเอียดสูง — ${currentTrip.name}</span>
-                <span class="text-[10px] text-[#8C5867]">ชุดที่ ${Math.floor(i / 2) + 1} / ${Math.ceil(slipAppendixCards.length / 2)}</span>
-              </div>
-              <div class="grid grid-cols-2 gap-3 items-start">${pair}</div>
-            </div>
-          `);
-        }
-        appendixHtml = pairedPages.join('');
-      }
 
       const subtitle = monthly ? `รอบเดือน ${formatMonthLabel(currentYm)}` : `ทริปท่องเที่ยว`;
       bodyEl.innerHTML = `
@@ -3883,11 +3886,11 @@
           <table class="w-full border-collapse text-left">
             <thead>
               <tr class="bg-[#FDF2F5] text-[#6B424E] text-[11px] border-b border-[#E893AC]">
-                <th class="py-2 px-1.5 text-center w-10">อ้างอิง</th>
+                <th class="py-2 px-1.5 text-center w-8">#</th>
                 <th class="py-2 px-1.5 w-20">วันที่/เวลา</th>
-                <th class="py-2 px-1.5">รายการ / ธนาคารและช่องทางจ่าย</th>
-                <th class="py-2 px-1.5 text-right w-24">จำนวนเงิน</th>
-                <th class="py-2 px-1.5 text-center w-16">หลักฐาน</th>
+                <th class="py-2 px-1.5">รายการ / ช่องทางจ่าย</th>
+                <th class="py-2 px-1.5 text-right w-20">จำนวนเงิน</th>
+                <th class="py-2 px-1.5 text-center w-24">สลิป (ซูมได้)</th>
               </tr>
             </thead>
             <tbody>${rowsHtml}</tbody>
@@ -3896,8 +3899,6 @@
           <div class="bg-[#FFF5F8] border border-[#F2CFD9] rounded-2xl p-3.5 text-right text-sm font-bold text-[#C45B79]">
             ยอดรวมสุทธิ: ${sym}${fmtNum(grandAmt)} ${!isThbBase() ? `(฿${fmtNum(grandThb)})` : ''}
           </div>
-
-          ${appendixHtml}
         </div>
       `;
     }
@@ -3908,13 +3909,13 @@
       const element = document.getElementById('pdf-report-body');
       if (!element) return;
 
-      const fileName = `${currentTrip.name.replace(/\s+/g, '_')}_HighRes_Report_${getTodayYYYYMMDD()}.pdf`;
+      const fileName = `${currentTrip.name.replace(/\s+/g, '_')}_Report_${getTodayYYYYMMDD()}.pdf`;
       if (btn) {
         btn.disabled = true;
-        btn.textContent = 'กำลังเรนเดอร์ภาพคมชัดสูง...';
+        btn.textContent = 'กำลังเรนเดอร์ PDF คมชัดสูง...';
       }
       if (progressEl) {
-        progressEl.textContent = 'กำลังสร้างไฟล์ PDF ความละเอียดสูงสำหรับซูมอ่านตัวเลขบนสลิป (อาจใช้เวลา 5-15 วินาที)...';
+        progressEl.textContent = 'กำลังสร้างไฟล์ PDF ความละเอียดสูงเพื่อให้ซูมอ่านยอดบนสลิปได้ชัดเจน (กรุณารอสักครู่)...';
       }
 
       try {
@@ -3922,8 +3923,8 @@
           const opt = {
             margin: 6,
             filename: fileName,
-            image: { type: 'jpeg', quality: 0.96 },
-            html2canvas: { scale: 2.5, useCORS: true, logging: false, letterRendering: true },
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 3, useCORS: true, logging: false },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: ['css', 'legacy'] }
           };
@@ -4078,7 +4079,7 @@
       if (!isSuperAdmin()) return;
       const closing = !currentTrip.is_closed;
       if (closing) {
-        if (!confirm(`ยืนยันการ "ปิดยอด ${currentTrip.name}"?\nระบบจะล็อกข้อมูลทั้งหมดไม่ให้แก้ไข (เก็บรูปสลิปไว้ตรวจสอบได้ 30 วันหลังปิดทริป)`)) return;
+        if (!confirm(`ยืนยันการ "ปิดยอด ${currentTrip.name}"?\nระบบจะล็อกข้อมูลทั้งหมดไม่ให้แก้ไข (เก็บรูปสลิปไว้ตรวจสอบได้ 60 วันหลังปิดทริป)`)) return;
         const rate = getGlobalFinalRate();
         const nowIso = new Date().toISOString();
         const summarySnapshot = {
@@ -4091,7 +4092,7 @@
         currentTrip.is_closed = true;
         currentTrip.closed_at = nowIso;
         currentTrip.closed_summary = summarySnapshot;
-        await writeLog('CLOSE_TRIP', `ปิดยอด "${currentTrip.name}" (เก็บรูปสลิป 30 วันเพื่อตรวจสอบ)`);
+        await writeLog('CLOSE_TRIP', `ปิดยอด "${currentTrip.name}" (เก็บรูปสลิป 60 วันเพื่อตรวจสอบ)`);
       } else {
         if (!confirm('ยืนยันการเปิดใช้งานสมุดนี้อีกครั้ง?')) return;
         const { error } = await db.from('trips').update({ is_closed: false, closed_at: null }).eq('id', currentTrip.id);
@@ -4164,12 +4165,13 @@
     function setAnalyticsChannelFilter(ch) {
       if (ch === 'ALL') {
         analyticsChannelFilters.clear();
+        analyticsProviderFilters.clear();
       } else {
         if (analyticsChannelFilters.has(ch)) analyticsChannelFilters.delete(ch);
         else analyticsChannelFilters.add(ch);
       }
 
-      const isAll = analyticsChannelFilters.size === 0;
+      const isAll = analyticsChannelFilters.size === 0 && analyticsProviderFilters.size === 0;
       document.getElementById('an-ch-ALL').className = `an-ch-btn py-1.5 rounded-lg ${isAll ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
       ['transfer', 'credit_card', 'cash'].forEach(k => {
         const el = document.getElementById(`an-ch-${k}`);
@@ -4179,6 +4181,20 @@
         if (cardEl) cardEl.classList.toggle('ring-2', active);
         if (cardEl) cardEl.classList.toggle('ring-[#6B424E]', active);
       });
+      renderAnalytics();
+    }
+
+    function toggleAnalyticsProviderFilter(provName) {
+      if (analyticsProviderFilters.has(provName)) {
+        analyticsProviderFilters.delete(provName);
+      } else {
+        analyticsProviderFilters.add(provName);
+      }
+      const isAll = analyticsChannelFilters.size === 0 && analyticsProviderFilters.size === 0;
+      const allBtn = document.getElementById('an-ch-ALL');
+      if (allBtn) {
+        allBtn.className = `an-ch-btn py-1.5 rounded-lg ${isAll ? 'luxury-gradient text-white font-semibold' : 'theme-text-sub'}`;
+      }
       renderAnalytics();
     }
 
@@ -4218,6 +4234,29 @@
       const monthly = isMonthlyMode();
       const participants = getActiveParticipants();
       const isSinglePersonLedger = participants.length <= 1;
+
+      // Dynamic Bank / App Provider Filter Pills (e.g. ไทยพาณิชย์, กสิกรไทย, Alipay)
+      const detectedProvidersSet = new Set();
+      expensesList.forEach(e => {
+        const p = normalizeProviderName(e.payment_provider);
+        if (p) detectedProvidersSet.add(p);
+      });
+      const provRowEl = document.getElementById('analytics-provider-filter-row');
+      if (provRowEl) {
+        const provList = Array.from(detectedProvidersSet);
+        if (provList.length === 0) {
+          provRowEl.classList.add('hidden');
+        } else {
+          provRowEl.classList.remove('hidden');
+          provRowEl.innerHTML = `<span class="theme-text-muted shrink-0">ธนาคาร/แอป:</span>` + provList.map(p => {
+            const isAct = analyticsProviderFilters.has(p);
+            return `<button type="button" onclick="toggleAnalyticsProviderFilter('${p.replace(/'/g, "\'")}')"
+              class="px-2.5 py-1 rounded-lg shrink-0 transition ${isAct ? 'luxury-gradient text-white font-semibold shadow-2xs' : 'bg-[#FFF9FA] theme-text-sub border theme-border-mid'}">
+              ${isAct ? '✓ ' : ''}${p}
+            </button>`;
+          }).join('');
+        }
+      }
 
       const filterBar = document.getElementById('analytics-cat-filter-bar');
       if (filterBar) {
@@ -4278,10 +4317,12 @@
           if (isSinglePersonLedger || !isSoloPersonalExpense(e)) chTotals[normCh] += valInDisplayCurr;
         }
 
+        const itemProv = normalizeProviderName(e.payment_provider);
         const matchesChannelFilter = analyticsChannelFilters.size === 0 || analyticsChannelFilters.has(normCh);
+        const matchesProviderFilter = analyticsProviderFilters.size === 0 || analyticsProviderFilters.has(itemProv);
         const matchesCategoryFilter = analyticsCategoryFilters.size === 0 || analyticsCategoryFilters.has(catKey);
 
-        if ((isSinglePersonLedger || !isSoloPersonalExpense(e)) && matchesChannelFilter) {
+        if ((isSinglePersonLedger || !isSoloPersonalExpense(e)) && matchesChannelFilter && matchesProviderFilter) {
           grandOrig += signedAmt;
           grandThb += thb;
           catTotals[catKey] = (catTotals[catKey] || 0) + valInDisplayCurr;
@@ -4354,9 +4395,13 @@
         }
       });
 
-      const chTagText = analyticsChannelFilters.size === 0
+      const combinedChannelTags = [
+        ...Array.from(analyticsChannelFilters).map(getChannelLabel),
+        ...Array.from(analyticsProviderFilters)
+      ];
+      const chTagText = combinedChannelTags.length === 0
         ? ''
-        : ` (${Array.from(analyticsChannelFilters).map(getChannelLabel).join(' + ')})`;
+        : ` (${combinedChannelTags.join(' + ')})`;
       document.getElementById('stat-grand-label').textContent = `ยอดใช้จ่ายรวม${chTagText}`;
       document.getElementById('stat-grand-thb').textContent = `฿${fmtNum(displayGrand)}`;
       document.getElementById('stat-grand-cny').textContent = isThbBase() ? `เฉพาะมุมมองที่เลือก` : `${sym}${fmtNum(grandOrig)}`;
@@ -4370,9 +4415,9 @@
       const catFocusLabel = analyticsCategoryFilters.size === 0
         ? 'ทุกหมวด'
         : Array.from(analyticsCategoryFilters).map(getCategoryShortName).join(' + ');
-      const chFocusLabel = analyticsChannelFilters.size === 0
+      const chFocusLabel = combinedChannelTags.length === 0
         ? 'ทุกช่องทาง'
-        : Array.from(analyticsChannelFilters).map(getChannelLabel).join(' + ');
+        : combinedChannelTags.join(' + ');
       const combinedFocus = `${chFocusLabel} · ${catFocusLabel}`;
 
       let chartLabels = [];
@@ -5658,7 +5703,7 @@ Respond ONLY with valid JSON:
       if (!error) await loadLogBackups();
     }
 
-    function exportToExcel() {
+    function buildExcelCsvString() {
       const finalRate = getGlobalFinalRate();
       const code = getCurrCode();
       const monthly = isMonthlyMode();
@@ -5698,12 +5743,141 @@ Respond ONLY with valid JSON:
           csv += `${t.from},${t.to},${t.cny},${t.thb}\n`;
         });
       }
+      return csv;
+    }
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${currentTrip.name.replace(/\s+/g, '_')}_Summary.csv`;
-      a.click();
+    function openExcelPreviewModal() {
+      const finalRate = getGlobalFinalRate();
+      const sym = getCurrSymbol();
+      const code = getCurrCode();
+      const monthly = isMonthlyMode();
+      const isSinglePersonLedger = getActiveParticipants().length <= 1;
+
+      const items = expensesList.filter(e => isSinglePersonLedger || !isSoloPersonalExpense(e)).sort((a, b) => {
+        if (monthly) return (b.expense_date || '').localeCompare(a.expense_date || '');
+        if (a.trip_day !== b.trip_day) return b.trip_day - a.trip_day;
+        return (b.slip_time || '').localeCompare(a.slip_time || '');
+      });
+
+      if (items.length === 0) return alert('ยังไม่มีรายการสำหรับแสดงตาราง Excel');
+
+      let grandAmt = 0, grandThb = 0;
+      const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
+
+      const rowsHtml = items.map((e, idx) => {
+        const signedAmt = getSignedAmt(e);
+        const thb = calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
+        const normCh = normalizeChannel(e.payment_channel);
+        grandAmt += signedAmt;
+        grandThb += thb;
+        chTotals[normCh] += signedAmt;
+        const periodStr = monthly ? (e.expense_date || '-') : `Day ${e.trip_day}`;
+        const timeVal = e.slip_time || new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        const splitNames = (e.split_details?.emails || []).map(getMemberName).join(', ');
+
+        return `
+          <tr class="border-b border-[#F5D5DF] hover:bg-[#FFF9FA]">
+            <td class="py-2 px-2 text-center text-[10px] theme-text-muted">${idx + 1}</td>
+            <td class="py-2 px-2 text-[11px] whitespace-nowrap">${periodStr} <span class="text-[10px] theme-text-muted">${timeVal}</span></td>
+            <td class="py-2 px-2 text-[11px] whitespace-nowrap">${getChannelLabel(normCh, e.payment_provider)}</td>
+            <td class="py-2 px-2 text-[11px] whitespace-nowrap">${getCategoryShortName(e.category)}</td>
+            <td class="py-2 px-2 text-xs font-medium theme-text-main min-w-[140px]">${e.title}</td>
+            <td class="py-2 px-2 text-right text-xs font-semibold theme-text-primary whitespace-nowrap">${sym}${fmtNum(signedAmt)}</td>
+            ${!isThbBase() ? `<td class="py-2 px-2 text-right text-[11px] theme-text-sub whitespace-nowrap">฿${fmtNum(thb)}</td>` : ''}
+            <td class="py-2 px-2 text-[11px] whitespace-nowrap">${getMemberName(e.paid_by_email)}</td>
+            ${!isSinglePersonLedger ? `<td class="py-2 px-2 text-[10px] theme-text-muted whitespace-nowrap">${splitNames}</td>` : ''}
+          </tr>`;
+      }).join('');
+
+      const bodyEl = document.getElementById('excel-preview-body');
+      bodyEl.innerHTML = `
+        <div class="space-y-4">
+          <div class="border-b border-[#F2CFD9] pb-2.5 flex justify-between items-center gap-2">
+            <div>
+              <h3 class="text-sm font-bold theme-text-primary">${currentTrip.name} (สกุลเงิน ${code})</h3>
+              <p class="text-[10px] theme-text-muted">ทั้งหมด ${items.length} รายการ · เลื่อนซ้าย-ขวาเพื่อดูทุกคอลัมน์</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold theme-text-primary">${sym}${fmtNum(grandAmt)}</span>
+              ${!isThbBase() ? `<span class="block text-[10px] theme-text-muted">฿${fmtNum(grandThb)}</span>` : ''}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="bg-[#FDF2F5] border border-[#F2CFD9] rounded-xl p-2">
+              <span class="text-[10px] theme-text-sub block">1. โอน</span>
+              <strong class="theme-text-main">${sym}${fmtNum(chTotals.transfer)}</strong>
+            </div>
+            <div class="bg-[#FDF2F5] border border-[#F2CFD9] rounded-xl p-2">
+              <span class="text-[10px] theme-text-sub block">2. บัตรเครดิต</span>
+              <strong class="theme-text-main">${sym}${fmtNum(chTotals.credit_card)}</strong>
+            </div>
+            <div class="bg-[#FDF2F5] border border-[#F2CFD9] rounded-xl p-2">
+              <span class="text-[10px] theme-text-sub block">3. เงินสด</span>
+              <strong class="theme-text-main">${sym}${fmtNum(chTotals.cash)}</strong>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto border border-[#F2CFD9] rounded-2xl">
+            <table class="w-full border-collapse text-left">
+              <thead>
+                <tr class="bg-[#FDF2F5] theme-text-main text-[11px] border-b border-[#E893AC]">
+                  <th class="py-2 px-2 text-center">#</th>
+                  <th class="py-2 px-2 whitespace-nowrap">วันที่ / เวลา</th>
+                  <th class="py-2 px-2 whitespace-nowrap">ช่องทาง / ธนาคาร</th>
+                  <th class="py-2 px-2 whitespace-nowrap">หมวดหมู่</th>
+                  <th class="py-2 px-2 whitespace-nowrap">รายการ</th>
+                  <th class="py-2 px-2 text-right whitespace-nowrap">ยอดเงิน (${code})</th>
+                  ${!isThbBase() ? `<th class="py-2 px-2 text-right whitespace-nowrap">บาท (THB)</th>` : ''}
+                  <th class="py-2 px-2 whitespace-nowrap">ผู้จ่าย</th>
+                  ${!isSinglePersonLedger ? `<th class="py-2 px-2 whitespace-nowrap">ผู้ร่วมหาร</th>` : ''}
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      openModal('excel-preview-modal');
+    }
+
+    async function downloadOrShareExcelFile() {
+      const btn = document.getElementById('btn-download-excel-file');
+      const fileName = `${currentTrip.name.replace(/\s+/g, '_')}_Summary_${getTodayYYYYMMDD()}.csv`;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'กำลังสร้างไฟล์...';
+      }
+      try {
+        const csv = buildExcelCsvString();
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const csvFile = new File([blob], fileName, { type: 'text/csv' });
+
+        if (navigator.canShare && navigator.canShare({ files: [csvFile] })) {
+          await navigator.share({
+            files: [csvFile],
+            title: `${currentTrip.name} Excel Summary`
+          });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 3000);
+        }
+      } catch (err) {
+        if (err && err.name !== 'AbortError') {
+          console.warn('Excel share error:', err);
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'บันทึก Excel / แชร์';
+        }
+      }
     }
 
     function switchTab(tab) {
