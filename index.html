@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=15";
+      img.src = "icon.png?v=16";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -243,12 +243,23 @@
         <div class="grid grid-cols-3 gap-1.5">
           <input id="qc-title" type="text" placeholder="ชื่อรายการ (เช่น ข้าวมันไก่)" class="col-span-3 bg-[#FFF9FA] border theme-border-mid rounded-xl px-3 py-2 text-xs font-medium" />
           <select id="qc-cat" class="bg-[#FFF9FA] border theme-border-mid rounded-xl px-2 py-1.5 text-[11px]"></select>
-          <select id="qc-channel" class="bg-[#FFF9FA] border theme-border-mid rounded-xl px-2 py-1.5 text-[11px] font-medium">
+          <select id="qc-channel" onchange="toggleQcProviderSelect()" class="bg-[#FFF9FA] border theme-border-mid rounded-xl px-2 py-1.5 text-[11px] font-medium">
             <option value="transfer">1. โอน</option>
             <option value="credit_card">2. บัตรเครดิต</option>
             <option value="cash">3. เงินสด</option>
           </select>
           <select id="qc-period" class="bg-[#FFF9FA] border theme-border-mid rounded-xl px-2 py-1.5 text-[11px]"></select>
+          <select id="qc-provider" class="col-span-3 bg-[#FFF9FA] border theme-border-mid rounded-xl px-2.5 py-1.5 text-[11px]">
+            <option value="">ระบุธนาคาร / แอปที่โอน (ไม่บังคับ)</option>
+            <option value="กสิกรไทย">กสิกรไทย (KBank)</option>
+            <option value="ไทยพาณิชย์">ไทยพาณิชย์ (SCB)</option>
+            <option value="กรุงเทพ">กรุงเทพ (BBL)</option>
+            <option value="กรุงไทย">กรุงไทย (KTB)</option>
+            <option value="กรุงศรี">กรุงศรี (Krungsri)</option>
+            <option value="Alipay">Alipay (อลีเพย์)</option>
+            <option value="WeChat Pay">WeChat Pay</option>
+            <option value="TrueMoney">TrueMoney Wallet</option>
+          </select>
         </div>
 
         <!-- Calculator Display -->
@@ -316,7 +327,9 @@
         <!-- Quick Comma Keyword Suggestion Chips -->
         <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[10px]">
           <span class="theme-text-muted shrink-0">คำค้นด่วน (+คั่น ,):</span>
-          <button type="button" onclick="toggleSearchKeywordChip('โอน')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ โอน</button>
+          <button type="button" onclick="toggleSearchKeywordChip('กสิกรไทย')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ กสิกรไทย</button>
+          <button type="button" onclick="toggleSearchKeywordChip('ไทยพาณิชย์')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ ไทยพาณิชย์</button>
+          <button type="button" onclick="toggleSearchKeywordChip('Alipay')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ Alipay</button>
           <button type="button" onclick="toggleSearchKeywordChip('บัตรเครดิต')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ บัตรเครดิต</button>
           <button type="button" onclick="toggleSearchKeywordChip('เงินสด')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ เงินสด</button>
           <button type="button" onclick="toggleSearchKeywordChip('อาหาร')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ อาหาร</button>
@@ -564,7 +577,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.0</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.1</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -932,11 +945,22 @@
         </div>
         <div id="single-channel-box">
           <label class="text-[11px] theme-text-sub">ช่องทางจ่ายเงิน <span id="exp-channel-badge" class="text-[9px] theme-text-primary"></span></label>
-          <select id="exp-channel" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1 font-medium">
+          <select id="exp-channel" onchange="toggleSingleProviderVisibility()" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2 text-xs mt-1 font-medium">
             <option value="transfer">1. โอน (Transfer / Alipay)</option>
             <option value="credit_card">2. บัตรเครดิต (Credit Card)</option>
             <option value="cash">3. เงินสด (Cash)</option>
           </select>
+          <input id="exp-provider" list="provider-presets" type="text" placeholder="ธนาคาร/แอป เช่น กสิกรไทย, Alipay" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl px-2.5 py-1.5 text-[11px] mt-1.5" />
+          <datalist id="provider-presets">
+            <option value="กสิกรไทย">
+            <option value="ไทยพาณิชย์">
+            <option value="กรุงเทพ">
+            <option value="กรุงไทย">
+            <option value="กรุงศรี">
+            <option value="Alipay">
+            <option value="WeChat Pay">
+            <option value="TrueMoney">
+          </datalist>
         </div>
       </div>
 
@@ -993,13 +1017,19 @@
         </div>
       </div>
 
-      <div>
-        <label class="text-[11px] theme-text-sub">ช่องทางจ่ายเงิน</label>
-        <select id="edit-exp-channel" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1 font-medium">
-          <option value="transfer">1. โอน (Transfer / Alipay)</option>
-          <option value="credit_card">2. บัตรเครดิต (Credit Card)</option>
-          <option value="cash">3. เงินสด (Cash)</option>
-        </select>
+      <div class="grid grid-cols-2 gap-2.5">
+        <div>
+          <label class="text-[11px] theme-text-sub">ช่องทางจ่ายเงิน</label>
+          <select id="edit-exp-channel" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1 font-medium">
+            <option value="transfer">1. โอน (Transfer / Alipay)</option>
+            <option value="credit_card">2. บัตรเครดิต (Credit Card)</option>
+            <option value="cash">3. เงินสด (Cash)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] theme-text-sub">ธนาคาร / แอปที่จ่าย</label>
+          <input id="edit-exp-provider" list="provider-presets" type="text" placeholder="เช่น กสิกรไทย, Alipay" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-xl p-2.5 text-xs mt-1" />
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3 bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border">
@@ -1049,11 +1079,14 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: IN-APP PDF REPORT (iOS NATIVE PDF DOWNLOAD/SHARE + PRINT) ================= -->
+  <!-- ================= MODAL: IN-APP HIGH-RES PDF REPORT (SUMMARY + FULL-RES SLIP APPENDIX) ================= -->
   <div id="pdf-report-modal" class="hidden fixed inset-0 bg-[#3A2229]/60 z-50 flex items-center justify-center p-2 sm:p-5">
     <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border theme-border flex flex-col max-h-[92vh] overflow-hidden">
       <div class="no-print px-4 py-3 bg-[#FFF5F8] border-b theme-border-mid flex justify-between items-center gap-2 shrink-0">
-        <p class="text-xs font-semibold theme-text-primary truncate">รายงานสรุปพร้อมสลิป</p>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold theme-text-primary truncate">รายงาน PDF พร้อมสลิปความละเอียดสูง</p>
+          <p id="pdf-export-progress" class="text-[10px] theme-text-muted truncate">ตารางสรุป + ภาพสลิปขนาดใหญ่เต็มคมชัดท้ายรายงาน</p>
+        </div>
         <div class="flex items-center gap-1.5 shrink-0">
           <button id="btn-download-pdf-file" type="button" onclick="downloadOrSharePdfFile()" class="luxury-gradient text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl shadow-xs">บันทึก PDF / แชร์</button>
           <button type="button" onclick="window.print()" class="bg-white theme-text-sub border theme-border-mid text-[11px] font-medium px-2.5 py-1.5 rounded-xl">พิมพ์</button>
@@ -1128,7 +1161,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.0';
+    const APP_VERSION = 'v3.1';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1595,6 +1628,7 @@
       const category = document.getElementById('qc-cat').value || customCategories[0]?.key || 'Food';
       const title = document.getElementById('qc-title').value.trim() || getCategoryShortName(category);
       const channel = normalizeChannel(document.getElementById('qc-channel').value);
+      const provider = channel === 'cash' ? '' : normalizeProviderName(document.getElementById('qc-provider')?.value || '');
       const monthly = isMonthlyMode();
       const todayStr = getTodayYYYYMMDD();
       const periodVal = document.getElementById('qc-period').value;
@@ -1623,6 +1657,7 @@
           paid_by_type: isSolo ? 'personal' : 'pool',
           paid_by_email: payerEmail,
           payment_channel: channel,
+          payment_provider: provider || null,
           split_details: { emails: splitEmails },
           receipt_image_url: null,
           slip_time: getCurrentHHMM(),
@@ -1632,8 +1667,9 @@
           created_by: currentMember.email
         }]);
 
-        await writeLog('QUICK_CALC', `จดด่วน "${title}" (${getChannelLabel(channel)}) ยอด ${getCurrSymbol()}${fmtNum(totalAmt)}`);
+        await writeLog('QUICK_CALC', `จดด่วน "${title}" (${getChannelLabel(channel, provider)}) ยอด ${getCurrSymbol()}${fmtNum(totalAmt)}`);
         document.getElementById('qc-title').value = '';
+        if (document.getElementById('qc-provider')) document.getElementById('qc-provider').value = '';
         qcClear();
         await refreshAllData();
       } catch (err) {
@@ -1835,28 +1871,69 @@
       await processSelectedFiles([capturedFile], { isDirectCamera: true });
     }
 
+    function normalizeProviderName(raw) {
+      const s = (raw || '').trim();
+      if (!s || s.toLowerCase() === 'null' || s.toLowerCase() === 'none') return '';
+      const low = s.toLowerCase();
+      if (low.includes('kbank') || low.includes('kasikorn') || low.includes('กสิกร') || low.includes('k plus') || low.includes('k+')) return 'กสิกรไทย';
+      if (low.includes('scb') || low.includes('siam commercial') || low.includes('ไทยพาณิชย์')) return 'ไทยพาณิชย์';
+      if (low.includes('bbl') || low.includes('bangkok bank') || low.includes('กรุงเทพ')) return 'กรุงเทพ';
+      if (low.includes('ktb') || low.includes('krungthai') || low.includes('กรุงไทย') || low.includes('เป๋าตัง')) return 'กรุงไทย';
+      if (low.includes('bay') || low.includes('krungsri') || low.includes('กรุงศรี')) return 'กรุงศรี';
+      if (low.includes('ttb') || low.includes('ทหารไทย') || low.includes('ธนชาต')) return 'ttb';
+      if (low.includes('gsb') || low.includes('ออมสิน')) return 'ออมสิน';
+      if (low.includes('alipay') || low.includes('支付宝') || low.includes('อลีเพย์') || low.includes('อลิเพย์')) return 'Alipay';
+      if (low.includes('wechat') || low.includes('微信') || low.includes('วีแชท')) return 'WeChat Pay';
+      if (low.includes('truemoney') || low.includes('true money') || low.includes('ทรูมันนี่')) return 'TrueMoney';
+      if (low.includes('promptpay') || low.includes('พร้อมเพย์')) return 'PromptPay';
+      return s;
+    }
+
     function normalizeChannel(ch) {
       if (ch === 'credit_card') return 'credit_card';
       if (ch === 'cash') return 'cash';
       return 'transfer';
     }
 
-    function getChannelLabel(ch) {
+    function getChannelLabel(ch, provider = '') {
       const norm = normalizeChannel(ch);
-      if (norm === 'credit_card') return 'บัตรเครดิต';
-      if (norm === 'cash') return 'เงินสด';
-      return 'โอน';
+      const cleanProv = normalizeProviderName(provider);
+      const baseLabel = norm === 'credit_card' ? 'บัตรเครดิต' : (norm === 'cash' ? 'เงินสด' : 'โอน');
+      return cleanProv ? `${baseLabel} · ${cleanProv}` : baseLabel;
     }
 
-    function getChannelBadgeHtml(ch) {
+    function getChannelBadgeHtml(ch, provider = '') {
       const norm = normalizeChannel(ch);
+      const cleanProv = normalizeProviderName(provider);
+      const suffix = cleanProv ? ` · ${cleanProv}` : '';
       if (norm === 'credit_card') {
-        return '<span class="bg-[#F5F0FA] text-[#6B5494] px-1.5 py-0.5 rounded-md border border-[#DDD0EE]">บัตรเครดิต</span>';
+        return `<span class="bg-[#F5F0FA] text-[#6B5494] px-1.5 py-0.5 rounded-md border border-[#DDD0EE]">บัตรเครดิต${suffix}</span>`;
       }
       if (norm === 'cash') {
-        return '<span class="bg-[#FDF4EE] text-[#9E5B3B] px-1.5 py-0.5 rounded-md border border-[#F2D5C2]">เงินสด</span>';
+        return `<span class="bg-[#FDF4EE] text-[#9E5B3B] px-1.5 py-0.5 rounded-md border border-[#F2D5C2]">เงินสด${suffix}</span>`;
       }
-      return '<span class="bg-[#FFF0F4] text-[#A84A67] px-1.5 py-0.5 rounded-md border border-[#F2C6D4]">โอน</span>';
+      if (cleanProv === 'กสิกรไทย') {
+        return `<span class="bg-[#EDF8F2] text-[#1E7E48] px-1.5 py-0.5 rounded-md border border-[#BCE5CE]">โอน · กสิกรไทย</span>`;
+      }
+      if (cleanProv === 'ไทยพาณิชย์') {
+        return `<span class="bg-[#F4EEFA] text-[#5B358C] px-1.5 py-0.5 rounded-md border border-[#D8C6EE]">โอน · ไทยพาณิชย์</span>`;
+      }
+      if (cleanProv === 'Alipay') {
+        return `<span class="bg-[#EDF5FD] text-[#1B6EC2] px-1.5 py-0.5 rounded-md border border-[#C2DDF8]">โอน · Alipay</span>`;
+      }
+      return `<span class="bg-[#FFF0F4] text-[#A84A67] px-1.5 py-0.5 rounded-md border border-[#F2C6D4]">โอน${suffix}</span>`;
+    }
+
+    function toggleQcProviderSelect() {
+      const ch = document.getElementById('qc-channel')?.value;
+      const provEl = document.getElementById('qc-provider');
+      if (provEl) provEl.classList.toggle('hidden', ch === 'cash');
+    }
+
+    function toggleSingleProviderVisibility() {
+      const ch = document.getElementById('exp-channel')?.value;
+      const provEl = document.getElementById('exp-provider');
+      if (provEl) provEl.classList.toggle('hidden', ch === 'cash');
     }
 
     function isMonthlyMode() {
@@ -2524,8 +2601,41 @@
       await loadTripContext();
     }
 
+    async function syncMonthlyArchiveSummary(monthKey) {
+      if (!isMonthlyMode() || !monthKey || monthKey >= getCurrentYYYYMM()) return;
+      const monthItems = expensesList.filter(e => {
+        const mKey = e.expense_month || (e.expense_date || '').slice(0, 7);
+        return mKey === monthKey;
+      });
+      if (monthItems.length === 0) {
+        await db.from('monthly_archives').delete().eq('trip_id', currentTrip.id).eq('month_key', monthKey);
+        return;
+      }
+      const totalAmt = monthItems.reduce((s, x) => s + getSignedAmt(x), 0);
+      const summaryRows = monthItems.map(x => ({
+        date: x.expense_date,
+        time: x.slip_time || '',
+        title: x.title,
+        category: x.category,
+        channel: getChannelLabel(x.payment_channel, x.payment_provider),
+        amount: getSignedAmt(x),
+        payer: getMemberName(x.paid_by_email)
+      }));
+      await db.from('monthly_archives').upsert({
+        trip_id: currentTrip.id,
+        month_key: monthKey,
+        month_label: formatMonthLabel(monthKey),
+        currency_code: getCurrCode(),
+        currency_symbol: getCurrSymbol(),
+        total_amount: totalAmt,
+        item_count: monthItems.length,
+        summary_rows: summaryRows
+      }, { onConflict: 'trip_id,month_key' });
+    }
+
     async function runLifecycleMaintenance() {
       if (isMonthlyMode()) {
+        // Keep all past-month images intact for viewing, editing, deleting, and high-res PDF export
         const currentYm = getCurrentYYYYMM();
         const pastExpenses = expensesList.filter(e => {
           const mKey = e.expense_month || (e.expense_date || '').slice(0, 7);
@@ -2533,44 +2643,9 @@
         });
 
         if (pastExpenses.length > 0) {
-          const byMonth = {};
-          pastExpenses.forEach(e => {
-            const mKey = e.expense_month || (e.expense_date || '').slice(0, 7);
-            if (!byMonth[mKey]) byMonth[mKey] = [];
-            byMonth[mKey].push(e);
-          });
-
-          for (const [mKey, items] of Object.entries(byMonth)) {
-            const totalAmt = items.reduce((s, x) => s + getSignedAmt(x), 0);
-            const summaryRows = items.map(x => ({
-              date: x.expense_date,
-              time: x.slip_time || '',
-              title: x.title,
-              category: x.category,
-              channel: getChannelLabel(x.payment_channel),
-              amount: getSignedAmt(x),
-              payer: getMemberName(x.paid_by_email)
-            }));
-
-            await db.from('monthly_archives').upsert({
-              trip_id: currentTrip.id,
-              month_key: mKey,
-              month_label: formatMonthLabel(mKey),
-              currency_code: getCurrCode(),
-              currency_symbol: getCurrSymbol(),
-              total_amount: totalAmt,
-              item_count: items.length,
-              summary_rows: summaryRows
-            }, { onConflict: 'trip_id,month_key' });
-
-            const imgPaths = items.filter(x => x.receipt_image_url).map(x =>
-              x.receipt_image_url.includes('/trip-media/') ? x.receipt_image_url.split('/trip-media/')[1].split('?')[0] : x.receipt_image_url
-            );
-            if (imgPaths.length > 0) {
-              await db.storage.from('trip-media').remove(imgPaths);
-              const idsWithImg = items.filter(x => x.receipt_image_url).map(x => x.id);
-              await db.from('expenses').update({ receipt_image_url: null }).in('id', idsWithImg);
-            }
+          const pastMonths = new Set(pastExpenses.map(e => e.expense_month || (e.expense_date || '').slice(0, 7)));
+          for (const mKey of pastMonths) {
+            await syncMonthlyArchiveSummary(mKey);
           }
         }
       } else if (currentTrip.is_closed && currentTrip.closed_at && !currentTrip.images_purged_at) {
@@ -2685,9 +2760,8 @@
     }
 
     function isLockedPastMonth(e) {
-      if (!isMonthlyMode()) return false;
-      const mKey = e.expense_month || (e.expense_date || '').slice(0, 7);
-      return Boolean(mKey && mKey < getCurrentYYYYMM());
+      // Past months are unlocked so users can open, view slips, edit, and delete items freely
+      return false;
     }
 
     function computeMemberBalances() {
@@ -2921,7 +2995,8 @@
           const titleText = (e.title || '').toLowerCase();
           const amtText = String(e.amount_cny).toLowerCase();
           const fmtAmtText = fmtNum(e.amount_cny).toLowerCase();
-          const chText = getChannelLabel(normCh).toLowerCase();
+          const chText = getChannelLabel(normCh, e.payment_provider).toLowerCase();
+          const provText = normalizeProviderName(e.payment_provider).toLowerCase();
           const catFullText = getCategoryFullLabel(e.category).toLowerCase();
           const catShortText = getCategoryShortName(e.category).toLowerCase();
 
@@ -2931,6 +3006,7 @@
             amtText.includes(kw) ||
             fmtAmtText.includes(kw) ||
             chText.includes(kw) ||
+            provText.includes(kw) ||
             catFullText.includes(kw) ||
             catShortText.includes(kw)
           );
@@ -2973,9 +3049,9 @@
 
         const groupAmt = items.reduce((s, x) => s + getSignedAmt(x), 0);
         const groupThb = items.reduce((s, x) => s + calcFinalThb(x.amount_cny, finalRate, x.has_alipay_fee, x.is_refund), 0);
-        const isPastMonthLocked = monthly && gKey < getCurrentYYYYMM();
-        const isCollapsed = collapsedGroups.has(gKey) || isPastMonthLocked;
-        const groupHeaderTitle = monthly ? `${formatMonthLabel(gKey)}${isPastMonthLocked ? ' (ปิดยอดแล้ว)' : ''}` : `Day ${gKey}`;
+        const isPastMonth = monthly && gKey < getCurrentYYYYMM();
+        const isCollapsed = collapsedGroups.has(gKey);
+        const groupHeaderTitle = monthly ? `${formatMonthLabel(gKey)}${isPastMonth ? ' · เดือนก่อนหน้า' : ''}` : `Day ${gKey}`;
 
         const cardsHtml = isCollapsed ? '' : items.map(e => {
           const amt = Number(e.amount_cny);
@@ -2993,7 +3069,7 @@
           const displayTime = e.slip_time || uploadTimeStr;
           const datePrefix = monthly && e.expense_date ? `${e.expense_date.slice(8, 10)}/${e.expense_date.slice(5, 7)} · ` : '';
           const timeBadge = `${datePrefix}${displayTime}`;
-          const metaInfo = `วันที่: ${e.expense_date || '-'} | เวลา: ${displayTime} | ช่องทาง: ${getChannelLabel(e.payment_channel)} | บันทึกโดย ${getMemberName(e.created_by)}`;
+          const metaInfo = `วันที่: ${e.expense_date || '-'} | เวลา: ${displayTime} | ช่องทาง: ${getChannelLabel(e.payment_channel, e.payment_provider)} | บันทึกโดย ${getMemberName(e.created_by)}`;
 
           let flagHtml = '';
           if (e.delete_flag && !itemLocked) {
@@ -3017,7 +3093,7 @@
                     <span class="font-semibold px-2 py-0.5 rounded-md bg-white border theme-border-mid" style="color:${payerInfo.accent_color}">
                       ${payerInfo.display_name}${isProxy ? ` (${getMemberName(creatorEm)} อัปแทน)` : ''}
                     </span>
-                    ${getChannelBadgeHtml(e.payment_channel)}
+                    ${getChannelBadgeHtml(e.payment_channel, e.payment_provider)}
                     <span class="bg-[#FFF9FA] theme-text-sub px-2 py-0.5 rounded-md border theme-border">${getCategoryShortName(e.category)}</span>
                     ${!e.receipt_image_url ? '<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md">ไม่มีรูป</span>' : ''}
                     ${e.is_refund ? '<span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-200">คืนเงิน</span>' : ''}
@@ -3048,7 +3124,7 @@
 
         return `
           <div class="space-y-2">
-            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center ${isPastMonthLocked ? 'bg-[#F8ECEF]' : 'bg-white/85 hover:bg-white'} px-3.5 py-2.5 rounded-2xl border theme-border-mid text-xs transition">
+            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center ${isPastMonth ? 'bg-[#FFF5F8] hover:bg-white' : 'bg-white/85 hover:bg-white'} px-3.5 py-2.5 rounded-2xl border theme-border-mid text-xs transition">
               <div class="flex items-center gap-2">
                 <span class="font-semibold theme-text-primary">${groupHeaderTitle}</span>
                 <span class="text-[11px] theme-text-muted">(${items.length} รายการ)</span>
@@ -3099,6 +3175,9 @@
       document.getElementById('edit-exp-title').value = e.title;
       document.getElementById('edit-exp-time').value = e.slip_time || getCurrentHHMM();
       document.getElementById('edit-exp-channel').value = normalizeChannel(e.payment_channel);
+      if (document.getElementById('edit-exp-provider')) {
+        document.getElementById('edit-exp-provider').value = normalizeProviderName(e.payment_provider);
+      }
       document.getElementById('edit-exp-fee').checked = Boolean(e.has_alipay_fee);
       document.getElementById('edit-exp-refund').checked = Boolean(e.is_refund);
       document.getElementById('edit-amt-curr').textContent = getCurrCode();
@@ -3184,6 +3263,7 @@
           title,
           slip_time: document.getElementById('edit-exp-time').value,
           payment_channel: document.getElementById('edit-exp-channel').value,
+          payment_provider: normalizeProviderName(document.getElementById('edit-exp-provider')?.value || '') || null,
           amount_cny,
           has_alipay_fee: document.getElementById('edit-exp-fee').checked,
           is_refund: document.getElementById('edit-exp-refund').checked,
@@ -3197,6 +3277,12 @@
           await writeLog('MOVE_EXPENSE', `ย้ายรายการ "${title}" (${getCurrSymbol()}${fmtNum(amount_cny)}) ไปสมุด "${targetTripObj.name}"`);
         } else {
           await writeLog('EDIT_EXPENSE', `แก้ไขรายการ "${title}" ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
+        }
+        if (isMonthlyMode()) {
+          const oldMonth = e.expense_month || (e.expense_date || '').slice(0, 7);
+          const newMonth = editDate.slice(0, 7);
+          if (oldMonth && oldMonth < getCurrentYYYYMM()) await syncMonthlyArchiveSummary(oldMonth);
+          if (newMonth && newMonth < getCurrentYYYYMM() && newMonth !== oldMonth) await syncMonthlyArchiveSummary(newMonth);
         }
         closeModal('edit-expense-modal');
         await refreshAllData();
@@ -3521,7 +3607,7 @@
         const soloAmt = soloList.reduce((s, x) => s + getSignedAmt(x), 0);
         const slipCount = list.filter(x => x.receipt_image_url).length;
         const isPastMonthLocked = monthly && pKey < getCurrentYYYYMM();
-        const badgeTitle = monthly ? `${formatMonthLabel(pKey)}${isPastMonthLocked ? ' (ปิดยอด)' : ''}` : `Day ${pKey}`;
+        const badgeTitle = monthly ? `${formatMonthLabel(pKey)}${isPastMonthLocked ? ' · เดือนก่อนหน้า' : ''}` : `Day ${pKey}`;
 
         return `
           <div class="soft-card p-4 rounded-2xl space-y-2.5">
@@ -3618,12 +3704,12 @@
         const uploadTimeStr = new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
         const displayTime = e.slip_time || uploadTimeStr;
         const payerInfo = getMemberInfo(e.paid_by_email || e.created_by);
-        const metaInfo = `${titleLabel} · เวลา ${displayTime} · ${getChannelLabel(e.payment_channel)} · ${payerInfo.display_name} จ่าย ${sym}${fmtNum(e.amount_cny)}`;
+        const metaInfo = `${titleLabel} · เวลา ${displayTime} · ${getChannelLabel(e.payment_channel, e.payment_provider)} · ${payerInfo.display_name} จ่าย ${sym}${fmtNum(e.amount_cny)}`;
 
         return `
           <div class="p-3 bg-[#FFF9FA] rounded-2xl border theme-border-mid flex justify-between items-center gap-2" style="border-left: 3px solid ${payerInfo.accent_color};">
             <div class="min-w-0">
-              <p class="text-[10px] theme-text-muted">${monthly && e.expense_date ? e.expense_date + ' · ' : ''}${displayTime} · <span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span> · ${getChannelLabel(e.payment_channel)}</p>
+              <p class="text-[10px] theme-text-muted">${monthly && e.expense_date ? e.expense_date + ' · ' : ''}${displayTime} · <span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}</span> · ${getChannelLabel(e.payment_channel, e.payment_provider)}</p>
               <p class="text-xs font-medium theme-text-main truncate">${e.title}</p>
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
@@ -3638,7 +3724,7 @@
       openModal('day-receipts-modal');
     }
 
-    // ================= IN-APP PDF REPORT WITH iOS NATIVE PDF DOWNLOAD / SHARE =================
+    // ================= IN-APP HIGH-RES PDF REPORT (SUMMARY TABLE + FULL-RES SLIP APPENDIX) =================
     async function exportPrintablePdfReport() {
       const myEmail = currentMember.email.toLowerCase();
       const finalRate = getGlobalFinalRate();
@@ -3668,32 +3754,43 @@
       if (items.length === 0) return alert(monthly ? `ยังไม่มีรายการในเดือน ${formatMonthLabel(currentYm)}` : 'ยังไม่มีรายการสำหรับสร้างรายงาน PDF');
 
       const bodyEl = document.getElementById('pdf-report-body');
-      bodyEl.innerHTML = '<div class="py-12 text-center text-xs theme-text-sub">กำลังเตรียมรายงานและโหลดรูปสลิปขนาดเล็ก กรุณารอสักครู่...</div>';
+      const progressEl = document.getElementById('pdf-export-progress');
+      const itemsWithImg = items.filter(e => e.receipt_image_url);
+
+      bodyEl.innerHTML = `<div class="py-12 text-center text-xs theme-text-sub">กำลังดาวน์โหลดรูปสลิปความละเอียดสูง 0/${itemsWithImg.length} ใบ กรุณารอสักครู่...</div>`;
+      if (progressEl) progressEl.textContent = `กำลังดึงภาพคมชัด 0/${itemsWithImg.length} ใบ...`;
       openModal('pdf-report-modal');
 
-      const thumbMap = {};
-      const itemsWithImg = items.filter(e => e.receipt_image_url);
-      for (let i = 0; i < itemsWithImg.length; i += 4) {
-        const chunk = itemsWithImg.slice(i, i + 4);
+      const fullResMap = {};
+      let loadedCount = 0;
+      for (let i = 0; i < itemsWithImg.length; i += 3) {
+        const chunk = itemsWithImg.slice(i, i + 3);
         await Promise.all(chunk.map(async (e) => {
           try {
             let cleanPath = e.receipt_image_url.includes('/trip-media/') ? e.receipt_image_url.split('/trip-media/')[1].split('?')[0] : e.receipt_image_url;
             const { data: blob } = await db.storage.from('trip-media').download(cleanPath);
             if (blob) {
-              thumbMap[e.id] = await new Promise(res => {
+              fullResMap[e.id] = await new Promise(res => {
                 const reader = new FileReader();
                 reader.onloadend = () => res(reader.result);
                 reader.readAsDataURL(blob);
               });
             }
           } catch (_) {}
+          loadedCount += 1;
         }));
+        bodyEl.innerHTML = `<div class="py-12 text-center text-xs theme-text-sub">กำลังดาวน์โหลดรูปสลิปความละเอียดสูง ${loadedCount}/${itemsWithImg.length} ใบ...</div>`;
+        if (progressEl) progressEl.textContent = `กำลังดึงภาพคมชัด ${loadedCount}/${itemsWithImg.length} ใบ...`;
       }
+
+      if (progressEl) progressEl.textContent = `พร้อมบันทึก PDF (ตารางสรุป + สลิปขยายใหญ่ ${Object.keys(fullResMap).length} ใบ)`;
 
       let grandAmt = 0, grandThb = 0;
       const chTotals = { transfer: 0, credit_card: 0, cash: 0 };
+      const slipAppendixCards = [];
 
       const rowsHtml = items.map((e, idx) => {
+        const refNum = idx + 1;
         const signedAmt = getSignedAmt(e);
         const thb = calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
         const normCh = normalizeChannel(e.payment_channel);
@@ -3701,24 +3798,61 @@
         grandThb += thb;
         chTotals[normCh] += signedAmt;
         const periodCol = monthly ? (e.expense_date || formatMonthLabel(e.expense_month)) : `Day ${e.trip_day}`;
-        const thumbSrc = thumbMap[e.id];
+        const fullImgSrc = fullResMap[e.id];
+        const chFullText = getChannelLabel(normCh, e.payment_provider);
+
+        if (fullImgSrc) {
+          slipAppendixCards.push(`
+            <div class="border border-[#F2CFD9] rounded-2xl p-3 bg-[#FFFDFD] flex flex-col justify-between" style="page-break-inside: avoid;">
+              <div class="flex justify-between items-start gap-2 pb-2 mb-2 border-b border-[#F5D5DF]">
+                <div class="min-w-0">
+                  <span class="inline-block bg-[#FFEBF0] text-[#C45B79] font-bold text-[11px] px-2 py-0.5 rounded-md mr-1">#${refNum}</span>
+                  <strong class="text-xs text-[#6B424E]">${e.title}</strong>
+                  <p class="text-[10px] text-[#8C5867] mt-0.5">${periodCol} ${e.slip_time || ''} · ${chFullText} · ${getMemberName(e.paid_by_email)}</p>
+                </div>
+                <span class="text-xs font-bold text-[#C45B79] whitespace-nowrap shrink-0">${sym}${fmtNum(signedAmt)}</span>
+              </div>
+              <div class="flex items-center justify-center bg-white rounded-xl p-1">
+                <img src="${fullImgSrc}" class="w-full max-h-[360px] object-contain rounded-lg" />
+              </div>
+            </div>
+          `);
+        }
 
         return `
           <tr class="border-b border-[#F5D5DF]" style="page-break-inside: avoid;">
-            <td class="py-2 px-1.5 text-center text-[11px] text-[#A37B87]">${idx + 1}</td>
+            <td class="py-2 px-1.5 text-center text-[11px] font-semibold text-[#C45B79]">#${refNum}</td>
             <td class="py-2 px-1.5 text-[11px]">${periodCol}<br><span class="text-[10px] text-[#B38895]">${e.slip_time || ''}</span></td>
             <td class="py-2 px-1.5 text-xs">
               <strong class="text-[#6B424E]">${e.title}</strong><br>
-              <span class="text-[10px] text-[#8C5867]">${getChannelLabel(normCh)} · ${getCategoryShortName(e.category)} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span>
+              <span class="text-[10px] text-[#8C5867]">${chFullText} · ${getCategoryShortName(e.category)} · จ่ายโดย ${getMemberName(e.paid_by_email)}</span>
             </td>
             <td class="py-2 px-1.5 text-right text-xs font-semibold text-[#C45B79] whitespace-nowrap">
               ${sym}${fmtNum(signedAmt)}${!isThbBase() ? `<br><span class="text-[10px] font-normal text-[#A37B87]">฿${fmtNum(thb)}</span>` : ''}
             </td>
-            <td class="py-2 px-1.5 text-center">
-              ${thumbSrc ? `<img src="${thumbSrc}" class="w-11 h-14 object-cover rounded-md border border-[#F2CFD9] mx-auto" />` : '<span class="text-[10px] text-[#C9A3AF]">-</span>'}
+            <td class="py-2 px-1.5 text-center text-[10px] font-medium">
+              ${fullImgSrc ? `<span class="text-[#C45B79]">ดูสลิป #${refNum}</span>` : '<span class="text-[#C9A3AF]">-</span>'}
             </td>
           </tr>`;
       }).join('');
+
+      let appendixHtml = '';
+      if (slipAppendixCards.length > 0) {
+        const pairedPages = [];
+        for (let i = 0; i < slipAppendixCards.length; i += 2) {
+          const pair = slipAppendixCards.slice(i, i + 2).join('');
+          pairedPages.push(`
+            <div style="page-break-before: always; padding-top: 8px;">
+              <div class="flex justify-between items-center pb-2 mb-3 border-b border-[#E893AC]">
+                <span class="text-xs font-bold text-[#C45B79]">ภาคผนวกหลักฐานสลิปความละเอียดสูง — ${currentTrip.name}</span>
+                <span class="text-[10px] text-[#8C5867]">ชุดที่ ${Math.floor(i / 2) + 1} / ${Math.ceil(slipAppendixCards.length / 2)}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3 items-start">${pair}</div>
+            </div>
+          `);
+        }
+        appendixHtml = pairedPages.join('');
+      }
 
       const subtitle = monthly ? `รอบเดือน ${formatMonthLabel(currentYm)}` : `ทริปท่องเที่ยว`;
       bodyEl.innerHTML = `
@@ -3749,11 +3883,11 @@
           <table class="w-full border-collapse text-left">
             <thead>
               <tr class="bg-[#FDF2F5] text-[#6B424E] text-[11px] border-b border-[#E893AC]">
-                <th class="py-2 px-1.5 text-center w-8">#</th>
+                <th class="py-2 px-1.5 text-center w-10">อ้างอิง</th>
                 <th class="py-2 px-1.5 w-20">วันที่/เวลา</th>
-                <th class="py-2 px-1.5">รายการ / ช่องทางจ่าย</th>
+                <th class="py-2 px-1.5">รายการ / ธนาคารและช่องทางจ่าย</th>
                 <th class="py-2 px-1.5 text-right w-24">จำนวนเงิน</th>
-                <th class="py-2 px-1.5 text-center w-14">สลิป</th>
+                <th class="py-2 px-1.5 text-center w-16">หลักฐาน</th>
               </tr>
             </thead>
             <tbody>${rowsHtml}</tbody>
@@ -3762,29 +3896,36 @@
           <div class="bg-[#FFF5F8] border border-[#F2CFD9] rounded-2xl p-3.5 text-right text-sm font-bold text-[#C45B79]">
             ยอดรวมสุทธิ: ${sym}${fmtNum(grandAmt)} ${!isThbBase() ? `(฿${fmtNum(grandThb)})` : ''}
           </div>
+
+          ${appendixHtml}
         </div>
       `;
     }
 
     async function downloadOrSharePdfFile() {
       const btn = document.getElementById('btn-download-pdf-file');
+      const progressEl = document.getElementById('pdf-export-progress');
       const element = document.getElementById('pdf-report-body');
       if (!element) return;
 
-      const fileName = `${currentTrip.name.replace(/\s+/g, '_')}_Report_${getTodayYYYYMMDD()}.pdf`;
+      const fileName = `${currentTrip.name.replace(/\s+/g, '_')}_HighRes_Report_${getTodayYYYYMMDD()}.pdf`;
       if (btn) {
         btn.disabled = true;
-        btn.textContent = 'กำลังสร้างไฟล์ PDF...';
+        btn.textContent = 'กำลังเรนเดอร์ภาพคมชัดสูง...';
+      }
+      if (progressEl) {
+        progressEl.textContent = 'กำลังสร้างไฟล์ PDF ความละเอียดสูงสำหรับซูมอ่านตัวเลขบนสลิป (อาจใช้เวลา 5-15 วินาที)...';
       }
 
       try {
         if (typeof html2pdf !== 'undefined') {
           const opt = {
-            margin: 8,
+            margin: 6,
             filename: fileName,
-            image: { type: 'jpeg', quality: 0.85 },
-            html2canvas: { scale: 1.5, useCORS: true, logging: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            image: { type: 'jpeg', quality: 0.96 },
+            html2canvas: { scale: 2.5, useCORS: true, logging: false, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
           };
 
           const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
@@ -4463,13 +4604,14 @@ For each transaction in "items" (target currency ${currCode}):
 - "title": concise Thai description with original merchant/store name in parentheses.
 - "category": choose the best matching key from: [${availableCategoryKeys}].
 - "payment_channel": use "credit_card" if credit card / VISA / Mastercard / JCB / UnionPay / AMEX / บัตรเครดิต is mentioned; use "cash" if CASH / เงินสด appears; otherwise default to "${isDirectCamera ? 'cash' : 'transfer'}".
+- "payment_provider": detect the exact bank or wallet app name from the slip logo/header/text in Thai or standard short name (e.g., "กสิกรไทย" for KBank/K PLUS, "ไทยพาณิชย์" for SCB, "กรุงเทพ" for Bangkok Bank/BBL, "กรุงไทย" for Krungthai/KTB, "กรุงศรี" for Krungsri/BAY, "ttb", "ออมสิน", "Alipay", "WeChat Pay", "TrueMoney", "PromptPay") or null if not identifiable.
 - "channel_explicit": true if payment method was explicitly shown, false otherwise.
 - "slip_date": transaction date in YYYY-MM-DD format (Thai B.E. year minus 543: 2569 or 69 = 2026; 2568 or 68 = 2025) or null if none.
 - "slip_time": printed or notification timestamp (HH:MM 24-hour) or null if none.
 - "slip_ref": transaction reference number if printed, or null.
 
 Respond ONLY with valid JSON:
-{"is_receipt": true, "items": [{"title": "...", "amount_cny": 0, "category": "${defaultCatKey}", "payment_channel": "${isDirectCamera ? 'cash' : 'transfer'}", "channel_explicit": false, "slip_date": "2026-11-23", "slip_time": "18:06", "slip_ref": null}]}`;
+{"is_receipt": true, "items": [{"title": "...", "amount_cny": 0, "category": "${defaultCatKey}", "payment_channel": "${isDirectCamera ? 'cash' : 'transfer'}", "payment_provider": "กสิกรไทย", "channel_explicit": false, "slip_date": "2026-11-23", "slip_time": "18:06", "slip_ref": null}]}`;
 
       let failReason = 'AI อ่านรูปไม่สำเร็จ';
       try {
@@ -4511,6 +4653,7 @@ Respond ONLY with valid JSON:
             const finalDay = mappedDay || defaultDay;
             const parsedAmt = Number(it.amount_cny) > 0 ? Number(it.amount_cny) : '';
             const detectedChannel = normalizeChannel(it.payment_channel || (isDirectCamera ? 'cash' : 'transfer'));
+            const detectedProvider = detectedChannel === 'cash' ? '' : normalizeProviderName(it.payment_provider || '');
             const matchedCat = customCategories.some(c => c.key === it.category) ? it.category : defaultCatKey;
 
             const itemHashToCheck = isMultiFromOneImage ? null : fileHash;
@@ -4537,6 +4680,7 @@ Respond ONLY with valid JSON:
               amount_locked: Boolean(parsedAmt),
               category: matchedCat,
               payment_channel: detectedChannel,
+              payment_provider: detectedProvider,
               channel_detected: Boolean(it.channel_explicit),
               slip_time: slipTimeFinal,
               time_source: timeSourceFinal,
@@ -4801,6 +4945,10 @@ Respond ONLY with valid JSON:
 
         document.getElementById('exp-cat').innerHTML = buildCategoryOptionsHtml(res.category, false);
         document.getElementById('exp-channel').value = res.payment_channel;
+        if (document.getElementById('exp-provider')) {
+          document.getElementById('exp-provider').value = res.payment_provider || '';
+          toggleSingleProviderVisibility();
+        }
         document.getElementById('exp-channel-badge').textContent = res.channel_detected ? '(จากสลิป)' : '(เลือกเองได้)';
 
         if (res.trip_day > totalDays) {
@@ -4826,7 +4974,7 @@ Respond ONLY with valid JSON:
             ? ` (วันที่ ${res.slip_date} อยู่นอกเดือน ${formatMonthLabel(currentYm)})`
             : '';
           statusEl.textContent = res.amount_cny
-            ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel)})${outOfMonthNote}${rejectNote}`
+            ? `สแกนสำเร็จ: "${res.title}" ยอด ${sym}${fmtNum(res.amount_cny)} (${getChannelLabel(res.payment_channel, res.payment_provider)})${outOfMonthNote}${rejectNote}`
             : `${res.date_source_label} — สามารถกรอกยอดเงินหรือกดสแกนซ้ำได้${rejectNote}`;
         }
       }
@@ -4887,6 +5035,10 @@ Respond ONLY with valid JSON:
             ${buildCategoryOptionsHtml(item.category, true)}
           </select>
         </div>
+        ${item.payment_channel !== 'cash' ? `
+        <div>
+          <input type="text" list="provider-presets" value="${item.payment_provider || ''}" placeholder="ธนาคาร / แอปที่จ่าย (เช่น กสิกรไทย, ไทยพาณิชย์, Alipay)" oninput="batchQueue[${idx}].payment_provider = normalizeProviderName(this.value)" class="w-full bg-[#FFF9FA] border theme-border-mid rounded-lg px-2 py-1 text-[10px]" />
+        </div>` : ''}
       </div>`;
     }
 
@@ -5022,6 +5174,7 @@ Respond ONLY with valid JSON:
       document.getElementById('exp-time-badge').textContent = '(เวลาบันทึก)';
       document.getElementById('exp-day-badge').textContent = '';
       document.getElementById('exp-channel').value = 'transfer';
+      if (document.getElementById('exp-provider')) { document.getElementById('exp-provider').value = ''; toggleSingleProviderVisibility(); }
       document.getElementById('exp-channel-badge').textContent = '';
       document.getElementById('exp-refund').checked = false;
       calcThbPreview();
@@ -5155,6 +5308,7 @@ Respond ONLY with valid JSON:
               paid_by_type: isSolo ? 'personal' : 'pool',
               paid_by_email: actualPayerEmail,
               payment_channel: normalizeChannel(item.payment_channel),
+              payment_provider: normalizeChannel(item.payment_channel) === 'cash' ? null : (normalizeProviderName(item.payment_provider || '') || null),
               split_details: { emails: checkedEmails },
               receipt_image_url: item.asset ? (uploadedPathMap.get(item.asset) || null) : null,
               slip_time: item.slip_time || getCurrentHHMM(),
@@ -5189,6 +5343,7 @@ Respond ONLY with valid JSON:
       const amount_cny = parseFloat(document.getElementById('exp-cny').value);
       const slipTimeVal = document.getElementById('exp-time').value || getCurrentHHMM();
       const payment_channel = normalizeChannel(document.getElementById('exp-channel').value);
+      const payment_provider = payment_channel === 'cash' ? null : (normalizeProviderName(document.getElementById('exp-provider')?.value || '') || null);
       const expDateVal = monthly ? (document.getElementById('exp-date-input').value || getTodayYYYYMMDD()) : getTodayYYYYMMDD();
       const isRefundChecked = document.getElementById('exp-refund').checked;
 
@@ -5230,6 +5385,7 @@ Respond ONLY with valid JSON:
           paid_by_type: isSolo ? 'personal' : 'pool',
           paid_by_email: actualPayerEmail,
           payment_channel,
+          payment_provider,
           split_details: { emails: checkedEmails },
           receipt_image_url: receiptPath,
           slip_time: slipTimeVal,
@@ -5239,7 +5395,7 @@ Respond ONLY with valid JSON:
           created_by: currentMember.email
         }]);
 
-        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" (${getChannelLabel(payment_channel)}) ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
+        await writeLog('ADD_EXPENSE', `เพิ่มรายการ "${title}" (${getChannelLabel(payment_channel, payment_provider)}) ยอด ${getCurrSymbol()}${fmtNum(amount_cny)}`);
         closeModal('expense-modal');
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-cny').value = '';
@@ -5272,6 +5428,12 @@ Respond ONLY with valid JSON:
         return alert('ลบรายการไม่สำเร็จ: ' + error.message);
       }
 
+      if (e && isMonthlyMode()) {
+        const delMonth = e.expense_month || (e.expense_date || '').slice(0, 7);
+        if (delMonth && delMonth < getCurrentYYYYMM()) {
+          await syncMonthlyArchiveSummary(delMonth);
+        }
+      }
       await writeLog('DELETE_EXPENSE', `ยืนยันลบรายการ "${title}"`);
       await refreshAllData();
     }
@@ -5520,7 +5682,7 @@ Respond ONLY with valid JSON:
         const timeVal = e.slip_time || new Date(e.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
         const periodStr = monthly ? (e.expense_date || '') : `Day ${e.trip_day}`;
         const kind = e.is_refund ? 'คืนเงิน' : 'รายจ่าย';
-        csv += `${periodStr},${timeVal},${getChannelLabel(normCh)},${getCategoryShortName(e.category)},${cleanTitle},${kind},${signedAmt},${thb},${paidBy},"${splitNames}"\n`;
+        csv += `${periodStr},${timeVal},${getChannelLabel(normCh, e.payment_provider)},${getCategoryShortName(e.category)},${cleanTitle},${kind},${signedAmt},${thb},${paidBy},"${splitNames}"\n`;
       });
 
       csv += '\nสรุปยอดแยกตามช่องทางจ่ายเงิน\n';
