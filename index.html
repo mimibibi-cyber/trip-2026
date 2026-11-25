@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=22";
+      img.src = "icon.png?v=23";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -628,7 +628,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.7</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.8</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -1310,15 +1310,15 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: RECORD PARTIAL / FULL CREDIT CARD PAYMENT ================= -->
-  <div id="cc-pay-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-center justify-center p-5">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[88vh] overflow-y-auto border border-[#DDD0EE]">
+  <!-- ================= MODAL: RECORD PARTIAL / FULL CREDIT CARD PAYMENT (AI MULTI-SLIP SCAN + MANUAL) ================= -->
+  <div id="cc-pay-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto border border-[#DDD0EE]">
       <div class="flex justify-between items-center">
         <div>
           <h3 id="cc-pay-card-title" class="font-semibold text-base text-[#4D3B6E]">บันทึกโอนจ่ายบัตรเครดิต</h3>
           <p id="cc-pay-cycle-label" class="text-[11px] text-[#6B5494]">รอบบิล -</p>
         </div>
-        <button onclick="closeModal('cc-pay-modal')" class="w-8 h-8 rounded-full bg-[#F5F0FA] text-[#6B5494] flex items-center justify-center text-lg leading-none">✕</button>
+        <button onclick="closeCcPayModal()" class="w-8 h-8 rounded-full bg-[#F5F0FA] text-[#6B5494] flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
       <div class="bg-[#F8F5FC] border border-[#DDD0EE] rounded-2xl p-3.5 grid grid-cols-3 gap-2 text-center text-xs">
@@ -1336,19 +1336,62 @@
         </div>
       </div>
 
-      <div class="space-y-2">
+      <!-- Mode Switcher: AI Scan Slips vs Manual Input -->
+      <div class="grid grid-cols-2 gap-1.5 bg-[#F5F0FA] p-1 rounded-2xl border border-[#DDD0EE] text-xs">
+        <button type="button" onclick="setCcPayEntryMode('scan')" id="cc-pay-mode-scan" class="py-2 rounded-xl bg-[#8B72BE] text-white font-semibold transition">สแกนสลิปโอนจ่าย</button>
+        <button type="button" onclick="setCcPayEntryMode('manual')" id="cc-pay-mode-manual" class="py-2 rounded-xl text-[#6B5494] font-medium transition">พิมพ์ยอดเอง</button>
+      </div>
+
+      <!-- PANEL A: AI MULTI-SLIP SCANNER FOR BILL PAYMENT (AUTO-MAPS CYCLE FROM SLIP DATE) -->
+      <div id="cc-pay-scan-panel" class="space-y-3">
+        <div class="bg-[#F8F5FC] border border-dashed border-[#B19CD9] rounded-2xl p-3.5 space-y-2">
+          <div class="flex justify-between items-center gap-2">
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-[#4D3B6E]">อัปโหลดสลิปโอนจ่ายบัตร (เลือกได้หลายใบ)</p>
+              <p class="text-[10px] text-[#6B5494]">AI อ่านยอดเงินและวันที่โอน พร้อมคำนวณรอบบิลให้อัตโนมัติ (ไม่นับซ้ำในกราฟรายจ่าย)</p>
+            </div>
+            <label class="bg-[#8B72BE] text-white text-[11px] font-semibold px-3.5 py-2 rounded-xl cursor-pointer shadow-xs shrink-0">
+              เลือกรูปสลิป
+              <input id="cc-pay-slip-input" type="file" accept="image/*" multiple onchange="handleCcPaySlipUpload(this)" class="hidden" />
+            </label>
+          </div>
+          <p id="cc-pay-ocr-status" class="hidden text-[11px] text-[#6B5494] font-medium"></p>
+        </div>
+
+        <!-- Scanned CC Payment Queue -->
+        <div id="cc-pay-queue-box" class="hidden space-y-2 bg-[#FAF8FE] p-3 rounded-2xl border border-[#DDD0EE]">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-semibold text-[#4D3B6E]">รายการโอนที่สแกนได้ (<span id="cc-pay-queue-count">0</span>)</p>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-cc-rescan-all-failed" onclick="ccBatchRescanFailed()" class="hidden text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md font-semibold">สแกนซ้ำใบที่พลาด</button>
+              <button type="button" onclick="clearCcPayQueue()" class="text-[10px] text-[#8373A1] underline">ล้างคิว</button>
+            </div>
+          </div>
+          <div id="cc-pay-queue-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
+          <button type="button" id="btn-save-cc-scan-queue" onclick="submitCcScanQueue()" class="w-full bg-[#8B72BE] hover:opacity-95 text-white py-2.5 rounded-xl text-xs font-semibold shadow-xs">
+            บันทึกการจ่ายบัตรทั้งหมดลงรอบบิล
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL B: MANUAL INPUT -->
+      <div id="cc-pay-manual-panel" class="hidden space-y-2">
         <div class="flex justify-between items-center">
           <label class="text-[11px] font-semibold text-[#4D3B6E]">ยอดเงินที่โอนจ่ายรอบนี้ (บาท)</label>
           <button type="button" id="btn-cc-fill-full" onclick="fillFullRemainingCcPay()" class="text-[10px] text-[#8B72BE] underline font-semibold">จ่ายเต็มจำนวนที่เหลือ</button>
         </div>
-        <input id="cc-pay-amount-input" type="number" step="0.01" placeholder="0.00" class="w-full bg-[#FAF8FE] border border-[#DDD0EE] rounded-xl px-3.5 py-2.5 text-base font-bold text-[#4D3B6E]" />
+        <div class="grid grid-cols-3 gap-2">
+          <input id="cc-pay-amount-input" type="number" step="0.01" placeholder="0.00" class="col-span-2 bg-[#FAF8FE] border border-[#DDD0EE] rounded-xl px-3.5 py-2.5 text-base font-bold text-[#4D3B6E]" />
+          <input id="cc-pay-date-input" type="date" onchange="updateManualCcCyclePreview()" class="bg-[#FAF8FE] border border-[#DDD0EE] rounded-xl px-2 py-2 text-[11px] text-[#4D3B6E]" />
+        </div>
+        <p id="cc-pay-manual-cycle-hint" class="text-[10px] text-[#6B5494]"></p>
         <input id="cc-pay-note-input" type="text" placeholder="หมายเหตุ (เช่น โอนรอบที่ 1 จาก KBank)" class="w-full bg-[#FAF8FE] border border-[#DDD0EE] rounded-xl px-3.5 py-2 text-xs" />
         <button type="button" onclick="submitCcPaymentRecord()" class="w-full bg-[#8B72BE] hover:opacity-95 text-white py-2.5 rounded-xl text-xs font-semibold shadow-xs">บันทึกยอดโอนจ่ายรอบนี้</button>
       </div>
 
       <div class="pt-2 border-t border-[#ECE4FA] space-y-2">
         <p class="text-xs font-semibold text-[#4D3B6E]">ประวัติการทยอยโอนจ่ายในรอบบิลนี้</p>
-        <div id="cc-pay-history-list" class="space-y-1.5 text-xs max-h-40 overflow-y-auto"></div>
+        <div id="cc-pay-history-list" class="space-y-1.5 text-xs max-h-44 overflow-y-auto"></div>
       </div>
     </div>
   </div>
@@ -1431,7 +1474,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.7';
+    const APP_VERSION = 'v3.8';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -2186,34 +2229,311 @@
       }).join('');
     }
 
+    let ccPayScanQueue = [];
+
+    // AI Smart Cycle Mapper: Given a transfer slip date (e.g., 2026-11-15) and card cutoff day (e.g., 12),
+    // automatically calculates which statement cycle that payment settles!
+    function inferTargetCycleFromPaymentDate(card, paidDateStr) {
+      const cutoff = Number(card.cutoffDay || 12);
+      const safeDate = paidDateStr && paidDateStr.length >= 10 ? paidDateStr.slice(0, 10) : getTodayYYYYMMDD();
+      const [yStr, mStr, dStr] = safeDate.split('-');
+      let pYear = parseInt(yStr, 10);
+      let pMonth = parseInt(mStr, 10);
+      const pDay = parseInt(dStr, 10);
+
+      // If you pay on the 15th and cutoff is the 12th, you are paying the statement that closed on the 12th of THIS month (e.g., 13 Oct - 12 Nov).
+      // If you pay on the 5th and cutoff is the 12th, you are paying the statement that closed on the 12th of LAST month (e.g., 13 Sep - 12 Oct).
+      let stmtEndYear = pYear;
+      let stmtEndMonth = pDay >= cutoff ? pMonth : (pMonth - 1);
+      if (stmtEndMonth < 1) { stmtEndMonth = 12; stmtEndYear -= 1; }
+
+      let stmtStartYear = stmtEndYear;
+      let stmtStartMonth = stmtEndMonth - 1;
+      if (stmtStartMonth < 1) { stmtStartMonth = 12; stmtStartYear -= 1; }
+
+      const stmtStartDate = (() => {
+        const lastPrev = new Date(stmtStartYear, stmtStartMonth, 0).getDate();
+        if (cutoff >= lastPrev) return makeClampedDateStr(stmtEndYear, stmtEndMonth, 1);
+        return makeClampedDateStr(stmtStartYear, stmtStartMonth, cutoff + 1);
+      })();
+      const stmtEndDate = makeClampedDateStr(stmtEndYear, stmtEndMonth, cutoff);
+
+      return {
+        cycleKey: `${card.id}_${stmtEndDate}`,
+        stmtStartDate,
+        stmtEndDate,
+        rangeLabel: `${formatShortThaiDate(stmtStartDate)} – ${formatShortThaiDate(stmtEndDate)}`
+      };
+    }
+
+    function setCcPayEntryMode(mode) {
+      const isScan = mode === 'scan';
+      document.getElementById('cc-pay-mode-scan').className = `py-2 rounded-xl transition ${isScan ? 'bg-[#8B72BE] text-white font-semibold' : 'text-[#6B5494] font-medium'}`;
+      document.getElementById('cc-pay-mode-manual').className = `py-2 rounded-xl transition ${!isScan ? 'bg-[#8B72BE] text-white font-semibold' : 'text-[#6B5494] font-medium'}`;
+      document.getElementById('cc-pay-scan-panel').classList.toggle('hidden', !isScan);
+      document.getElementById('cc-pay-manual-panel').classList.toggle('hidden', isScan);
+    }
+
+    function closeCcPayModal() {
+      ccPayScanQueue = [];
+      closeModal('cc-pay-modal');
+    }
+
     function openCcPayModal(cardId) {
       const card = myCreditCardsList.find(c => c.id === cardId);
       if (!card) return;
       const info = computeCreditCardCyclesForCard(card);
-      activeCcPayContext = { cardId, cycleKey: info.cycleKey, remainingDue: info.remainingDue };
+      activeCcPayContext = { cardId, card, cycleKey: info.cycleKey, remainingDue: info.remainingDue, stmtRangeLabel: info.stmtRangeLabel };
 
       document.getElementById('cc-pay-card-title').textContent = `โอนจ่ายบัตร ${card.name}`;
-      document.getElementById('cc-pay-cycle-label').textContent = `รอบบิล ${info.stmtRangeLabel} (ตัดยอดวันที่ ${card.cutoffDay})`;
+      document.getElementById('cc-pay-cycle-label').textContent = `รอบบิลที่กำลังดู: ${info.stmtRangeLabel} (ตัดยอดวันที่ ${card.cutoffDay})`;
       document.getElementById('cc-pay-billed-val').textContent = `฿${fmtNum(info.billedTotal)}`;
       document.getElementById('cc-pay-paid-val').textContent = `฿${fmtNum(info.paidTotal)}`;
       document.getElementById('cc-pay-rem-val').textContent = `฿${fmtNum(info.remainingDue)}`;
       document.getElementById('cc-pay-amount-input').value = info.remainingDue > 0 ? Number(info.remainingDue.toFixed(2)) : '';
+      document.getElementById('cc-pay-date-input').value = getTodayYYYYMMDD();
       document.getElementById('cc-pay-note-input').value = '';
+      updateManualCcCyclePreview();
+
+      clearCcPayQueue();
+      setCcPayEntryMode('scan');
 
       const histEl = document.getElementById('cc-pay-history-list');
       if (info.cyclePayments.length === 0) {
         histEl.innerHTML = '<p class="text-[11px] text-[#8373A1] text-center py-3">ยังไม่มีประวัติการโอนจ่ายในรอบบิลนี้</p>';
       } else {
-        histEl.innerHTML = info.cyclePayments.map((p, idx) => `
+        histEl.innerHTML = info.cyclePayments.map((p, idx) => {
+          const slipMeta = `โอนจ่ายบัตร ${card.name} รอบที่ ${idx + 1} · ยอด ฿${fmtNum(p.amount)} · วันที่ ${p.paidDate}`;
+          return `
           <div class="flex justify-between items-center gap-2 bg-[#FAF8FE] px-3 py-2 rounded-xl border border-[#E6DCF5]">
             <div class="min-w-0">
               <p class="font-medium text-[#4D3B6E] truncate">รอบที่ ${idx + 1}: ฿${fmtNum(p.amount)}</p>
               <p class="text-[10px] text-[#8373A1] truncate">${p.paidDate}${p.note ? ' · ' + p.note : ''}</p>
             </div>
-            <button type="button" onclick="deleteCcPaymentRecord('${p.id}')" class="text-[10px] text-rose-500 hover:underline shrink-0">ลบ</button>
-          </div>`).join('');
+            <div class="flex items-center gap-2 shrink-0">
+              ${p.receiptUrl ? `<button type="button" onclick="viewStorageImage('${p.receiptUrl}', '${slipMeta.replace(/'/g, "\'")}')" class="text-[10px] text-[#8B72BE] underline font-semibold">ดูสลิป</button>` : ''}
+              <button type="button" onclick="deleteCcPaymentRecord('${p.id}')" class="text-[10px] text-rose-500 hover:underline">ลบ</button>
+            </div>
+          </div>`;
+        }).join('');
       }
       openModal('cc-pay-modal');
+    }
+
+    function updateManualCcCyclePreview() {
+      if (!activeCcPayContext?.card) return;
+      const dVal = document.getElementById('cc-pay-date-input')?.value || getTodayYYYYMMDD();
+      const target = inferTargetCycleFromPaymentDate(activeCcPayContext.card, dVal);
+      const hintEl = document.getElementById('cc-pay-manual-cycle-hint');
+      if (hintEl) {
+        hintEl.textContent = `AI คำนวณจากวันที่โอน: ระบบจะตัดยอดเข้าสู่รอบบิล ${target.rangeLabel}`;
+      }
+    }
+
+    async function scanSingleCcPaySlip(asset, apiKey) {
+      const card = activeCcPayContext?.card;
+      const fallbackDate = asset.captureDate || getTodayYYYYMMDD();
+      const targetCycleFallback = card ? inferTargetCycleFromPaymentDate(card, fallbackDate) : { cycleKey: activeCcPayContext?.cycleKey, rangeLabel: activeCcPayContext?.stmtRangeLabel };
+
+      if (!apiKey || !asset.base64) {
+        return {
+          asset,
+          scan_failed: true,
+          amount: '',
+          paidDate: fallbackDate,
+          note: !apiKey ? 'ยังไม่ได้ใส่ API Key' : 'อ่านรูปไม่สำเร็จ',
+          targetCycle: targetCycleFallback
+        };
+      }
+
+      const prompt = `Analyze this bank transfer slip or credit card bill payment receipt.
+Extract:
+- "amount": transferred/paid amount in THB (number only).
+- "paid_date": transaction date in YYYY-MM-DD format (Thai B.E. 69 or 2569 = 2026; 68 or 2568 = 2025).
+- "bank_from": sender bank/app name in Thai (e.g., "กสิกรไทย", "ไทยพาณิชย์", "กรุงเทพ", "กรุงไทย", "กรุงศรี") or null.
+- "biller_to": recipient card/biller name (e.g., "Krungsri", "CardX", "SCB", "KBank", "KTC", "UOB") or null.
+
+Respond ONLY with JSON:
+{"amount": 3000, "paid_date": "2026-11-15", "bank_from": "กสิกรไทย", "biller_to": "Krungsri"}`;
+
+      try {
+        const rawText = await callGeminiWithFallback(apiKey, prompt, asset.base64);
+        const cleanJsonStr = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonMatch = cleanJsonStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          const amt = Number(parsed.amount) > 0 ? Number(parsed.amount) : '';
+          const resolvedDate = normalizeSlipDate(parsed.paid_date, fallbackDate) || fallbackDate;
+          const targetCycle = card ? inferTargetCycleFromPaymentDate(card, resolvedDate) : targetCycleFallback;
+          const bankFrom = normalizeProviderName(parsed.bank_from || '');
+          const noteText = bankFrom ? `โอนจาก ${bankFrom}` : (parsed.biller_to ? `จ่าย ${parsed.biller_to}` : 'สแกนสลิปโอนจ่าย');
+          return {
+            asset,
+            scan_failed: !amt,
+            amount: amt,
+            paidDate: resolvedDate,
+            note: noteText,
+            targetCycle
+          };
+        }
+      } catch (err) {
+        console.warn('CC pay slip scan error:', err);
+      }
+
+      return {
+        asset,
+        scan_failed: true,
+        amount: '',
+        paidDate: fallbackDate,
+        note: 'อ่านตัวเลขไม่สำเร็จ (กรอกยอดหรือกดสแกนซ้ำได้)',
+        targetCycle: targetCycleFallback
+      };
+    }
+
+    async function handleCcPaySlipUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      const files = Array.from(input.files);
+      input.value = '';
+
+      const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
+      const statusEl = document.getElementById('cc-pay-ocr-status');
+      statusEl.classList.remove('hidden');
+
+      for (let i = 0; i < files.length; i += 3) {
+        const done = Math.min(files.length, i + 3);
+        statusEl.textContent = `กำลังอ่านสลิปโอนจ่าย ${done}/${files.length} ใบ และคำนวณรอบตัดบัตร...`;
+        const chunk = files.slice(i, i + 3);
+        const assets = await Promise.all(chunk.map(f => prepareLightweightAsset(f, false)));
+        const results = await Promise.all(assets.map(a => scanSingleCcPaySlip(a, apiKey)));
+        ccPayScanQueue.push(...results);
+      }
+
+      statusEl.textContent = `สแกนสลิปโอนจ่ายครบ ${ccPayScanQueue.length} ใบแล้ว ตรวจสอบยอดและรอบบิลด้านล่าง`;
+      renderCcPayScanQueue();
+    }
+
+    async function rescanSingleCcPayItem(idx) {
+      const item = ccPayScanQueue[idx];
+      if (!item || !item.asset) return;
+      const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
+      const statusEl = document.getElementById('cc-pay-ocr-status');
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = `กำลังสแกนซ้ำสลิปใบที่ ${idx + 1}...`;
+      const fresh = await scanSingleCcPaySlip(item.asset, apiKey);
+      ccPayScanQueue[idx] = fresh;
+      statusEl.textContent = fresh.scan_failed ? 'ลองสแกนซ้ำแล้วยังไม่พบตัวเลข สามารถพิมพ์ยอดเองได้' : `สแกนซ้ำสำเร็จ: ฿${fmtNum(fresh.amount)}`;
+      renderCcPayScanQueue();
+    }
+
+    async function ccBatchRescanFailed() {
+      const failedIndices = ccPayScanQueue.map((x, idx) => (x.scan_failed && x.asset ? idx : -1)).filter(i => i !== -1);
+      if (failedIndices.length === 0) return;
+      const apiKey = (globalGeminiKey || localStorage.getItem('gemini_ocr_key') || '').trim();
+      const statusEl = document.getElementById('cc-pay-ocr-status');
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = `กำลังสแกนซ้ำเฉพาะใบที่พลาด (${failedIndices.length} ใบ)...`;
+
+      for (const idx of failedIndices) {
+        ccPayScanQueue[idx] = await scanSingleCcPaySlip(ccPayScanQueue[idx].asset, apiKey);
+      }
+      statusEl.textContent = 'สแกนซ้ำเสร็จสิ้น';
+      renderCcPayScanQueue();
+    }
+
+    function updateCcScanItemDate(idx, newDateStr) {
+      if (!ccPayScanQueue[idx] || !activeCcPayContext?.card) return;
+      ccPayScanQueue[idx].paidDate = newDateStr;
+      ccPayScanQueue[idx].targetCycle = inferTargetCycleFromPaymentDate(activeCcPayContext.card, newDateStr);
+      renderCcPayScanQueue();
+    }
+
+    function removeCcScanQueueItem(idx) {
+      ccPayScanQueue.splice(idx, 1);
+      renderCcPayScanQueue();
+    }
+
+    function clearCcPayQueue() {
+      ccPayScanQueue = [];
+      const box = document.getElementById('cc-pay-queue-box');
+      const statusEl = document.getElementById('cc-pay-ocr-status');
+      if (box) box.classList.add('hidden');
+      if (statusEl) statusEl.classList.add('hidden');
+    }
+
+    function renderCcPayScanQueue() {
+      const box = document.getElementById('cc-pay-queue-box');
+      const listEl = document.getElementById('cc-pay-queue-list');
+      const countEl = document.getElementById('cc-pay-queue-count');
+      const rescanAllBtn = document.getElementById('btn-cc-rescan-all-failed');
+
+      if (!box || ccPayScanQueue.length === 0) {
+        if (box) box.classList.add('hidden');
+        return;
+      }
+
+      box.classList.remove('hidden');
+      countEl.textContent = ccPayScanQueue.length;
+      const failedCount = ccPayScanQueue.filter(x => x.scan_failed).length;
+      if (rescanAllBtn) rescanAllBtn.classList.toggle('hidden', failedCount === 0);
+
+      listEl.innerHTML = ccPayScanQueue.map((item, idx) => `
+        <div class="bg-white p-2.5 rounded-xl border ${item.scan_failed ? 'border-amber-300 bg-amber-50/50' : 'border-[#DDD0EE]'} space-y-1.5 text-xs">
+          <div class="flex justify-between items-center gap-1 text-[10px]">
+            <span class="font-semibold text-[#6B5494] truncate">
+              ใบที่ ${idx + 1} · AI จัดลงรอบบิล <strong class="text-[#4D3B6E]">${item.targetCycle?.rangeLabel || '-'}</strong>
+            </span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="rescanSingleCcPayItem(${idx})" class="bg-[#F5F0FA] text-[#6B5494] px-1.5 py-0.5 rounded font-semibold">สแกนซ้ำ</button>
+              <button type="button" onclick="removeCcScanQueueItem(${idx})" class="text-rose-500 font-medium">ลบ</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <input type="number" step="0.01" value="${item.amount}" placeholder="ยอดโอน (บาท)" oninput="ccPayScanQueue[${idx}].amount = this.value; ccPayScanQueue[${idx}].scan_failed = !parseFloat(this.value);" class="bg-[#FAF8FE] border border-[#DDD0EE] rounded-lg px-2 py-1 text-xs font-bold text-[#4D3B6E]" />
+            <input type="date" value="${item.paidDate}" onchange="updateCcScanItemDate(${idx}, this.value)" class="bg-[#FAF8FE] border border-[#DDD0EE] rounded-lg px-2 py-1 text-[11px] text-[#4D3B6E]" />
+          </div>
+          <input type="text" value="${item.note}" placeholder="หมายเหตุ" oninput="ccPayScanQueue[${idx}].note = this.value" class="w-full bg-[#FAF8FE] border border-[#DDD0EE] rounded-lg px-2 py-1 text-[10px]" />
+        </div>
+      `).join('');
+    }
+
+    async function submitCcScanQueue() {
+      if (!activeCcPayContext || ccPayScanQueue.length === 0) return;
+      const missing = ccPayScanQueue.find(x => !parseFloat(x.amount) || parseFloat(x.amount) <= 0);
+      if (missing) return alert('กรุณาระบุยอดเงินโอนให้ครบทุกสลิปก่อนบันทึก');
+
+      const btn = document.getElementById('btn-save-cc-scan-queue');
+      btn.disabled = true;
+      btn.textContent = `กำลังอัปโหลดสลิปและตัดยอด ${ccPayScanQueue.length} ใบ...`;
+
+      try {
+        for (let i = 0; i < ccPayScanQueue.length; i++) {
+          const item = ccPayScanQueue[i];
+          let receiptUrl = null;
+          if (item.asset?.blob) {
+            receiptUrl = await uploadPreparedBlobToStorage(item.asset.blob, 'cc_payments');
+          }
+          const targetCycle = item.targetCycle || inferTargetCycleFromPaymentDate(activeCcPayContext.card, item.paidDate);
+          myCreditCardPayments.push({
+            id: `ccpay_${Date.now()}_${i}`,
+            cardId: activeCcPayContext.cardId,
+            cycleKey: targetCycle.cycleKey,
+            amount: Math.round(parseFloat(item.amount) * 100) / 100,
+            paidDate: item.paidDate || getTodayYYYYMMDD(),
+            note: item.note || 'สแกนสลิปโอนจ่าย',
+            receiptUrl
+          });
+        }
+
+        await persistMyCreditCardPayments();
+        ccPayScanQueue = [];
+        renderPersonalCreditCardTracker();
+        openCcPayModal(activeCcPayContext.cardId);
+      } catch (err) {
+        alert('บันทึกสลิปจ่ายบัตรไม่สำเร็จ: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกการจ่ายบัตรทั้งหมดลงรอบบิล';
+      }
     }
 
     function fillFullRemainingCcPay() {
@@ -2224,16 +2544,22 @@
     async function submitCcPaymentRecord() {
       if (!activeCcPayContext) return;
       const amt = parseFloat(document.getElementById('cc-pay-amount-input').value);
+      const paidDate = document.getElementById('cc-pay-date-input')?.value || getTodayYYYYMMDD();
       const note = document.getElementById('cc-pay-note-input').value.trim();
       if (!amt || amt <= 0) return alert('กรุณากรอกยอดเงินที่โอนจ่าย');
+
+      const targetCycle = activeCcPayContext.card
+        ? inferTargetCycleFromPaymentDate(activeCcPayContext.card, paidDate)
+        : { cycleKey: activeCcPayContext.cycleKey };
 
       myCreditCardPayments.push({
         id: `ccpay_${Date.now()}`,
         cardId: activeCcPayContext.cardId,
-        cycleKey: activeCcPayContext.cycleKey,
+        cycleKey: targetCycle.cycleKey,
         amount: Math.round(amt * 100) / 100,
-        paidDate: getTodayYYYYMMDD(),
-        note
+        paidDate,
+        note,
+        receiptUrl: null
       });
 
       await persistMyCreditCardPayments();
@@ -3053,16 +3379,23 @@
 
     function normalizeSlipDate(rawDateStr, fallbackDateStr) {
       if (!rawDateStr) return null;
-      const m = rawDateStr.trim().match(/^(\d{2,4})-(\d{2})-(\d{2})$/);
+      const m = rawDateStr.trim().match(/^(\d{2,4})-(\d{1,2})-(\d{1,2})$/);
       if (!m) return null;
       let year = parseInt(m[1], 10);
-      const month = m[2];
-      const day = m[3];
+      const month = String(m[2]).padStart(2, '0');
+      const day = String(m[3]).padStart(2, '0');
 
+      // Handle 2-digit Thai B.E. years (68 -> 2025, 69 -> 2026, 70 -> 2027) vs 2-digit A.D. (25 -> 2025, 26 -> 2026)
       if (year < 100) {
-        year = year >= 60 ? (2500 + year - 543) : (2000 + year);
+        year = year >= 55 ? (2500 + year - 543) : (2000 + year);
       } else if (year >= 2500) {
         year -= 543;
+      }
+
+      // Guard against AI misreading Thai "พ.ย. 69" (2026) as 2025 when current system year is 2026+
+      const sysYear = new Date().getFullYear();
+      if (year === 2025 && sysYear >= 2026 && fallbackDateStr && fallbackDateStr.startsWith(String(sysYear))) {
+        year = sysYear;
       }
 
       if (fallbackDateStr) {
@@ -5905,7 +6238,7 @@ For each transaction in "items" (target currency ${currCode}):
 - "payment_channel": use "credit_card" if credit card / VISA / Mastercard / JCB / UnionPay / AMEX / บัตรเครดิต is mentioned; use "cash" if CASH / เงินสด appears; otherwise default to "${isDirectCamera ? 'cash' : 'transfer'}".
 - "payment_provider": detect the exact bank or wallet app name from the slip logo/header/text in Thai or standard short name (e.g., "กสิกรไทย" for KBank/K PLUS, "ไทยพาณิชย์" for SCB, "กรุงเทพ" for Bangkok Bank/BBL, "กรุงไทย" for Krungthai/KTB, "กรุงศรี" for Krungsri/BAY, "ttb", "ออมสิน", "Alipay", "WeChat Pay", "TrueMoney", "PromptPay") or null if not identifiable.
 - "channel_explicit": true if payment method was explicitly shown, false otherwise.
-- "slip_date": transaction date in YYYY-MM-DD format (Thai B.E. year minus 543: 2569 or 69 = 2026; 2568 or 68 = 2025) or null if none.
+- "slip_date": transaction date in YYYY-MM-DD format. IMPORTANT: Thai 2-digit years like "69" mean Buddhist Era 2569 = 2026 A.D. (e.g., "13 พ.ย. 69" MUST be "2026-11-13", NEVER 2025; "68" = 2025; "70" = 2027). Return null if no date is visible.
 - "slip_time": printed or notification timestamp (HH:MM 24-hour) or null if none.
 - "slip_ref": transaction reference number if printed, or null.
 
