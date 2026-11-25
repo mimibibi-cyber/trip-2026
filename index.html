@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=20";
+      img.src = "icon.png?v=22";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -628,7 +628,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.5</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.7</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -644,8 +644,8 @@
         <div id="color-picker-row" class="flex items-center justify-between gap-2 pt-1"></div>
       </div>
 
-      <!-- Personal Credit Card Billing Cycle Setup (Private Per User) -->
-      <div class="soft-card p-5 rounded-3xl space-y-3 border border-[#DDD0EE] bg-[#FAF8FE]">
+      <!-- Personal Credit Card Billing Cycle Setup (Monthly Mode Only · Private Per User) -->
+      <div id="settings-cc-section" class="hidden soft-card p-5 rounded-3xl space-y-3 border border-[#DDD0EE] bg-[#FAF8FE]">
         <div class="flex justify-between items-start gap-2">
           <div>
             <p class="text-[10px] font-semibold uppercase tracking-widest text-[#8B72BE]">Personal Credit Cards</p>
@@ -681,8 +681,8 @@
           </div>
         </div>
 
-        <!-- Admin Ledger Feature Toggle: Personal Credit Card Billing Reminder -->
-        <div class="bg-[#F8F5FC] p-3.5 rounded-2xl border border-[#DDD0EE] flex justify-between items-center gap-2">
+        <!-- Admin Ledger Feature Toggle: Personal Credit Card Billing Reminder (Monthly Mode Only) -->
+        <div id="admin-cc-feature-box" class="hidden bg-[#F8F5FC] p-3.5 rounded-2xl border border-[#DDD0EE] flex justify-between items-center gap-2">
           <div>
             <p class="text-[11px] font-semibold text-[#4D3B6E]">เปิดใช้ระบบเตือนรอบบิลบัตรเครดิตในสมุดนี้</p>
             <p class="text-[10px] text-[#6B5494]">อนุญาตให้สมาชิกตั้งรอบตัดบัตรและทยอยตัดยอดของตัวเองได้</p>
@@ -1302,9 +1302,10 @@
           <p class="text-[10px] text-[#8373A1] mt-1">หากมีหลายบัตร ให้ใส่ชื่อธนาคารหรือชื่อบัตรให้ตรงกับป้ายกำกับหรือชื่อรายการ เพื่อแยกยอดแต่ละใบอัตโนมัติ</p>
         </div>
       </div>
-      <div class="flex gap-2.5 pt-1">
-        <button onclick="closeModal('cc-setup-modal')" class="w-1/3 bg-[#FAF8FE] text-[#6B5494] border border-[#DDD0EE] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
-        <button onclick="savePersonalCreditCard()" class="w-2/3 bg-[#8B72BE] text-white py-2.5 rounded-xl text-xs font-semibold">บันทึกบัตรเครดิต</button>
+      <div class="flex gap-2 pt-1">
+        <button type="button" id="btn-cc-modal-delete" onclick="deleteEditingCreditCard()" class="hidden bg-rose-50 text-rose-600 border border-rose-200 px-3 py-2.5 rounded-xl text-xs font-semibold shrink-0">ลบบัตรนี้</button>
+        <button type="button" onclick="closeModal('cc-setup-modal')" class="flex-1 bg-[#FAF8FE] text-[#6B5494] border border-[#DDD0EE] py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button type="button" onclick="savePersonalCreditCard()" class="flex-1 bg-[#8B72BE] text-white py-2.5 rounded-xl text-xs font-semibold">บันทึก</button>
       </div>
     </div>
   </div>
@@ -1430,7 +1431,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.5';
+    const APP_VERSION = 'v3.7';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1847,6 +1848,22 @@
       renderPersonalCreditCardTracker();
     }
 
+    async function persistMyCreditCards() {
+      const myEm = currentMember.email.toLowerCase();
+      const key = `cc_cards_${currentTrip.id}_${myEm}`;
+      const jsonStr = JSON.stringify(myCreditCardsList);
+      localStorage.setItem(key, jsonStr);
+      await db.from('app_settings').upsert({ key, value: jsonStr });
+    }
+
+    async function persistMyCreditCardPayments() {
+      const myEm = currentMember.email.toLowerCase();
+      const key = `cc_pays_${currentTrip.id}_${myEm}`;
+      const jsonStr = JSON.stringify(myCreditCardPayments);
+      localStorage.setItem(key, jsonStr);
+      await db.from('app_settings').upsert({ key, value: jsonStr });
+    }
+
     function openCcSetupModal(cardId = null) {
       const sel = document.getElementById('cc-cutoff-day');
       if (sel && sel.options.length === 0) {
@@ -1857,6 +1874,7 @@
         sel.innerHTML = opts;
       }
 
+      const delBtn = document.getElementById('btn-cc-modal-delete');
       if (cardId) {
         const card = myCreditCardsList.find(c => c.id === cardId);
         if (!card) return;
@@ -1865,12 +1883,14 @@
         document.getElementById('cc-card-name').value = card.name;
         document.getElementById('cc-cutoff-day').value = String(card.cutoffDay || 12);
         document.getElementById('cc-match-keyword').value = card.matchKeyword || '';
+        if (delBtn) delBtn.classList.remove('hidden');
       } else {
         document.getElementById('cc-setup-modal-title').textContent = 'เพิ่มบัตรเครดิต & วันตัดรอบบิล';
         document.getElementById('cc-edit-id').value = '';
         document.getElementById('cc-card-name').value = '';
         document.getElementById('cc-cutoff-day').value = '12';
         document.getElementById('cc-match-keyword').value = '';
+        if (delBtn) delBtn.classList.add('hidden');
       }
       openModal('cc-setup-modal');
     }
@@ -1893,33 +1913,39 @@
           id: `cc_${Date.now()}`,
           name,
           cutoffDay,
-          matchKeyword
+          matchKeyword,
+          cycleOffset: 0
         });
       }
 
-      const myEm = currentMember.email.toLowerCase();
-      const { error } = await db.from('app_settings').upsert({
-        key: `cc_cards_${currentTrip.id}_${myEm}`,
-        value: JSON.stringify(myCreditCardsList)
-      });
-      if (error) return alert('บันทึกบัตรไม่สำเร็จ: ' + error.message);
-
+      await persistMyCreditCards();
       closeModal('cc-setup-modal');
       isCcTrackerExpanded = true;
       renderSettingsCcList();
       renderPersonalCreditCardTracker();
     }
 
-    async function deletePersonalCreditCard(cardId) {
+    async function deleteEditingCreditCard() {
+      const editId = document.getElementById('cc-edit-id').value;
+      if (!editId) return;
+      await deletePersonalCreditCard(editId, true);
+    }
+
+    async function deletePersonalCreditCard(cardId, closeSetupAfter = false) {
       const card = myCreditCardsList.find(c => c.id === cardId);
-      if (!card || !confirm(`ลบบัตร "${card.name}" ออกจากรายการเตือน?`)) return;
+      if (!card || !confirm(`ยืนยันการลบบัตร "${card.name}" ออกจากรายการ?`)) return;
       myCreditCardsList = myCreditCardsList.filter(c => c.id !== cardId);
-      const myEm = currentMember.email.toLowerCase();
-      await db.from('app_settings').upsert({
-        key: `cc_cards_${currentTrip.id}_${myEm}`,
-        value: JSON.stringify(myCreditCardsList)
-      });
+      await persistMyCreditCards();
+      if (closeSetupAfter) closeModal('cc-setup-modal');
       renderSettingsCcList();
+      renderPersonalCreditCardTracker();
+    }
+
+    async function setCardCycleOffset(cardId, offsetVal) {
+      const idx = myCreditCardsList.findIndex(c => c.id === cardId);
+      if (idx === -1) return;
+      myCreditCardsList[idx].cycleOffset = offsetVal;
+      await persistMyCreditCards();
       renderPersonalCreditCardTracker();
     }
 
@@ -1965,11 +1991,12 @@
       const todayDay = now.getDate();
       const cutoff = Number(card.cutoffDay || 12);
 
-      // Anchor month: if today >= cutoff, latest closed statement ended on cutoff of current month (e.g., 13 Oct -> 12 Nov).
-      // If today < cutoff, latest closed statement ended on cutoff of previous month (e.g., 13 Sep -> 12 Oct), and current 13 Oct -> today is Pending.
+      const offset = Number(card.cycleOffset || 0);
+      // Base anchor: latest closed statement month
       let stmtEndYear = y;
-      let stmtEndMonth = todayDay >= cutoff ? m : (m - 1);
-      if (stmtEndMonth < 1) { stmtEndMonth = 12; stmtEndYear -= 1; }
+      let stmtEndMonth = (todayDay >= cutoff ? m : (m - 1)) + offset;
+      while (stmtEndMonth < 1) { stmtEndMonth += 12; stmtEndYear -= 1; }
+      while (stmtEndMonth > 12) { stmtEndMonth -= 12; stmtEndYear += 1; }
 
       let stmtStartYear = stmtEndYear;
       let stmtStartMonth = stmtEndMonth - 1;
@@ -2034,6 +2061,7 @@
 
       return {
         card,
+        offset,
         cycleKey,
         stmtStartDate,
         stmtEndDate,
@@ -2061,7 +2089,7 @@
       const section = document.getElementById('cc-tracker-dashboard-section');
       if (!section) return;
 
-      if (!isLedgerCcEnabled) {
+      if (!isMonthlyMode() || !isLedgerCcEnabled) {
         section.classList.add('hidden');
         return;
       }
@@ -2108,14 +2136,25 @@
         const isSettled = info.remainingDue <= 0.5;
         return `
           <div class="bg-white rounded-2xl p-3 border border-[#DDD0EE] space-y-2.5">
-            <div class="flex justify-between items-center gap-2">
-              <div class="min-w-0">
-                <span class="font-bold text-xs text-[#4D3B6E]">${info.card.name}</span>
-                <span class="text-[10px] bg-[#F5F0FA] text-[#6B5494] px-2 py-0.5 rounded-md ml-1">ตัดรอบวันที่ ${info.card.cutoffDay}</span>
+            <div class="flex justify-between items-center gap-1.5">
+              <div class="min-w-0 flex items-center gap-1 flex-wrap">
+                <span class="font-bold text-xs text-[#4D3B6E] truncate">${info.card.name}</span>
+                <span class="text-[10px] bg-[#F5F0FA] text-[#6B5494] px-2 py-0.5 rounded-md">ตัดรอบวันที่ ${info.card.cutoffDay}</span>
               </div>
-              <button type="button" onclick="openCcPayModal('${info.card.id}')" class="text-[11px] bg-[#8B72BE] text-white px-2.5 py-1 rounded-xl font-semibold shadow-2xs shrink-0">
-                + บันทึกจ่ายบัตร
-              </button>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="openCcPayModal('${info.card.id}')" class="text-[11px] bg-[#8B72BE] text-white px-2.5 py-1 rounded-xl font-semibold shadow-2xs">
+                  + บันทึกจ่ายบัตร
+                </button>
+                <button type="button" onclick="openCcSetupModal('${info.card.id}')" title="แก้ไขบัตร" class="text-[10px] bg-[#F5F0FA] text-[#6B5494] px-2 py-1 rounded-lg font-medium">แก้</button>
+                <button type="button" onclick="deletePersonalCreditCard('${info.card.id}')" title="ลบบัตรนี้" class="text-[10px] bg-rose-50 text-rose-600 border border-rose-200 px-2 py-1 rounded-lg font-semibold">ลบ</button>
+              </div>
+            </div>
+
+            <!-- Billing Cycle Selector: Previous / Current / Next Statement -->
+            <div class="grid grid-cols-3 gap-1 bg-[#F5F0FA] p-1 rounded-xl border border-[#E6DCF5] text-[10px]">
+              <button type="button" onclick="setCardCycleOffset('${info.card.id}', -1)" class="py-1 rounded-lg transition ${info.offset === -1 ? 'bg-[#8B72BE] text-white font-semibold shadow-2xs' : 'text-[#6B5494]'}">รอบก่อนหน้า</button>
+              <button type="button" onclick="setCardCycleOffset('${info.card.id}', 0)" class="py-1 rounded-lg transition ${info.offset === 0 ? 'bg-[#8B72BE] text-white font-semibold shadow-2xs' : 'text-[#6B5494]'}">รอบปัจจุบัน</button>
+              <button type="button" onclick="setCardCycleOffset('${info.card.id}', 1)" class="py-1 rounded-lg transition ${info.offset === 1 ? 'bg-[#8B72BE] text-white font-semibold shadow-2xs' : 'text-[#6B5494]'}">รอบถัดไป</button>
             </div>
 
             <div class="grid grid-cols-2 gap-2 text-xs">
@@ -2197,13 +2236,7 @@
         note
       });
 
-      const myEm = currentMember.email.toLowerCase();
-      const { error } = await db.from('app_settings').upsert({
-        key: `cc_pays_${currentTrip.id}_${myEm}`,
-        value: JSON.stringify(myCreditCardPayments)
-      });
-      if (error) return alert('บันทึกยอดโอนไม่สำเร็จ: ' + error.message);
-
+      await persistMyCreditCardPayments();
       renderPersonalCreditCardTracker();
       openCcPayModal(activeCcPayContext.cardId);
     }
@@ -2211,11 +2244,7 @@
     async function deleteCcPaymentRecord(payId) {
       if (!confirm('ยืนยันการลบประวัติการโอนรอบนี้?')) return;
       myCreditCardPayments = myCreditCardPayments.filter(p => p.id !== payId);
-      const myEm = currentMember.email.toLowerCase();
-      await db.from('app_settings').upsert({
-        key: `cc_pays_${currentTrip.id}_${myEm}`,
-        value: JSON.stringify(myCreditCardPayments)
-      });
+      await persistMyCreditCardPayments();
       renderPersonalCreditCardTracker();
       if (activeCcPayContext) openCcPayModal(activeCcPayContext.cardId);
     }
@@ -2463,13 +2492,29 @@
       isLedgerCcEnabled = ccEnRow ? ccEnRow.value !== 'false' : true;
 
       const cardsRow = (data || []).find(r => r.key === myCardsKey);
+      const localCardsRaw = localStorage.getItem(myCardsKey);
       try {
-        myCreditCardsList = cardsRow?.value ? JSON.parse(cardsRow.value) : [];
+        if (cardsRow?.value) {
+          myCreditCardsList = JSON.parse(cardsRow.value);
+          localStorage.setItem(myCardsKey, cardsRow.value);
+        } else if (localCardsRaw) {
+          myCreditCardsList = JSON.parse(localCardsRaw);
+        } else {
+          myCreditCardsList = [];
+        }
       } catch (_) { myCreditCardsList = []; }
 
       const paysRow = (data || []).find(r => r.key === myPaysKey);
+      const localPaysRaw = localStorage.getItem(myPaysKey);
       try {
-        myCreditCardPayments = paysRow?.value ? JSON.parse(paysRow.value) : [];
+        if (paysRow?.value) {
+          myCreditCardPayments = JSON.parse(paysRow.value);
+          localStorage.setItem(myPaysKey, paysRow.value);
+        } else if (localPaysRaw) {
+          myCreditCardPayments = JSON.parse(localPaysRaw);
+        } else {
+          myCreditCardPayments = [];
+        }
       } catch (_) { myCreditCardPayments = []; }
 
       const catRow = (data || []).find(r => r.key === catKey);
@@ -3567,6 +3612,12 @@
       }
 
       renderColorPicker();
+      if (document.getElementById('settings-cc-section')) {
+        document.getElementById('settings-cc-section').classList.toggle('hidden', !monthly);
+      }
+      if (document.getElementById('admin-cc-feature-box')) {
+        document.getElementById('admin-cc-feature-box').classList.toggle('hidden', !monthly);
+      }
       renderAdminCcFeatureToggleButton();
       renderSettingsCcList();
       totalDays = parseInt(localStorage.getItem(`days_${currentTrip.id}`) || '6');
