@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=19";
+      img.src = "icon.png?v=20";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -226,17 +226,31 @@
         <div id="cc-tracker-cards-container" class="hidden space-y-2.5 pt-1 border-t border-[#E6DCF5]"></div>
       </div>
 
-      <!-- View Scope Switcher, Quick Calculator Toggle & Actions -->
+      <!-- View Scope Switcher, Multi-Select Toggle, Quick Calculator & Actions -->
       <div class="flex items-center justify-between gap-1.5">
-        <div class="flex items-center gap-1.5">
-          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs">รายการหลัก</button>
-          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border">ส่วนตัว & เงินสด</button>
+        <div class="flex items-center gap-1.5 min-w-0">
+          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-2.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs truncate">รายการหลัก</button>
+          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border truncate">ส่วนตัว & เงินสด</button>
         </div>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button id="btn-toggle-calc-widget" onclick="toggleQuickCalcWidget()" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-2.5 py-1.5 rounded-xl font-medium shadow-2xs">จดด่วน</button>
-          <button id="btn-pull-recurring-top" onclick="applyRecurringTemplatesToCurrentMonth()" class="hidden text-[11px] theme-bg-pill px-2.5 py-1.5 rounded-xl font-medium border theme-border">+ ดึงประจำ</button>
-          <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] theme-bg-pill px-2.5 py-1.5 rounded-xl font-medium border theme-border">+ วัน</button>
+        <div class="flex items-center gap-1 shrink-0">
+          <button type="button" id="btn-toggle-bulk-select" onclick="toggleBulkSelectMode()" title="เลือกหลายรายการเพื่อแก้ไขพร้อมกัน" class="text-[11px] bg-white theme-text-sub border theme-border-mid px-2 py-1.5 rounded-xl font-medium shadow-2xs flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span id="btn-bulk-select-label">เลือก</span>
+          </button>
+          <button id="btn-toggle-calc-widget" onclick="toggleQuickCalcWidget()" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-2 py-1.5 rounded-xl font-medium shadow-2xs">จดด่วน</button>
+          <button id="btn-pull-recurring-top" onclick="applyRecurringTemplatesToCurrentMonth()" class="hidden text-[11px] theme-bg-pill px-2 py-1.5 rounded-xl font-medium border theme-border">+ ดึงประจำ</button>
+          <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] theme-bg-pill px-2 py-1.5 rounded-xl font-medium border theme-border">+ วัน</button>
         </div>
+      </div>
+
+      <!-- Bulk Selection Helper Strip (Shown when Selection Mode is ON) -->
+      <div id="bulk-select-helper-bar" class="hidden bg-[#FFF5F8] border theme-border-mid rounded-2xl px-3 py-2 flex justify-between items-center gap-2 text-[11px]">
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="bulkSelectAllVisible()" class="theme-text-primary font-semibold underline">เลือกทั้งหมดที่แสดง</button>
+          <span class="theme-text-muted">|</span>
+          <button type="button" onclick="bulkClearSelection()" class="theme-text-sub underline">ล้างที่เลือก</button>
+        </div>
+        <span class="font-semibold theme-text-main">เลือกแล้ว <span id="bulk-selected-top-count">0</span> รายการ</span>
       </div>
 
       <!-- COLLAPSIBLE IN-APP QUICK CALCULATOR WIDGET (MANUAL FAST ENTRY) -->
@@ -614,7 +628,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.4</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.5</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -863,6 +877,18 @@
       </label>
     </div>
 
+    <!-- Floating Bulk Order Edit Action Bar -->
+    <div id="floating-bulk-action-bar" class="hidden fixed bottom-16 left-3 right-3 max-w-md mx-auto z-30 bg-[#6B424E] text-white rounded-2xl px-4 py-2.5 shadow-xl flex justify-between items-center gap-2">
+      <div class="min-w-0">
+        <p class="text-xs font-semibold truncate">เลือกอยู่ <span id="bulk-floating-count">0</span> รายการ</p>
+        <p class="text-[10px] text-white/80 truncate">รวมยอด <span id="bulk-floating-sum">฿0</span></p>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button type="button" onclick="openBulkEditModal()" class="luxury-gradient text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl shadow-xs">แก้ไขข้อมูลรวม</button>
+        <button type="button" onclick="bulkDeleteSelectedExpenses()" class="bg-white/15 hover:bg-rose-500 text-white text-xs font-medium px-2.5 py-1.5 rounded-xl">ลบ</button>
+      </div>
+    </div>
+
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 app-header border-t flex justify-around py-2.5 max-w-md mx-auto z-20 text-[10px] font-medium">
       <button onclick="switchTab('expenses')" id="nav-expenses" class="flex flex-col items-center gap-1 theme-text-primary">
@@ -1032,6 +1058,85 @@
       </div>
 
       <button id="btn-save-expense" onclick="saveExpense()" class="w-full luxury-gradient hover:opacity-95 text-white font-medium py-3 rounded-xl text-sm shadow-sm transition">บันทึกรายการ</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: BULK ORDER EDIT (PARTIAL UPDATE MULTIPLE EXPENSES) ================= -->
+  <div id="bulk-edit-modal" class="hidden fixed inset-0 bg-[#3A2229]/55 z-50 flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[90vh] overflow-y-auto border theme-border">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold text-base theme-text-main">แก้ไขข้อมูลรวม (<span id="bulk-modal-count">0</span> รายการ)</h3>
+          <p class="text-[11px] theme-text-muted">เปลี่ยนเฉพาะหัวข้อที่เปิดใช้งาน ส่วนยอดเงินและสลิปเดิมจะคงไว้ครบ</p>
+        </div>
+        <button onclick="closeModal('bulk-edit-modal')" class="w-8 h-8 rounded-full bg-[#FFF5F8] theme-text-sub flex items-center justify-center text-lg leading-none">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <!-- 1. Payment Channel & Bank/Card Provider -->
+        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border-mid space-y-2">
+          <label class="flex items-center gap-2 font-semibold theme-text-main cursor-pointer">
+            <input type="checkbox" id="bulk-apply-channel" onchange="toggleBulkFieldBox('channel')" class="rounded border-[#F2CFD9]" />
+            <span>1. เปลี่ยนช่องทางจ่าย & ชื่อธนาคาร / บัตรเครดิต</span>
+          </label>
+          <div id="bulk-box-channel" class="hidden grid grid-cols-2 gap-2 pt-1">
+            <select id="bulk-val-channel" onchange="toggleBulkProviderVisibility()" class="bg-white border theme-border-mid rounded-xl p-2 text-xs font-medium">
+              <option value="transfer">1. โอน (Transfer)</option>
+              <option value="credit_card">2. บัตรเครดิต</option>
+              <option value="cash">3. เงินสด (Cash)</option>
+            </select>
+            <input id="bulk-val-provider" list="provider-presets" type="text" placeholder="เช่น ไทยพาณิชย์, กสิกรไทย, SCB" class="bg-white border theme-border-mid rounded-xl px-2.5 py-2 text-xs" />
+          </div>
+        </div>
+
+        <!-- 2. Category -->
+        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border-mid space-y-2">
+          <label class="flex items-center gap-2 font-semibold theme-text-main cursor-pointer">
+            <input type="checkbox" id="bulk-apply-cat" onchange="toggleBulkFieldBox('cat')" class="rounded border-[#F2CFD9]" />
+            <span>2. เปลี่ยนหมวดหมู่ (Category)</span>
+          </label>
+          <div id="bulk-box-cat" class="hidden pt-1">
+            <select id="bulk-val-cat" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-xs font-medium"></select>
+          </div>
+        </div>
+
+        <!-- 3. Split Members -->
+        <div id="bulk-split-wrapper" class="bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border-mid space-y-2">
+          <label class="flex items-center gap-2 font-semibold theme-text-main cursor-pointer">
+            <input type="checkbox" id="bulk-apply-split" onchange="toggleBulkFieldBox('split')" class="rounded border-[#F2CFD9]" />
+            <span>3. เปลี่ยนผู้ร่วมหาร (Split Members)</span>
+          </label>
+          <div id="bulk-box-split" class="hidden pt-1 flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <!-- 4. Date / Trip Day -->
+        <div class="bg-[#FFF9FA] p-3.5 rounded-2xl border theme-border-mid space-y-2">
+          <label class="flex items-center gap-2 font-semibold theme-text-main cursor-pointer">
+            <input type="checkbox" id="bulk-apply-date" onchange="toggleBulkFieldBox('date')" class="rounded border-[#F2CFD9]" />
+            <span id="bulk-date-checkbox-label">4. ย้ายวันที่ / Day</span>
+          </label>
+          <div id="bulk-box-date" class="hidden pt-1">
+            <select id="bulk-val-day" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-xs font-medium"></select>
+            <input id="bulk-val-date" type="date" class="hidden w-full bg-white border theme-border-mid rounded-xl p-2 text-xs font-medium" />
+          </div>
+        </div>
+
+        <!-- 5. Admin Move Across Ledgers -->
+        <div id="bulk-move-ledger-wrapper" class="hidden bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-2">
+          <label class="flex items-center gap-2 font-semibold theme-text-primary cursor-pointer">
+            <input type="checkbox" id="bulk-apply-ledger" onchange="toggleBulkFieldBox('ledger')" class="rounded border-[#F2CFD9]" />
+            <span>5. Admin: ย้ายรายการที่เลือกไปสมุดบัญชีอื่น</span>
+          </label>
+          <div id="bulk-box-ledger" class="hidden pt-1">
+            <select id="bulk-val-ledger" class="w-full bg-white border theme-border-mid rounded-xl p-2 text-xs font-medium"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2.5 pt-1">
+        <button type="button" onclick="closeModal('bulk-edit-modal')" class="w-1/3 bg-[#FFF9FA] theme-text-muted border theme-border-mid py-2.5 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button type="button" id="btn-submit-bulk-edit" onclick="submitBulkEdit()" class="w-2/3 luxury-gradient text-white py-2.5 rounded-xl text-xs font-semibold shadow-xs">บันทึกการแก้ไขทั้งหมด</button>
+      </div>
     </div>
   </div>
 
@@ -1325,7 +1430,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.4';
+    const APP_VERSION = 'v3.5';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1400,6 +1505,9 @@
     let myCreditCardPayments = [];
     let isCcTrackerExpanded = false;
     let activeCcPayContext = null;
+    let isBulkSelectMode = false;
+    let selectedExpenseIds = new Set();
+    let lastVisibleFilteredIds = [];
     let selectedChartBucketIndex = null;
     let currentChartBucketsMeta = [];
     let collapsedGroups = new Set();
@@ -1425,6 +1533,294 @@
     let qcBuffer = '0';
     let qcAccumulated = 0;
     let qcHasPendingPlus = false;
+
+    // ================= BULK ORDER EDIT ENGINE (SELECT & PARTIAL UPDATE MULTIPLE EXPENSES) =================
+    function toggleBulkSelectMode() {
+      if (currentTrip?.is_closed) return alert('สมุดนี้ปิดยอดแล้ว ไม่สามารถแก้ไขรายการได้');
+      isBulkSelectMode = !isBulkSelectMode;
+      if (!isBulkSelectMode) {
+        selectedExpenseIds.clear();
+      }
+      renderExpenseList();
+    }
+
+    function toggleSelectSingleExpense(id) {
+      if (!isBulkSelectMode) return;
+      if (selectedExpenseIds.has(id)) selectedExpenseIds.delete(id);
+      else selectedExpenseIds.add(id);
+      renderExpenseList();
+    }
+
+    function toggleSelectGroupItems(gKey) {
+      const myEmail = currentMember.email.toLowerCase();
+      const isClosed = Boolean(currentTrip.is_closed);
+      const monthly = isMonthlyMode();
+
+      const groupIds = expensesList.filter(e => {
+        const k = monthly ? (e.expense_month || (e.expense_date || '').slice(0, 7) || getCurrentYYYYMM()) : String(e.trip_day || 1);
+        if (k !== String(gKey)) return false;
+        const canManage = !isClosed && !isLockedPastMonth(e) && ((e.paid_by_email || e.created_by || '').toLowerCase() === myEmail || (e.created_by || '').toLowerCase() === myEmail || isSuperAdmin());
+        return canManage && lastVisibleFilteredIds.includes(e.id);
+      }).map(e => e.id);
+
+      const allSelected = groupIds.length > 0 && groupIds.every(id => selectedExpenseIds.has(id));
+      if (allSelected) {
+        groupIds.forEach(id => selectedExpenseIds.delete(id));
+      } else {
+        groupIds.forEach(id => selectedExpenseIds.add(id));
+      }
+      renderExpenseList();
+    }
+
+    function bulkSelectAllVisible() {
+      lastVisibleFilteredIds.forEach(id => selectedExpenseIds.add(id));
+      renderExpenseList();
+    }
+
+    function bulkClearSelection() {
+      selectedExpenseIds.clear();
+      renderExpenseList();
+    }
+
+    function updateBulkSelectionUi() {
+      const toggleBtn = document.getElementById('btn-toggle-bulk-select');
+      const toggleLbl = document.getElementById('btn-bulk-select-label');
+      const helperBar = document.getElementById('bulk-select-helper-bar');
+      const floatingBar = document.getElementById('floating-bulk-action-bar');
+      const fabContainer = document.getElementById('fab-container');
+
+      if (!toggleBtn) return;
+
+      if (isBulkSelectMode) {
+        toggleBtn.className = 'text-[11px] luxury-gradient text-white px-2.5 py-1.5 rounded-xl font-semibold shadow-2xs flex items-center gap-1';
+        if (toggleLbl) toggleLbl.textContent = 'ยกเลิก';
+        if (helperBar) helperBar.classList.remove('hidden');
+      } else {
+        toggleBtn.className = 'text-[11px] bg-white theme-text-sub border theme-border-mid px-2 py-1.5 rounded-xl font-medium shadow-2xs flex items-center gap-1';
+        if (toggleLbl) toggleLbl.textContent = 'เลือก';
+        if (helperBar) helperBar.classList.add('hidden');
+      }
+
+      const count = selectedExpenseIds.size;
+      const topCountEl = document.getElementById('bulk-selected-top-count');
+      if (topCountEl) topCountEl.textContent = count;
+
+      if (isBulkSelectMode && count > 0) {
+        const finalRate = getGlobalFinalRate();
+        const sym = getCurrSymbol();
+        let sumDisplay = 0;
+        expensesList.forEach(e => {
+          if (selectedExpenseIds.has(e.id)) {
+            const signedAmt = getSignedAmt(e);
+            sumDisplay += isThbBase() ? signedAmt : calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
+          }
+        });
+
+        document.getElementById('bulk-floating-count').textContent = count;
+        document.getElementById('bulk-floating-sum').textContent = `${isThbBase() ? '฿' : sym}${fmtNum(sumDisplay)}`;
+        if (floatingBar) floatingBar.classList.remove('hidden');
+        if (fabContainer) fabContainer.classList.add('hidden');
+      } else {
+        if (floatingBar) floatingBar.classList.add('hidden');
+        if (fabContainer && !currentTrip?.is_closed) fabContainer.classList.remove('hidden');
+      }
+    }
+
+    function toggleBulkFieldBox(key) {
+      const cb = document.getElementById(`bulk-apply-${key}`);
+      const box = document.getElementById(`bulk-box-${key}`);
+      if (cb && box) box.classList.toggle('hidden', !cb.checked);
+    }
+
+    function toggleBulkProviderVisibility() {
+      const ch = document.getElementById('bulk-val-channel')?.value;
+      const provEl = document.getElementById('bulk-val-provider');
+      if (provEl) provEl.classList.toggle('hidden', ch === 'cash');
+    }
+
+    function openBulkEditModal() {
+      const count = selectedExpenseIds.size;
+      if (count === 0) return alert('กรุณาติ๊กเลือกรายการที่ต้องการแก้ไขก่อน');
+
+      document.getElementById('bulk-modal-count').textContent = count;
+
+      // Reset checkboxes & boxes
+      ['channel', 'cat', 'split', 'date', 'ledger'].forEach(k => {
+        const cb = document.getElementById(`bulk-apply-${k}`);
+        const box = document.getElementById(`bulk-box-${k}`);
+        if (cb) cb.checked = false;
+        if (box) box.classList.add('hidden');
+      });
+
+      document.getElementById('bulk-val-channel').value = 'credit_card';
+      document.getElementById('bulk-val-provider').value = '';
+      toggleBulkProviderVisibility();
+
+      document.getElementById('bulk-val-cat').innerHTML = buildCategoryOptionsHtml(customCategories[0]?.key || 'Food', false);
+
+      const participants = getActiveParticipants();
+      const splitWrap = document.getElementById('bulk-split-wrapper');
+      if (splitWrap) splitWrap.classList.toggle('hidden', participants.length <= 1);
+      document.getElementById('bulk-box-split').innerHTML = participants.map(m => `
+        <label class="flex items-center gap-1.5 bg-white border theme-border-mid px-3 py-1.5 rounded-xl text-xs theme-text-sub">
+          <input type="checkbox" name="bulk-split-member" value="${m.email}" checked class="rounded border-[#F2CFD9]" />
+          ${m.display_name}
+        </label>`).join('');
+
+      const monthly = isMonthlyMode();
+      document.getElementById('bulk-date-checkbox-label').textContent = monthly ? '4. ย้ายวันที่ของรายการ' : '4. ย้ายวันทริป (Day)';
+      const daySel = document.getElementById('bulk-val-day');
+      const dateInp = document.getElementById('bulk-val-date');
+      daySel.classList.toggle('hidden', monthly);
+      dateInp.classList.toggle('hidden', !monthly);
+      if (monthly) {
+        dateInp.value = getTodayYYYYMMDD();
+      } else {
+        let opts = '';
+        for (let d = 1; d <= totalDays; d++) opts += `<option value="${d}">Day ${d}</option>`;
+        daySel.innerHTML = opts;
+      }
+
+      const ledgerWrap = document.getElementById('bulk-move-ledger-wrapper');
+      if (isSuperAdmin() && userTrips.length > 1) {
+        ledgerWrap.classList.remove('hidden');
+        document.getElementById('bulk-val-ledger').innerHTML = userTrips
+          .filter(t => t.id !== currentTrip.id)
+          .map(t => `<option value="${t.id}">${t.name} (${t.ledger_type === 'monthly' ? 'รายเดือน' : 'ทริป'})</option>`)
+          .join('');
+      } else {
+        ledgerWrap.classList.add('hidden');
+      }
+
+      openModal('bulk-edit-modal');
+    }
+
+    async function submitBulkEdit() {
+      const ids = Array.from(selectedExpenseIds);
+      if (ids.length === 0) return;
+
+      const applyChannel = document.getElementById('bulk-apply-channel').checked;
+      const applyCat = document.getElementById('bulk-apply-cat').checked;
+      const applySplit = document.getElementById('bulk-apply-split').checked;
+      const applyDate = document.getElementById('bulk-apply-date').checked;
+      const applyLedger = isSuperAdmin() && document.getElementById('bulk-apply-ledger')?.checked;
+
+      if (!applyChannel && !applyCat && !applySplit && !applyDate && !applyLedger) {
+        return alert('กรุณาติ๊กเลือกหัวข้อที่ต้องการแก้ไขอย่างน้อย 1 หัวข้อ');
+      }
+
+      const updatePayload = {};
+      const logSummaryParts = [];
+
+      if (applyChannel) {
+        const ch = normalizeChannel(document.getElementById('bulk-val-channel').value);
+        const prov = ch === 'cash' ? null : (normalizeProviderName(document.getElementById('bulk-val-provider').value) || null);
+        updatePayload.payment_channel = ch;
+        updatePayload.payment_provider = prov;
+        logSummaryParts.push(`ช่องทางเป็น "${getChannelLabel(ch, prov)}"`);
+      }
+
+      if (applyCat) {
+        const cat = document.getElementById('bulk-val-cat').value;
+        updatePayload.category = cat;
+        logSummaryParts.push(`หมวดหมู่เป็น "${getCategoryShortName(cat)}"`);
+      }
+
+      let checkedSplitEmails = [];
+      if (applySplit) {
+        checkedSplitEmails = Array.from(document.querySelectorAll('input[name="bulk-split-member"]:checked')).map(el => el.value);
+        if (checkedSplitEmails.length === 0) return alert('กรุณาเลือกผู้ร่วมหารอย่างน้อย 1 ท่าน');
+        updatePayload.split_details = { emails: checkedSplitEmails };
+        logSummaryParts.push(`ผู้ร่วมหาร (${checkedSplitEmails.length} คน)`);
+      }
+
+      if (applyDate) {
+        if (isMonthlyMode()) {
+          const dVal = document.getElementById('bulk-val-date').value;
+          if (!dVal) return alert('กรุณาเลือกวันที่');
+          updatePayload.expense_date = dVal;
+          updatePayload.expense_month = dVal.slice(0, 7);
+          logSummaryParts.push(`วันที่เป็น ${dVal}`);
+        } else {
+          const dayNum = parseInt(document.getElementById('bulk-val-day').value || '1', 10);
+          updatePayload.trip_day = dayNum;
+          logSummaryParts.push(`Day ${dayNum}`);
+        }
+      }
+
+      let targetTripObj = null;
+      if (applyLedger) {
+        const targetTripId = document.getElementById('bulk-val-ledger').value;
+        targetTripObj = userTrips.find(t => t.id === targetTripId);
+        if (targetTripObj) {
+          updatePayload.trip_id = targetTripObj.id;
+          if (targetTripObj.ledger_type === 'monthly') {
+            updatePayload.trip_day = 1;
+          }
+          logSummaryParts.push(`ย้ายไปสมุด "${targetTripObj.name}"`);
+        }
+      }
+
+      const btn = document.getElementById('btn-submit-bulk-edit');
+      btn.disabled = true;
+      btn.textContent = `กำลังอัปเดต ${ids.length} รายการ...`;
+
+      try {
+        if (applySplit || applyLedger) {
+          // Per-row update when paid_by_type (solo vs pool) depends on each row's payer
+          await Promise.all(ids.map(id => {
+            const orig = expensesList.find(x => x.id === id);
+            const rowPatch = { ...updatePayload };
+            if (orig && applySplit) {
+              const payerEm = (orig.paid_by_email || orig.created_by || '').toLowerCase();
+              const isSolo = checkedSplitEmails.length === 1 && checkedSplitEmails[0].toLowerCase() === payerEm;
+              rowPatch.paid_by_type = isSolo ? 'personal' : 'pool';
+            }
+            if (orig && applyLedger && targetTripObj) {
+              const payerEm = orig.paid_by_email || orig.created_by;
+              rowPatch.split_details = { emails: [payerEm] };
+              rowPatch.paid_by_type = 'personal';
+              if (targetTripObj.ledger_type === 'monthly') {
+                const dStr = rowPatch.expense_date || orig.expense_date || getTodayYYYYMMDD();
+                rowPatch.expense_month = dStr.slice(0, 7);
+              } else {
+                rowPatch.expense_month = null;
+              }
+            }
+            return db.from('expenses').update(rowPatch).eq('id', id);
+          }));
+        } else {
+          const { error } = await db.from('expenses').update(updatePayload).in('id', ids);
+          if (error) throw error;
+        }
+
+        await writeLog('BULK_EDIT', `แก้ไขข้อมูลพร้อมกัน ${ids.length} รายการ (${logSummaryParts.join(', ')})`);
+        closeModal('bulk-edit-modal');
+        isBulkSelectMode = false;
+        selectedExpenseIds.clear();
+        await refreshAllData();
+        alert(`อัปเดตข้อมูลพร้อมกัน ${ids.length} รายการเรียบร้อยแล้ว`);
+      } catch (err) {
+        alert('แก้ไขรวมไม่สำเร็จ: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกการแก้ไขทั้งหมด';
+      }
+    }
+
+    async function bulkDeleteSelectedExpenses() {
+      const ids = Array.from(selectedExpenseIds);
+      if (ids.length === 0) return;
+      if (!confirm(`ยืนยันการลบรายการที่เลือกทั้งหมด ${ids.length} รายการถาวร?`)) return;
+
+      const { error } = await db.from('expenses').delete().in('id', ids);
+      if (error) return alert('ลบรายการไม่สำเร็จ: ' + error.message);
+
+      await writeLog('BULK_DELETE', `ลบรายการพร้อมกัน ${ids.length} รายการ`);
+      isBulkSelectMode = false;
+      selectedExpenseIds.clear();
+      await refreshAllData();
+    }
 
     // ================= PERSONAL CREDIT CARD BILLING CYCLE & PARTIAL PAYMENT ENGINE =================
     function renderAdminCcFeatureToggleButton() {
@@ -3029,6 +3425,8 @@
       currentTrip = userTrips.find(t => t.id === tripId);
       localStorage.setItem('selected_trip_id', tripId);
       collapsedGroups.clear();
+      isBulkSelectMode = false;
+      selectedExpenseIds.clear();
       analyticsCategoryFilters.clear();
       analyticsChannelFilters.clear();
       analyticsProviderFilters.clear();
@@ -3730,10 +4128,18 @@
               </div>`;
           }
 
+          const isSelectedBulk = isBulkSelectMode && selectedExpenseIds.has(e.id);
+          const bulkCheckboxHtml = isBulkSelectMode
+            ? (canManage
+                ? `<input type="checkbox" ${isSelectedBulk ? 'checked' : ''} onclick="event.stopPropagation(); toggleSelectSingleExpense('${e.id}')" class="w-4 h-4 mt-0.5 rounded border-[#D6718E] accent-[#D6718E] shrink-0 cursor-pointer" />`
+                : `<span title="ไม่มีสิทธิ์แก้ไขรายการนี้" class="w-4 h-4 mt-0.5 rounded border border-slate-200 bg-slate-100 inline-block shrink-0 opacity-50"></span>`)
+            : '';
+
           return `
-            <div class="soft-card p-3.5 rounded-2xl space-y-2 relative overflow-hidden ${e.delete_flag && !itemLocked ? 'border-dashed border-2 border-[#D6718E]' : ''} ${isVerified ? 'opacity-80' : ''}" style="border-left: 4px solid ${payerInfo.accent_color};">
+            <div ${isBulkSelectMode && canManage ? `onclick="toggleSelectSingleExpense('${e.id}')"` : ''} class="soft-card p-3.5 rounded-2xl space-y-2 relative overflow-hidden transition ${isBulkSelectMode && canManage ? 'cursor-pointer' : ''} ${isSelectedBulk ? 'ring-2 ring-[#D6718E] bg-[#FFF5F8]/70' : ''} ${e.delete_flag && !itemLocked ? 'border-dashed border-2 border-[#D6718E]' : ''} ${isVerified && !isSelectedBulk ? 'opacity-80' : ''}" style="border-left: 4px solid ${payerInfo.accent_color};">
               ${flagHtml}
               <div class="flex justify-between items-start gap-2.5">
+                ${bulkCheckboxHtml}
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
                     <span class="font-semibold px-2 py-0.5 rounded-md bg-white border theme-border-mid" style="color:${payerInfo.accent_color}">
@@ -3768,18 +4174,29 @@
             </div>`;
         }).join('');
 
+        const groupManageableIds = items
+          .filter(x => !isClosed && !isLockedPastMonth(x) && ((x.paid_by_email || x.created_by || '').toLowerCase() === myEmail || (x.created_by || '').toLowerCase() === myEmail || isSuperAdmin()))
+          .map(x => x.id);
+        const allInGroupSelected = groupManageableIds.length > 0 && groupManageableIds.every(id => selectedExpenseIds.has(id));
+
         return `
           <div class="space-y-2">
-            <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="w-full flex justify-between items-center ${isPastMonth ? 'bg-[#FFF5F8] hover:bg-white' : 'bg-white/85 hover:bg-white'} px-3.5 py-2.5 rounded-2xl border theme-border-mid text-xs transition">
-              <div class="flex items-center gap-2">
-                <span class="font-semibold theme-text-primary">${groupHeaderTitle}</span>
-                <span class="text-[11px] theme-text-muted">(${items.length} รายการ)</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="font-semibold theme-text-main">${sym}${fmtNum(groupAmt)}${!isThbBase() ? ` · ฿${fmtNum(groupThb)}` : ''}</span>
-                <span class="theme-text-muted text-[10px]">${isCollapsed ? '▼' : '▲'}</span>
-              </div>
-            </button>
+            <div class="w-full flex justify-between items-center ${isPastMonth ? 'bg-[#FFF5F8] hover:bg-white' : 'bg-white/85 hover:bg-white'} px-3.5 py-2.5 rounded-2xl border theme-border-mid text-xs transition gap-2">
+              <button type="button" onclick="toggleGroupCollapse('${gKey}')" class="flex-1 flex justify-between items-center min-w-0 text-left">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="font-semibold theme-text-primary truncate">${groupHeaderTitle}</span>
+                  <span class="text-[11px] theme-text-muted shrink-0">(${items.length})</span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="font-semibold theme-text-main">${sym}${fmtNum(groupAmt)}${!isThbBase() ? ` · ฿${fmtNum(groupThb)}` : ''}</span>
+                  <span class="theme-text-muted text-[10px]">${isCollapsed ? '▼' : '▲'}</span>
+                </div>
+              </button>
+              ${isBulkSelectMode && groupManageableIds.length > 0 ? `
+                <button type="button" onclick="toggleSelectGroupItems('${gKey}')" class="text-[10px] px-2 py-1 rounded-lg border shrink-0 font-semibold ${allInGroupSelected ? 'luxury-gradient text-white' : 'bg-white theme-text-primary theme-border-mid'}">
+                  ${allInGroupSelected ? '✓ ทั้งกลุ่ม' : 'เลือกทั้งกลุ่ม'}
+                </button>` : ''}
+            </div>
             ${cardsHtml}
           </div>`;
       }).join('');
@@ -3787,7 +4204,12 @@
       document.getElementById('filtered-day-total').textContent = isThbBase()
         ? `฿${fmtNum(totalSumAmt)}`
         : `${sym}${fmtNum(totalSumAmt)} · ฿${fmtNum(totalSumThb)}`;
+      lastVisibleFilteredIds = filtered
+        .filter(e => !isClosed && !isLockedPastMonth(e) && ((e.paid_by_email || e.created_by || '').toLowerCase() === myEmail || (e.created_by || '').toLowerCase() === myEmail || isSuperAdmin()))
+        .map(e => e.id);
+
       document.getElementById('expense-list').innerHTML = html || '<p class="text-center text-xs theme-text-muted py-10">ไม่พบรายการที่ตรงกับเงื่อนไข</p>';
+      updateBulkSelectionUi();
     }
 
     // ================= EDIT EXISTING EXPENSE (WITH ADMIN MOVE LEDGER) =================
