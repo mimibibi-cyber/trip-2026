@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=24";
+      img.src = "icon.png?v=25";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -628,7 +628,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.9</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.9.1</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -1525,7 +1525,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.9';
+    const APP_VERSION = 'v3.9.1';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -2027,8 +2027,7 @@
 
       let chosenCard = myCreditCardsList[0];
       if (myCreditCardsList.length > 1) {
-        const listPrompt = myCreditCardsList.map((c, i) => `${i + 1}. ${c.name} (ตัดวันที่ ${c.cutoffDay})`).join('
-');
+        const listPrompt = myCreditCardsList.map((c, i) => `${i + 1}. ${c.name} (ตัดวันที่ ${c.cutoffDay})`).join('\n');
         const ans = prompt(`เลือกหมายเลขบัตรเครดิตที่ต้องการตัดยอดสำหรับ "${item.title}":
 ${listPrompt}`, '1');
         if (ans === null) return;
