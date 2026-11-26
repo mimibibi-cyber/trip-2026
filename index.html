@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=23";
+      img.src = "icon.png?v=24";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -628,7 +628,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.8</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.9</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -932,6 +932,23 @@
         <p id="ocr-status" class="hidden text-[11px] theme-text-primary font-medium"></p>
       </div>
 
+      <!-- AI Smart Alert: Detected Credit Card Bill Payment Slip in Main Expense Modal -->
+      <div id="single-cc-bill-alert" class="hidden bg-[#F5F0FA] border border-[#B19CD9] rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex justify-between items-start gap-2">
+          <div>
+            <p class="text-xs font-semibold text-[#4D3B6E]">AI ตรวจพบสลิปชำระบิลบัตรเครดิต</p>
+            <p id="single-cc-bill-desc" class="text-[11px] text-[#6B5494] mt-0.5 leading-relaxed">รายการนี้เป็นการโอนจ่ายบัตรเครดิต ไม่ควรนับรวมในยอดใช้จ่ายรายเดือนซ้ำ</p>
+          </div>
+          <span class="text-[10px] bg-white text-[#6B5494] border border-[#DDD0EE] px-2 py-0.5 rounded-md font-semibold shrink-0">ไม่นับซ้ำ</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="single-cc-bill-target-card" class="flex-1 bg-white border border-[#DDD0EE] rounded-xl px-2.5 py-2 text-xs font-semibold text-[#4D3B6E]"></select>
+          <button type="button" id="btn-route-single-to-cc" onclick="routeSingleScannedSlipToCcPayment()" class="bg-[#8B72BE] hover:opacity-95 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs shrink-0">
+            ย้ายไปตัดยอดบัตรทันที
+          </button>
+        </div>
+      </div>
+
       <!-- Minimal Hard Duplicate Blocker Alert (Single Item) -->
       <div id="duplicate-alert-box" class="hidden bg-[#FFF0F3] border border-[#E599AD] rounded-2xl p-3.5 space-y-2">
         <div class="flex justify-between items-center gap-2">
@@ -1121,7 +1138,19 @@
           </div>
         </div>
 
-        <!-- 5. Admin Move Across Ledgers -->
+        <!-- 5. Move Selected Items to Credit Card Bill Payment (Anti-Double Counting) -->
+        <div id="bulk-convert-cc-wrapper" class="hidden bg-[#F5F0FA] p-3.5 rounded-2xl border border-[#DDD0EE] space-y-2">
+          <label class="flex items-center gap-2 font-semibold text-[#4D3B6E] cursor-pointer">
+            <input type="checkbox" id="bulk-apply-ccpay" onchange="toggleBulkFieldBox('ccpay')" class="rounded border-[#B19CD9]" />
+            <span>ย้ายรายการที่เลือกไปตัดยอดบัตรเครดิต (ไม่นับเป็นรายจ่าย)</span>
+          </label>
+          <div id="bulk-box-ccpay" class="hidden pt-1 space-y-1">
+            <select id="bulk-val-cccard" class="w-full bg-white border border-[#DDD0EE] rounded-xl p-2 text-xs font-semibold text-[#4D3B6E]"></select>
+            <p class="text-[10px] text-[#6B5494]">ระบบจะย้ายรูปสลิป ยอดเงิน และวันที่โอนไปหักยอดรอบบิลบัตรที่เลือก และลบออกจากรายการรายจ่ายหลักทันที</p>
+          </div>
+        </div>
+
+        <!-- 6. Admin Move Across Ledgers -->
         <div id="bulk-move-ledger-wrapper" class="hidden bg-[#FFF5F8] p-3.5 rounded-2xl border theme-border-mid space-y-2">
           <label class="flex items-center gap-2 font-semibold theme-text-primary cursor-pointer">
             <input type="checkbox" id="bulk-apply-ledger" onchange="toggleBulkFieldBox('ledger')" class="rounded border-[#F2CFD9]" />
@@ -1149,6 +1178,19 @@
       </div>
 
       <input type="hidden" id="edit-exp-id" />
+
+      <div id="edit-convert-to-cc-pay-box" class="hidden bg-[#F5F0FA] p-3.5 rounded-2xl border border-[#DDD0EE] space-y-2">
+        <div>
+          <p class="text-[11px] font-semibold text-[#4D3B6E]">เผลอลงสลิปจ่ายบิลบัตรเครดิตไว้ในรายจ่ายหลักใช่ไหม?</p>
+          <p class="text-[10px] text-[#6B5494]">ย้ายรูปสลิป ยอดเงิน และวันที่โอนไปตัดยอดบัตรเครดิตแทน (และลบออกจากยอดรายจ่ายเดือนไม่ให้เบิ้ล)</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="edit-convert-cc-card-select" class="flex-1 bg-white border border-[#DDD0EE] rounded-xl px-2.5 py-2 text-xs font-semibold text-[#4D3B6E]"></select>
+          <button type="button" id="btn-edit-convert-to-cc" onclick="convertExistingExpenseToCcPayment()" class="bg-[#8B72BE] text-white text-xs font-semibold px-3 py-2 rounded-xl shrink-0">
+            ย้ายไปตัดยอดบัตร
+          </button>
+        </div>
+      </div>
 
       <div id="edit-move-ledger-box" class="hidden bg-[#FFF5F8] p-3 rounded-2xl border theme-border-mid space-y-1">
         <label class="block text-[10px] font-semibold theme-text-primary">Admin: ย้ายรายการนี้ไปสมุดบัญชีอื่น (กรณีอัปผิดสมุด)</label>
@@ -1321,18 +1363,27 @@
         <button onclick="closeCcPayModal()" class="w-8 h-8 rounded-full bg-[#F5F0FA] text-[#6B5494] flex items-center justify-center text-lg leading-none">✕</button>
       </div>
 
-      <div class="bg-[#F8F5FC] border border-[#DDD0EE] rounded-2xl p-3.5 grid grid-cols-3 gap-2 text-center text-xs">
-        <div>
-          <p class="text-[10px] text-[#6B5494]">ยอดบิลรอบนี้</p>
-          <p id="cc-pay-billed-val" class="font-bold text-[#4D3B6E] mt-0.5">฿0</p>
+      <div class="bg-[#F8F5FC] border border-[#DDD0EE] rounded-2xl p-3 space-y-2 text-xs">
+        <div class="flex justify-between items-center border-b border-[#E6DCF5] pb-1.5">
+          <span class="text-[10px] font-semibold text-[#6B5494]">สรุปยอดรอบบิล: <strong id="cc-pay-active-box-name" class="text-[#4D3B6E]">รอบตัดยอดแล้ว</strong></span>
+          <div class="flex gap-1 text-[10px]">
+            <button type="button" onclick="switchCcPayModalBox('stmt')" id="btn-ccpay-box-stmt" class="px-2 py-0.5 rounded-md bg-[#8B72BE] text-white font-semibold">รอบตัดยอดแล้ว</button>
+            <button type="button" onclick="switchCcPayModalBox('pending')" id="btn-ccpay-box-pending" class="px-2 py-0.5 rounded-md bg-white text-[#6B5494] border border-[#DDD0EE]">รอบ Pending</button>
+          </div>
         </div>
-        <div>
-          <p class="text-[10px] text-[#6B5494]">โอนจ่ายแล้ว</p>
-          <p id="cc-pay-paid-val" class="font-bold text-emerald-700 mt-0.5">฿0</p>
-        </div>
-        <div>
-          <p class="text-[10px] text-[#6B5494]">คงเหลือสุทธิ</p>
-          <p id="cc-pay-rem-val" class="font-bold text-rose-600 mt-0.5">฿0</p>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <p class="text-[10px] text-[#6B5494]">ยอดรูดรวม</p>
+            <p id="cc-pay-billed-val" class="font-bold text-[#4D3B6E] mt-0.5">฿0</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-[#6B5494]">โอนจ่ายแล้ว</p>
+            <p id="cc-pay-paid-val" class="font-bold text-emerald-700 mt-0.5">฿0</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-[#6B5494]">คงเหลือสุทธิ</p>
+            <p id="cc-pay-rem-val" class="font-bold text-rose-600 mt-0.5">฿0</p>
+          </div>
         </div>
       </div>
 
@@ -1474,7 +1525,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.8';
+    const APP_VERSION = 'v3.9';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1689,7 +1740,7 @@
       document.getElementById('bulk-modal-count').textContent = count;
 
       // Reset checkboxes & boxes
-      ['channel', 'cat', 'split', 'date', 'ledger'].forEach(k => {
+      ['channel', 'cat', 'split', 'date', 'ccpay', 'ledger'].forEach(k => {
         const cb = document.getElementById(`bulk-apply-${k}`);
         const box = document.getElementById(`bulk-box-${k}`);
         if (cb) cb.checked = false;
@@ -1725,6 +1776,18 @@
         daySel.innerHTML = opts;
       }
 
+      const bulkCcWrap = document.getElementById('bulk-convert-cc-wrapper');
+      if (bulkCcWrap) {
+        if (monthly && isLedgerCcEnabled && myCreditCardsList.length > 0) {
+          bulkCcWrap.classList.remove('hidden');
+          document.getElementById('bulk-val-cccard').innerHTML = myCreditCardsList.map(c =>
+            `<option value="${c.id}">${c.name} (ตัดรอบวันที่ ${c.cutoffDay})</option>`
+          ).join('');
+        } else {
+          bulkCcWrap.classList.add('hidden');
+        }
+      }
+
       const ledgerWrap = document.getElementById('bulk-move-ledger-wrapper');
       if (isSuperAdmin() && userTrips.length > 1) {
         ledgerWrap.classList.remove('hidden');
@@ -1747,10 +1810,58 @@
       const applyCat = document.getElementById('bulk-apply-cat').checked;
       const applySplit = document.getElementById('bulk-apply-split').checked;
       const applyDate = document.getElementById('bulk-apply-date').checked;
+      const applyCcPay = document.getElementById('bulk-apply-ccpay')?.checked;
       const applyLedger = isSuperAdmin() && document.getElementById('bulk-apply-ledger')?.checked;
 
-      if (!applyChannel && !applyCat && !applySplit && !applyDate && !applyLedger) {
+      if (!applyChannel && !applyCat && !applySplit && !applyDate && !applyCcPay && !applyLedger) {
         return alert('กรุณาติ๊กเลือกหัวข้อที่ต้องการแก้ไขอย่างน้อย 1 หัวข้อ');
+      }
+
+      if (applyCcPay) {
+        const targetCardId = document.getElementById('bulk-val-cccard').value;
+        const targetCard = myCreditCardsList.find(c => c.id === targetCardId);
+        if (!targetCard) return alert('กรุณาเลือกบัตรเครดิตปลายทาง');
+        if (!confirm(`ยืนยันการย้ายทั้ง ${ids.length} รายการไปตัดยอดบัตร "${targetCard.name}" และลบออกจากรายการรายจ่ายหลัก?`)) return;
+
+        const btn = document.getElementById('btn-submit-bulk-edit');
+        btn.disabled = true;
+        btn.textContent = `กำลังย้ายไปตัดยอดบัตร ${ids.length} รายการ...`;
+        try {
+          const finalRate = getGlobalFinalRate();
+          ids.forEach((id, idx) => {
+            const orig = expensesList.find(x => x.id === id);
+            if (!orig) return;
+            const signedAmt = getSignedAmt(orig);
+            const thbVal = isThbBase() ? signedAmt : calcFinalThb(orig.amount_cny, finalRate, orig.has_alipay_fee, orig.is_refund);
+            const pDate = orig.expense_date || getTodayYYYYMMDD();
+            const targetCycle = inferTargetCycleFromPaymentDate(targetCard, pDate);
+            myCreditCardPayments.push({
+              id: `ccpay_${Date.now()}_${idx}`,
+              cardId: targetCard.id,
+              cycleKey: targetCycle.cycleKey,
+              amount: Math.round(Math.abs(thbVal) * 100) / 100,
+              paidDate: pDate,
+              note: orig.title || 'ย้ายจากรายการหลัก',
+              receiptUrl: orig.receipt_image_url || null
+            });
+          });
+          await persistMyCreditCardPayments();
+          const { error } = await db.from('expenses').delete().in('id', ids);
+          if (error) throw error;
+
+          await writeLog('MOVE_TO_CC_PAY', `ย้ายรายการที่เลือก ${ids.length} รายการไปตัดยอดบัตร "${targetCard.name}"`);
+          closeModal('bulk-edit-modal');
+          isBulkSelectMode = false;
+          selectedExpenseIds.clear();
+          await refreshAllData();
+          alert(`ย้ายทั้ง ${ids.length} รายการไปตัดยอดบัตร "${targetCard.name}" เรียบร้อยแล้ว`);
+        } catch (err) {
+          alert('ย้ายรายการไม่สำเร็จ: ' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'บันทึกการแก้ไขทั้งหมด';
+        }
+        return;
       }
 
       const updatePayload = {};
@@ -1864,6 +1975,141 @@
       isBulkSelectMode = false;
       selectedExpenseIds.clear();
       await refreshAllData();
+    }
+
+    async function routeSingleScannedSlipToCcPayment() {
+      const cardId = document.getElementById('single-cc-bill-target-card')?.value;
+      const card = myCreditCardsList.find(c => c.id === cardId);
+      if (!card) return alert('กรุณาเลือกบัตรเครดิต');
+
+      const amt = parseFloat(document.getElementById('exp-cny').value);
+      const paidDate = document.getElementById('exp-date-input').value || getTodayYYYYMMDD();
+      const title = document.getElementById('exp-title').value.trim() || 'สลิปชำระบิลบัตรเครดิต';
+      if (!amt || amt <= 0) return alert('กรุณาระบุยอดเงินก่อนย้าย');
+
+      const btn = document.getElementById('btn-route-single-to-cc');
+      btn.disabled = true;
+      btn.textContent = 'กำลังย้ายไปตัดบัตร...';
+
+      try {
+        let receiptUrl = null;
+        if (activeSingleAsset?.blob) {
+          receiptUrl = await uploadPreparedBlobToStorage(activeSingleAsset.blob, 'cc_payments');
+        }
+        const targetCycle = inferTargetCycleFromPaymentDate(card, paidDate);
+        myCreditCardPayments.push({
+          id: `ccpay_${Date.now()}`,
+          cardId: card.id,
+          cycleKey: targetCycle.cycleKey,
+          amount: Math.round(amt * 100) / 100,
+          paidDate,
+          note: title,
+          receiptUrl
+        });
+
+        await persistMyCreditCardPayments();
+        closeModal('expense-modal');
+        clearBatchQueue();
+        isCcTrackerExpanded = true;
+        renderPersonalCreditCardTracker();
+        alert(`บันทึกสลิปจ่ายบัตร "${card.name}" ยอด ฿${fmtNum(amt)} เข้าสู่รอบบิล ${targetCycle.rangeLabel} เรียบร้อยแล้ว (ไม่นับซ้ำในรายจ่ายเดือน)`);
+      } catch (err) {
+        alert('ย้ายไปตัดยอดบัตรไม่สำเร็จ: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ย้ายไปตัดยอดบัตรทันที';
+      }
+    }
+
+    async function routeBatchItemToCcPayment(idx) {
+      const item = batchQueue[idx];
+      if (!item || myCreditCardsList.length === 0) return;
+
+      let chosenCard = myCreditCardsList[0];
+      if (myCreditCardsList.length > 1) {
+        const listPrompt = myCreditCardsList.map((c, i) => `${i + 1}. ${c.name} (ตัดวันที่ ${c.cutoffDay})`).join('
+');
+        const ans = prompt(`เลือกหมายเลขบัตรเครดิตที่ต้องการตัดยอดสำหรับ "${item.title}":
+${listPrompt}`, '1');
+        if (ans === null) return;
+        const cIdx = parseInt(ans, 10) - 1;
+        if (myCreditCardsList[cIdx]) chosenCard = myCreditCardsList[cIdx];
+      }
+
+      const amt = parseFloat(item.amount_cny);
+      if (!amt || amt <= 0) return alert('กรุณาระบุยอดเงินในรายการนี้ก่อนย้าย');
+
+      let receiptUrl = null;
+      if (item.asset?.blob) {
+        receiptUrl = await uploadPreparedBlobToStorage(item.asset.blob, 'cc_payments');
+      }
+      const paidDate = item.slip_date || getTodayYYYYMMDD();
+      const targetCycle = inferTargetCycleFromPaymentDate(chosenCard, paidDate);
+
+      myCreditCardPayments.push({
+        id: `ccpay_${Date.now()}`,
+        cardId: chosenCard.id,
+        cycleKey: targetCycle.cycleKey,
+        amount: Math.round(amt * 100) / 100,
+        paidDate,
+        note: item.title || 'สลิปชำระบิลบัตร',
+        receiptUrl
+      });
+
+      await persistMyCreditCardPayments();
+      removeBatchItem(idx);
+      isCcTrackerExpanded = true;
+      renderPersonalCreditCardTracker();
+      alert(`ย้าย "${item.title}" (฿${fmtNum(amt)}) ไปตัดยอดบัตร "${chosenCard.name}" รอบ ${targetCycle.rangeLabel} เรียบร้อยแล้ว`);
+    }
+
+    async function convertExistingExpenseToCcPayment() {
+      const id = document.getElementById('edit-exp-id').value;
+      const e = expensesList.find(x => x.id === id);
+      if (!e) return;
+
+      const cardId = document.getElementById('edit-convert-cc-card-select')?.value;
+      const card = myCreditCardsList.find(c => c.id === cardId);
+      if (!card) return alert('กรุณาเลือกบัตรเครดิตปลายทาง');
+
+      const finalRate = getGlobalFinalRate();
+      const signedAmt = getSignedAmt(e);
+      const thbVal = isThbBase() ? signedAmt : calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
+      const paidDate = e.expense_date || getTodayYYYYMMDD();
+      const targetCycle = inferTargetCycleFromPaymentDate(card, paidDate);
+
+      if (!confirm(`ยืนยันการย้ายรายการ "${e.title}" (฿${fmtNum(Math.abs(thbVal))}) ไปตัดยอดบัตร "${card.name}" รอบ ${targetCycle.rangeLabel} และลบออกจากรายจ่ายหลัก?`)) return;
+
+      const btn = document.getElementById('btn-edit-convert-to-cc');
+      btn.disabled = true;
+      btn.textContent = 'กำลังย้าย...';
+
+      try {
+        myCreditCardPayments.push({
+          id: `ccpay_${Date.now()}`,
+          cardId: card.id,
+          cycleKey: targetCycle.cycleKey,
+          amount: Math.round(Math.abs(thbVal) * 100) / 100,
+          paidDate,
+          note: e.title || 'ย้ายจากรายการหลัก',
+          receiptUrl: e.receipt_image_url || null
+        });
+
+        await persistMyCreditCardPayments();
+        const { error } = await db.from('expenses').delete().eq('id', id);
+        if (error) throw error;
+
+        await writeLog('MOVE_TO_CC_PAY', `ย้ายรายการ "${e.title}" (฿${fmtNum(Math.abs(thbVal))}) ไปตัดยอดบัตร "${card.name}"`);
+        closeModal('edit-expense-modal');
+        isCcTrackerExpanded = true;
+        await refreshAllData();
+        alert(`ย้ายรายการไปตัดยอดบัตร "${card.name}" รอบ ${targetCycle.rangeLabel} เรียบร้อยแล้ว`);
+      } catch (err) {
+        alert('ย้ายรายการไม่สำเร็จ: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ย้ายไปตัดยอดบัตร';
+      }
     }
 
     // ================= PERSONAL CREDIT CARD BILLING CYCLE & PARTIAL PAYMENT ENGINE =================
@@ -2095,17 +2341,24 @@
       });
 
       const billedTotal = stmtItems.reduce((s, x) => s + x.valDisplay, 0);
-      const pendingTotal = pendingItems.reduce((s, x) => s + x.valDisplay, 0);
+      const pendingBilledTotal = pendingItems.reduce((s, x) => s + x.valDisplay, 0);
 
       const cycleKey = `${card.id}_${stmtEndDate}`;
+      const pendingCycleKey = `${card.id}_${pendingEndDate}`;
+
       const cyclePayments = myCreditCardPayments.filter(p => p.cycleKey === cycleKey);
       const paidTotal = cyclePayments.reduce((s, p) => s + Number(p.amount || 0), 0);
       const remainingDue = Math.max(0, billedTotal - paidTotal);
+
+      const pendingPayments = myCreditCardPayments.filter(p => p.cycleKey === pendingCycleKey);
+      const pendingPaidTotal = pendingPayments.reduce((s, p) => s + Number(p.amount || 0), 0);
+      const pendingRemaining = Math.max(0, pendingBilledTotal - pendingPaidTotal);
 
       return {
         card,
         offset,
         cycleKey,
+        pendingCycleKey,
         stmtStartDate,
         stmtEndDate,
         pendingStartDate,
@@ -2117,8 +2370,12 @@
         billedTotal,
         paidTotal,
         remainingDue,
-        pendingTotal,
+        pendingBilledTotal,
+        pendingPaidTotal,
+        pendingRemaining,
+        pendingTotal: pendingRemaining,
         cyclePayments,
+        pendingPayments,
         isAlertWindow: todayDay >= cutoff || remainingDue > 0.5
       };
     }
@@ -2213,8 +2470,10 @@
 
               <div class="p-2.5 rounded-xl bg-[#FAF8FE] border border-[#E6DCF5]">
                 <p class="text-[10px] text-[#6B5494]">รอรอบหน้า (${info.pendingRangeLabel})</p>
-                <p class="font-bold text-[#4D3B6E] mt-0.5">Pending ฿${fmtNum(info.pendingTotal)}</p>
-                <p class="text-[9px] text-[#8373A1] mt-0.5">${info.pendingItems.length} รายการในรอบถัดไป</p>
+                <p class="font-bold text-[#4D3B6E] mt-0.5">Pending ฿${fmtNum(info.pendingRemaining)}</p>
+                <p class="text-[9px] text-[#8373A1] mt-0.5">
+                  ${info.pendingPaidTotal > 0 ? `รูด ฿${fmtNum(info.pendingBilledTotal)} · จ่ายแล้ว ฿${fmtNum(info.pendingPaidTotal)}` : `${info.pendingItems.length} รายการในรอบถัดไป`}
+                </p>
               </div>
             </div>
 
@@ -2223,7 +2482,7 @@
                 <button type="button" onclick="openCcItemsModal('${info.card.id}', 'stmt')" class="underline font-medium">บิลรอบนี้ (${info.stmtItems.length})</button>
                 <button type="button" onclick="openCcItemsModal('${info.card.id}', 'pending')" class="underline">บิลรอรอบหน้า (${info.pendingItems.length})</button>
               </div>
-              <button type="button" onclick="openCcPayModal('${info.card.id}')" class="font-medium">ประวัติโอน (${info.cyclePayments.length} รอบ)</button>
+              <button type="button" onclick="openCcPayModal('${info.card.id}')" class="font-medium">ประวัติโอน (${info.cyclePayments.length + info.pendingPayments.length} รอบ)</button>
             </div>
           </div>`;
       }).join('');
@@ -2231,21 +2490,21 @@
 
     let ccPayScanQueue = [];
 
-    // AI Smart Cycle Mapper: Given a transfer slip date (e.g., 2026-11-15) and card cutoff day (e.g., 12),
-    // automatically calculates which statement cycle that payment settles!
+    // AI Smart Cycle Mapper: Maps any payment date directly to the exact billing cycle containing that date
+    // (e.g., cutoff 11: dates 12 Nov - 11 Dec belong to cycle 12 Nov - 11 Dec, so paying in Nov deducts from Nov's Pending balance!)
     function inferTargetCycleFromPaymentDate(card, paidDateStr) {
       const cutoff = Number(card.cutoffDay || 12);
       const safeDate = paidDateStr && paidDateStr.length >= 10 ? paidDateStr.slice(0, 10) : getTodayYYYYMMDD();
       const [yStr, mStr, dStr] = safeDate.split('-');
-      let pYear = parseInt(yStr, 10);
-      let pMonth = parseInt(mStr, 10);
+      const pYear = parseInt(yStr, 10);
+      const pMonth = parseInt(mStr, 10);
       const pDay = parseInt(dStr, 10);
 
-      // If you pay on the 15th and cutoff is the 12th, you are paying the statement that closed on the 12th of THIS month (e.g., 13 Oct - 12 Nov).
-      // If you pay on the 5th and cutoff is the 12th, you are paying the statement that closed on the 12th of LAST month (e.g., 13 Sep - 12 Oct).
+      // If pDay <= cutoff (e.g. 5 Nov with cutoff 11), date is inside (12 Oct - 11 Nov), ending 11 Nov.
+      // If pDay > cutoff (e.g. 26 Nov with cutoff 11), date is inside (12 Nov - 11 Dec), ending 11 Dec.
       let stmtEndYear = pYear;
-      let stmtEndMonth = pDay >= cutoff ? pMonth : (pMonth - 1);
-      if (stmtEndMonth < 1) { stmtEndMonth = 12; stmtEndYear -= 1; }
+      let stmtEndMonth = pDay <= cutoff ? pMonth : (pMonth + 1);
+      if (stmtEndMonth > 12) { stmtEndMonth = 1; stmtEndYear += 1; }
 
       let stmtStartYear = stmtEndYear;
       let stmtStartMonth = stmtEndMonth - 1;
@@ -2279,30 +2538,41 @@
       closeModal('cc-pay-modal');
     }
 
-    function openCcPayModal(cardId) {
-      const card = myCreditCardsList.find(c => c.id === cardId);
-      if (!card) return;
-      const info = computeCreditCardCyclesForCard(card);
-      activeCcPayContext = { cardId, card, cycleKey: info.cycleKey, remainingDue: info.remainingDue, stmtRangeLabel: info.stmtRangeLabel };
+    function switchCcPayModalBox(boxType) {
+      if (!activeCcPayContext?.info) return;
+      activeCcPayContext.boxType = boxType;
+      const info = activeCcPayContext.info;
+      const card = activeCcPayContext.card;
+      const isPendingBox = boxType === 'pending';
 
-      document.getElementById('cc-pay-card-title').textContent = `โอนจ่ายบัตร ${card.name}`;
-      document.getElementById('cc-pay-cycle-label').textContent = `รอบบิลที่กำลังดู: ${info.stmtRangeLabel} (ตัดยอดวันที่ ${card.cutoffDay})`;
-      document.getElementById('cc-pay-billed-val').textContent = `฿${fmtNum(info.billedTotal)}`;
-      document.getElementById('cc-pay-paid-val').textContent = `฿${fmtNum(info.paidTotal)}`;
-      document.getElementById('cc-pay-rem-val').textContent = `฿${fmtNum(info.remainingDue)}`;
-      document.getElementById('cc-pay-amount-input').value = info.remainingDue > 0 ? Number(info.remainingDue.toFixed(2)) : '';
-      document.getElementById('cc-pay-date-input').value = getTodayYYYYMMDD();
-      document.getElementById('cc-pay-note-input').value = '';
-      updateManualCcCyclePreview();
+      document.getElementById('btn-ccpay-box-stmt').className = `px-2 py-0.5 rounded-md ${!isPendingBox ? 'bg-[#8B72BE] text-white font-semibold' : 'bg-white text-[#6B5494] border border-[#DDD0EE]'}`;
+      document.getElementById('btn-ccpay-box-pending').className = `px-2 py-0.5 rounded-md ${isPendingBox ? 'bg-[#8B72BE] text-white font-semibold' : 'bg-white text-[#6B5494] border border-[#DDD0EE]'}`;
 
-      clearCcPayQueue();
-      setCcPayEntryMode('scan');
+      const rangeLbl = isPendingBox ? info.pendingRangeLabel : info.stmtRangeLabel;
+      const billed = isPendingBox ? info.pendingBilledTotal : info.billedTotal;
+      const paid = isPendingBox ? info.pendingPaidTotal : info.paidTotal;
+      const rem = isPendingBox ? info.pendingRemaining : info.remainingDue;
+      const pays = isPendingBox ? info.pendingPayments : info.cyclePayments;
+      const targetCycleKey = isPendingBox ? info.pendingCycleKey : info.cycleKey;
+      const oppositeCycleKey = isPendingBox ? info.cycleKey : info.pendingCycleKey;
+      const oppositeLabel = isPendingBox ? 'ย้ายไปรอบตัดยอดแล้ว' : 'ย้ายไปรอบ Pending';
+
+      activeCcPayContext.cycleKey = targetCycleKey;
+      activeCcPayContext.remainingDue = rem;
+      activeCcPayContext.stmtRangeLabel = rangeLbl;
+
+      document.getElementById('cc-pay-active-box-name').textContent = `${isPendingBox ? 'รอบ Pending' : 'รอบตัดยอดแล้ว'} (${rangeLbl})`;
+      document.getElementById('cc-pay-cycle-label').textContent = `ตัดรอบทุกวันที่ ${card.cutoffDay} · กำลังดูช่วง ${rangeLbl}`;
+      document.getElementById('cc-pay-billed-val').textContent = `฿${fmtNum(billed)}`;
+      document.getElementById('cc-pay-paid-val').textContent = `฿${fmtNum(paid)}`;
+      document.getElementById('cc-pay-rem-val').textContent = `฿${fmtNum(rem)}`;
+      document.getElementById('cc-pay-amount-input').value = rem > 0 ? Number(rem.toFixed(2)) : '';
 
       const histEl = document.getElementById('cc-pay-history-list');
-      if (info.cyclePayments.length === 0) {
-        histEl.innerHTML = '<p class="text-[11px] text-[#8373A1] text-center py-3">ยังไม่มีประวัติการโอนจ่ายในรอบบิลนี้</p>';
+      if (pays.length === 0) {
+        histEl.innerHTML = `<p class="text-[11px] text-[#8373A1] text-center py-3">ยังไม่มีประวัติการโอนจ่ายในช่วง ${rangeLbl}</p>`;
       } else {
-        histEl.innerHTML = info.cyclePayments.map((p, idx) => {
+        histEl.innerHTML = pays.map((p, idx) => {
           const slipMeta = `โอนจ่ายบัตร ${card.name} รอบที่ ${idx + 1} · ยอด ฿${fmtNum(p.amount)} · วันที่ ${p.paidDate}`;
           return `
           <div class="flex justify-between items-center gap-2 bg-[#FAF8FE] px-3 py-2 rounded-xl border border-[#E6DCF5]">
@@ -2310,13 +2580,41 @@
               <p class="font-medium text-[#4D3B6E] truncate">รอบที่ ${idx + 1}: ฿${fmtNum(p.amount)}</p>
               <p class="text-[10px] text-[#8373A1] truncate">${p.paidDate}${p.note ? ' · ' + p.note : ''}</p>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              ${p.receiptUrl ? `<button type="button" onclick="viewStorageImage('${p.receiptUrl}', '${slipMeta.replace(/'/g, "\'")}')" class="text-[10px] text-[#8B72BE] underline font-semibold">ดูสลิป</button>` : ''}
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="reassignCcPaymentCycle('${p.id}', '${oppositeCycleKey}')" class="text-[9px] bg-white border border-[#DDD0EE] text-[#6B5494] px-1.5 py-0.5 rounded font-medium">${oppositeLabel}</button>
+              ${p.receiptUrl ? `<button type="button" onclick="viewStorageImage('${p.receiptUrl}', '${slipMeta.replace(/'/g, "'")}')" class="text-[10px] text-[#8B72BE] underline font-semibold">ดูสลิป</button>` : ''}
               <button type="button" onclick="deleteCcPaymentRecord('${p.id}')" class="text-[10px] text-rose-500 hover:underline">ลบ</button>
             </div>
           </div>`;
         }).join('');
       }
+    }
+
+    async function reassignCcPaymentCycle(payId, newCycleKey) {
+      const idx = myCreditCardPayments.findIndex(p => p.id === payId);
+      if (idx === -1) return;
+      myCreditCardPayments[idx].cycleKey = newCycleKey;
+      await persistMyCreditCardPayments();
+      renderPersonalCreditCardTracker();
+      if (activeCcPayContext) openCcPayModal(activeCcPayContext.cardId, activeCcPayContext.boxType);
+    }
+
+    function openCcPayModal(cardId, preferredBox = null) {
+      const card = myCreditCardsList.find(c => c.id === cardId);
+      if (!card) return;
+      const info = computeCreditCardCyclesForCard(card);
+      // Auto-select Pending box if current statement has 0 due and Pending has items/payments
+      const defaultBox = preferredBox || (info.billedTotal <= 0 && (info.pendingBilledTotal > 0 || info.pendingPaidTotal > 0) ? 'pending' : 'stmt');
+      activeCcPayContext = { cardId, card, info, boxType: defaultBox, cycleKey: info.cycleKey, remainingDue: info.remainingDue, stmtRangeLabel: info.stmtRangeLabel };
+
+      document.getElementById('cc-pay-card-title').textContent = `โอนจ่ายบัตร ${card.name}`;
+      document.getElementById('cc-pay-date-input').value = getTodayYYYYMMDD();
+      document.getElementById('cc-pay-note-input').value = '';
+      updateManualCcCyclePreview();
+
+      clearCcPayQueue();
+      setCcPayEntryMode('scan');
+      switchCcPayModalBox(defaultBox);
       openModal('cc-pay-modal');
     }
 
@@ -4607,6 +4905,24 @@ Respond ONLY with JSON:
 
       const moveBox = document.getElementById('edit-move-ledger-box');
       const moveSelect = document.getElementById('edit-exp-target-trip');
+      const ccConvertBox = document.getElementById('edit-convert-to-cc-pay-box');
+      const ccConvertSel = document.getElementById('edit-convert-cc-card-select');
+      if (ccConvertBox && ccConvertSel) {
+        if (monthly && isLedgerCcEnabled && myCreditCardsList.length > 0) {
+          ccConvertBox.classList.remove('hidden');
+          const tLow = (e.title || '').toLowerCase();
+          const bestCard = myCreditCardsList.find(c =>
+            (c.matchKeyword && tLow.includes(c.matchKeyword.toLowerCase())) ||
+            tLow.includes(c.name.toLowerCase())
+          ) || myCreditCardsList[0];
+          ccConvertSel.innerHTML = myCreditCardsList.map(c =>
+            `<option value="${c.id}" ${c.id === bestCard.id ? 'selected' : ''}>${c.name} (ตัดวันที่ ${c.cutoffDay})</option>`
+          ).join('');
+        } else {
+          ccConvertBox.classList.add('hidden');
+        }
+      }
+
       if (isSuperAdmin() && userTrips.length > 1) {
         moveBox.classList.remove('hidden');
         moveSelect.innerHTML = userTrips.map(t =>
@@ -6241,9 +6557,10 @@ For each transaction in "items" (target currency ${currCode}):
 - "slip_date": transaction date in YYYY-MM-DD format. IMPORTANT: Thai 2-digit years like "69" mean Buddhist Era 2569 = 2026 A.D. (e.g., "13 พ.ย. 69" MUST be "2026-11-13", NEVER 2025; "68" = 2025; "70" = 2027). Return null if no date is visible.
 - "slip_time": printed or notification timestamp (HH:MM 24-hour) or null if none.
 - "slip_ref": transaction reference number if printed, or null.
+- "is_cc_bill_payment": true ONLY if this slip is paying off a credit card bill / statement (e.g., contains "ชำระบิล", "ชำระค่าบัตรเครดิต", "Bill Payment", "Credit Card Payment", or transfers to CardX / KTC / Krungsri Card / First Choice / UOB Card / AEON), otherwise false.
 
 Respond ONLY with valid JSON:
-{"is_receipt": true, "items": [{"title": "...", "amount_cny": 0, "category": "${defaultCatKey}", "payment_channel": "${isDirectCamera ? 'cash' : 'transfer'}", "payment_provider": "กสิกรไทย", "channel_explicit": false, "slip_date": "2026-11-23", "slip_time": "18:06", "slip_ref": null}]}`;
+{"is_receipt": true, "items": [{"title": "...", "amount_cny": 0, "category": "${defaultCatKey}", "payment_channel": "${isDirectCamera ? 'cash' : 'transfer'}", "payment_provider": "กสิกรไทย", "channel_explicit": false, "slip_date": "2026-11-23", "slip_time": "18:06", "slip_ref": null, "is_cc_bill_payment": false}]}`;
 
       let failReason = 'AI อ่านรูปไม่สำเร็จ';
       try {
@@ -6316,6 +6633,7 @@ Respond ONLY with valid JSON:
               channel_detected: Boolean(it.channel_explicit),
               slip_time: slipTimeFinal,
               time_source: timeSourceFinal,
+              is_cc_bill_payment: Boolean(it.is_cc_bill_payment),
               duplicateMatch: semanticDup
             };
           });
@@ -6473,6 +6791,7 @@ Respond ONLY with valid JSON:
 
       statusEl.classList.remove('hidden');
       showDuplicateAlert(null);
+      if (document.getElementById('single-cc-bill-alert')) document.getElementById('single-cc-bill-alert').classList.add('hidden');
 
       const flattenedResults = [];
       let rejectedImages = 0;
@@ -6596,12 +6915,32 @@ Respond ONLY with valid JSON:
         currentTimeSource = res.time_source;
         document.getElementById('exp-time-badge').textContent = res.time_source === 'slip' ? '(จากสลิป)' : '(เวลาถ่ายภาพ)';
 
+        const ccAlertBox = document.getElementById('single-cc-bill-alert');
+        if (ccAlertBox) {
+          if (res.is_cc_bill_payment && isMonthlyMode() && myCreditCardsList.length > 0) {
+            const targetSel = document.getElementById('single-cc-bill-target-card');
+            const titleLow = (res.title || '').toLowerCase();
+            const matchedCard = myCreditCardsList.find(c =>
+              (c.matchKeyword && titleLow.includes(c.matchKeyword.toLowerCase())) ||
+              titleLow.includes(c.name.toLowerCase())
+            ) || myCreditCardsList[0];
+            targetSel.innerHTML = myCreditCardsList.map(c =>
+              `<option value="${c.id}" ${c.id === matchedCard.id ? 'selected' : ''}>${c.name} (ตัดวันที่ ${c.cutoffDay})</option>`
+            ).join('');
+            document.getElementById('single-cc-bill-desc').textContent = `สลิป "${res.title}" ยอด ฿${fmtNum(res.amount_cny)} วันที่ ${res.slip_date} — กดปุ่มด้านล่างเพื่อย้ายไปตัดยอดบัตรแทนการลงเป็นรายจ่าย`;
+            ccAlertBox.classList.remove('hidden');
+          } else {
+            ccAlertBox.classList.add('hidden');
+          }
+        }
+
         const rejectNote = rejectedImages > 0 ? ` · คัดรูปไม่ใช่สลิปออก ${rejectedImages} รูป` : '';
         if (res.duplicateMatch) {
           showDuplicateAlert(res.duplicateMatch);
           statusEl.textContent = `ตรวจพบรายการซ้ำ — ล็อกการบันทึกอัตโนมัติ${rejectNote}`;
         } else {
           showDuplicateAlert(null);
+      if (document.getElementById('single-cc-bill-alert')) document.getElementById('single-cc-bill-alert').classList.add('hidden');
           const outOfMonthNote = (monthly && res.slip_date && res.slip_date.slice(0, 7) !== currentYm)
             ? ` (วันที่ ${res.slip_date} อยู่นอกเดือน ${formatMonthLabel(currentYm)})`
             : '';
@@ -6647,6 +6986,7 @@ Respond ONLY with valid JSON:
             ${headerLabel}
           </span>
           <div class="flex items-center gap-1.5 shrink-0 ml-1">
+            ${item.is_cc_bill_payment && isMonthlyMode() && myCreditCardsList.length > 0 ? `<button type="button" onclick="routeBatchItemToCcPayment(${idx})" class="bg-[#8B72BE] text-white px-1.5 py-0.5 rounded-md font-semibold">ย้ายไปตัดบัตร</button>` : ''}
             ${isDupBlocked && isSuperAdmin() ? `<button type="button" onclick="adminForceIncludeBatchItem(${idx})" class="bg-white border border-[#E599AD] text-[#B83B5E] px-1.5 py-0.5 rounded-md font-semibold">รวมใบนี้</button>` : ''}
             ${isFailed && item.asset ? `<button type="button" onclick="rescanBatchItem(${idx})" class="bg-white border border-amber-400 text-amber-800 px-1.5 py-0.5 rounded-md font-semibold">สแกนซ้ำ</button>` : ''}
             <button type="button" onclick="removeBatchItem(${idx})" class="${isDupBlocked ? 'text-[#B83B5E] font-semibold' : 'theme-text-muted hover:text-rose-600'}">เอาออก</button>
@@ -6734,6 +7074,7 @@ Respond ONLY with valid JSON:
       document.getElementById('single-channel-box').classList.remove('hidden');
       document.getElementById('ocr-status').classList.add('hidden');
       showDuplicateAlert(null);
+      if (document.getElementById('single-cc-bill-alert')) document.getElementById('single-cc-bill-alert').classList.add('hidden');
       updateSaveButtonLockState();
     }
 
