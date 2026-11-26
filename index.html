@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=26";
+      img.src = "icon.png?v=28";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -628,7 +628,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v4.0</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v4.0.2</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -1525,7 +1525,15 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v4.0';
+    window.addEventListener('error', (ev) => {
+      const errBox = document.getElementById('auth-error');
+      if (errBox && !document.getElementById('auth-screen')?.classList.contains('hidden')) {
+        errBox.textContent = 'เกิดข้อผิดพลาดในการโหลดหน้าเว็บ: ' + (ev.message || 'Unknown error');
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    const APP_VERSION = 'v4.0.2';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -2674,7 +2682,7 @@ ${listPrompt}`, '1');
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <button type="button" onclick="reassignCcPaymentCycle('${p.id}', '${oppositeCycleKey}')" class="text-[9px] bg-white border border-[#DDD0EE] text-[#6B5494] px-1.5 py-0.5 rounded font-medium">${oppositeLabel}</button>
-              ${p.receiptUrl ? `<button type="button" onclick="viewStorageImage('${p.receiptUrl}', '${slipMeta.replace(/'/g, "'")}')" class="text-[10px] text-[#8B72BE] underline font-semibold">ดูสลิป</button>` : ''}
+              ${p.receiptUrl ? `<button type="button" onclick="viewStorageImage('${p.receiptUrl}', '${slipMeta.replace(/'/g, "\'")}')" class="text-[10px] text-[#8B72BE] underline font-semibold">ดูสลิป</button>` : ''}
               <button type="button" onclick="deleteCcPaymentRecord('${p.id}')" class="text-[10px] text-rose-500 hover:underline">ลบ</button>
             </div>
           </div>`;
@@ -3656,8 +3664,13 @@ Respond ONLY with JSON:
       if (verEl) verEl.textContent = APP_VERSION;
       applyAppTheme(localStorage.getItem('mv_global_theme_cache') || 'blush');
       loadAdminHiddenLedgersLocal();
-      const { data: { session } } = await db.auth.getSession();
-      if (session) await initApp(session.user);
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        if (session) await initApp(session.user);
+      } catch (err) {
+        console.warn('Session restore error:', err);
+        showAuthError('กรุณาเข้าสู่ระบบใหม่อีกครั้ง (' + (err?.message || '') + ')');
+      }
     };
 
     let oneTapPickerPending = false;
@@ -4145,10 +4158,19 @@ Respond ONLY with JSON:
     async function handleLogin() {
       const email = document.getElementById('auth-email').value.trim().toLowerCase();
       const password = document.getElementById('auth-password').value;
+      if (!email || !password) return showAuthError('กรุณากรอกอีเมลและรหัสผ่านให้ครบ');
       showAuthError('');
-      const { data, error } = await db.auth.signInWithPassword({ email, password });
-      if (error) return showAuthError('เข้าสู่ระบบไม่สำเร็จ: ' + error.message);
-      await initApp(data.user);
+      const loginBtn = document.querySelector('#auth-screen button');
+      if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'กำลังเข้าสู่ระบบ...'; }
+      try {
+        const { data, error } = await db.auth.signInWithPassword({ email, password });
+        if (error) return showAuthError('เข้าสู่ระบบไม่สำเร็จ: ' + error.message);
+        await initApp(data.user);
+      } catch (err) {
+        showAuthError('เกิดข้อผิดพลาดขณะเปิดสมุดบัญชี: ' + (err?.message || err));
+      } finally {
+        if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'เข้าสู่ระบบ'; }
+      }
     }
 
     async function handleSignUp() {
@@ -7059,8 +7081,7 @@ Respond ONLY with valid JSON:
             const msgParts = [];
             if (autoMovedCount > 0) msgParts.push(`ย้ายสลิปจ่ายบัตรอัตโนมัติ ${autoMovedCount} รายการ (${autoMovedSummaries.join(', ')})`);
             if (autoDupSkippedCount > 0) msgParts.push(`บล็อกสลิปจ่ายบัตรซ้ำ ${autoDupSkippedCount} รายการ`);
-            alert(msgParts.join('
-') || 'ไม่พบรายการใหม่');
+            alert(msgParts.join('\n') || 'ไม่พบรายการใหม่');
             return;
           } else {
             flattenedResults.length = 0;
