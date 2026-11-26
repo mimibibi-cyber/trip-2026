@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=25";
+      img.src = "icon.png?v=26";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -628,7 +628,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v3.9.1</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v4.0</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -1525,7 +1525,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'v3.9.1';
+    const APP_VERSION = 'v4.0';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -1828,23 +1828,50 @@
         btn.textContent = `กำลังย้ายไปตัดยอดบัตร ${ids.length} รายการ...`;
         try {
           const finalRate = getGlobalFinalRate();
+          let movedCcCount = 0;
+          let skippedDupCcCount = 0;
           ids.forEach((id, idx) => {
             const orig = expensesList.find(x => x.id === id);
             if (!orig) return;
             const signedAmt = getSignedAmt(orig);
             const thbVal = isThbBase() ? signedAmt : calcFinalThb(orig.amount_cny, finalRate, orig.has_alipay_fee, orig.is_refund);
             const pDate = orig.expense_date || getTodayYYYYMMDD();
+            const sTime = orig.slip_time || '';
+            const absAmt = Math.round(Math.abs(thbVal) * 100) / 100;
+
+            const dupCc = findDuplicateCcPayment({
+              hash: orig.slip_hash,
+              ref: orig.slip_ref,
+              cardId: targetCard.id,
+              amount: absAmt,
+              paidDate: pDate,
+              slipTime: sTime
+            });
+            if (dupCc) {
+              skippedDupCcCount += 1;
+              return;
+            }
+
             const targetCycle = inferTargetCycleFromPaymentDate(targetCard, pDate);
             myCreditCardPayments.push({
               id: `ccpay_${Date.now()}_${idx}`,
               cardId: targetCard.id,
               cycleKey: targetCycle.cycleKey,
-              amount: Math.round(Math.abs(thbVal) * 100) / 100,
+              amount: absAmt,
               paidDate: pDate,
+              slipTime: sTime,
+              slipHash: orig.slip_hash || null,
+              slipRef: orig.slip_ref || null,
               note: orig.title || 'ย้ายจากรายการหลัก',
               receiptUrl: orig.receipt_image_url || null
             });
+            movedCcCount += 1;
           });
+          if (movedCcCount === 0 && skippedDupCcCount > 0) {
+            btn.disabled = false;
+            btn.textContent = 'บันทึกการแก้ไขทั้งหมด';
+            return alert(`ไม่สามารถย้ายได้ เนื่องจากทั้ง ${skippedDupCcCount} รายการซ้ำกับยอดตัดบัตรที่มีอยู่แล้ว`);
+          }
           await persistMyCreditCardPayments();
           const { error } = await db.from('expenses').delete().in('id', ids);
           if (error) throw error;
@@ -1977,6 +2004,39 @@
       await refreshAllData();
     }
 
+    function findDuplicateCcPayment({ hash, ref, cardId, amount, paidDate, slipTime }) {
+      const numAmt = Number(amount || 0);
+      if (hash) {
+        const byHash = myCreditCardPayments.find(p => p.slipHash && p.slipHash === hash);
+        if (byHash) return { reason: 'สลิปโอนจ่ายบัตรใบนี้ถูกบันทึกตัดยอดไปแล้ว', item: byHash };
+      }
+      if (ref) {
+        const byRef = myCreditCardPayments.find(p => p.slipRef && p.slipRef.toLowerCase() === ref.toLowerCase());
+        if (byRef) return { reason: `เลขที่อ้างอิงสลิป (${ref}) ถูกบันทึกตัดยอดไปแล้ว`, item: byRef };
+      }
+      if (numAmt > 0 && paidDate) {
+        const bySig = myCreditCardPayments.find(p =>
+          (!cardId || p.cardId === cardId) &&
+          Math.abs(Number(p.amount) - numAmt) < 0.01 &&
+          p.paidDate === paidDate &&
+          (!slipTime || !p.slipTime || p.slipTime === slipTime)
+        );
+        if (bySig) {
+          return { reason: `ยอดโอน ฿${fmtNum(numAmt)} วันที่ ${paidDate}${slipTime ? ' เวลา ' + slipTime : ''} ซ้ำกับรายการตัดยอดเดิม`, item: bySig };
+        }
+      }
+      return null;
+    }
+
+    function matchBestCreditCardForSlip(titleText, providerText = '') {
+      if (!myCreditCardsList || myCreditCardsList.length === 0) return null;
+      const combined = `${titleText || ''} ${providerText || ''}`.toLowerCase();
+      return myCreditCardsList.find(c =>
+        (c.matchKeyword && combined.includes(c.matchKeyword.toLowerCase())) ||
+        combined.includes(c.name.toLowerCase())
+      ) || myCreditCardsList[0];
+    }
+
     async function routeSingleScannedSlipToCcPayment() {
       const cardId = document.getElementById('single-cc-bill-target-card')?.value;
       const card = myCreditCardsList.find(c => c.id === cardId);
@@ -1996,6 +2056,19 @@
         if (activeSingleAsset?.blob) {
           receiptUrl = await uploadPreparedBlobToStorage(activeSingleAsset.blob, 'cc_payments');
         }
+        const slipTime = document.getElementById('exp-time')?.value || '';
+        const dupCc = findDuplicateCcPayment({
+          hash: currentSingleSlipHash,
+          ref: currentSingleSlipRef,
+          cardId: card.id,
+          amount: amt,
+          paidDate,
+          slipTime
+        });
+        if (dupCc) {
+          alert(`ไม่สามารถย้ายได้ (ซ้ำ): ${dupCc.reason}`);
+          return;
+        }
         const targetCycle = inferTargetCycleFromPaymentDate(card, paidDate);
         myCreditCardPayments.push({
           id: `ccpay_${Date.now()}`,
@@ -2003,6 +2076,9 @@
           cycleKey: targetCycle.cycleKey,
           amount: Math.round(amt * 100) / 100,
           paidDate,
+          slipTime,
+          slipHash: currentSingleSlipHash || null,
+          slipRef: currentSingleSlipRef || null,
           note: title,
           receiptUrl
         });
@@ -2075,9 +2151,23 @@ ${listPrompt}`, '1');
       const signedAmt = getSignedAmt(e);
       const thbVal = isThbBase() ? signedAmt : calcFinalThb(e.amount_cny, finalRate, e.has_alipay_fee, e.is_refund);
       const paidDate = e.expense_date || getTodayYYYYMMDD();
+      const slipTime = e.slip_time || '';
+      const absAmt = Math.round(Math.abs(thbVal) * 100) / 100;
+      const dupCc = findDuplicateCcPayment({
+        hash: e.slip_hash,
+        ref: e.slip_ref,
+        cardId: card.id,
+        amount: absAmt,
+        paidDate,
+        slipTime
+      });
+      if (dupCc) {
+        return alert(`บล็อกการย้ายซ้ำ: ${dupCc.reason} (หากเป็นรายการซ้ำในรายจ่ายหลัก สามารถกด "ลบ" รายการนี้ได้เลย)`);
+      }
+
       const targetCycle = inferTargetCycleFromPaymentDate(card, paidDate);
 
-      if (!confirm(`ยืนยันการย้ายรายการ "${e.title}" (฿${fmtNum(Math.abs(thbVal))}) ไปตัดยอดบัตร "${card.name}" รอบ ${targetCycle.rangeLabel} และลบออกจากรายจ่ายหลัก?`)) return;
+      if (!confirm(`ยืนยันการย้ายรายการ "${e.title}" (฿${fmtNum(absAmt)}) ไปตัดยอดบัตร "${card.name}" รอบ ${targetCycle.rangeLabel} และลบออกจากรายจ่ายหลัก?`)) return;
 
       const btn = document.getElementById('btn-edit-convert-to-cc');
       btn.disabled = true;
@@ -2088,8 +2178,11 @@ ${listPrompt}`, '1');
           id: `ccpay_${Date.now()}`,
           cardId: card.id,
           cycleKey: targetCycle.cycleKey,
-          amount: Math.round(Math.abs(thbVal) * 100) / 100,
+          amount: absAmt,
           paidDate,
+          slipTime,
+          slipHash: e.slip_hash || null,
+          slipRef: e.slip_ref || null,
           note: e.title || 'ย้ายจากรายการหลัก',
           receiptUrl: e.receipt_image_url || null
         });
@@ -2646,12 +2739,14 @@ ${listPrompt}`, '1');
       const prompt = `Analyze this bank transfer slip or credit card bill payment receipt.
 Extract:
 - "amount": transferred/paid amount in THB (number only).
-- "paid_date": transaction date in YYYY-MM-DD format (Thai B.E. 69 or 2569 = 2026; 68 or 2568 = 2025).
+- "paid_date": transaction date in YYYY-MM-DD format (convert DD.MM.YYYY like 12.12.2026 -> 2026-12-12; Thai B.E. 69 or 2569 = 2026; 68 or 2568 = 2025).
+- "slip_time": transaction time HH:MM (24-hour) or null.
+- "slip_ref": transaction reference ID if printed, or null.
 - "bank_from": sender bank/app name in Thai (e.g., "กสิกรไทย", "ไทยพาณิชย์", "กรุงเทพ", "กรุงไทย", "กรุงศรี") or null.
 - "biller_to": recipient card/biller name (e.g., "Krungsri", "CardX", "SCB", "KBank", "KTC", "UOB") or null.
 
 Respond ONLY with JSON:
-{"amount": 3000, "paid_date": "2026-11-15", "bank_from": "กสิกรไทย", "biller_to": "Krungsri"}`;
+{"amount": 3000, "paid_date": "2026-12-12", "slip_time": "14:20", "slip_ref": null, "bank_from": "กสิกรไทย", "biller_to": "Krungsri"}`;
 
       try {
         const rawText = await callGeminiWithFallback(apiKey, prompt, asset.base64);
@@ -2661,16 +2756,29 @@ Respond ONLY with JSON:
           const parsed = JSON.parse(jsonMatch[0]);
           const amt = Number(parsed.amount) > 0 ? Number(parsed.amount) : '';
           const resolvedDate = normalizeSlipDate(parsed.paid_date, fallbackDate) || fallbackDate;
+          const slipTime = parsed.slip_time && /^\d{1,2}:\d{2}$/.test(String(parsed.slip_time).trim()) ? String(parsed.slip_time).trim().padStart(5, '0') : '';
+          const slipRef = parsed.slip_ref && String(parsed.slip_ref).trim() !== 'null' ? String(parsed.slip_ref).trim() : null;
           const targetCycle = card ? inferTargetCycleFromPaymentDate(card, resolvedDate) : targetCycleFallback;
           const bankFrom = normalizeProviderName(parsed.bank_from || '');
           const noteText = bankFrom ? `โอนจาก ${bankFrom}` : (parsed.biller_to ? `จ่าย ${parsed.biller_to}` : 'สแกนสลิปโอนจ่าย');
+          const dupMatch = findDuplicateCcPayment({
+            hash: asset.hash,
+            ref: slipRef,
+            cardId: card?.id,
+            amount: amt,
+            paidDate: resolvedDate,
+            slipTime
+          });
           return {
             asset,
             scan_failed: !amt,
             amount: amt,
             paidDate: resolvedDate,
+            slipTime,
+            slipRef,
             note: noteText,
-            targetCycle
+            targetCycle,
+            duplicateMatch: dupMatch
           };
         }
       } catch (err) {
@@ -2774,10 +2882,10 @@ Respond ONLY with JSON:
       if (rescanAllBtn) rescanAllBtn.classList.toggle('hidden', failedCount === 0);
 
       listEl.innerHTML = ccPayScanQueue.map((item, idx) => `
-        <div class="bg-white p-2.5 rounded-xl border ${item.scan_failed ? 'border-amber-300 bg-amber-50/50' : 'border-[#DDD0EE]'} space-y-1.5 text-xs">
+        <div class="bg-white p-2.5 rounded-xl border ${item.duplicateMatch ? 'border-rose-300 bg-rose-50/60' : (item.scan_failed ? 'border-amber-300 bg-amber-50/50' : 'border-[#DDD0EE]')} space-y-1.5 text-xs">
           <div class="flex justify-between items-center gap-1 text-[10px]">
-            <span class="font-semibold text-[#6B5494] truncate">
-              ใบที่ ${idx + 1} · AI จัดลงรอบบิล <strong class="text-[#4D3B6E]">${item.targetCycle?.rangeLabel || '-'}</strong>
+            <span class="font-semibold ${item.duplicateMatch ? 'text-rose-600' : 'text-[#6B5494]'} truncate">
+              ${item.duplicateMatch ? `ซ้ำ (ข้ามอัตโนมัติ): ${item.duplicateMatch.reason}` : `ใบที่ ${idx + 1} · AI จัดลงรอบบิล <strong class="text-[#4D3B6E]">${item.targetCycle?.rangeLabel || '-'}</strong>`}
             </span>
             <div class="flex items-center gap-1.5 shrink-0">
               <button type="button" onclick="rescanSingleCcPayItem(${idx})" class="bg-[#F5F0FA] text-[#6B5494] px-1.5 py-0.5 rounded font-semibold">สแกนซ้ำ</button>
@@ -2803,22 +2911,47 @@ Respond ONLY with JSON:
       btn.textContent = `กำลังอัปโหลดสลิปและตัดยอด ${ccPayScanQueue.length} ใบ...`;
 
       try {
+        let savedCcCnt = 0;
+        let skippedCcDupCnt = 0;
         for (let i = 0; i < ccPayScanQueue.length; i++) {
           const item = ccPayScanQueue[i];
+          const amtNum = Math.round(parseFloat(item.amount) * 100) / 100;
+          const pDate = item.paidDate || getTodayYYYYMMDD();
+          const dupCheck = findDuplicateCcPayment({
+            hash: item.asset?.hash,
+            ref: item.slipRef,
+            cardId: activeCcPayContext.cardId,
+            amount: amtNum,
+            paidDate: pDate,
+            slipTime: item.slipTime
+          });
+          if (dupCheck) {
+            skippedCcDupCnt += 1;
+            continue;
+          }
           let receiptUrl = null;
           if (item.asset?.blob) {
             receiptUrl = await uploadPreparedBlobToStorage(item.asset.blob, 'cc_payments');
           }
-          const targetCycle = item.targetCycle || inferTargetCycleFromPaymentDate(activeCcPayContext.card, item.paidDate);
+          const targetCycle = item.targetCycle || inferTargetCycleFromPaymentDate(activeCcPayContext.card, pDate);
           myCreditCardPayments.push({
             id: `ccpay_${Date.now()}_${i}`,
             cardId: activeCcPayContext.cardId,
             cycleKey: targetCycle.cycleKey,
-            amount: Math.round(parseFloat(item.amount) * 100) / 100,
-            paidDate: item.paidDate || getTodayYYYYMMDD(),
+            amount: amtNum,
+            paidDate: pDate,
+            slipTime: item.slipTime || '',
+            slipHash: item.asset?.hash || null,
+            slipRef: item.slipRef || null,
             note: item.note || 'สแกนสลิปโอนจ่าย',
             receiptUrl
           });
+          savedCcCnt += 1;
+        }
+        if (savedCcCnt === 0 && skippedCcDupCnt > 0) {
+          alert(`ไม่พบรายการใหม่ (สลิปซ้ำกับประวัติการโอนเดิม ${skippedCcDupCnt} ใบ)`);
+        } else if (skippedCcDupCnt > 0) {
+          alert(`บันทึกสำเร็จ ${savedCcCnt} ใบ (ข้ามสลิปซ้ำอัตโนมัติ ${skippedCcDupCnt} ใบ)`);
         }
 
         await persistMyCreditCardPayments();
@@ -2844,6 +2977,19 @@ Respond ONLY with JSON:
       const paidDate = document.getElementById('cc-pay-date-input')?.value || getTodayYYYYMMDD();
       const note = document.getElementById('cc-pay-note-input').value.trim();
       if (!amt || amt <= 0) return alert('กรุณากรอกยอดเงินที่โอนจ่าย');
+
+      const dupManual = findDuplicateCcPayment({
+        hash: null,
+        ref: null,
+        cardId: activeCcPayContext.cardId,
+        amount: Math.round(amt * 100) / 100,
+        paidDate,
+        slipTime: ''
+      });
+      if (dupManual && !confirm(`คำเตือน: พบยอดโอนซ้ำในวันที่เดียวกัน (${dupManual.reason})
+ต้องการบันทึกเพิ่มอีกหรือไม่?`)) {
+        return;
+      }
 
       const targetCycle = activeCcPayContext.card
         ? inferTargetCycleFromPaymentDate(activeCcPayContext.card, paidDate)
@@ -3676,11 +3822,29 @@ Respond ONLY with JSON:
 
     function normalizeSlipDate(rawDateStr, fallbackDateStr) {
       if (!rawDateStr) return null;
-      const m = rawDateStr.trim().match(/^(\d{2,4})-(\d{1,2})-(\d{1,2})$/);
-      if (!m) return null;
-      let year = parseInt(m[1], 10);
-      const month = String(m[2]).padStart(2, '0');
-      const day = String(m[3]).padStart(2, '0');
+      const cleanStr = rawDateStr.trim();
+      let year, month, day;
+
+      // Support YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD
+      const ymdMatch = cleanStr.match(/^(\d{2,4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+      // Support DD.MM.YYYY or DD/MM/YYYY or DD-MM-YYYY (e.g., 12.12.2026)
+      const dmyMatch = cleanStr.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);
+
+      if (ymdMatch && ymdMatch[1].length === 4) {
+        year = parseInt(ymdMatch[1], 10);
+        month = String(ymdMatch[2]).padStart(2, '0');
+        day = String(ymdMatch[3]).padStart(2, '0');
+      } else if (dmyMatch) {
+        day = String(dmyMatch[1]).padStart(2, '0');
+        month = String(dmyMatch[2]).padStart(2, '0');
+        year = parseInt(dmyMatch[3], 10);
+      } else if (ymdMatch) {
+        year = parseInt(ymdMatch[1], 10);
+        month = String(ymdMatch[2]).padStart(2, '0');
+        day = String(ymdMatch[3]).padStart(2, '0');
+      } else {
+        return null;
+      }
 
       // Handle 2-digit Thai B.E. years (68 -> 2025, 69 -> 2026, 70 -> 2027) vs 2-digit A.D. (25 -> 2025, 26 -> 2026)
       if (year < 100) {
@@ -6825,6 +6989,89 @@ Respond ONLY with valid JSON:
         statusEl.classList.remove('hidden');
         statusEl.textContent = `ไม่พบรายการค่าใช้จ่ายในรูปที่เลือก (คัดรูปทั่วไปออก ${rejectedImages} รูป)`;
         return;
+      }
+
+      // AUTO-FORCE ROUTE CREDIT CARD BILL PAYMENT SLIPS (WITH STRICT DUPLICATE CHECK)
+      if (isMonthlyMode() && isLedgerCcEnabled && myCreditCardsList.length > 0) {
+        const ccBillItems = flattenedResults.filter(x => x.is_cc_bill_payment);
+        if (ccBillItems.length > 0) {
+          const nonCcItems = flattenedResults.filter(x => !x.is_cc_bill_payment);
+          let autoMovedCount = 0;
+          let autoDupSkippedCount = 0;
+          const autoMovedSummaries = [];
+
+          for (let k = 0; k < ccBillItems.length; k++) {
+            const ccIt = ccBillItems[k];
+            const targetCard = matchBestCreditCardForSlip(ccIt.title, ccIt.payment_provider);
+            const amt = parseFloat(ccIt.amount_cny) || 0;
+            const paidDate = ccIt.slip_date || getTodayYYYYMMDD();
+            const slipTime = ccIt.slip_time || '';
+
+            const dupCc = findDuplicateCcPayment({
+              hash: ccIt.fileHash,
+              ref: ccIt.slipRef,
+              cardId: targetCard.id,
+              amount: amt,
+              paidDate,
+              slipTime
+            });
+
+            if (dupCc || amt <= 0) {
+              autoDupSkippedCount += 1;
+              continue;
+            }
+
+            let receiptUrl = null;
+            if (ccIt.asset?.blob) {
+              try {
+                receiptUrl = await uploadPreparedBlobToStorage(ccIt.asset.blob, 'cc_payments');
+              } catch (_) {}
+            }
+
+            const targetCycle = inferTargetCycleFromPaymentDate(targetCard, paidDate);
+            myCreditCardPayments.push({
+              id: `ccpay_${Date.now()}_${k}`,
+              cardId: targetCard.id,
+              cycleKey: targetCycle.cycleKey,
+              amount: Math.round(amt * 100) / 100,
+              paidDate,
+              slipTime,
+              slipHash: ccIt.fileHash || null,
+              slipRef: ccIt.slipRef || null,
+              note: ccIt.title || 'สลิปชำระบิลบัตรเครดิต',
+              receiptUrl
+            });
+            autoMovedCount += 1;
+            autoMovedSummaries.push(`${targetCard.name} ฿${fmtNum(amt)} (รอบ ${targetCycle.rangeLabel})`);
+          }
+
+          if (autoMovedCount > 0) {
+            await persistMyCreditCardPayments();
+            isCcTrackerExpanded = true;
+            renderPersonalCreditCardTracker();
+          }
+
+          if (nonCcItems.length === 0) {
+            if (batchQueue.length === 0) {
+              closeModal('expense-modal');
+              clearBatchQueue();
+            }
+            const msgParts = [];
+            if (autoMovedCount > 0) msgParts.push(`ย้ายสลิปจ่ายบัตรอัตโนมัติ ${autoMovedCount} รายการ (${autoMovedSummaries.join(', ')})`);
+            if (autoDupSkippedCount > 0) msgParts.push(`บล็อกสลิปจ่ายบัตรซ้ำ ${autoDupSkippedCount} รายการ`);
+            alert(msgParts.join('
+') || 'ไม่พบรายการใหม่');
+            return;
+          } else {
+            flattenedResults.length = 0;
+            flattenedResults.push(...nonCcItems);
+            const noteStr = [
+              autoMovedCount > 0 ? `ย้ายสลิปจ่ายบัตรอัตโนมัติ ${autoMovedCount} ใบ` : '',
+              autoDupSkippedCount > 0 ? `ข้ามสลิปจ่ายบัตรซ้ำ ${autoDupSkippedCount} ใบ` : ''
+            ].filter(Boolean).join(' · ');
+            if (noteStr) statusEl.textContent = noteStr;
+          }
+        }
       }
 
       if (batchQueue.length > 0 || flattenedResults.length > 1) {
