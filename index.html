@@ -20,7 +20,7 @@
         c.getContext("2d").drawImage(img, 0, 0, 180, 180);
         document.getElementById("apple-icon").href = c.toDataURL("image/png");
       };
-      img.src = "icon.png?v=28";
+      img.src = "icon.png?v=29";
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -208,38 +208,35 @@
         </div>
       </div>
 
-      <!-- PERSONAL CREDIT CARD BILLING CYCLE & PARTIAL PAYMENT TRACKER (PRIVATE PER USER) -->
-      <div id="cc-tracker-dashboard-section" class="hidden rounded-3xl border border-[#DDD0EE] bg-[#F8F5FC] p-3.5 space-y-2.5 shadow-2xs">
+      <!-- PERSONAL CREDIT CARD MINIMAL PILL BAR (PRIVATE PER USER) -->
+      <div id="cc-tracker-dashboard-section" class="hidden rounded-2xl border border-[#DDD0EE] bg-[#F8F5FC] px-3.5 py-2.5 space-y-2.5 shadow-2xs">
         <div class="flex justify-between items-center gap-2">
-          <button type="button" onclick="toggleCcTrackerExpand()" class="flex-1 min-w-0 text-left flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-[#8B72BE] shrink-0"></span>
-                <p class="text-xs font-semibold text-[#4D3B6E] truncate">บัตรเครดิตของฉัน (<span id="cc-tracker-count">0</span> ใบ)</p>
-              </div>
-              <p id="cc-tracker-summary-line" class="text-[11px] text-[#6B5494] mt-0.5 truncate">กำลังคำนวณรอบบิล...</p>
-            </div>
-            <span id="cc-tracker-arrow" class="text-xs text-[#6B5494] font-bold px-1 shrink-0">▼</span>
+          <button type="button" onclick="toggleCcTrackerExpand()" class="flex-1 min-w-0 text-left flex items-center gap-1.5 text-xs">
+            <span class="w-2 h-2 rounded-full bg-[#8B72BE] shrink-0"></span>
+            <span class="font-semibold text-[#4D3B6E] shrink-0">บัตร (<span id="cc-tracker-count">0</span>)</span>
+            <span class="text-[#8373A1]">·</span>
+            <span id="cc-tracker-summary-line" class="text-[11px] text-[#6B5494] truncate">กำลังคำนวณ...</span>
+            <span id="cc-tracker-arrow" class="text-[10px] text-[#6B5494] font-bold ml-auto shrink-0">▼</span>
           </button>
-          <button type="button" onclick="openCcSetupModal()" class="text-[10px] bg-white text-[#6B5494] border border-[#DDD0EE] px-2.5 py-1.5 rounded-xl font-semibold shrink-0">+ ตั้งบัตร</button>
+          <button type="button" onclick="openCcSetupModal()" title="ตั้งค่าบัตรเครดิต" class="text-[10px] bg-white text-[#6B5494] border border-[#DDD0EE] px-2 py-1 rounded-lg font-semibold shrink-0">+ บัตร</button>
         </div>
-        <div id="cc-tracker-cards-container" class="hidden space-y-2.5 pt-1 border-t border-[#E6DCF5]"></div>
+        <div id="cc-tracker-cards-container" class="hidden space-y-2.5 pt-2 border-t border-[#E6DCF5]"></div>
       </div>
 
-      <!-- View Scope Switcher, Multi-Select Toggle, Quick Calculator & Actions -->
+      <!-- Clean Minimal Scope & Action Bar -->
       <div class="flex items-center justify-between gap-1.5">
         <div class="flex items-center gap-1.5 min-w-0">
-          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-2.5 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs truncate">รายการหลัก</button>
-          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border truncate">ส่วนตัว & เงินสด</button>
+          <button onclick="setScopeFilter('shared')" id="scope-shared" class="px-3 py-1.5 rounded-xl text-xs font-medium luxury-gradient text-white shadow-xs truncate">รายการหลัก</button>
+          <button onclick="setScopeFilter('personal')" id="scope-personal" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/90 theme-text-sub border theme-border truncate">ส่วนตัว</button>
         </div>
         <div class="flex items-center gap-1 shrink-0">
-          <button type="button" id="btn-toggle-bulk-select" onclick="toggleBulkSelectMode()" title="เลือกหลายรายการเพื่อแก้ไขพร้อมกัน" class="text-[11px] bg-white theme-text-sub border theme-border-mid px-2 py-1.5 rounded-xl font-medium shadow-2xs flex items-center gap-1">
+          <button type="button" id="btn-toggle-bulk-select" onclick="toggleBulkSelectMode()" title="เลือกหลายรายการเพื่อแก้ไขพร้อมกัน" class="text-[11px] bg-white theme-text-sub border theme-border-mid px-2.5 py-1.5 rounded-xl font-medium shadow-2xs flex items-center gap-1">
             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span id="btn-bulk-select-label">เลือก</span>
           </button>
-          <button id="btn-toggle-calc-widget" onclick="toggleQuickCalcWidget()" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-2 py-1.5 rounded-xl font-medium shadow-2xs">จดด่วน</button>
-          <button id="btn-pull-recurring-top" onclick="applyRecurringTemplatesToCurrentMonth()" class="hidden text-[11px] theme-bg-pill px-2 py-1.5 rounded-xl font-medium border theme-border">+ ดึงประจำ</button>
-          <button id="btn-add-day-top" onclick="addTripDay()" class="text-[11px] theme-bg-pill px-2 py-1.5 rounded-xl font-medium border theme-border">+ วัน</button>
+          <button id="btn-toggle-calc-widget" onclick="toggleQuickCalcWidget()" class="text-[11px] bg-white theme-text-primary border theme-border-mid px-2.5 py-1.5 rounded-xl font-medium shadow-2xs">จดด่วน</button>
+          <button id="btn-pull-recurring-top" onclick="applyRecurringTemplatesToCurrentMonth()" title="ดึงรายการประจำเดือนนี้" class="hidden text-[11px] theme-bg-pill px-2 py-1.5 rounded-xl font-medium border theme-border">+ ประจำ</button>
+          <button id="btn-add-day-top" onclick="addTripDay()" title="เพิ่มวันทริป" class="text-[11px] theme-bg-pill px-2 py-1.5 rounded-xl font-medium border theme-border">+ วัน</button>
         </div>
       </div>
 
@@ -348,35 +345,46 @@
         </div>
       </div>
 
-      <!-- Multi-Keyword Comma Search & Quick Filters -->
+      <!-- Minimal Single-Row Search + Collapsible Filter Drawer -->
       <div class="space-y-2">
-        <div class="relative">
-          <input id="search-expense-input" type="text" oninput="handleSearchInputChange()" placeholder="ค้นหาหลายคำคั่นด้วย , เช่น โอน, อาหาร, Grab" class="w-full bg-white/95 border theme-border-mid rounded-xl pl-9 pr-8 py-2 text-xs" />
-          <svg class="w-4 h-4 theme-text-muted absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-          <button id="btn-clear-search" type="button" onclick="clearSearchInput()" class="hidden absolute right-2.5 top-2 text-xs theme-text-muted hover:theme-text-main px-1">✕</button>
+        <div class="flex items-center gap-1.5">
+          <div class="relative flex-1 min-w-0">
+            <input id="search-expense-input" type="text" oninput="handleSearchInputChange()" placeholder="ค้นหา (เช่น อาหาร, SCB, Grab)..." class="w-full bg-white/95 border theme-border-mid rounded-xl pl-8 pr-7 py-2 text-xs" />
+            <svg class="w-3.5 h-3.5 theme-text-muted absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+            <button id="btn-clear-search" type="button" onclick="clearSearchInput()" class="hidden absolute right-2 top-1.5 text-xs theme-text-muted hover:theme-text-main px-1">✕</button>
+          </div>
+          <button type="button" id="btn-toggle-filter-drawer" onclick="toggleFilterDrawer()" class="bg-white theme-text-sub border theme-border-mid px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 shrink-0 shadow-2xs transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
+            <span id="filter-drawer-btn-label">กรอง</span>
+          </button>
         </div>
 
-        <!-- Quick Comma Keyword Suggestion Chips -->
-        <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[10px]">
-          <span class="theme-text-muted shrink-0">คำค้นด่วน (+คั่น ,):</span>
-          <button type="button" onclick="toggleSearchKeywordChip('กสิกรไทย')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ กสิกรไทย</button>
-          <button type="button" onclick="toggleSearchKeywordChip('ไทยพาณิชย์')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ ไทยพาณิชย์</button>
-          <button type="button" onclick="toggleSearchKeywordChip('Alipay')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ Alipay</button>
-          <button type="button" onclick="toggleSearchKeywordChip('บัตรเครดิต')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ บัตรเครดิต</button>
-          <button type="button" onclick="toggleSearchKeywordChip('เงินสด')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ เงินสด</button>
-          <button type="button" onclick="toggleSearchKeywordChip('อาหาร')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ อาหาร</button>
-          <button type="button" onclick="toggleSearchKeywordChip('เดินทาง')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ เดินทาง</button>
-          <button type="button" onclick="toggleSearchKeywordChip('ช้อปปิ้ง')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md shrink-0 transition">+ ช้อปปิ้ง</button>
-        </div>
-
-        <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar text-[11px]">
-          <button onclick="setQuickFilter('all')" id="qf-all" class="qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0">ทั้งหมด</button>
-          <button onclick="setQuickFilter('transfer')" id="qf-transfer" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">โอน</button>
-          <button onclick="setQuickFilter('credit_card')" id="qf-credit_card" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">บัตรเครดิต</button>
-          <button onclick="setQuickFilter('cash')" id="qf-cash" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">เงินสด</button>
-          <button onclick="setQuickFilter('mine')" id="qf-mine" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">ฉันจ่าย</button>
-          <button onclick="setQuickFilter('unverified')" id="qf-unverified" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">ยังไม่ติ๊กตรวจ</button>
-          <button onclick="setQuickFilter('flagged')" id="qf-flagged" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0">แจ้งผิด</button>
+        <!-- Collapsible Filter & Quick-Tags Drawer (Hidden by default to keep screen airy) -->
+        <div id="filter-drawer-panel" class="hidden soft-card p-3 rounded-2xl space-y-2.5 border theme-border-mid">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-semibold theme-text-muted">ตัวกรองด่วน</span>
+            <button type="button" onclick="resetAllSearchAndFilters()" class="text-[10px] theme-text-primary underline font-medium">ล้างทั้งหมด</button>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-[11px]">
+            <button onclick="setQuickFilter('all')" id="qf-all" class="qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg">ทั้งหมด</button>
+            <button onclick="setQuickFilter('transfer')" id="qf-transfer" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg">โอน</button>
+            <button onclick="setQuickFilter('credit_card')" id="qf-credit_card" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg">บัตร</button>
+            <button onclick="setQuickFilter('cash')" id="qf-cash" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg">สด</button>
+            <button onclick="setQuickFilter('mine')" id="qf-mine" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg">ฉันจ่าย</button>
+            <button onclick="setQuickFilter('unverified')" id="qf-unverified" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg">รอตรวจ</button>
+            <button onclick="setQuickFilter('flagged')" id="qf-flagged" class="qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg">แจ้งผิด</button>
+          </div>
+          <div class="pt-2 border-t theme-border space-y-1.5">
+            <span class="text-[10px] font-semibold theme-text-muted block">แท็กคำค้นด่วน (แตะผสมได้)</span>
+            <div class="flex flex-wrap gap-1.5 text-[10px]">
+              <button type="button" onclick="toggleSearchKeywordChip('กสิกรไทย')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md transition">+ KBank</button>
+              <button type="button" onclick="toggleSearchKeywordChip('ไทยพาณิชย์')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md transition">+ SCB</button>
+              <button type="button" onclick="toggleSearchKeywordChip('Alipay')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md transition">+ Alipay</button>
+              <button type="button" onclick="toggleSearchKeywordChip('อาหาร')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md transition">+ อาหาร</button>
+              <button type="button" onclick="toggleSearchKeywordChip('เดินทาง')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md transition">+ เดินทาง</button>
+              <button type="button" onclick="toggleSearchKeywordChip('ช้อปปิ้ง')" class="bg-[#FFF9FA] hover:bg-[#FFEBF0] theme-text-sub border theme-border px-2 py-0.5 rounded-md transition">+ ช้อปปิ้ง</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -628,7 +636,7 @@
             <p class="text-[10px] font-semibold uppercase tracking-widest" style="color:var(--primary)">App Version & Force Refresh</p>
             <h2 class="font-semibold text-sm theme-text-main mt-0.5">อัปเดตเวอร์ชันบน iPhone & ล้างแคช</h2>
           </div>
-          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v4.0.2</span>
+          <span id="app-version-badge" class="text-[11px] font-semibold theme-bg-pill px-2.5 py-1 rounded-xl border theme-border-mid shrink-0">v4.1</span>
         </div>
         <p class="text-[11px] theme-text-muted leading-relaxed">หากใช้งานผ่านไอคอนหน้าจอโฮม iPhone และต้องการดึงหน้าตาหรือโค้ดเวอร์ชันใหม่ล่าสุดทันที สามารถกดล้างแคชและรีโหลดได้โดยไม่ต้องลบไอคอน</p>
         <button type="button" id="btn-force-refresh-pwa" onclick="forceRefreshAppCache()" class="w-full bg-[#FFF5F8] hover:bg-[#FFEBF0] theme-text-primary border theme-border-mid font-semibold py-2.5 rounded-xl text-xs transition">
@@ -1533,7 +1541,7 @@
       }
     });
 
-    const APP_VERSION = 'v4.0.2';
+    const APP_VERSION = 'v4.1';
     const SUPABASE_URL = 'https://fbtpyeiiieyhtqyaoiuw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_VBncYAo45nJenTt4qZKNOg_I55o_3Ue';
     const SUPER_ADMIN_EMAIL = 'ballyuranun@gmail.com';
@@ -2520,9 +2528,9 @@ ${listPrompt}`, '1');
 
       const sumLineEl = document.getElementById('cc-tracker-summary-line');
       if (totalDueAll > 0.5) {
-        sumLineEl.innerHTML = `<strong class="text-rose-600">ต้องจ่ายรอบนี้ ฿${fmtNum(totalDueAll)}</strong> · รอรอบหน้า ฿${fmtNum(totalPendingAll)}`;
+        sumLineEl.innerHTML = `<strong class="text-rose-600">จ่ายรอบนี้ ฿${fmtNum(totalDueAll)}</strong> · Pending ฿${fmtNum(totalPendingAll)}`;
       } else {
-        sumLineEl.innerHTML = `<span class="text-emerald-700 font-semibold">รอบนี้จ่ายครบแล้ว (฿0)</span> · รอรอบหน้า ฿${fmtNum(totalPendingAll)}`;
+        sumLineEl.innerHTML = `<span class="text-emerald-700 font-semibold">ครบแล้ว</span> · Pending ฿${fmtNum(totalPendingAll)}`;
       }
 
       const container = document.getElementById('cc-tracker-cards-container');
@@ -4802,13 +4810,54 @@ Respond ONLY with JSON:
       renderPersonalCreditCardTracker();
     }
 
+    let isFilterDrawerOpen = false;
+    function toggleFilterDrawer() {
+      isFilterDrawerOpen = !isFilterDrawerOpen;
+      const panel = document.getElementById('filter-drawer-panel');
+      if (panel) panel.classList.toggle('hidden', !isFilterDrawerOpen);
+      updateFilterDrawerBadge();
+    }
+
+    function resetAllSearchAndFilters() {
+      const inputEl = document.getElementById('search-expense-input');
+      if (inputEl) inputEl.value = '';
+      currentQuickFilter = 'all';
+      document.querySelectorAll('.qf-btn').forEach(btn => {
+        btn.className = 'qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg';
+      });
+      const allBtn = document.getElementById('qf-all');
+      if (allBtn) allBtn.className = 'qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg';
+      handleSearchInputChange();
+    }
+
+    function updateFilterDrawerBadge() {
+      const btn = document.getElementById('btn-toggle-filter-drawer');
+      const lbl = document.getElementById('filter-drawer-btn-label');
+      if (!btn || !lbl) return;
+      const rawSearch = (document.getElementById('search-expense-input')?.value || '').trim();
+      const kwCount = parseSearchKeywords(rawSearch).length;
+      const activeCount = (currentQuickFilter !== 'all' ? 1 : 0) + kwCount;
+
+      if (activeCount > 0) {
+        btn.className = 'bg-[#FFF5F8] theme-text-primary border border-[#D6718E] px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shrink-0 shadow-2xs transition';
+        lbl.textContent = `กรอง (${activeCount})`;
+      } else if (isFilterDrawerOpen) {
+        btn.className = 'luxury-gradient text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shrink-0 shadow-2xs transition';
+        lbl.textContent = 'กรอง';
+      } else {
+        btn.className = 'bg-white theme-text-sub border theme-border-mid px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 shrink-0 shadow-2xs transition';
+        lbl.textContent = 'กรอง';
+      }
+    }
+
     function setQuickFilter(qf) {
       currentQuickFilter = qf;
       document.querySelectorAll('.qf-btn').forEach(btn => {
         btn.className = 'qf-btn bg-white theme-text-sub border theme-border-mid px-2.5 py-1 rounded-lg shrink-0';
       });
       const activeBtn = document.getElementById(`qf-${qf}`);
-      if (activeBtn) activeBtn.className = 'qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg shrink-0';
+      if (activeBtn) activeBtn.className = 'qf-btn luxury-gradient text-white px-2.5 py-1 rounded-lg';
+      updateFilterDrawerBadge();
       renderExpenseList();
       renderPersonalCreditCardTracker();
     }
@@ -4840,6 +4889,7 @@ Respond ONLY with JSON:
       const inputEl = document.getElementById('search-expense-input');
       const clearBtn = document.getElementById('btn-clear-search');
       if (clearBtn) clearBtn.classList.toggle('hidden', !(inputEl?.value || '').trim());
+      updateFilterDrawerBadge();
       renderExpenseList();
       renderPersonalCreditCardTracker();
     }
@@ -5002,40 +5052,42 @@ Respond ONLY with JSON:
                 : `<span title="ไม่มีสิทธิ์แก้ไขรายการนี้" class="w-4 h-4 mt-0.5 rounded border border-slate-200 bg-slate-100 inline-block shrink-0 opacity-50"></span>`)
             : '';
 
+          const isSingleLedger = participants.length <= 1;
+          const compactSubline = isSoloPersonalExpense(e)
+            ? (isSingleLedger ? '' : 'ส่วนตัว')
+            : `หาร: ${splitNames || '-'}`;
+
           return `
-            <div ${isBulkSelectMode && canManage ? `onclick="toggleSelectSingleExpense('${e.id}')"` : ''} class="soft-card p-3.5 rounded-2xl space-y-2 relative overflow-hidden transition ${isBulkSelectMode && canManage ? 'cursor-pointer' : ''} ${isSelectedBulk ? 'ring-2 ring-[#D6718E] bg-[#FFF5F8]/70' : ''} ${e.delete_flag && !itemLocked ? 'border-dashed border-2 border-[#D6718E]' : ''} ${isVerified && !isSelectedBulk ? 'opacity-80' : ''}" style="border-left: 4px solid ${payerInfo.accent_color};">
+            <div ${isBulkSelectMode && canManage ? `onclick="toggleSelectSingleExpense('${e.id}')"` : ''} class="soft-card px-3.5 py-3 rounded-2xl space-y-1.5 relative overflow-hidden transition ${isBulkSelectMode && canManage ? 'cursor-pointer' : ''} ${isSelectedBulk ? 'ring-2 ring-[#D6718E] bg-[#FFF5F8]/70' : ''} ${e.delete_flag && !itemLocked ? 'border-dashed border-2 border-[#D6718E]' : ''} ${isVerified && !isSelectedBulk ? 'opacity-75' : ''}" style="border-left: 3.5px solid ${payerInfo.accent_color};">
               ${flagHtml}
               <div class="flex justify-between items-start gap-2.5">
                 ${bulkCheckboxHtml}
                 <div class="min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
-                    <span class="font-semibold px-2 py-0.5 rounded-md bg-white border theme-border-mid" style="color:${payerInfo.accent_color}">
-                      ${payerInfo.display_name}${isProxy ? ` (${getMemberName(creatorEm)} อัปแทน)` : ''}
-                    </span>
+                  <div class="flex flex-wrap items-center gap-1 text-[10px] font-medium">
+                    ${!isSingleLedger ? `<span class="font-semibold" style="color:${payerInfo.accent_color}">${payerInfo.display_name}${isProxy ? ` (${getMemberName(creatorEm)})` : ''} ·</span>` : ''}
                     ${getChannelBadgeHtml(e.payment_channel, e.payment_provider)}
-                    <span class="bg-[#FFF9FA] theme-text-sub px-2 py-0.5 rounded-md border theme-border">${getCategoryShortName(e.category)}</span>
-                    ${!e.receipt_image_url ? '<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md">ไม่มีรูป</span>' : ''}
+                    <span class="theme-text-sub">${getCategoryShortName(e.category)}</span>
                     ${e.is_refund ? '<span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md border border-emerald-200">คืนเงิน</span>' : ''}
-                    <span class="theme-text-muted">${timeBadge}</span>
+                    <span class="theme-text-muted">· ${timeBadge}</span>
                   </div>
                   <h4 class="font-medium text-sm theme-text-main mt-1 truncate">${e.title}</h4>
                 </div>
                 <div class="text-right shrink-0">
                   <p class="font-semibold ${e.is_refund ? 'text-emerald-700' : 'theme-text-primary'} text-sm">${e.is_refund ? '-' : ''}${sym}${fmtNum(amt)}</p>
-                  ${!isThbBase() ? `<p class="text-[11px] theme-text-muted">${e.is_refund ? '-' : ''}฿${fmtNum(Math.abs(thb))} ${e.has_alipay_fee ? '+3%' : ''}</p>` : ''}
+                  ${!isThbBase() ? `<p class="text-[10px] theme-text-muted">${e.is_refund ? '-' : ''}฿${fmtNum(Math.abs(thb))}${e.has_alipay_fee ? ' +3%' : ''}</p>` : ''}
                 </div>
               </div>
-              <div class="flex justify-between items-center text-[11px] theme-text-muted pt-1.5 border-t theme-border">
-                <span class="truncate pr-2">${isSoloPersonalExpense(e) ? 'รายการส่วนตัว' : 'หาร: ' + (splitNames || '-')}</span>
-                <div class="flex items-center gap-2.5 shrink-0">
-                  <button onclick="toggleVerifyExpense('${e.id}')" title="ติ๊กตรวจสอบสลิปแล้ว" class="px-2 py-0.5 rounded-md border text-[10px] ${isVerified ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-medium' : 'bg-white theme-border-mid theme-text-muted'}">
-                    ${isVerified ? '✓ ตรวจแล้ว' : 'ติ๊กตรวจ'}
+              <div class="flex justify-between items-center text-[11px] theme-text-muted pt-1">
+                <span class="truncate pr-2 text-[10px]">${compactSubline}</span>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button onclick="toggleVerifyExpense('${e.id}')" title="${isVerified ? 'ตรวจแล้ว' : 'ติ๊กตรวจ'}" class="w-5 h-5 rounded-full border flex items-center justify-center text-[10px] transition ${isVerified ? 'bg-emerald-500 border-emerald-500 text-white font-bold' : 'bg-white theme-border-mid theme-text-muted'}">
+                    ✓
                   </button>
-                  ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\\'")}')" class="theme-text-primary font-medium underline">สลิป</button>` : ''}
-                  ${canManage ? `<button onclick="openEditExpenseModal('${e.id}')" class="theme-text-sub underline">แก้ไข</button>` : ''}
+                  ${e.receipt_image_url ? `<button onclick="viewStorageImage('${e.receipt_image_url}', '${metaInfo.replace(/'/g, "\'")}')" title="ดูสลิป" class="text-[10px] theme-bg-pill px-2 py-0.5 rounded-md font-medium">สลิป</button>` : ''}
+                  ${canManage ? `<button onclick="openEditExpenseModal('${e.id}')" title="แก้ไข" class="text-[10px] theme-text-sub px-1.5 py-0.5 rounded-md hover:bg-[#FFF5F8]">แก้</button>` : ''}
                   ${!itemLocked ? (canManage
-                    ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="theme-text-muted hover:text-rose-600">ลบ</button>`
-                    : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\\'")}')" class="theme-text-primary hover:underline">แจ้งผิด</button>` : '')) : ''}
+                    ? `<button onclick="deleteExpense('${e.id}', '${e.title.replace(/'/g, "\'")}')" title="ลบ" class="text-[10px] theme-text-muted hover:text-rose-600 px-1 py-0.5">ลบ</button>`
+                    : (!e.delete_flag ? `<button onclick="openFlagModal('${e.id}', '${e.title.replace(/'/g, "\'")}')" class="text-[10px] theme-text-primary">แจ้งผิด</button>` : '')) : ''}
                 </div>
               </div>
             </div>`;
